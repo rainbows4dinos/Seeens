@@ -1,6 +1,6 @@
 # Seeens design rules
 
-Status: phase 1 tokens are in. The source of truth is the Seeens Figma file ("Components" page: variables, text styles, effect styles). Code mirrors it in `src/app/globals.css` with the same names.
+Status: phase 1 tokens are in. The source of truth is the [Seeens Figma file](https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2) ("Components" page: variables, text styles, effect styles, and components). Code mirrors it in `src/app/globals.css` with the same names.
 
 ## Tokens (phase 1)
 
@@ -8,7 +8,7 @@ Status: phase 1 tokens are in. The source of truth is the Seeens Figma file ("Co
 - **Type:** Hanken Grotesk for headings and nav. IBM Plex Mono for body, labels, and controls. Reenie Beanie for rare handwritten notes. Fonts are self-hosted with Fontsource.
 - **Size and rhythm:** every height sits on a 4px grid. Fields, buttons, choices, and segments are 36px (`--control-height`, Figma `size/control-height`), tags are 20, and nav chips are 28. Line heights are 16 for captions and labels, 20 for body and nav, 24 for Display/S, and 1:1 for larger display sizes. Spacing tokens are 2, 4, 8, 12, 16, 24, 32, and 72. Panel, window, and row-divider edges are drawn as overlays, so they add no height.
 - **Shape:** square corners everywhere, 1px ink borders, and a 1.5px border on windows. Windows get a hard offset shadow; buttons have none for now.
-- **Components:** `.panel`, `.window`, `.field`, `.button-primary` (ink), `.button-secondary` (paper; both invert on hover), `.choice` (segment that inverts when on), `.segmented`, `.tag` with `.tag-{status}`, `.nav-chip`, `.logo` (cyan misregister), `.label`, and `.caption`.
+- **Components:** `.panel`, `.window`, `.field`, `.button-primary` (ink), `.button-secondary` (paper; both invert on hover), `.choice` (segment that inverts when on), `.segmented`, `.tag` with `.tag-{status}`, `.nav-chip`, `.logo` (all caps, SemiBold, cyan misregister), `.label`, and `.caption`.
 - **Status and state colors:** Let's play is the yellow plate and Avoid/"Us" is an ink tag. Error red is `#b0002a`. Focus is a 2px ink outline plus a magenta glow. All are Figma variables (`color/status/*`, `color/text/error`, `color/border/error`, `color/focus/*`), and their code syntax matches the CSS names.
 - **Later phases:** xerox shader on photos, cut-out edges, tape, and rub-down type texture.
 
