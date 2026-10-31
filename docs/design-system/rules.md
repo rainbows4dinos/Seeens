@@ -38,6 +38,7 @@ Seeens is not a sales tool. Bands work on their own time, and urgency comes and 
 
 - Reuse controls for buttons, fields, filters, tags, connection rows/cards, and status messages.
 - Make status controls identifiable by both label and state; give icon buttons accessible names.
+- Selects use `.field`: `appearance: none` with a custom ink chevron inset to match the left padding (10px). Never use the native arrow.
 - Keep entry light: required fields first, optional ones behind "More details." Prefer quick selections to free text.
 - Include loading, empty, no-results, error, saving, and success states. Preserve user input after failed saves.
 - Show dates with enough context to distinguish past outreach from a future follow-up.
