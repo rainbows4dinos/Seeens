@@ -7,7 +7,7 @@ import { ConnectionForm } from "@/components/connection-form";
 import { NoWorkspace } from "@/components/no-workspace";
 import { listScenes } from "@/lib/scenes/queries";
 
-export const metadata: Metadata = { title: "Edit connection · Seeen" };
+export const metadata: Metadata = { title: "Edit connection · Seeens" };
 
 export default function EditConnectionPage({ params }: PageProps<"/connections/[id]/edit">) {
   return (

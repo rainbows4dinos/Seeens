@@ -10,7 +10,7 @@ import "@fontsource/reenie-beanie/latin-400.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Seeen",
+  title: "Seeens",
   description: "Your people. Your scenes.",
 };
 

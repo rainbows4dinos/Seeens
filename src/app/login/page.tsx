@@ -3,14 +3,14 @@ import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
-  title: "Sign in · Seeen",
+  title: "Sign in · Seeens",
 };
 
 export default function LoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center gap-10 px-4 py-16">
       <header className="flex flex-col items-start gap-6">
-        <h1 className="logo uppercase">Seeen</h1>
+        <h1 className="logo uppercase">Seeens</h1>
         <p className="font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:text-[96px] sm:leading-[88px]">
           Your people.
           <br />
@@ -33,7 +33,7 @@ export default function LoginPage() {
             <LoginForm />
           </Suspense>
           <p className="text-sm text-muted">
-            Seeen is invite-only. Ask a bandmate to add you if you don&rsquo;t
+            Seeens is invite-only. Ask a bandmate to add you if you don&rsquo;t
             have an account.
           </p>
         </div>

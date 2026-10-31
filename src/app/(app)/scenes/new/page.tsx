@@ -6,7 +6,7 @@ import { listScenes } from "@/lib/scenes/queries";
 import { SceneForm } from "@/components/scene-form";
 import { NoWorkspace } from "@/components/no-workspace";
 
-export const metadata: Metadata = { title: "New scene · Seeen" };
+export const metadata: Metadata = { title: "New scene · Seeens" };
 
 export default function NewScenePage() {
   return (

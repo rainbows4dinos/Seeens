@@ -37,7 +37,7 @@ export function SceneForm({
             placeText: get("place_text"),
             keepLocalityId: get("keep_locality_id"),
           },
-          errors: { form: "Couldn't reach Seeen. Your changes are still here; try again." },
+          errors: { form: "Couldn't reach Seeens. Your changes are still here; try again." },
           attempt: Date.now(),
         };
       }
@@ -161,7 +161,7 @@ function RemoveScene({ id, name }: { id: string; name: string }) {
               autoFocus
               onClick={() =>
                 startTransition(async () => {
-                  const r = await removeScene(id).catch(() => ({ error: "Couldn't reach Seeen. Try again." }));
+                  const r = await removeScene(id).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
                   if (r?.error) setError(r.error);
                 })
               }

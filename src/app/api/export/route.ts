@@ -35,7 +35,7 @@ export async function GET(request: Request) {
   }
 
   const slug = membership.workspaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "band";
-  const filename = `seeen-${slug}-${todayISO()}${includeArchived ? "-with-archived" : ""}.csv`;
+  const filename = `seeens-${slug}-${todayISO()}${includeArchived ? "-with-archived" : ""}.csv`;
   // UTF-8 byte order mark so Excel reads accents and emoji correctly.
   return new Response(`﻿${csv}\r\n`, {
     headers: {

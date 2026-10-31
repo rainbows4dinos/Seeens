@@ -80,7 +80,7 @@ function EntryRow({ entry: e, mine, today }: { entry: Entry; mine: boolean; toda
               autoFocus
               onClick={() =>
                 startTransition(async () => {
-                  const r = await removeOutreach(e.id).catch(() => ({ error: "Couldn't reach Seeen. Try again." }));
+                  const r = await removeOutreach(e.id).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
                   if (r.error) setError(r.error);
                 })
               }
@@ -129,7 +129,7 @@ function LogForm({
             channel: String(fd.get("channel") ?? ""),
             summary: String(fd.get("summary") ?? ""),
           },
-          errors: { form: "Couldn't reach Seeen. Your note is still here; try again." },
+          errors: { form: "Couldn't reach Seeens. Your note is still here; try again." },
           attempt: Date.now(),
         };
       }

@@ -1,6 +1,6 @@
-# Seeen design rules
+# Seeens design rules
 
-Status: phase 1 tokens are in. The source of truth is the Seeen Figma file ("Components" page: variables, text styles, effect styles). Code mirrors it in `src/app/globals.css` with the same names.
+Status: phase 1 tokens are in. The source of truth is the Seeens Figma file ("Components" page: variables, text styles, effect styles). Code mirrors it in `src/app/globals.css` with the same names.
 
 ## Tokens (phase 1)
 
@@ -18,7 +18,7 @@ Build a useful DIY music directory: editorial, personable, and scene-aware. Let 
 
 ## No pressure
 
-Seeen is not a sales tool. Bands work on their own time, and urgency comes and goes with real events like a release or a tour.
+Seeens is not a sales tool. Bands work on their own time, and urgency comes and goes with real events like a release or a tour.
 
 - Never tell a band something is urgent. No overdue alarms, red badges, streaks, or counts of what they're behind on.
 - Show dates as plain facts ("planned for Oct 12") rather than warnings.

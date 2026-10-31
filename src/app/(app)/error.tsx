@@ -17,7 +17,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
     });
   useEffect(() => {
     headingRef.current?.focus();
-    console.warn("Seeen page error", error.digest ?? "");
+    console.warn("Seeens page error", error.digest ?? "");
   }, [error]);
 
   return (
@@ -26,7 +26,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         That didn&rsquo;t load.
       </h1>
       <p className="text-muted">
-        Seeen couldn&rsquo;t reach your band&rsquo;s data just now. It&rsquo;s usually a dropped connection.
+        Seeens couldn&rsquo;t reach your band&rsquo;s data just now. It&rsquo;s usually a dropped connection.
         Nothing saved is lost.
       </p>
       <div className="flex flex-wrap gap-3">

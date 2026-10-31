@@ -1,4 +1,4 @@
-# Working on Seeen
+# Working on Seeens
 
 Read [README.md](README.md) for current scope and delivery targets. For schema, relationship logic, or outreach work, read [docs/context.md](docs/context.md). For UI work, read [docs/design-system/rules.md](docs/design-system/rules.md).
 

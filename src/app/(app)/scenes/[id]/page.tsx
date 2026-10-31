@@ -7,7 +7,7 @@ import { formatPlace } from "@/lib/places";
 import { SceneForm } from "@/components/scene-form";
 import { NoWorkspace } from "@/components/no-workspace";
 
-export const metadata: Metadata = { title: "Edit scene · Seeen" };
+export const metadata: Metadata = { title: "Edit scene · Seeens" };
 
 export default function EditScenePage({ params }: PageProps<"/scenes/[id]">) {
   return (

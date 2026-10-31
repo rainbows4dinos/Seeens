@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDay, todayISO } from "@/lib/outreach/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 
-export const metadata: Metadata = { title: "Follow-ups · Seeen" };
+export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 
 export default function FollowUpsPage({ searchParams }: PageProps<"/follow-ups">) {
   return (

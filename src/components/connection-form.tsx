@@ -39,7 +39,7 @@ export function ConnectionForm({
         // The request itself failed (offline, server down): keep what they typed.
         return {
           values: readForm(fd),
-          errors: { form: "Couldn't reach Seeen. Your changes are still here; try again." },
+          errors: { form: "Couldn't reach Seeens. Your changes are still here; try again." },
           attempt: Date.now(),
         };
       }
@@ -173,7 +173,7 @@ function FormBody({
               label="This is our band"
               defaultChecked={v.isUs}
             />
-            <p className="text-sm text-muted">Lets Seeen spot label mates and shared members.</p>
+            <p className="text-sm text-muted">Lets Seeens spot label mates and shared members.</p>
             {errors.isUs ? (
               <p id="isUs-error" className="text-sm font-medium text-error">
                 Error: {errors.isUs}

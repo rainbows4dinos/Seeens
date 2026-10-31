@@ -6,7 +6,7 @@ import { listScenes, nestScenes, type SceneItem } from "@/lib/scenes/queries";
 import { formatLocality } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 
-export const metadata: Metadata = { title: "Scenes · Seeen" };
+export const metadata: Metadata = { title: "Scenes · Seeens" };
 
 export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
   return (

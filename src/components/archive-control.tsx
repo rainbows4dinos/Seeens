@@ -21,7 +21,7 @@ export function ArchiveControl({
   const run = (fn: typeof archiveConnection) =>
     startTransition(async () => {
       setError(undefined);
-      const result = await fn(id).catch(() => ({ error: "Couldn't reach Seeen. Try again." }));
+      const result = await fn(id).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
       if (result.error) setError(result.error);
       else setConfirming(false);
     });

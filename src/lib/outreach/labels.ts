@@ -14,7 +14,7 @@ export const CHANNEL_LABELS: Record<OutreachChannel, string> = {
 
 export const CHANNELS = Object.keys(CHANNEL_LABELS) as OutreachChannel[];
 
-// The band's dates are Pacific for now (Seeen's first workspace is in Portland).
+// The band's dates are Pacific for now (Seeens' first workspace is in Portland).
 const TZ = "America/Los_Angeles";
 
 export function todayISO(now = new Date()) {

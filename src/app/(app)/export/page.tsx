@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EXPORT_COLUMNS } from "@/lib/export/csv";
 import { NoWorkspace } from "@/components/no-workspace";
 
-export const metadata: Metadata = { title: "Export · Seeen" };
+export const metadata: Metadata = { title: "Export · Seeens" };
 
 export default function ExportPage({ searchParams }: PageProps<"/export">) {
   return (

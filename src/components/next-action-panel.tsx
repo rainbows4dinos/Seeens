@@ -37,7 +37,7 @@ export function NextActionPanel({
   const close = (how: "done" | "dropped") =>
     startClosing(async () => {
       setCloseError(undefined);
-      const r = await closeNextAction(current!.id, how).catch(() => ({ error: "Couldn't reach Seeen. Try again." }));
+      const r = await closeNextAction(current!.id, how).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
       if (r.error) setCloseError(r.error);
       else setMessage(how === "done" ? "Marked done." : "Dropped. It's kept under earlier plans.");
     });
@@ -123,7 +123,7 @@ function PlanForm({
             dueOn: String(fd.get("due_on") ?? ""),
             assigneeId: String(fd.get("assignee_id") ?? ""),
           },
-          errors: { form: "Couldn't reach Seeen. Your plan is still here; try again." },
+          errors: { form: "Couldn't reach Seeens. Your plan is still here; try again." },
           attempt: Date.now(),
         };
       }

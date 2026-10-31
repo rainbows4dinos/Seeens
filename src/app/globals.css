@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Seeen tokens, phase 1. Source of truth: Figma "Seeen" > Components page
+   Seeens tokens, phase 1. Source of truth: Figma "Seeens" > Components page
    (variables: Primitives, Color/Paper, Spacing; text and effect styles).
    Names mirror the Figma variables so the two stay easy to diff.
    --------------------------------------------------------------------------- */

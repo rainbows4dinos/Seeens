@@ -10,7 +10,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-2">
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/" className="logo uppercase">
-              Seeen
+              Seeens
             </Link>
             <MainNav />
           </div>

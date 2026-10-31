@@ -1,12 +1,12 @@
-# Seeen
+# Seeens
 
 **Your people. Your scenes.**
 
-Seeen helps Merwulf keep track of its music network and decide whom to reach out to next. It is a private workspace shared by band members, organized around local scenes and real relationships.
+Seeens helps Merwulf keep track of its music network and decide whom to reach out to next. It is a private workspace shared by band members, organized around local scenes and real relationships.
 
 Formerly Artist Pathway / BandPath. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
-![The Seeen directory, grouped by status](docs/screenshots/directory.png)
+![The Seeens directory, grouped by status](docs/screenshots/directory.png)
 
 ## Screenshots
 
