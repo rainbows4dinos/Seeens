@@ -2,6 +2,7 @@
 
 /* ---------------------------------------------------------------------------
    Seeens tokens, phase 1. Source of truth: Figma "Seeens" > Components page
+   https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2
    (variables: Primitives, Color/Paper, Spacing; text and effect styles).
    Names mirror the Figma variables so the two stay easy to diff.
    --------------------------------------------------------------------------- */
@@ -472,8 +473,9 @@
     font-family: var(--type-display);
     font-size: 22px;
     line-height: 28px;
-    font-weight: 700;
+    font-weight: 600; /* Figma Nav Chip, Style=Logo: SemiBold, all caps */
     letter-spacing: -0.03em;
+    text-transform: uppercase;
     text-shadow: var(--misregister-cyan);
   }
 }
