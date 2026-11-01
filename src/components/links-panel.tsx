@@ -1,9 +1,10 @@
 "use client";
 
 import { noAutofill } from "@/lib/no-autofill";
+import { Combobox } from "@/components/combobox";
 import { offline } from "@/lib/offline";
 import Link from "next/link";
-import { useActionState, useId, useMemo, useRef, useState, useTransition } from "react";
+import { useActionState, useId, useRef, useState, useTransition } from "react";
 import { addLink, removeLink, updateLink, type LinkState } from "@/lib/affiliations/actions";
 import {
   SECTION_ORDER,
@@ -223,82 +224,37 @@ function AddLinkForm({
     if (result.ok) onDone();
     return result;
   }, {});
-  const [query, setQuery] = useState("");
   const [picked, setPicked] = useState("");
+  const [newName, setNewName] = useState("");
   const id = useId();
   const types = newGroupTypes(option.target);
-
-  const matches = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = q ? candidates.filter((c) => c.name.toLowerCase().includes(q)) : candidates;
-    return list.slice(0, 8);
-  }, [candidates, query]);
-  const exact = candidates.some((c) => c.name.toLowerCase() === query.trim().toLowerCase());
-  const canCreate = query.trim().length > 0 && !exact;
 
   return (
     <form action={action} className="flex flex-col gap-4 panel p-4">
       <h3 className="font-semibold">{option.label}</h3>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor={`${id}-search`} className="text-sm font-medium">
-          Find in your directory, or type a new name
-        </label>
-        <input {...noAutofill}
-          id={`${id}-search`}
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setPicked("");
-          }}
-          autoFocus
-          className="field"
-          aria-describedby={`${id}-count`}
-        />
-        <p id={`${id}-count`} className="text-sm text-muted" aria-live="polite">
-          {matches.length
-            ? `${matches.length} match${matches.length === 1 ? "" : "es"}${canCreate ? ", or add new" : ""}`
-            : canCreate
-              ? "No matches. You can add them as new."
-              : "Start typing a name."}
-        </p>
-      </div>
-
-      <fieldset className="flex flex-col gap-2">
-        <legend className="sr-only">Choose who to link</legend>
-        {matches.map((c) => (
-          <label key={c.id} className="choice self-start">
-            <input
-              type="radio"
-              name="other_id"
-              value={c.id}
-              checked={picked === c.id}
-              onChange={() => setPicked(c.id)}
-            />
-            <span>
-              {c.name} <span className="font-normal text-muted">· {formatType({ ...c, person_roles: [] })}</span>
-            </span>
-          </label>
-        ))}
-        {canCreate ? (
-          <label className="choice self-start">
-            <input
-              type="radio"
-              name="other_id"
-              value="__new__"
-              checked={picked === "__new__"}
-              onChange={() => setPicked("__new__")}
-            />
-            <span>Add new: {query.trim()}</span>
-          </label>
-        ) : null}
-      </fieldset>
-      <input type="hidden" name="new_name" value={picked === "__new__" ? query.trim() : ""} />
+      <Combobox
+        label="Find in your directory, or type a new name"
+        multiple={false}
+        autoFocus
+        options={candidates.map((c) => ({
+          value: c.id,
+          label: c.name,
+          hint: formatType({ ...c, person_roles: [] }),
+        }))}
+        create={{ verb: "Add new" }}
+        onChange={(values, created) => {
+          setPicked(values[0] ?? (created[0] ? "__new__" : ""));
+          setNewName(created[0] ?? "");
+        }}
+      />
+      <input type="hidden" name="other_id" value={picked} />
+      <input type="hidden" name="new_name" value={picked === "__new__" ? newName : ""} />
 
       {picked === "__new__" && types.length > 1 ? (
         <div className="flex flex-col gap-2">
           <label htmlFor={`${id}-type`} className="text-sm font-medium">
-            What is {query.trim()}?
+            What is {newName}?
           </label>
           <select id={`${id}-type`} name="new_group_type" className="field" defaultValue={types[0]}>
             {types.map((t) => (

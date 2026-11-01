@@ -63,19 +63,20 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
       ) : null}
 
       <form action="/api/export" method="get" className="flex flex-col gap-5">
-        <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-medium">Which connections?</legend>
-          <div className="flex flex-wrap gap-2">
-            <label className="choice">
-              <input type="radio" name="archived" value="exclude" defaultChecked={!includeArchived} />
-              <span>Current only ({nCurrent})</span>
-            </label>
-            <label className="choice">
-              <input type="radio" name="archived" value="include" defaultChecked={includeArchived} />
-              <span>Current and archived ({nCurrent + nArchived})</span>
-            </label>
-          </div>
-        </fieldset>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="export-archived" className="text-sm font-medium">
+            Which connections?
+          </label>
+          <select
+            id="export-archived"
+            name="archived"
+            defaultValue={includeArchived ? "include" : "exclude"}
+            className="field sm:max-w-96"
+          >
+            <option value="exclude">Current only ({nCurrent})</option>
+            <option value="include">Current and archived ({nCurrent + nArchived})</option>
+          </select>
+        </div>
         <div>
           <button type="submit" className="button-primary">
             Download CSV

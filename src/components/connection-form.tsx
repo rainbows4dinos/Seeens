@@ -4,6 +4,7 @@ import { noAutofill } from "@/lib/no-autofill";
 import { unstable_rethrow } from "next/navigation";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
+import { Combobox } from "@/components/combobox";
 import { useActionState, useState } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
@@ -123,48 +124,56 @@ function FormBody({
           />
         </Field>
 
-        <ChoiceGroup legend="Is this a person or a group?" error={errors.kind} errorId="kind-error">
-          {KINDS.map((k) => (
-            <label key={k} className="choice">
-              <input
-                type="radio"
-                name="kind"
-                value={k}
-                checked={kind === k}
-                onChange={() => setKind(k)}
-              />
-              <span>{KIND_LABELS[k]}</span>
-            </label>
-          ))}
-        </ChoiceGroup>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field id="c-kind" label="Person or group?" error={errors.kind}>
+            <select
+              id="c-kind"
+              name="kind"
+              value={kind}
+              onChange={(e) => setKind(e.target.value === "person" ? "person" : "group")}
+              className="field"
+              {...invalid("c-kind", errors.kind)}
+            >
+              {KINDS.map((k) => (
+                <option key={k} value={k}>
+                  {KIND_LABELS[k]}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          {kind === "group" ? (
+            <Field id="c-group_type" label="What is it?" error={errors.groupType}>
+              <select
+                id="c-group_type"
+                name="group_type"
+                defaultValue={v.groupType}
+                className="field"
+                {...invalid("c-group_type", errors.groupType)}
+              >
+                <option value="" disabled>
+                  Choose one
+                </option>
+                {GROUP_TYPES.map((g) => (
+                  <option key={g} value={g}>
+                    {GROUP_TYPE_LABELS[g]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
+        </div>
 
         {kind === "person" ? (
-          <ChoiceGroup legend="What do they do?" hint="Any that apply." error={errors.personRoles} errorId="personRoles-error">
-            {PERSON_ROLES.map((r) => (
-              <Choice
-                key={r}
-                type="checkbox"
-                name="person_roles"
-                value={r}
-                label={PERSON_ROLE_LABELS[r]}
-                defaultChecked={v.personRoles.includes(r)}
-              />
-            ))}
-          </ChoiceGroup>
-        ) : (
-          <ChoiceGroup legend="What is it?" error={errors.groupType} errorId="groupType-error">
-            {GROUP_TYPES.map((g) => (
-              <Choice
-                key={g}
-                type="radio"
-                name="group_type"
-                value={g}
-                label={GROUP_TYPE_LABELS[g]}
-                defaultChecked={v.groupType === g}
-              />
-            ))}
-          </ChoiceGroup>
-        )}
+          <Combobox
+            label="What do they do?"
+            hint="Any that apply."
+            name="person_roles"
+            options={PERSON_ROLES.map((r) => ({ value: r, label: PERSON_ROLE_LABELS[r] }))}
+            defaultValue={v.personRoles}
+            error={errors.personRoles}
+          />
+        ) : null}
 
         {kind === "group" ? (
           <div className="flex flex-col gap-1">
@@ -191,52 +200,39 @@ function FormBody({
           error={errors.placeText}
         />
 
-        <ChoiceGroup
-          legend="Scenes"
-          hint={scenes.length ? "Any they're part of." : "None yet. Add one below."}
-        >
-          {orderScenes(scenes).map((s) => (
-            <Choice
-              key={s.id}
-              type="checkbox"
-              name="scene_ids"
-              value={s.id}
-              label={s.name}
-              defaultChecked={v.sceneIds.includes(s.id)}
-            />
-          ))}
-        </ChoiceGroup>
-        <Field
-          id="c-new_scenes"
-          label={scenes.length ? "Another scene (optional)" : "Scenes (optional)"}
-          hint="Separate with commas, like: Portland DIY, Pacific Northwest."
+        <Combobox
+          label="Scenes (optional)"
+          hint="Pick any they're part of, or type a new one, like Portland DIY."
+          name="scene_ids"
+          options={orderScenes(scenes).map((s) => ({
+            value: s.id,
+            label: s.name,
+            depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
+          }))}
+          defaultValue={v.sceneIds}
+          create={{ name: "new_scenes", defaultValue: splitNames(v.newScenes), verb: "New scene" }}
           error={errors.newScenes}
-        >
-          <input {...noAutofill}
-            id="c-new_scenes"
-            name="new_scenes"
-            defaultValue={v.newScenes}
-            className="field"
-            {...invalid("c-new_scenes", errors.newScenes, "c-new_scenes-hint")}
-          />
-        </Field>
+        />
       </fieldset>
 
       <fieldset className="flex flex-col gap-5">
         <legend className="mb-3 text-lg leading-6 font-semibold">How you know them</legend>
 
-        <ChoiceGroup legend="Status" error={errors.status} errorId="status-error">
-          {STATUSES.map((st) => (
-            <Choice
-              key={st}
-              type="radio"
-              name="status"
-              value={st}
-              label={STATUS_LABELS[st]}
-              defaultChecked={v.status === st}
-            />
-          ))}
-        </ChoiceGroup>
+        <Field id="c-status" label="Status" error={errors.status}>
+          <select
+            id="c-status"
+            name="status"
+            defaultValue={v.status}
+            className="field sm:max-w-80"
+            {...invalid("c-status", errors.status)}
+          >
+            {STATUSES.map((st) => (
+              <option key={st} value={st}>
+                {STATUS_LABELS[st]}
+              </option>
+            ))}
+          </select>
+        </Field>
 
         <div>
           <Choice
@@ -337,7 +333,7 @@ function FormBody({
         </div>
       </details>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="save-bar flex flex-wrap gap-3">
         <button type="submit" disabled={pending} className="button-primary">
           {pending ? "Saving…" : submitLabel}
         </button>
@@ -353,6 +349,13 @@ function FormBody({
 function orderScenes(scenes: SceneOption[]) {
   const top = scenes.filter((s) => !s.parent_id || !scenes.some((p) => p.id === s.parent_id));
   return top.flatMap((t) => [t, ...scenes.filter((c) => c.parent_id === t.id)]);
+}
+
+function splitNames(list: string) {
+  return list
+    .split(",")
+    .map((n) => n.trim())
+    .filter(Boolean);
 }
 
 function invalid(id: string, error?: string, extraDescribedBy?: string) {
@@ -393,33 +396,6 @@ function Field({
         </p>
       ) : null}
     </div>
-  );
-}
-
-function ChoiceGroup({
-  legend,
-  hint,
-  error,
-  errorId,
-  children,
-}: {
-  legend: string;
-  hint?: string;
-  error?: string;
-  errorId?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <fieldset aria-describedby={error && errorId ? errorId : undefined} className="flex flex-col gap-2">
-      <legend className="text-sm font-medium">{legend}</legend>
-      {hint ? <p className="-mt-1 text-sm text-muted">{hint}</p> : null}
-      <div className="flex flex-wrap gap-2">{children}</div>
-      {error ? (
-        <p id={errorId} className="text-sm font-medium text-error">
-          Error: {error}
-        </p>
-      ) : null}
-    </fieldset>
   );
 }
 

@@ -1,5 +1,7 @@
 import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
+import { Combobox } from "@/components/combobox";
+import { AutoFilterForm } from "@/components/filter-form";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { listConnections, loadNetwork } from "@/lib/connections/queries";
@@ -285,9 +287,7 @@ function FilterForm({
   const clearHref = viewHref(view);
   const isList = Boolean(LISTS[view as ListView]);
   return (
-    <form
-      action="/"
-      method="get"
+    <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
       className="flex flex-col gap-3"
@@ -321,23 +321,16 @@ function FilterForm({
           Filters
         </summary>
         <div className="flex flex-col gap-4 pt-3">
-          <fieldset className="flex flex-col gap-2" hidden={isList} disabled={isList}>
-            <legend className="text-sm font-medium">Status</legend>
-            <div className="flex flex-wrap gap-2">
-              {STATUSES.map((st) => (
-                <label key={st} className="choice">
-                  <input
-                    type="checkbox"
-                    name="status"
-                    value={st}
-                    defaultChecked={f.statuses.includes(st)}
-                  />
-                  <span>{STATUS_LABELS[st]}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {isList ? null : (
+              <Combobox
+                label="Status"
+                name="status"
+                options={STATUSES.map((st) => ({ value: st, label: STATUS_LABELS[st] }))}
+                defaultValue={f.statuses}
+                autoSubmit
+              />
+            )}
             <div className="flex flex-col gap-2">
               <label htmlFor="f-type" className="text-sm font-medium">
                 Type
@@ -402,12 +395,9 @@ function FilterForm({
               </select>
             </div>
           </div>
-          <button type="submit" className="button-secondary self-start">
-            Apply filters
-          </button>
         </div>
       </details>
-    </form>
+    </AutoFilterForm>
   );
 }
 

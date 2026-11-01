@@ -54,26 +54,27 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
 
   return (
     <div className="flex flex-col gap-3">
-      <fieldset className="flex flex-col gap-2" aria-describedby="quick-status-hint">
-        <legend className="text-sm font-medium">Status</legend>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="quick-status" className="text-sm font-medium">
+          Status
+        </label>
         <p id="quick-status-hint" className="-mt-1 text-sm text-muted">
           {STATUS_HINTS[shown.status]}
         </p>
-        <div className="flex flex-wrap gap-2">
+        <select
+          id="quick-status"
+          value={shown.status}
+          onChange={(e) => save({ status: e.target.value as ConnectionStatus })}
+          aria-describedby="quick-status-hint"
+          className="field sm:max-w-80"
+        >
           {STATUSES.map((st) => (
-            <label key={st} className="choice">
-              <input
-                type="radio"
-                name="quick_status"
-                value={st}
-                checked={shown.status === st}
-                onChange={() => save({ status: st })}
-              />
-              <span>{STATUS_LABELS[st]}</span>
-            </label>
+            <option key={st} value={st}>
+              {STATUS_LABELS[st]}
+            </option>
           ))}
-        </div>
-      </fieldset>
+        </select>
+      </div>
       <div>
         <label className="choice">
           <input
