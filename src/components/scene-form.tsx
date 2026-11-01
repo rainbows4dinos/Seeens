@@ -1,5 +1,6 @@
 "use client";
 
+import { noAutofill } from "@/lib/no-autofill";
 import { unstable_rethrow } from "next/navigation";
 import { offline } from "@/lib/offline";
 import Link from "next/link";
@@ -66,7 +67,7 @@ export function SceneForm({
           <p id="s-name-hint" className="-mt-1 text-sm text-muted">
             Like &ldquo;Portland DIY&rdquo; or, for a bigger region, &ldquo;Pacific Northwest.&rdquo;
           </p>
-          <input
+          <input {...noAutofill}
             id="s-name"
             name="name"
             defaultValue={v.name}
@@ -120,7 +121,7 @@ export function SceneForm({
           <label htmlFor="s-description" className="text-sm font-medium">
             Description <span className="font-normal text-muted">(optional)</span>
           </label>
-          <textarea id="s-description" name="description" rows={3} defaultValue={v.description} className="field" />
+          <textarea {...noAutofill} id="s-description" name="description" rows={3} defaultValue={v.description} className="field" />
         </div>
 
         <div className="flex flex-wrap gap-3">

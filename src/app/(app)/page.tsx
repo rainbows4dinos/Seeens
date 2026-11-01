@@ -1,3 +1,4 @@
+import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
@@ -297,12 +298,11 @@ function FilterForm({
           <label htmlFor="f-q" className="text-sm font-medium">
             Search by name
           </label>
-          <input
+          <input {...noAutofill}
             id="f-q"
             name="q"
             type="search"
             defaultValue={f.q}
-            autoComplete="off"
             className="field"
           />
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { noAutofill } from "@/lib/no-autofill";
 import { useEffect, useId, useRef, useState } from "react";
 
 type Suggestion = { id: number; label: string };
@@ -74,7 +75,7 @@ export function PlaceField({
       <p id={`${id}-hint`} className="-mt-1 text-sm text-muted">
         {hint}
       </p>
-      <input
+      <input {...noAutofill}
         id="c-place"
         role="combobox"
         aria-expanded={open}
@@ -83,7 +84,6 @@ export function PlaceField({
         aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        autoComplete="off"
         value={text}
         onChange={(e) => {
           setText(e.target.value);

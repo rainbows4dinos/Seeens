@@ -1,5 +1,6 @@
 "use client";
 
+import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
 import Link from "next/link";
 import { useActionState, useId, useMemo, useRef, useState, useTransition } from "react";
@@ -146,7 +147,7 @@ function LinkItem({ row }: { row: LinkRow }) {
             <label htmlFor={`${formId}-role`} className="text-sm font-medium">
               Role or detail
             </label>
-            <input id={`${formId}-role`} name="role" defaultValue={row.role ?? ""} className="field" autoFocus />
+            <input {...noAutofill} id={`${formId}-role`} name="role" defaultValue={row.role ?? ""} className="field" autoFocus />
           </div>
           <label className="choice self-start">
             <input type="checkbox" name="former" defaultChecked={!row.isCurrent} />
@@ -243,14 +244,13 @@ function AddLinkForm({
         <label htmlFor={`${id}-search`} className="text-sm font-medium">
           Find in your directory, or type a new name
         </label>
-        <input
+        <input {...noAutofill}
           id={`${id}-search`}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
             setPicked("");
           }}
-          autoComplete="off"
           autoFocus
           className="field"
           aria-describedby={`${id}-count`}
@@ -314,7 +314,7 @@ function AddLinkForm({
         <label htmlFor={`${id}-role`} className="text-sm font-medium">
           Role or detail <span className="font-normal text-muted">(optional)</span>
         </label>
-        <input id={`${id}-role`} name="role" placeholder={option.rolePlaceholder} className="field" />
+        <input {...noAutofill} id={`${id}-role`} name="role" placeholder={option.rolePlaceholder} className="field" />
       </div>
 
       <label className="choice self-start">
