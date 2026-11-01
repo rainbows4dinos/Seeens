@@ -1,5 +1,6 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
 import { useActionState, useState } from "react";
@@ -35,7 +36,8 @@ export function ConnectionForm({
     async (prev, fd) => {
       try {
         return await action(prev, fd);
-      } catch {
+      } catch (e) {
+        unstable_rethrow(e);
         // The request itself failed (offline, server down): keep what they typed.
         return {
           values: readForm(fd),

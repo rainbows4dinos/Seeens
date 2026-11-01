@@ -1,5 +1,7 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
+import { offline } from "@/lib/offline";
 import { useActionState, useState, useTransition } from "react";
 import { logOutreach, removeOutreach, type OutreachState } from "@/lib/outreach/actions";
 import { CHANNELS, CHANNEL_LABELS, formatDay, type OutreachChannel } from "@/lib/outreach/labels";
@@ -80,7 +82,7 @@ function EntryRow({ entry: e, mine, today }: { entry: Entry; mine: boolean; toda
               autoFocus
               onClick={() =>
                 startTransition(async () => {
-                  const r = await removeOutreach(e.id).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
+                  const r = await removeOutreach(e.id).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
                   if (r.error) setError(r.error);
                 })
               }
@@ -121,7 +123,8 @@ function LogForm({
     async (prev, fd) => {
       try {
         return await logOutreach(connectionId, prev, fd);
-      } catch {
+      } catch (e) {
+        unstable_rethrow(e);
         // Network or server failure: keep what they typed.
         return {
           values: {

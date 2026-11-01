@@ -1,5 +1,7 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
+import { offline } from "@/lib/offline";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { closeNextAction, setNextAction, type NextActionState } from "@/lib/outreach/actions";
 import { formatDay } from "@/lib/outreach/labels";
@@ -37,7 +39,7 @@ export function NextActionPanel({
   const close = (how: "done" | "dropped") =>
     startClosing(async () => {
       setCloseError(undefined);
-      const r = await closeNextAction(current!.id, how).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
+      const r = await closeNextAction(current!.id, how).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
       if (r.error) setCloseError(r.error);
       else setMessage(how === "done" ? "Marked done." : "Dropped. It's kept under earlier plans.");
     });
@@ -116,7 +118,8 @@ function PlanForm({
     async (prev, fd) => {
       try {
         return await setNextAction(connectionId, prev, fd);
-      } catch {
+      } catch (e) {
+        unstable_rethrow(e);
         return {
           values: {
             description: String(fd.get("description") ?? ""),
