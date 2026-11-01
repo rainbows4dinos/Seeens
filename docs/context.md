@@ -37,7 +37,7 @@ These are conceptual entities, not a finalized database schema. Give private rec
 
 ## Scene connections
 
-Scenes run on overlapping people: one musician might play in several bands and cover bands, DJ, and help other bands make videos through their day job. Capturing those links is core to the product, not an extra. For the MVP, show affiliations as linked lists on detail pages (a person's bands and roles; a band's members), so clicking through records traverses the network. Former affiliations stay visible because past lineups are part of how a scene connects. A graph visualization can be built later on the same data and remains outside this release.
+Scenes run on overlapping people: one musician might play in several bands and cover bands, DJ, and help other bands make videos through their day job. Capturing those links is core to the product, not an extra. For the MVP, show affiliations as linked lists on detail pages (a person's bands and roles; a band's members), so clicking through records traverses the network. Former affiliations stay visible because past lineups are part of how a scene connects. A graph visualization can be built later on the same data and remains outside this release. The longer-term direction is Boards, a playful workspace for arranging and linking cards. See [boards.md](boards.md).
 
 ## Prospect discovery
 
