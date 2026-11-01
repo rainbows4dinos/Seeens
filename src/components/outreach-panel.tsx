@@ -1,5 +1,6 @@
 "use client";
 
+import { noAutofill } from "@/lib/no-autofill";
 import { unstable_rethrow } from "next/navigation";
 import { offline } from "@/lib/offline";
 import { useActionState, useState, useTransition } from "react";
@@ -208,7 +209,7 @@ function LogForm({
         <label htmlFor="o-summary" className="text-sm font-medium">
           What happened
         </label>
-        <textarea
+        <textarea {...noAutofill}
           id="o-summary"
           name="summary"
           rows={3}

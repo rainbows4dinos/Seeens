@@ -1,5 +1,6 @@
 "use client";
 
+import { noAutofill } from "@/lib/no-autofill";
 import { unstable_rethrow } from "next/navigation";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
@@ -112,12 +113,11 @@ function FormBody({
         <legend className="mb-3 text-lg leading-6 font-semibold">Who they are</legend>
 
         <Field id="c-name" label="Name" error={errors.name}>
-          <input
+          <input {...noAutofill}
             id="c-name"
             name="name"
             required
             defaultValue={v.name}
-            autoComplete="off"
             className="field"
             {...invalid("c-name", errors.name)}
           />
@@ -212,11 +212,10 @@ function FormBody({
           hint="Separate with commas, like: Portland DIY, Pacific Northwest."
           error={errors.newScenes}
         >
-          <input
+          <input {...noAutofill}
             id="c-new_scenes"
             name="new_scenes"
             defaultValue={v.newScenes}
-            autoComplete="off"
             className="field"
             {...invalid("c-new_scenes", errors.newScenes, "c-new_scenes-hint")}
           />
@@ -257,19 +256,18 @@ function FormBody({
         <div className="flex flex-col gap-5 pt-5">
         <div className="grid gap-3 sm:grid-cols-2">
           <Field id="c-email" label="Email" error={errors.email}>
-            <input
+            <input {...noAutofill}
               id="c-email"
               name="email"
               type="email"
               inputMode="email"
               defaultValue={v.email}
-              autoComplete="off"
               className="field"
               {...invalid("c-email", errors.email)}
             />
           </Field>
           <Field id="c-phone" label="Phone">
-            <input id="c-phone" name="phone" type="tel" defaultValue={v.phone} autoComplete="off" className="field" />
+            <input {...noAutofill} id="c-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
           </Field>
         </div>
 
@@ -280,7 +278,7 @@ function FormBody({
             return (
               <div key={link.key} className="grid gap-2 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
                 <Field id={`c-link_label_${link.key}`} label={`Link ${i + 1} label`}>
-                  <input
+                  <input {...noAutofill}
                     id={`c-link_label_${link.key}`}
                     name="link_label"
                     defaultValue={link.label}
@@ -289,7 +287,7 @@ function FormBody({
                   />
                 </Field>
                 <Field id={`c-link_url_${link.key}`} label={`Link ${i + 1} URL`} error={err}>
-                  <input
+                  <input {...noAutofill}
                     id={`c-link_url_${link.key}`}
                     name="link_url"
                     type="url"
@@ -324,7 +322,7 @@ function FormBody({
         </fieldset>
 
         <Field id="c-can_help_with" label="Can help with" hint="Separate with commas, like: music videos, DJ sets, gear.">
-          <input
+          <input {...noAutofill}
             id="c-can_help_with"
             name="can_help_with"
             defaultValue={v.canHelpWith}
@@ -334,7 +332,7 @@ function FormBody({
         </Field>
 
         <Field id="c-notes" label="Notes">
-          <textarea id="c-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
+          <textarea {...noAutofill} id="c-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
         </Field>
         </div>
       </details>

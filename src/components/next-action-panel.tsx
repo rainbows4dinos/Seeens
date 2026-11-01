@@ -1,5 +1,6 @@
 "use client";
 
+import { noAutofill } from "@/lib/no-autofill";
 import { unstable_rethrow } from "next/navigation";
 import { offline } from "@/lib/offline";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
@@ -161,13 +162,12 @@ function PlanForm({
         <label htmlFor="na-description" className="text-sm font-medium">
           Next step
         </label>
-        <input
+        <input {...noAutofill}
           ref={firstRef}
           id="na-description"
           name="description"
           defaultValue={v.description}
           placeholder="Ask about a December date"
-          autoComplete="off"
           className="field"
           aria-invalid={errors.description ? true : undefined}
           aria-describedby={errors.description ? "na-description-error" : undefined}
