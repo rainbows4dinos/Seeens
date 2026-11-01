@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(52);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres)
@@ -339,6 +339,40 @@ select set_config('request.jwt.claims', '{"sub":"f2222222-2222-2222-2222-2222222
 select is((select count(*) from public.outreach_entries), 1::bigint, 'bandmates see each other''s outreach');
 delete from public.outreach_entries;
 select is((select count(*) from public.outreach_entries), 1::bigint, 'bandmates cannot delete each other''s outreach');
+
+-- Removing a member keeps closed next actions as history.
+reset role;
+insert into public.next_actions (id, workspace_id, connection_id, description, assignee_id, created_by, status, closed_at)
+values ('ac000000-0000-0000-0000-0000000000f1', 'aaaaaaaa-0000-0000-0000-0000000000f1',
+        'c0000000-0000-0000-0000-0000000000f2', 'Ask about a date',
+        'f2222222-2222-2222-2222-222222222222', 'f2222222-2222-2222-2222-222222222222', 'done', now());
+
+select throws_ok(
+  $$update public.next_actions set assignee_id = null, description = 'Rewritten'
+    where id = 'ac000000-0000-0000-0000-0000000000f1'$$,
+  '23514', null,
+  'closed next actions still cannot be rewritten while clearing the assignee'
+);
+select throws_ok(
+  $$update public.next_actions set assignee_id = 'f1111111-1111-1111-1111-111111111111'
+    where id = 'ac000000-0000-0000-0000-0000000000f1'$$,
+  '23514', null,
+  'closed next actions cannot be reassigned'
+);
+select lives_ok(
+  $$delete from public.workspace_members where user_id = 'f2222222-2222-2222-2222-222222222222'$$,
+  'a member with closed next actions can be removed'
+);
+select is(
+  (select row(assignee_id, created_by, description, status::text)::text
+   from public.next_actions where id = 'ac000000-0000-0000-0000-0000000000f1'),
+  row(null::uuid, null::uuid, 'Ask about a date', 'done')::text,
+  'the closed action stays, without the removed member'
+);
+select lives_ok(
+  $$delete from auth.users where id = 'f2222222-2222-2222-2222-222222222222'$$,
+  'deleting a removed member''s account works'
+);
 
 select * from finish();
 rollback;
