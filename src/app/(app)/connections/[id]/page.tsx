@@ -60,12 +60,13 @@ async function Connection({
       ) : null}
 
       <header className="flex flex-col gap-2">
-        <div className="pb-2">
-          <Link href={`/connections/${c.id}/edit`} className="button-primary">
+        {/* Same layout as the Directory and Scenes headers: action on the right. */}
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h1 className="min-w-0 text-4xl font-bold sm:text-[52px] sm:leading-[52px] break-words">{c.name}</h1>
+          <Link href={`/connections/${c.id}/edit`} className="button-secondary">
             Edit<span className="sr-only"> {c.name}</span>
           </Link>
         </div>
-        <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px] break-words">{c.name}</h1>
         <p className="text-muted">
           {[formatType(c), place].filter(Boolean).join(" · ")}
         </p>

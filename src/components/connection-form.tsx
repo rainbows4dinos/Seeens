@@ -5,6 +5,7 @@ import { unstable_rethrow } from "next/navigation";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
 import { Combobox } from "@/components/combobox";
+import { LINK_TYPES, detectLinkType, splitLinkLabel, type LinkType } from "@/lib/connections/link-types";
 import { useActionState, useState } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
@@ -82,8 +83,14 @@ function FormBody({
 }) {
   const { values: v, errors } = state;
   const [links, setLinks] = useState(() =>
-    (v.links.length ? v.links : [{ label: "", url: "" }]).map((l, i) => ({ ...l, key: i })),
+    (v.links.length ? v.links : [{ label: "", url: "" }]).map((l, i) => {
+      const { type, custom } = splitLinkLabel(l.label);
+      // Untyped links pick up a type from their URL until someone chooses one.
+      return { key: i, url: l.url, type: type || detectLinkType(l.url) || "", custom, auto: !type };
+    }),
   );
+  const updateLink = (key: number, patch: Partial<(typeof links)[number]>) =>
+    setLinks((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
   const [nextKey, setNextKey] = useState(links.length);
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
   const [isUs, setIsUs] = useState(v.isUs);
@@ -285,29 +292,59 @@ function FormBody({
           <legend className="text-sm font-medium">Links</legend>
           {links.map((link, i) => {
             const err = errors.linkUrls?.[i];
+            const other = link.type === "Other";
+            const n = <span className="sr-only"> for link {i + 1}</span>;
             return (
-              <div key={link.key} className="panel grid gap-2 p-3 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
-                <Field id={`c-link_label_${link.key}`} label={`Link ${i + 1} label`}>
-                  <input {...noAutofill}
-                    id={`c-link_label_${link.key}`}
-                    name="link_label"
-                    defaultValue={link.label}
-                    placeholder="Bandcamp"
-                    className="field"
-                  />
-                </Field>
-                <Field id={`c-link_url_${link.key}`} label={`Link ${i + 1} URL`} error={err}>
+              <div
+                key={link.key}
+                className={`panel grid gap-2 p-3 sm:items-end ${other ? "sm:grid-cols-[2fr_1fr_1fr_auto]" : "sm:grid-cols-[2fr_1fr_auto]"}`}
+              >
+                <Field id={`c-link_url_${link.key}`} label={<>URL{n}</>} error={err}>
                   <input {...noAutofill}
                     id={`c-link_url_${link.key}`}
                     name="link_url"
                     type="url"
                     inputMode="url"
-                    defaultValue={link.url}
+                    value={link.url}
+                    onChange={(e) => {
+                      const url = e.target.value;
+                      updateLink(link.key, link.auto ? { url, type: detectLinkType(url) ?? "" } : { url });
+                    }}
                     placeholder="yourband.bandcamp.com"
                     className="field"
                     {...invalid(`c-link_url_${link.key}`, err)}
                   />
                 </Field>
+                <Field id={`c-link_type_${link.key}`} label={<>Link type{n}</>}>
+                  <select
+                    id={`c-link_type_${link.key}`}
+                    name="link_type"
+                    value={link.type}
+                    onChange={(e) => updateLink(link.key, { type: e.target.value as LinkType | "", auto: false })}
+                    className="field"
+                  >
+                    <option value="">Choose one</option>
+                    {LINK_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                {other ? (
+                  <Field id={`c-link_label_${link.key}`} label={<>Label{n}</>}>
+                    <input {...noAutofill}
+                      id={`c-link_label_${link.key}`}
+                      name="link_label"
+                      value={link.custom}
+                      onChange={(e) => updateLink(link.key, { custom: e.target.value })}
+                      placeholder="Merch store"
+                      className="field"
+                    />
+                  </Field>
+                ) : (
+                  <input type="hidden" name="link_label" value="" />
+                )}
                 <button
                   type="button"
                   className="button-secondary"
@@ -323,7 +360,7 @@ function FormBody({
             type="button"
             className="button-secondary self-start"
             onClick={() => {
-              setLinks((ls) => [...ls, { label: "", url: "", key: nextKey }]);
+              setLinks((ls) => [...ls, { key: nextKey, url: "", type: "", custom: "", auto: true }]);
               setNextKey((k) => k + 1);
             }}
           >
@@ -388,7 +425,7 @@ function Field({
   children,
 }: {
   id: string;
-  label: string;
+  label: React.ReactNode;
   hint?: string;
   error?: string;
   children: React.ReactNode;
