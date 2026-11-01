@@ -1,5 +1,7 @@
 import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
+import { Combobox } from "@/components/combobox";
+import { AutoFilterForm, FilterPanel } from "@/components/filter-form";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { listConnections, loadNetwork } from "@/lib/connections/queries";
@@ -285,9 +287,7 @@ function FilterForm({
   const clearHref = viewHref(view);
   const isList = Boolean(LISTS[view as ListView]);
   return (
-    <form
-      action="/"
-      method="get"
+    <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
       className="flex flex-col gap-3"
@@ -316,98 +316,67 @@ function FilterForm({
         ) : null}
       </div>
 
-      <details open={open}>
-        <summary className="cursor-pointer text-sm font-medium">
-          Filters
-        </summary>
+      <FilterPanel
+        initialOpen={open}
+        summary={
+          <summary className="cursor-pointer text-sm font-medium">
+            Filters
+          </summary>
+        }
+      >
         <div className="flex flex-col gap-4 pt-3">
-          <fieldset className="flex flex-col gap-2" hidden={isList} disabled={isList}>
-            <legend className="text-sm font-medium">Status</legend>
-            <div className="flex flex-wrap gap-2">
-              {STATUSES.map((st) => (
-                <label key={st} className="choice">
-                  <input
-                    type="checkbox"
-                    name="status"
-                    value={st}
-                    defaultChecked={f.statuses.includes(st)}
-                  />
-                  <span>{STATUS_LABELS[st]}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="f-type" className="text-sm font-medium">
-                Type
-              </label>
-              <select
-                id="f-type"
-                name="type"
-                defaultValue={f.type}
-                className="field"
-              >
-                <option value="">Any</option>
-                {(["Groups", "People"] as const).map((g) => (
-                  <optgroup key={g} label={g}>
-                    {TYPE_OPTIONS.filter((o) => o.group === g).map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="f-scene" className="text-sm font-medium">
-                Scene
-              </label>
-              <select
-                id="f-scene"
-                name="scene"
-                defaultValue={f.scene}
-                className="field"
-              >
-                <option value="">Any</option>
-                {scenes.flatMap(({ scene, children }) => [
-                  <option key={scene.id} value={scene.id}>
-                    {children.length ? `${scene.name} (all)` : scene.name}
-                  </option>,
-                  ...children.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {`\u00a0\u00a0${c.name}`}
-                    </option>
-                  )),
-                ])}
-              </select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="f-town" className="text-sm font-medium">
-                Town
-              </label>
-              <select
-                id="f-town"
-                name="town"
-                defaultValue={f.town}
-                className="field"
-              >
-                <option value="">Any</option>
-                {towns.map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {isList ? null : (
+              <Combobox
+                label="Status"
+                name="status"
+                options={STATUSES.map((st) => ({ value: st, label: STATUS_LABELS[st] }))}
+                defaultValue={f.statuses}
+                autoSubmit
+              />
+            )}
+            <Combobox
+              label="Type"
+              name="type"
+              multiple={false}
+              placeholder="Any"
+              options={TYPE_OPTIONS.map((o) => ({
+                value: o.value,
+                label: o.label,
+                hint: o.group === "People" ? "person" : "group",
+              }))}
+              defaultValue={f.type ? [f.type] : []}
+              autoSubmit
+            />
+            <Combobox
+              label="Scene"
+              name="scene"
+              multiple={false}
+              placeholder="Any"
+              options={scenes.flatMap(({ scene, children }) => [
+                {
+                  value: scene.id,
+                  label: scene.name,
+                  hint: children.length ? "and the scenes inside it" : undefined,
+                },
+                ...children.map((c) => ({ value: c.id, label: c.name, depth: 1 })),
+              ])}
+              defaultValue={f.scene ? [f.scene] : []}
+              autoSubmit
+            />
+            <Combobox
+              label="Town"
+              name="town"
+              multiple={false}
+              placeholder="Any"
+              options={towns.map(([id, label]) => ({ value: id, label }))}
+              defaultValue={f.town ? [f.town] : []}
+              autoSubmit
+            />
           </div>
-          <button type="submit" className="button-secondary self-start">
-            Apply filters
-          </button>
         </div>
-      </details>
-    </form>
+      </FilterPanel>
+    </AutoFilterForm>
   );
 }
 

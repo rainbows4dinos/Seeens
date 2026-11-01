@@ -8,6 +8,7 @@ import {
   type GroupType,
   type PersonRole,
 } from "./labels";
+import { joinLinkLabel } from "./link-types";
 
 // Raw form values, kept as strings so a failed save can repopulate the form.
 export type ConnectionFormValues = {
@@ -83,7 +84,9 @@ const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 const optional = (v: string) => (v === "" ? null : v);
 
 export function readForm(fd: FormData): ConnectionFormValues {
-  const labels = fd.getAll("link_label").map((v) => String(v).trim());
+  const types = fd.getAll("link_type").map(String);
+  const customs = fd.getAll("link_label").map((v) => String(v).trim());
+  const labels = types.map((t, i) => joinLinkLabel(t, customs[i] ?? ""));
   const urls = fd.getAll("link_url").map((v) => String(v).trim());
   return {
     name: str(fd, "name"),
@@ -167,7 +170,7 @@ export function validate(values: ConnectionFormValues):
   const linkUrls: Record<number, string> = {};
   values.links.forEach((link, i) => {
     if (!link.url) {
-      if (link.label) linkUrls[i] = "Add a URL or clear this label.";
+      if (link.label) linkUrls[i] = "Add a URL or remove this link.";
       return;
     }
     const url = normalizeUrl(link.url);

@@ -4,6 +4,8 @@ import { noAutofill } from "@/lib/no-autofill";
 import { unstable_rethrow } from "next/navigation";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
+import { Combobox } from "@/components/combobox";
+import { LINK_TYPES, detectLinkType, splitLinkLabel, type LinkType } from "@/lib/connections/link-types";
 import { useActionState, useState } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
@@ -81,10 +83,18 @@ function FormBody({
 }) {
   const { values: v, errors } = state;
   const [links, setLinks] = useState(() =>
-    (v.links.length ? v.links : [{ label: "", url: "" }]).map((l, i) => ({ ...l, key: i })),
+    (v.links.length ? v.links : [{ label: "", url: "" }]).map((l, i) => {
+      const { type, custom } = splitLinkLabel(l.label);
+      // Untyped links pick up a type from their URL until someone chooses one.
+      return { key: i, url: l.url, type: type || detectLinkType(l.url) || "", custom, auto: !type };
+    }),
   );
+  const updateLink = (key: number, patch: Partial<(typeof links)[number]>) =>
+    setLinks((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
   const [nextKey, setNextKey] = useState(links.length);
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
+  const [isUs, setIsUs] = useState(v.isUs);
+  const us = kind === "group" && isUs;
   // Open "More details" when it has content or an error to show.
   const detailsOpen = Boolean(
     errors.email ||
@@ -123,58 +133,69 @@ function FormBody({
           />
         </Field>
 
-        <ChoiceGroup legend="Is this a person or a group?" error={errors.kind} errorId="kind-error">
-          {KINDS.map((k) => (
-            <label key={k} className="choice">
-              <input
-                type="radio"
-                name="kind"
-                value={k}
-                checked={kind === k}
-                onChange={() => setKind(k)}
-              />
-              <span>{KIND_LABELS[k]}</span>
-            </label>
-          ))}
-        </ChoiceGroup>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field id="c-kind" label="Person or group?" error={errors.kind}>
+            <select
+              id="c-kind"
+              name="kind"
+              value={kind}
+              onChange={(e) => setKind(e.target.value === "person" ? "person" : "group")}
+              className="field"
+              {...invalid("c-kind", errors.kind)}
+            >
+              {KINDS.map((k) => (
+                <option key={k} value={k}>
+                  {KIND_LABELS[k]}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          {kind === "group" ? (
+            <Field id="c-group_type" label="What is it?" error={errors.groupType}>
+              <select
+                id="c-group_type"
+                name="group_type"
+                defaultValue={v.groupType}
+                className="field"
+                {...invalid("c-group_type", errors.groupType)}
+              >
+                <option value="" disabled>
+                  Choose one
+                </option>
+                {GROUP_TYPES.map((g) => (
+                  <option key={g} value={g}>
+                    {GROUP_TYPE_LABELS[g]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
+        </div>
 
         {kind === "person" ? (
-          <ChoiceGroup legend="What do they do?" hint="Any that apply." error={errors.personRoles} errorId="personRoles-error">
-            {PERSON_ROLES.map((r) => (
-              <Choice
-                key={r}
-                type="checkbox"
-                name="person_roles"
-                value={r}
-                label={PERSON_ROLE_LABELS[r]}
-                defaultChecked={v.personRoles.includes(r)}
-              />
-            ))}
-          </ChoiceGroup>
-        ) : (
-          <ChoiceGroup legend="What is it?" error={errors.groupType} errorId="groupType-error">
-            {GROUP_TYPES.map((g) => (
-              <Choice
-                key={g}
-                type="radio"
-                name="group_type"
-                value={g}
-                label={GROUP_TYPE_LABELS[g]}
-                defaultChecked={v.groupType === g}
-              />
-            ))}
-          </ChoiceGroup>
-        )}
+          <Combobox
+            label="What do they do?"
+            hint="Any that apply."
+            name="person_roles"
+            options={PERSON_ROLES.map((r) => ({ value: r, label: PERSON_ROLE_LABELS[r] }))}
+            defaultValue={v.personRoles}
+            error={errors.personRoles}
+          />
+        ) : null}
 
         {kind === "group" ? (
           <div className="flex flex-col gap-1">
-            <Choice
-              type="checkbox"
-              name="is_us"
-              value="on"
-              label="This is our band"
-              defaultChecked={v.isUs}
-            />
+            <label className="choice self-start">
+              <input
+                type="checkbox"
+                name="is_us"
+                value="on"
+                checked={isUs}
+                onChange={(e) => setIsUs(e.target.checked)}
+              />
+              <span>This is our band</span>
+            </label>
             <p className="text-sm text-muted">Lets Seeens spot label mates and shared members.</p>
             {errors.isUs ? (
               <p id="isUs-error" className="text-sm font-medium text-error">
@@ -191,61 +212,57 @@ function FormBody({
           error={errors.placeText}
         />
 
-        <ChoiceGroup
-          legend="Scenes"
-          hint={scenes.length ? "Any they're part of." : "None yet. Add one below."}
-        >
-          {orderScenes(scenes).map((s) => (
-            <Choice
-              key={s.id}
-              type="checkbox"
-              name="scene_ids"
-              value={s.id}
-              label={s.name}
-              defaultChecked={v.sceneIds.includes(s.id)}
-            />
-          ))}
-        </ChoiceGroup>
-        <Field
-          id="c-new_scenes"
-          label={scenes.length ? "Another scene (optional)" : "Scenes (optional)"}
-          hint="Separate with commas, like: Portland DIY, Pacific Northwest."
+        <Combobox
+          label="Scenes (optional)"
+          hint="Pick any they're part of, or type a new one, like Portland DIY."
+          name="scene_ids"
+          options={orderScenes(scenes).map((s) => ({
+            value: s.id,
+            label: s.name,
+            depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
+          }))}
+          defaultValue={v.sceneIds}
+          create={{ name: "new_scenes", defaultValue: splitNames(v.newScenes), verb: "New scene" }}
           error={errors.newScenes}
-        >
-          <input {...noAutofill}
-            id="c-new_scenes"
-            name="new_scenes"
-            defaultValue={v.newScenes}
-            className="field"
-            {...invalid("c-new_scenes", errors.newScenes, "c-new_scenes-hint")}
-          />
-        </Field>
+        />
       </fieldset>
 
-      <fieldset className="flex flex-col gap-5">
-        <legend className="mb-3 text-lg leading-6 font-semibold">How you know them</legend>
+      {/* Status is how we relate to others; it doesn't apply to us. Hidden,
+          not removed, so the saved value still submits. */}
+      <fieldset className="flex flex-col gap-5" hidden={us}>
+        <legend className="mb-3 text-lg leading-6 font-semibold">Where things stand</legend>
 
-        <ChoiceGroup legend="Status" error={errors.status} errorId="status-error">
-          {STATUSES.map((st) => (
-            <Choice
-              key={st}
-              type="radio"
+        <div className="flex flex-col gap-2">
+          <label htmlFor="c-status" className="text-sm font-medium">
+            Status
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              id="c-status"
               name="status"
-              value={st}
-              label={STATUS_LABELS[st]}
-              defaultChecked={v.status === st}
+              defaultValue={v.status}
+              className="field w-full sm:w-80"
+              {...invalid("c-status", errors.status)}
+            >
+              {STATUSES.map((st) => (
+                <option key={st} value={st}>
+                  {STATUS_LABELS[st]}
+                </option>
+              ))}
+            </select>
+            <Choice
+              type="checkbox"
+              name="played_together"
+              value="on"
+              label="We've played together"
+              defaultChecked={v.playedTogether}
             />
-          ))}
-        </ChoiceGroup>
-
-        <div>
-          <Choice
-            type="checkbox"
-            name="played_together"
-            value="on"
-            label="We've played together"
-            defaultChecked={v.playedTogether}
-          />
+          </div>
+          {errors.status ? (
+            <p id="c-status-error" className="text-sm font-medium text-error">
+              Error: {errors.status}
+            </p>
+          ) : null}
         </div>
       </fieldset>
 
@@ -275,29 +292,59 @@ function FormBody({
           <legend className="text-sm font-medium">Links</legend>
           {links.map((link, i) => {
             const err = errors.linkUrls?.[i];
+            const other = link.type === "Other";
+            const n = <span className="sr-only"> for link {i + 1}</span>;
             return (
-              <div key={link.key} className="grid gap-2 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
-                <Field id={`c-link_label_${link.key}`} label={`Link ${i + 1} label`}>
-                  <input {...noAutofill}
-                    id={`c-link_label_${link.key}`}
-                    name="link_label"
-                    defaultValue={link.label}
-                    placeholder="Bandcamp"
-                    className="field"
-                  />
-                </Field>
-                <Field id={`c-link_url_${link.key}`} label={`Link ${i + 1} URL`} error={err}>
+              <div
+                key={link.key}
+                className={`panel grid gap-2 p-3 sm:items-end ${other ? "sm:grid-cols-[2fr_1fr_1fr_auto]" : "sm:grid-cols-[2fr_1fr_auto]"}`}
+              >
+                <Field id={`c-link_url_${link.key}`} label={<>URL{n}</>} error={err}>
                   <input {...noAutofill}
                     id={`c-link_url_${link.key}`}
                     name="link_url"
                     type="url"
                     inputMode="url"
-                    defaultValue={link.url}
+                    value={link.url}
+                    onChange={(e) => {
+                      const url = e.target.value;
+                      updateLink(link.key, link.auto ? { url, type: detectLinkType(url) ?? "" } : { url });
+                    }}
                     placeholder="yourband.bandcamp.com"
                     className="field"
                     {...invalid(`c-link_url_${link.key}`, err)}
                   />
                 </Field>
+                <Field id={`c-link_type_${link.key}`} label={<>Link type{n}</>}>
+                  <select
+                    id={`c-link_type_${link.key}`}
+                    name="link_type"
+                    value={link.type}
+                    onChange={(e) => updateLink(link.key, { type: e.target.value as LinkType | "", auto: false })}
+                    className="field"
+                  >
+                    <option value="">Choose one</option>
+                    {LINK_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                {other ? (
+                  <Field id={`c-link_label_${link.key}`} label={<>Label{n}</>}>
+                    <input {...noAutofill}
+                      id={`c-link_label_${link.key}`}
+                      name="link_label"
+                      value={link.custom}
+                      onChange={(e) => updateLink(link.key, { custom: e.target.value })}
+                      placeholder="Merch store"
+                      className="field"
+                    />
+                  </Field>
+                ) : (
+                  <input type="hidden" name="link_label" value="" />
+                )}
                 <button
                   type="button"
                   className="button-secondary"
@@ -313,7 +360,7 @@ function FormBody({
             type="button"
             className="button-secondary self-start"
             onClick={() => {
-              setLinks((ls) => [...ls, { label: "", url: "", key: nextKey }]);
+              setLinks((ls) => [...ls, { key: nextKey, url: "", type: "", custom: "", auto: true }]);
               setNextKey((k) => k + 1);
             }}
           >
@@ -337,7 +384,7 @@ function FormBody({
         </div>
       </details>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="save-bar flex flex-wrap gap-3">
         <button type="submit" disabled={pending} className="button-primary">
           {pending ? "Saving…" : submitLabel}
         </button>
@@ -353,6 +400,13 @@ function FormBody({
 function orderScenes(scenes: SceneOption[]) {
   const top = scenes.filter((s) => !s.parent_id || !scenes.some((p) => p.id === s.parent_id));
   return top.flatMap((t) => [t, ...scenes.filter((c) => c.parent_id === t.id)]);
+}
+
+function splitNames(list: string) {
+  return list
+    .split(",")
+    .map((n) => n.trim())
+    .filter(Boolean);
 }
 
 function invalid(id: string, error?: string, extraDescribedBy?: string) {
@@ -371,7 +425,7 @@ function Field({
   children,
 }: {
   id: string;
-  label: string;
+  label: React.ReactNode;
   hint?: string;
   error?: string;
   children: React.ReactNode;
@@ -393,33 +447,6 @@ function Field({
         </p>
       ) : null}
     </div>
-  );
-}
-
-function ChoiceGroup({
-  legend,
-  hint,
-  error,
-  errorId,
-  children,
-}: {
-  legend: string;
-  hint?: string;
-  error?: string;
-  errorId?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <fieldset aria-describedby={error && errorId ? errorId : undefined} className="flex flex-col gap-2">
-      <legend className="text-sm font-medium">{legend}</legend>
-      {hint ? <p className="-mt-1 text-sm text-muted">{hint}</p> : null}
-      <div className="flex flex-wrap gap-2">{children}</div>
-      {error ? (
-        <p id={errorId} className="text-sm font-medium text-error">
-          Error: {error}
-        </p>
-      ) : null}
-    </fieldset>
   );
 }
 

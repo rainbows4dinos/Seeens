@@ -54,36 +54,37 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
 
   return (
     <div className="flex flex-col gap-3">
-      <fieldset className="flex flex-col gap-2" aria-describedby="quick-status-hint">
-        <legend className="text-sm font-medium">Status</legend>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="quick-status" className="text-sm font-medium">
+          Status
+        </label>
         <p id="quick-status-hint" className="-mt-1 text-sm text-muted">
           {STATUS_HINTS[shown.status]}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {STATUSES.map((st) => (
-            <label key={st} className="choice">
-              <input
-                type="radio"
-                name="quick_status"
-                value={st}
-                checked={shown.status === st}
-                onChange={() => save({ status: st })}
-              />
-              <span>{STATUS_LABELS[st]}</span>
-            </label>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            id="quick-status"
+            value={shown.status}
+            onChange={(e) => save({ status: e.target.value as ConnectionStatus })}
+            aria-describedby="quick-status-hint"
+            className="field w-full sm:w-80"
+          >
+            {STATUSES.map((st) => (
+              <option key={st} value={st}>
+                {STATUS_LABELS[st]}
+              </option>
+            ))}
+          </select>
+          <label className="choice">
+            <input
+              type="checkbox"
+              name="quick_played_together"
+              checked={shown.playedTogether}
+              onChange={(e) => save({ playedTogether: e.target.checked })}
+            />
+            <span>We&rsquo;ve played together</span>
+          </label>
         </div>
-      </fieldset>
-      <div>
-        <label className="choice">
-          <input
-            type="checkbox"
-            name="quick_played_together"
-            checked={shown.playedTogether}
-            onChange={(e) => save({ playedTogether: e.target.checked })}
-          />
-          <span>We&rsquo;ve played together</span>
-        </label>
       </div>
       <p aria-live="polite" className="min-h-5 text-sm text-muted">
         {pending ? "Saving…" : message}
