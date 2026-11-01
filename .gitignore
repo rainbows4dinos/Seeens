@@ -30,6 +30,7 @@ Thumbs.db
 # Private local data: keep real contacts outside tracked source
 private/
 local-data/
+csvs/
 
 # Next.js extras
 next-env.d.ts
