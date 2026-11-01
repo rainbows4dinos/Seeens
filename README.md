@@ -2,9 +2,11 @@
 
 **Your people. Your scenes.**
 
-Seeens helps Merwulf keep track of its music network and decide whom to reach out to next. It is a private workspace shared by band members, organized around local scenes and real relationships.
+Seeens helps bands keep track of their music networks and decide whom to reach out to next. Each band gets a private workspace shared by its members, organized around local scenes and real relationships.
 
-Formerly Artist Pathway / BandPath. The project restarted on October 27, 2026 with a smaller, personal MVP.
+Seeens is in closed alpha at [www.seeens.com](https://www.seeens.com). Merwulf is the first band using it.
+
+Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
 ![The Seeens directory, grouped by status](docs/screenshots/directory.png)
 
@@ -27,12 +29,12 @@ All data shown is fictional sample data from `supabase/seed.sql`.
 - **Scenes:** organize connections by locality and scene, with multiple memberships when useful.
 - **Status:** one band-wide choice per connection: Homies, Let's play, Prospect, Neutral, or Avoid, plus whether you've played together.
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
-- **Prospects:** curate potential connections, record why they matter, and prioritize outreach.
-- **Follow-through:** log outreach and track a next action, responsible member, and follow-up date.
-- **Shared access:** authorized Merwulf members can work with the same private data across devices.
+- **Prospects:** mark connections you'd like to know as Prospect and work through them in the Prospects view. The booking backlog gets its own Let's play view.
+- **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
+- **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV.
 
-Search and filters should make it easy to move between scenes, connection types, and statuses. Start with manually curated prospects; automated discovery is deferred.
+Search by name and filter by scene (a bigger scene includes the scenes inside it), town, connection type, and status. Prospects are curated by hand; automated discovery is deferred.
 
 ## Architecture
 
@@ -45,6 +47,10 @@ Search and filters should make it easy to move between scenes, connection types,
 | Database | Supabase Postgres |
 | Authentication | Supabase Auth |
 | Authorization | Workspace membership enforced through Row Level Security |
+| Fonts | Hanken Grotesk and IBM Plex Mono, self-hosted with Fontsource |
+| CI | GitHub Actions: lint, typecheck, and unit tests on every PR and push to main |
+
+Design tokens live in `src/app/globals.css` and mirror the [Seeens Figma file](https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2). See the [design system rules](docs/design-system/rules.md).
 
 Vercel hosts the application. Contact details, notes, and outreach history live in Supabase and are accessible only to authorized members. Browser configuration may contain the Supabase project URL and publishable key; privileged secrets belong outside the frontend and repository.
 
@@ -52,25 +58,42 @@ Configure Supabase authentication redirects for production, approved preview env
 
 ## Delivery target
 
-Live MVP: **November 10–17, 2026**.
+Live MVP: **by November 8, 2026** (moved up from November 10–17).
 
-1. **October 27–November 2:** settle fields and scene structure; scaffold frontend, sign-in, membership policies, directory, and editor; deploy an initial Vercel build.
-2. **November 3–9:** add scene filters, Homies, prospects, outreach history, export, and mobile layouts; try a representative set of connections.
-3. **November 10–17:** verify collaboration and data access, fix workflow issues, and launch.
+1. **October 27–November 1 (done):** fields and scene structure, sign-in, membership policies, directory and editor, scenes and filters, statuses, prospects, outreach history, follow-ups, export, mobile layouts, and phase 1 design tokens. Deployed on Vercel.
+2. **November 2–8:** verify collaboration and data access with two members, fix workflow issues, and launch.
 
-Launch means two authorized band members can update the same records across devices, unauthorized users cannot read or change them, and the core add → organize → favorite → follow up workflow works on mobile and desktop. CSV export must work.
+Launch means two authorized band members can update the same records across devices, unauthorized users cannot read or change them, and the core add → organize → set status → follow up workflow works on mobile and desktop. CSV export must work. Launch is tracked in [#13](https://github.com/rainbows4dinos/seeens/issues/13).
 
 ## Scope boundaries
 
 Automated scraping, AI recommendations, automatic messaging, social integrations, graph visualization, touring routes, public profiles, and multi-band customer support come after the MVP.
 
+Planned after launch, among others:
+
+- [#37](https://github.com/rainbows4dinos/seeens/issues/37) Connection photos
+- [#44](https://github.com/rainbows4dinos/seeens/issues/44) Link member accounts to their person in the directory
+- [#45](https://github.com/rainbows4dinos/seeens/issues/45) Groups can find, claim, and edit their own listing
+- [#21](https://github.com/rainbows4dinos/seeens/issues/21) Scene data capture and discovery (spike)
+
 ## Development status
 
-Email/password sign-in and the connection directory (list, add, edit, view, archive) work. Database schema, Row Level Security, and access tests are in `supabase/`. Scenes and filters are next.
+The MVP feature set is built and deployed:
+
+- Email/password sign-in, with access limited to workspace members.
+- Directory: add, edit, view, and archive connections; Current, Let's play, Prospects, and Archived views; search and filters.
+- Scenes, including scenes inside bigger ones, and town search from GeoNames.
+- Status in one tap, plus "we've played together."
+- Affiliations between connections (members, labels, related bands, venues).
+- Outreach log, next actions, and the Follow-ups page.
+- CSV export.
+- Error and not-found pages, and phase 1 design tokens from Figma.
+
+Database schema, Row Level Security, and access tests are in `supabase/`. Next up: two-member validation and launch ([#13](https://github.com/rainbows4dinos/seeens/issues/13)) and the phase 2 visual pass ([#12](https://github.com/rainbows4dinos/seeens/issues/12)).
 
 ## Local setup
 
-Requires Node 20.9+. Docker is needed only for local Supabase.
+Requires Node 20.9+; `npm test` needs 22.6+ for Node's built-in TypeScript support. CI uses Node 22. Docker is needed only for local Supabase.
 
 ```bash
 npm install
@@ -118,8 +141,11 @@ insert into public.workspaces (name) values ('Merwulf') returning id;
 -- per member
 insert into public.workspace_members (workspace_id, user_id, role, display_name)
 select '<workspace-id>', id, 'member', 'Display Name'
-from auth.users where email = 'member@example.com';
+from auth.users where email = 'member@example.com'
+returning display_name, role;
 ```
+
+Without `returning`, the Supabase SQL editor reports 0 rows even when the insert worked.
 
 To remove a member, delete their membership. They can still sign in, but they see "No workspace yet," and the database returns none of the band's data.
 
@@ -138,5 +164,6 @@ Town search uses the GeoNames `cities1000` list (towns with 1,000+ people), load
 
 - [Product context and data model](docs/context.md)
 - [Design system rules](docs/design-system/rules.md)
+- [Seeens Figma file](https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2) (source of truth for tokens)
 - [Agent instructions](AGENTS.md)
-- [Historical BandPath context](docs/archive/bandpath-context.md) — superseded; reference only
+- [Historical BandPath context](docs/archive/bandpath-context.md) (superseded; reference only)
