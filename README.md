@@ -17,7 +17,7 @@ All data shown is fictional sample data from `supabase/seed.sql`.
 | | |
 | --- | --- |
 | ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png) | ![A band's page with status, next action, outreach log, and connections](docs/screenshots/connection.png) |
-| **Sign in.** Invite-only. | **A connection.** Status in one tap, the next step, what's happened, and who's connected. |
+| **Sign in.** Invite-only. | **A connection.** Where things stand, the next step, what's happened, and who's connected. |
 | ![The Let's play list](docs/screenshots/lets-play.png) | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png) |
 | **Let's play.** The booking backlog, filterable by town or scene. | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest. |
 | ![Follow-ups grouped by date](docs/screenshots/follow-ups.png) | ![The directory on a phone](docs/screenshots/mobile-directory.png) |
@@ -58,10 +58,10 @@ Configure Supabase authentication redirects for production, approved preview env
 
 ## Delivery target
 
-Live MVP: **by November 8, 2026** (moved up from November 10–17).
+Live MVP: **launched November 1, 2026**, ahead of the November 10–17 target.
 
 1. **October 27–November 1 (done):** fields and scene structure, sign-in, membership policies, directory and editor, scenes and filters, statuses, prospects, outreach history, follow-ups, export, mobile layouts, and phase 1 design tokens. Deployed on Vercel.
-2. **November 2–8:** verify collaboration and data access with two members, fix workflow issues, and launch.
+2. **November 1 (done):** verified collaboration and data access with two members, fixed workflow issues, and launched ([#13](https://github.com/rainbows4dinos/seeens/issues/13)).
 
 Launch means two authorized band members can update the same records across devices, unauthorized users cannot read or change them, and the core add → organize → set status → follow up workflow works on mobile and desktop. CSV export must work. Launch is tracked in [#13](https://github.com/rainbows4dinos/seeens/issues/13).
 
@@ -78,18 +78,18 @@ Planned after launch, among others:
 
 ## Development status
 
-The MVP feature set is built and deployed:
+The MVP launched on November 1, 2026. What it does:
 
 - Email/password sign-in, with access limited to workspace members.
 - Directory: add, edit, view, and archive connections; Current, Let's play, Prospects, and Archived views; search and filters.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
-- Status in one tap, plus "we've played together."
+- Status and "we've played together," saved as soon as you change them.
 - Affiliations between connections (members, labels, related bands, venues).
 - Outreach log, next actions, and the Follow-ups page.
 - CSV export.
 - Error and not-found pages, and phase 1 design tokens from Figma.
 
-Database schema, Row Level Security, and access tests are in `supabase/`. Next up: two-member validation and launch ([#13](https://github.com/rainbows4dinos/seeens/issues/13)) and the phase 2 visual pass ([#12](https://github.com/rainbows4dinos/seeens/issues/12)).
+Database schema, Row Level Security, and access tests are in `supabase/`. Next up: the phase 2 visual pass ([#12](https://github.com/rainbows4dinos/seeens/issues/12)).
 
 ## Local setup
 
