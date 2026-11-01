@@ -61,30 +61,30 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
         <p id="quick-status-hint" className="-mt-1 text-sm text-muted">
           {STATUS_HINTS[shown.status]}
         </p>
-        <select
-          id="quick-status"
-          value={shown.status}
-          onChange={(e) => save({ status: e.target.value as ConnectionStatus })}
-          aria-describedby="quick-status-hint"
-          className="field sm:max-w-80"
-        >
-          {STATUSES.map((st) => (
-            <option key={st} value={st}>
-              {STATUS_LABELS[st]}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className="choice">
-          <input
-            type="checkbox"
-            name="quick_played_together"
-            checked={shown.playedTogether}
-            onChange={(e) => save({ playedTogether: e.target.checked })}
-          />
-          <span>We&rsquo;ve played together</span>
-        </label>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            id="quick-status"
+            value={shown.status}
+            onChange={(e) => save({ status: e.target.value as ConnectionStatus })}
+            aria-describedby="quick-status-hint"
+            className="field w-full sm:w-80"
+          >
+            {STATUSES.map((st) => (
+              <option key={st} value={st}>
+                {STATUS_LABELS[st]}
+              </option>
+            ))}
+          </select>
+          <label className="choice">
+            <input
+              type="checkbox"
+              name="quick_played_together"
+              checked={shown.playedTogether}
+              onChange={(e) => save({ playedTogether: e.target.checked })}
+            />
+            <span>We&rsquo;ve played together</span>
+          </label>
+        </div>
       </div>
       <p aria-live="polite" className="min-h-5 text-sm text-muted">
         {pending ? "Saving…" : message}

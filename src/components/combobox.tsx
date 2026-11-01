@@ -9,7 +9,9 @@ type Item = { kind: "option"; option: ComboOption } | { kind: "create"; label: s
 
 // A text box with a list that filters as you type (WAI-ARIA combobox).
 // Multiple: picks show as removable tags and stay in the list, checked.
-// Single: the pick fills the box; typing again clears it.
+// Single: the pick fills the box. With `create`, typing again clears it
+// (a name picker). Without, it's a search select: the pick stays until
+// another is chosen or × clears it, and leaving restores its label.
 // With `create`, typed names that aren't options can be added as new.
 // Picks are submitted as hidden inputs named `name` (and `create.name`,
 // comma-joined), so it works in any form.
@@ -26,6 +28,7 @@ export function Combobox({
   onChange,
   autoFocus,
   labelClassName = "text-sm font-medium",
+  placeholder,
 }: {
   label: string;
   hint?: string;
@@ -40,14 +43,17 @@ export function Combobox({
   onChange?: (values: string[], created: string[]) => void;
   autoFocus?: boolean;
   labelClassName?: string;
+  placeholder?: string;
 }) {
   const id = useId();
   const listId = `${id}-list`;
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const keepPick = !multiple && !create;
+  const labelOf = (v?: string) => (v ? (options.find((o) => o.value === v)?.label ?? "") : "");
   const [selected, setSelected] = useState<string[]>(defaultValue);
   const [created, setCreated] = useState<string[]>(create?.defaultValue ?? []);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => (keepPick ? labelOf(defaultValue[0]) : ""));
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [announce, setAnnounce] = useState("");
@@ -58,6 +64,7 @@ export function Combobox({
   if (defaultKey !== prevKey) {
     setPrevKey(defaultKey);
     setSelected(defaultValue);
+    if (keepPick) setQuery(labelOf(defaultValue[0]));
   }
 
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
@@ -154,6 +161,8 @@ export function Combobox({
       if (open) {
         e.preventDefault();
         setOpen(false);
+      } else if (keepPick) {
+        setQuery(labelOf(selected[0]));
       } else if (query) {
         setQuery("");
       }
@@ -172,7 +181,10 @@ export function Combobox({
       ref={wrapRef}
       className="relative flex flex-col gap-2"
       onBlur={(e) => {
-        if (!wrapRef.current?.contains(e.relatedTarget as Node)) setOpen(false);
+        if (!wrapRef.current?.contains(e.relatedTarget as Node)) {
+          setOpen(false);
+          if (keepPick) setQuery(labelOf(selected[0]));
+        }
       }}
     >
       <label htmlFor={`${id}-input`} className={labelClassName}>
@@ -220,20 +232,38 @@ export function Combobox({
           aria-describedby={describedBy || undefined}
           autoFocus={autoFocus}
           value={query}
-          placeholder={hasTags ? "" : multiple ? "Type or pick" : "Type a name"}
+          placeholder={hasTags ? "" : (placeholder ?? (multiple ? "Type or pick" : "Type a name"))}
           onChange={(e) => {
             setQuery(e.target.value);
             setOpen(true);
             setActive(e.target.value.trim() ? 0 : -1);
-            if (!multiple && (selected.length || created.length)) {
+            if (!keepPick && !multiple && (selected.length || created.length)) {
               setSelected([]);
               setCreated([]);
             }
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={(e) => {
+            setOpen(true);
+            if (keepPick) e.currentTarget.select();
+          }}
           onClick={() => setOpen(true)}
           onKeyDown={onKeyDown}
         />
+        {keepPick && selected[0] ? (
+          <button
+            type="button"
+            className="combo-clear"
+            aria-label={`Clear ${label}`}
+            onClick={() => {
+              setAnnounce(`${label} cleared.`);
+              setSelected([]);
+              setQuery("");
+              inputRef.current?.focus();
+            }}
+          >
+            ×
+          </button>
+        ) : null}
       </div>
 
       <ul

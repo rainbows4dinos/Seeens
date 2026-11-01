@@ -60,6 +60,11 @@ async function Connection({
       ) : null}
 
       <header className="flex flex-col gap-2">
+        <div className="pb-2">
+          <Link href={`/connections/${c.id}/edit`} className="button-primary">
+            Edit<span className="sr-only"> {c.name}</span>
+          </Link>
+        </div>
         <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px] break-words">{c.name}</h1>
         <p className="text-muted">
           {[formatType(c), place].filter(Boolean).join(" · ")}
@@ -84,13 +89,11 @@ async function Connection({
             ))}
           </p>
         ) : null}
-        <div className="pt-2">
-          <Link href={`/connections/${c.id}/edit`} className="button-primary">
-            Edit
-          </Link>
-        </div>
       </header>
 
+      {/* Status, plans, and outreach are about other people, not us. */}
+      {c.is_us ? null : (
+      <>
       <Section title="Where things stand">
         <QuickStatus id={c.id} initial={{ status: c.status, playedTogether: c.played_together }} />
         {statusHistory.length > 1 ? (
@@ -141,6 +144,8 @@ async function Connection({
       <Section title="Outreach log">
         <OutreachPanel connectionId={c.id} entries={detail.outreach} me={user.id} today={today} />
       </Section>
+      </>
+      )}
 
       <LinksPanel
         subjectId={c.id}

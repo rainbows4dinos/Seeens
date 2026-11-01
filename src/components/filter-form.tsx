@@ -2,7 +2,7 @@
 
 import Form from "next/form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // The directory's search and filter form. A plain GET form (the URL stays
 // shareable), navigated client-side by next/form. Menus apply as soon as
@@ -40,5 +40,25 @@ export function AutoFilterForm({
     >
       {children}
     </Form>
+  );
+}
+
+// Starts open when the URL has filters, then stays however the person left
+// it. A plain open={…} would snap shut when the last filter is cleared.
+export function FilterPanel({
+  initialOpen,
+  summary,
+  children,
+}: {
+  initialOpen: boolean;
+  summary: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(initialOpen);
+  return (
+    <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+      {summary}
+      {children}
+    </details>
   );
 }

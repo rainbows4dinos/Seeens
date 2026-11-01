@@ -343,6 +343,17 @@
   .combo-tag button:hover {
     background: var(--color-text-secondary);
   }
+  .combo-clear {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .combo-clear:hover {
+    background: var(--color-bg-hover);
+  }
   .combo-list {
     position: absolute;
     top: calc(100% + 4px);

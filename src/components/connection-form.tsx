@@ -86,6 +86,8 @@ function FormBody({
   );
   const [nextKey, setNextKey] = useState(links.length);
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
+  const [isUs, setIsUs] = useState(v.isUs);
+  const us = kind === "group" && isUs;
   // Open "More details" when it has content or an error to show.
   const detailsOpen = Boolean(
     errors.email ||
@@ -177,13 +179,16 @@ function FormBody({
 
         {kind === "group" ? (
           <div className="flex flex-col gap-1">
-            <Choice
-              type="checkbox"
-              name="is_us"
-              value="on"
-              label="This is our band"
-              defaultChecked={v.isUs}
-            />
+            <label className="choice self-start">
+              <input
+                type="checkbox"
+                name="is_us"
+                value="on"
+                checked={isUs}
+                onChange={(e) => setIsUs(e.target.checked)}
+              />
+              <span>This is our band</span>
+            </label>
             <p className="text-sm text-muted">Lets Seeens spot label mates and shared members.</p>
             {errors.isUs ? (
               <p id="isUs-error" className="text-sm font-medium text-error">
@@ -215,33 +220,42 @@ function FormBody({
         />
       </fieldset>
 
-      <fieldset className="flex flex-col gap-5">
-        <legend className="mb-3 text-lg leading-6 font-semibold">How you know them</legend>
+      {/* Status is how we relate to others; it doesn't apply to us. Hidden,
+          not removed, so the saved value still submits. */}
+      <fieldset className="flex flex-col gap-5" hidden={us}>
+        <legend className="mb-3 text-lg leading-6 font-semibold">Where things stand</legend>
 
-        <Field id="c-status" label="Status" error={errors.status}>
-          <select
-            id="c-status"
-            name="status"
-            defaultValue={v.status}
-            className="field sm:max-w-80"
-            {...invalid("c-status", errors.status)}
-          >
-            {STATUSES.map((st) => (
-              <option key={st} value={st}>
-                {STATUS_LABELS[st]}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <div>
-          <Choice
-            type="checkbox"
-            name="played_together"
-            value="on"
-            label="We've played together"
-            defaultChecked={v.playedTogether}
-          />
+        <div className="flex flex-col gap-2">
+          <label htmlFor="c-status" className="text-sm font-medium">
+            Status
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              id="c-status"
+              name="status"
+              defaultValue={v.status}
+              className="field w-full sm:w-80"
+              {...invalid("c-status", errors.status)}
+            >
+              {STATUSES.map((st) => (
+                <option key={st} value={st}>
+                  {STATUS_LABELS[st]}
+                </option>
+              ))}
+            </select>
+            <Choice
+              type="checkbox"
+              name="played_together"
+              value="on"
+              label="We've played together"
+              defaultChecked={v.playedTogether}
+            />
+          </div>
+          {errors.status ? (
+            <p id="c-status-error" className="text-sm font-medium text-error">
+              Error: {errors.status}
+            </p>
+          ) : null}
         </div>
       </fieldset>
 
@@ -272,7 +286,7 @@ function FormBody({
           {links.map((link, i) => {
             const err = errors.linkUrls?.[i];
             return (
-              <div key={link.key} className="grid gap-2 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
+              <div key={link.key} className="panel grid gap-2 p-3 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
                 <Field id={`c-link_label_${link.key}`} label={`Link ${i + 1} label`}>
                   <input {...noAutofill}
                     id={`c-link_label_${link.key}`}
