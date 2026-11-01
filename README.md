@@ -2,9 +2,11 @@
 
 **Your people. Your scenes.**
 
-Seeens helps Merwulf keep track of its music network and decide whom to reach out to next. It is a private workspace shared by band members, organized around local scenes and real relationships.
+Seeens helps bands keep track of their music networks and decide whom to reach out to next. Each band gets a private workspace shared by its members, organized around local scenes and real relationships.
 
-Live at [www.seeens.com](https://www.seeens.com) (invite-only). Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
+Seeens is in closed alpha at [www.seeens.com](https://www.seeens.com). Merwulf is the first band using it.
+
+Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
 ![The Seeens directory, grouped by status](docs/screenshots/directory.png)
 
@@ -29,7 +31,7 @@ All data shown is fictional sample data from `supabase/seed.sql`.
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
 - **Prospects:** mark connections you'd like to know as Prospect and work through them in the Prospects view. The booking backlog gets its own Let's play view.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
-- **Shared access:** authorized Merwulf members can work with the same private data across devices.
+- **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV.
 
 Search by name and filter by scene (a bigger scene includes the scenes inside it), town, connection type, and status. Prospects are curated by hand; automated discovery is deferred.
@@ -56,11 +58,10 @@ Configure Supabase authentication redirects for production, approved preview env
 
 ## Delivery target
 
-Live MVP: **November 10–17, 2026**.
+Live MVP: **by November 8, 2026** (moved up from November 10–17).
 
-1. **October 27–November 2:** settle fields and scene structure; scaffold frontend, sign-in, membership policies, directory, and editor; deploy an initial Vercel build.
-2. **November 3–9:** add scene filters, statuses, prospects, outreach history, export, and mobile layouts; try a representative set of connections.
-3. **November 10–17:** verify collaboration and data access, fix workflow issues, and launch.
+1. **October 27–November 1 (done):** fields and scene structure, sign-in, membership policies, directory and editor, scenes and filters, statuses, prospects, outreach history, follow-ups, export, mobile layouts, and phase 1 design tokens. Deployed on Vercel.
+2. **November 2–8:** verify collaboration and data access with two members, fix workflow issues, and launch.
 
 Launch means two authorized band members can update the same records across devices, unauthorized users cannot read or change them, and the core add → organize → set status → follow up workflow works on mobile and desktop. CSV export must work. Launch is tracked in [#13](https://github.com/rainbows4dinos/seeens/issues/13).
 
