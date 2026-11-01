@@ -1,5 +1,6 @@
 "use client";
 
+import { offline } from "@/lib/offline";
 import { useRef, useState, useTransition } from "react";
 import { archiveConnection, restoreConnection } from "@/lib/connections/actions";
 
@@ -21,7 +22,7 @@ export function ArchiveControl({
   const run = (fn: typeof archiveConnection) =>
     startTransition(async () => {
       setError(undefined);
-      const result = await fn(id).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
+      const result = await fn(id).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
       if (result.error) setError(result.error);
       else setConfirming(false);
     });

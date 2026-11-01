@@ -1,5 +1,6 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
 import { useState, useTransition } from "react";
 import { quickUpdate, type QuickState } from "@/lib/connections/actions";
 import { STATUSES, STATUS_HINTS, STATUS_LABELS, type ConnectionStatus } from "@/lib/connections/labels";
@@ -35,7 +36,8 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
       let result;
       try {
         result = await quickUpdate(id, change);
-      } catch {
+      } catch (e) {
+        unstable_rethrow(e);
         result = { ok: false as const, saved: null };
       }
       const truth = result.saved ?? saved;

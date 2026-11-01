@@ -1,5 +1,7 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
+import { offline } from "@/lib/offline";
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { removeScene, type SceneFormState, type SceneFormValues } from "@/lib/scenes/actions";
@@ -26,7 +28,8 @@ export function SceneForm({
     async (prev, fd) => {
       try {
         return await action(prev, fd);
-      } catch {
+      } catch (e) {
+        unstable_rethrow(e);
         const get = (k: string) => String(fd.get(k) ?? "").trim();
         return {
           values: {
@@ -161,7 +164,7 @@ function RemoveScene({ id, name }: { id: string; name: string }) {
               autoFocus
               onClick={() =>
                 startTransition(async () => {
-                  const r = await removeScene(id).catch(() => ({ error: "Couldn't reach Seeens. Try again." }));
+                  const r = await removeScene(id).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
                   if (r?.error) setError(r.error);
                 })
               }
