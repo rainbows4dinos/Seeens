@@ -166,6 +166,9 @@ Town search uses the GeoNames `cities1000` list (towns with 1,000+ people), load
 
 - [Product context and data model](docs/context.md)
 - [Design system rules](docs/design-system/rules.md)
+- [AI Constitution (draft)](docs/ai-constitution.md)
+- [Funding and ownership](docs/funding.md)
+- [Discovery and ingestion options](docs/discovery.md)
 - [Seeens Figma file](https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2) (source of truth for tokens)
 - [Agent instructions](AGENTS.md)
 - [Historical BandPath context](docs/archive/bandpath-context.md) (superseded; reference only)
