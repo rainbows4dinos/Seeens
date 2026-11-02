@@ -62,7 +62,7 @@ async function Connection({
       <header className="flex flex-col gap-2">
         {/* Same layout as the Directory and Scenes headers: action on the right. */}
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h1 className="min-w-0 text-4xl font-bold sm:text-[52px] sm:leading-[52px] break-words">{c.name}</h1>
+          <h1 className="min-w-0 display-l sm:display-xl break-words">{c.name}</h1>
           <Link href={`/connections/${c.id}/edit`} className="button-primary">
             Edit<span className="sr-only"> {c.name}</span>
           </Link>
@@ -232,7 +232,7 @@ async function Connection({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="text-xl leading-6 font-bold">{title}</h2>
+      <h2 className="display-s">{title}</h2>
       {children}
     </section>
   );

@@ -39,7 +39,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
     return [
       {
         id: "plays_in",
-        label: "Plays in a band",
+        label: "Plays in a Band",
         kind: "member",
         direction: "out",
         target: { kind: "group", only: ["band"] },
@@ -47,7 +47,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
       },
       {
         id: "works_with",
-        label: "Works with a venue, label, studio…",
+        label: "Works With a Venue, Label, Studio…",
         kind: "works_with",
         direction: "out",
         target: { kind: "group", except: ["band"] },
@@ -60,7 +60,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
     return [
       {
         id: "member",
-        label: "Add member",
+        label: "Add Member",
         kind: "member",
         direction: "in",
         target: { kind: "person" },
@@ -69,7 +69,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
       },
       {
         id: "label",
-        label: "Add label",
+        label: "Add Label",
         kind: "on_label",
         direction: "out",
         target: { kind: "group", only: ["label"] },
@@ -77,7 +77,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
       },
       {
         id: "related",
-        label: "Related band",
+        label: "Related Band",
         kind: "related",
         direction: "out",
         target: { kind: "group", only: ["band"] },
@@ -90,7 +90,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
     return [
       {
         id: "band_on_label",
-        label: "Add band on this label",
+        label: "Add Band on This Label",
         kind: "on_label",
         direction: "in",
         target: { kind: "group", only: ["band"] },
@@ -98,7 +98,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
       },
       {
         id: "person",
-        label: "Add person",
+        label: "Add Person",
         kind: "works_with",
         direction: "in",
         target: { kind: "person" },
@@ -111,7 +111,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
   return [
     {
       id: "person",
-      label: "Add person",
+      label: "Add Person",
       kind: "works_with",
       direction: "in",
       target: { kind: "person" },
@@ -120,7 +120,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
     },
     {
       id: "related",
-      label: "Related place or org",
+      label: "Related Place or Org",
       kind: "related",
       direction: "out",
       target: { kind: "group", except: ["band"] },
@@ -152,25 +152,25 @@ export function sectionFor(
   const { kind, direction } = link;
   if (subject.kind === "person") {
     if (direction === "out" && kind === "member") return "Bands";
-    if (direction === "out" && kind === "works_with") return "Works with";
-    return "Other links";
+    if (direction === "out" && kind === "works_with") return "Works With";
+    return "Other Links";
   }
-  if (kind === "related") return subject.group_type === "band" ? "Related bands" : "Related";
+  if (kind === "related") return subject.group_type === "band" ? "Related Bands" : "Related";
   if (direction === "in" && kind === "member") return "Members";
-  if (direction === "in" && kind === "on_label") return "Bands on this label";
+  if (direction === "in" && kind === "on_label") return "Bands on This Label";
   if (direction === "out" && kind === "on_label") return "Labels";
   if (direction === "in" && kind === "works_with") return "People";
-  return "Other links";
+  return "Other Links";
 }
 
 export const SECTION_ORDER = [
   "Members",
   "Bands",
   "Labels",
-  "Bands on this label",
+  "Bands on This Label",
   "People",
-  "Works with",
-  "Related bands",
+  "Works With",
+  "Related Bands",
   "Related",
-  "Other links",
+  "Other Links",
 ];

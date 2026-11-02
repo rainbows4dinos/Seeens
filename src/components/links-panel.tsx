@@ -56,7 +56,7 @@ export function LinksPanel({
 
   return (
     <section aria-labelledby="links-heading" className="flex flex-col gap-4">
-      <h2 id="links-heading" className="text-xl leading-6 font-bold">
+      <h2 id="links-heading" className="display-s">
         Connections
       </h2>
 
@@ -145,8 +145,8 @@ function LinkItem({ row }: { row: LinkRow }) {
       {mode === "edit" ? (
         <form action={action} className="flex flex-col gap-3 panel p-3">
           <div className="flex flex-col gap-2">
-            <label htmlFor={`${formId}-role`} className="text-sm font-medium">
-              Role or detail
+            <label htmlFor={`${formId}-role`} className="label">
+              Role or Detail
             </label>
             <input {...noAutofill} id={`${formId}-role`} name="role" defaultValue={row.role ?? ""} className="field" autoFocus />
           </div>
@@ -242,7 +242,7 @@ function AddLinkForm({
           label: c.name,
           hint: formatType({ ...c, person_roles: [] }),
         }))}
-        create={{ verb: "Add new" }}
+        create={{ verb: "Add New" }}
         onChange={(values, created) => {
           setPicked(values[0] ?? (created[0] ? "__new__" : ""));
           setNewName(created[0] ?? "");
@@ -253,7 +253,7 @@ function AddLinkForm({
 
       {picked === "__new__" && types.length > 1 ? (
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${id}-type`} className="text-sm font-medium">
+          <label htmlFor={`${id}-type`} className="label">
             What is {newName}?
           </label>
           <select id={`${id}-type`} name="new_group_type" className="field" defaultValue={types[0]}>
@@ -267,8 +267,8 @@ function AddLinkForm({
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor={`${id}-role`} className="text-sm font-medium">
-          Role or detail <span className="font-normal text-muted">(optional)</span>
+        <label htmlFor={`${id}-role`} className="label">
+          Role or Detail <span className="font-normal text-muted">(Optional)</span>
         </label>
         <input {...noAutofill} id={`${id}-role`} name="role" placeholder={option.rolePlaceholder} className="field" />
       </div>
@@ -280,7 +280,7 @@ function AddLinkForm({
 
       <div className="flex flex-wrap gap-3">
         <button type="submit" className="button-primary" disabled={pending || !picked}>
-          {pending ? "Saving…" : "Save link"}
+          {pending ? "Saving…" : "Save Link"}
         </button>
         <button type="button" className="button-secondary" onClick={onDone}>
           Cancel

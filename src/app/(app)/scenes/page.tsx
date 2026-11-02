@@ -12,9 +12,9 @@ export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px]">Scenes</h1>
+        <h1 className="display-l sm:display-xl">Scenes</h1>
         <Link href="/scenes/new" className="button-primary">
-          New scene
+          New Scene
         </Link>
       </div>
       <Suspense fallback={<p className="text-muted">Loading scenes…</p>}>
@@ -40,7 +40,7 @@ async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["se
           Northwest,&rdquo; to see a whole region at once.
         </p>
         <Link href="/scenes/new" className="button-secondary">
-          Add your first scene
+          Add Your First Scene
         </Link>
       </div>
     );

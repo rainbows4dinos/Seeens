@@ -69,7 +69,7 @@ export function PlaceField({
 
   return (
     <div className="relative flex flex-col gap-2">
-      <label htmlFor="c-place" className="text-sm font-medium">
+      <label htmlFor="c-place" className="label">
         {label}
       </label>
       <p id={`${id}-hint`} className="-mt-1 text-sm text-muted">

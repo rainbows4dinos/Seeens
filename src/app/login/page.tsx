@@ -11,7 +11,7 @@ export default function LoginPage() {
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center gap-10 px-4 py-16">
       <header className="flex flex-col items-start gap-6">
         <h1 className="logo uppercase">Seeens</h1>
-        <p className="font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:text-[96px] sm:leading-[88px]">
+        <p className="font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:display-xxl">
           Your people.
           <br />
           <span className="swipe">Your scenes.</span>

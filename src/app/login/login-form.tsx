@@ -16,7 +16,7 @@ export function LoginForm() {
       <input type="hidden" name="next" value={next} />
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="email" className="text-sm font-medium">
+        <label htmlFor="email" className="label">
           Email
         </label>
         <input
@@ -34,7 +34,7 @@ export function LoginForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="password" className="text-sm font-medium">
+        <label htmlFor="password" className="label">
           Password
         </label>
         <input
@@ -59,7 +59,7 @@ export function LoginForm() {
       </p>
 
       <button type="submit" disabled={pending} className="button-primary">
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Signing In…" : "Sign In"}
       </button>
     </form>
   );

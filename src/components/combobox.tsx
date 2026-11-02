@@ -27,7 +27,7 @@ export function Combobox({
   autoSubmit = false,
   onChange,
   autoFocus,
-  labelClassName = "text-sm font-medium",
+  labelClassName = "label",
   placeholder,
 }: {
   label: string;

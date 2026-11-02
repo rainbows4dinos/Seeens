@@ -22,7 +22,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
 
   return (
     <div role="alert" className="flex flex-col items-start gap-4">
-      <h1 ref={headingRef} tabIndex={-1} className="text-4xl font-bold sm:text-[52px] sm:leading-[52px] outline-none">
+      <h1 ref={headingRef} tabIndex={-1} className="display-l sm:display-xl outline-none">
         That didn&rsquo;t load.
       </h1>
       <p className="text-muted">
@@ -31,10 +31,10 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
       </p>
       <div className="flex flex-wrap gap-3">
         <button type="button" className="button-primary" onClick={retry}>
-          Try again
+          Try Again
         </button>
         <Link href="/" className="button-secondary">
-          Back to the directory
+          Back to the Directory
         </Link>
       </div>
       {error.digest ? <p className="text-sm text-muted">Reference: {error.digest}</p> : null}

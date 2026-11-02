@@ -213,7 +213,7 @@ function FormBody({
         />
 
         <Combobox
-          label="Scenes (optional)"
+          label="Scenes (Optional)"
           hint="Pick any they're part of, or type a new one, like Portland DIY."
           name="scene_ids"
           options={orderScenes(scenes).map((s) => ({
@@ -222,7 +222,7 @@ function FormBody({
             depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
           }))}
           defaultValue={v.sceneIds}
-          create={{ name: "new_scenes", defaultValue: splitNames(v.newScenes), verb: "New scene" }}
+          create={{ name: "new_scenes", defaultValue: splitNames(v.newScenes), verb: "New Scene" }}
           error={errors.newScenes}
         />
       </fieldset>
@@ -233,7 +233,7 @@ function FormBody({
         <legend className="mb-3 text-lg leading-6 font-semibold">Where things stand</legend>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="c-status" className="text-sm font-medium">
+          <label htmlFor="c-status" className="label">
             Status
           </label>
           <div className="flex flex-wrap items-center gap-3">
@@ -289,7 +289,7 @@ function FormBody({
         </div>
 
         <fieldset className="flex flex-col gap-3">
-          <legend className="text-sm font-medium">Links</legend>
+          <legend className="label">Links</legend>
           {links.map((link, i) => {
             const err = errors.linkUrls?.[i];
             const other = link.type === "Other";
@@ -315,7 +315,7 @@ function FormBody({
                     {...invalid(`c-link_url_${link.key}`, err)}
                   />
                 </Field>
-                <Field id={`c-link_type_${link.key}`} label={<>Link type{n}</>}>
+                <Field id={`c-link_type_${link.key}`} label={<>Link Type{n}</>}>
                   <select
                     id={`c-link_type_${link.key}`}
                     name="link_type"
@@ -364,11 +364,11 @@ function FormBody({
               setNextKey((k) => k + 1);
             }}
           >
-            Add a link
+            Add a Link
           </button>
         </fieldset>
 
-        <Field id="c-can_help_with" label="Can help with" hint="Separate with commas, like: music videos, DJ sets, gear.">
+        <Field id="c-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
           <input {...noAutofill}
             id="c-can_help_with"
             name="can_help_with"
@@ -432,7 +432,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-sm font-medium">
+      <label htmlFor={id} className="label">
         {label}
       </label>
       {hint ? (

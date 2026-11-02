@@ -55,7 +55,7 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
-        <label htmlFor="quick-status" className="text-sm font-medium">
+        <label htmlFor="quick-status" className="label">
           Status
         </label>
         <p id="quick-status-hint" className="-mt-1 text-sm text-muted">
@@ -96,7 +96,7 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
             {saved.playedTogether ? ", played together" : ""}.
           </p>
           <button type="button" className="button-secondary" onClick={() => save(failed)}>
-            Try again
+            Try Again
           </button>
         </div>
       ) : null}

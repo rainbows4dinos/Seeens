@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "New scene · Seeens" };
 export default function NewScenePage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px]">New scene</h1>
+      <h1 className="display-l sm:display-xl">New scene</h1>
       <Suspense fallback={<p className="text-muted">Loading…</p>}>
         <NewScene />
       </Suspense>
@@ -29,7 +29,7 @@ async function NewScene() {
       action={createScene}
       initial={{ name: "", description: "", parentId: "", placeId: "", placeText: "", keepLocalityId: "" }}
       parents={scenes.filter((s) => !s.parent_id)}
-      submitLabel="Add scene"
+      submitLabel="Add Scene"
     />
   );
 }

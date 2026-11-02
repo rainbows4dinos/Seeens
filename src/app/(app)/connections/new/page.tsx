@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Add connection · Seeens" };
 export default function NewConnectionPage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px]">Add connection</h1>
+      <h1 className="display-l sm:display-xl">Add connection</h1>
       <Suspense fallback={<p className="text-muted">Loading…</p>}>
         <NewConnection />
       </Suspense>
@@ -30,7 +30,7 @@ async function NewConnection() {
       action={createConnection}
       initial={EMPTY_FORM}
       scenes={scenes}
-      submitLabel="Add connection"
+      submitLabel="Add Connection"
       cancelHref="/"
     />
   );
