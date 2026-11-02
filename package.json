@@ -14,7 +14,8 @@
     "db:migration": "supabase migration new",
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
     "db:test": "supabase test db",
-    "test": "node --test --experimental-strip-types \"src/**/*.test.ts\""
+    "test": "node --test --experimental-strip-types \"src/**/*.test.ts\"",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@fontsource-variable/hanken-grotesk": "^5.3.0",
@@ -37,6 +38,7 @@
     "cities-with-1000": "^1.0.4",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "playwright": "^1.64.1",
     "supabase": "^2.122.0",
     "tailwindcss": "^4",
     "typescript": "^5"
