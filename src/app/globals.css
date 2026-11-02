@@ -112,6 +112,44 @@
   --radius-full: 0;
 }
 
+/* Display text styles, named after the Figma styles so they diff cleanly.
+   Utilities (not component classes) so breakpoints work: "display-l sm:display-xl". */
+@utility display-xxl {
+  font-family: var(--type-display);
+  font-weight: 700;
+  font-size: 96px;
+  line-height: 88px;
+  letter-spacing: -0.045em;
+}
+@utility display-xl {
+  font-family: var(--type-display);
+  font-weight: 700;
+  font-size: 52px;
+  line-height: 52px;
+  letter-spacing: -0.045em;
+}
+@utility display-l {
+  font-family: var(--type-display);
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 40px;
+  letter-spacing: -0.045em;
+}
+@utility display-m {
+  font-family: var(--type-display);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: -0.045em;
+}
+@utility display-s {
+  font-family: var(--type-display);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+}
+
 /* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */
@@ -172,14 +210,14 @@
    Components
    --------------------------------------------------------------------------- */
 @layer components {
-  /* Mono/Label: section labels like "HOMIES (5)". */
+  /* Mono/Label: form labels, section labels, and button text. Write labels
+     in APA title case ("Search by Name") unless they read as a sentence or
+     question ("Who's on it", "What is it?"). */
   .label {
     font-family: var(--type-mono);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    line-height: 16px;
+    line-height: 20px;
   }
   /* Mono/Caption: tiny metadata like "BAND". */
   .caption {
@@ -404,8 +442,8 @@
     box-shadow: inset 0 var(--stroke-hair) 0 var(--color-border-strong);
   }
 
-  /* Buttons: mono, boxed (Figma Button). Primary is ink; secondary is
-     paper. Hover inverts each one. */
+  /* Buttons: mono, boxed (Figma Button, text in Mono/Label). Primary is
+     ink; secondary is paper. Hover inverts each one. */
   .button-primary,
   .button-secondary {
     display: inline-flex;
@@ -415,12 +453,10 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
     padding: 0.25rem 0.75rem;
-    line-height: 16px;
+    line-height: 20px;
     font-family: var(--type-mono);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--color-text-primary);
     text-decoration: none;
   }

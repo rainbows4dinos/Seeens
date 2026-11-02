@@ -26,12 +26,12 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px] break-words">Edit {connection.name}</h1>
+      <h1 className="display-l sm:display-xl break-words">Edit {connection.name}</h1>
       <ConnectionForm
         action={updateConnection.bind(null, id)}
         initial={toFormValues(connection)}
         scenes={scenes}
-        submitLabel="Save changes"
+        submitLabel="Save Changes"
         cancelHref={`/connections/${id}`}
       />
     </div>

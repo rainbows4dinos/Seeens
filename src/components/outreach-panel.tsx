@@ -38,7 +38,7 @@ export function OutreachPanel({
       ) : (
         <div>
           <button type="button" className="button-secondary" onClick={() => setAdding(true)}>
-            Log outreach
+            Log Outreach
           </button>
         </div>
       )}
@@ -91,7 +91,7 @@ function EntryRow({ entry: e, mine, today }: { entry: Entry; mine: boolean; toda
               {pending ? "Removing…" : "Remove"}
             </button>
             <button type="button" className="button-secondary" onClick={() => setConfirming(false)}>
-              Keep it
+              Keep It
             </button>
           </div>
         ) : (
@@ -157,7 +157,7 @@ function LogForm({
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <label htmlFor="o-date" className="text-sm font-medium">
+          <label htmlFor="o-date" className="label">
             When
           </label>
           <input
@@ -178,7 +178,7 @@ function LogForm({
           ) : null}
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="o-channel" className="text-sm font-medium">
+          <label htmlFor="o-channel" className="label">
             How
           </label>
           <select
@@ -206,7 +206,7 @@ function LogForm({
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <label htmlFor="o-summary" className="text-sm font-medium">
+        <label htmlFor="o-summary" className="label">
           What happened
         </label>
         <textarea {...noAutofill}
@@ -226,7 +226,7 @@ function LogForm({
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <button type="submit" className="button-primary" disabled={pending}>
-          {pending ? "Saving…" : "Save to log"}
+          {pending ? "Saving…" : "Save to Log"}
         </button>
         <button type="button" className="button-secondary" onClick={onClose}>
           Close

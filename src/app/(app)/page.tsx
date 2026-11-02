@@ -90,9 +90,9 @@ async function Directory({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px]">Directory</h1>
+        <h1 className="display-l sm:display-xl">Directory</h1>
         <Link href="/connections/new" className="button-primary">
-          Add connection
+          Add Connection
         </Link>
       </div>
 
@@ -134,7 +134,7 @@ async function Directory({
               you&rsquo;ve played, or someone you&rsquo;d like to meet.
             </p>
             <Link href="/connections/new" className="button-secondary">
-              Add your first connection
+              Add Your First Connection
             </Link>
           </div>
         )
@@ -168,7 +168,7 @@ async function Directory({
                 Try fewer filters or a shorter search.
               </p>
               <Link href={viewHref(view)} className="button-secondary">
-                Clear filters
+                Clear Filters
               </Link>
             </div>
           ) : null}
@@ -295,8 +295,8 @@ function FilterForm({
       {view !== "current" ? <input type="hidden" name="view" value={view} /> : null}
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex min-w-48 flex-1 flex-col gap-2">
-          <label htmlFor="f-q" className="text-sm font-medium">
-            Search by name
+          <label htmlFor="f-q" className="label">
+            Search by Name
           </label>
           <input {...noAutofill}
             id="f-q"
@@ -311,7 +311,7 @@ function FilterForm({
         </button>
         {hasFilters(isList ? { ...f, statuses: [] } : f) ? (
           <Link href={clearHref} className="button-secondary">
-            Clear filters
+            Clear Filters
           </Link>
         ) : null}
       </div>

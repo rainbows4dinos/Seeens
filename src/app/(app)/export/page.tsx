@@ -39,7 +39,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
         <p className="font-medium">Nothing to export yet.</p>
         <p className="text-muted">Add a connection and it&rsquo;ll show up in the export.</p>
         <Link href="/connections/new" className="button-secondary">
-          Add a connection
+          Add a Connection
         </Link>
       </div>
     );
@@ -64,7 +64,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
 
       <form action="/api/export" method="get" className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
-          <label htmlFor="export-archived" className="text-sm font-medium">
+          <label htmlFor="export-archived" className="label">
             Which connections?
           </label>
           <select
@@ -98,7 +98,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
           text instead of running them.
         </p>
         <details>
-          <summary className="cursor-pointer text-muted">Column names</summary>
+          <summary className="cursor-pointer text-muted">Column Names</summary>
           <p className="pt-2 font-mono text-xs break-words">{EXPORT_COLUMNS.join(", ")}</p>
         </details>
       </section>

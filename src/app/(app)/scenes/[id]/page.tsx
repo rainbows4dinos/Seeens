@@ -26,7 +26,7 @@ async function EditScene({ params }: { params: PageProps<"/scenes/[id]">["params
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px] break-words">Edit {scene.name}</h1>
+      <h1 className="display-l sm:display-xl break-words">Edit {scene.name}</h1>
       <SceneForm
         action={updateScene.bind(null, id)}
         initial={{
@@ -38,7 +38,7 @@ async function EditScene({ params }: { params: PageProps<"/scenes/[id]">["params
           keepLocalityId: l && !l.place_id && scene.locality_id ? scene.locality_id : "",
         }}
         parents={scenes.filter((s) => !s.parent_id && s.id !== id)}
-        submitLabel="Save changes"
+        submitLabel="Save Changes"
         sceneId={id}
         sceneName={scene.name}
       />

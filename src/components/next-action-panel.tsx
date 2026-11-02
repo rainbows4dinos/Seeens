@@ -70,13 +70,13 @@ export function NextActionPanel({
           </p>
           <div className="flex flex-wrap gap-2">
             <button ref={editRef} type="button" className="button-secondary" onClick={() => setEditing(true)}>
-              Change plan
+              Change Plan
             </button>
             <button type="button" className="button-secondary" disabled={closing} onClick={() => close("done")}>
               Done
             </button>
             <button type="button" className="button-secondary" disabled={closing} onClick={() => close("dropped")}>
-              Drop it
+              Drop It
             </button>
           </div>
         </>
@@ -85,7 +85,7 @@ export function NextActionPanel({
           <p className="text-muted">Nothing planned.</p>
           <div>
             <button ref={editRef} type="button" className="button-secondary" onClick={() => setEditing(true)}>
-              Plan a next step
+              Plan a Next Step
             </button>
           </div>
         </>
@@ -159,8 +159,8 @@ function PlanForm({
         </p>
       ) : null}
       <div className="flex flex-col gap-2">
-        <label htmlFor="na-description" className="text-sm font-medium">
-          Next step
+        <label htmlFor="na-description" className="label">
+          Next Step
         </label>
         <input {...noAutofill}
           ref={firstRef}
@@ -180,7 +180,7 @@ function PlanForm({
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <label htmlFor="na-assignee" className="text-sm font-medium">
+          <label htmlFor="na-assignee" className="label">
             Who&rsquo;s on it
           </label>
           <select
@@ -206,8 +206,8 @@ function PlanForm({
           ) : null}
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="na-due" className="text-sm font-medium">
-            Follow up on <span className="font-normal text-muted">(optional)</span>
+          <label htmlFor="na-due" className="label">
+            Follow up on <span className="font-normal text-muted">(Optional)</span>
           </label>
           <input
             id="na-due"
@@ -227,7 +227,7 @@ function PlanForm({
       </div>
       <div className="flex flex-wrap gap-2">
         <button type="submit" className="button-primary" disabled={pending}>
-          {pending ? "Saving…" : "Save plan"}
+          {pending ? "Saving…" : "Save Plan"}
         </button>
         <button type="button" className="button-secondary" onClick={() => onDone(false)}>
           Cancel

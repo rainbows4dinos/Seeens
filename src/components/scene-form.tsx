@@ -61,7 +61,7 @@ export function SceneForm({
         ) : null}
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="s-name" className="text-sm font-medium">
+          <label htmlFor="s-name" className="label">
             Name
           </label>
           <p id="s-name-hint" className="-mt-1 text-sm text-muted">
@@ -87,13 +87,13 @@ export function SceneForm({
           initialLabel={v.placeText}
           keepLocalityId={v.keepLocalityId || null}
           error={errors.placeText}
-          label="Town (optional)"
+          label="Town (Optional)"
           hint="Where the scene is centered. Leave empty for a region like the Pacific Northwest."
         />
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="s-parent" className="text-sm font-medium">
-            Part of a bigger scene? <span className="font-normal text-muted">(optional)</span>
+          <label htmlFor="s-parent" className="label">
+            Part of a bigger scene? <span className="font-normal text-muted">(Optional)</span>
           </label>
           <select
             id="s-parent"
@@ -118,8 +118,8 @@ export function SceneForm({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="s-description" className="text-sm font-medium">
-            Description <span className="font-normal text-muted">(optional)</span>
+          <label htmlFor="s-description" className="label">
+            Description <span className="font-normal text-muted">(Optional)</span>
           </label>
           <textarea {...noAutofill} id="s-description" name="description" rows={3} defaultValue={v.description} className="field" />
         </div>
@@ -148,7 +148,7 @@ function RemoveScene({ id, name }: { id: string; name: string }) {
     <div className="flex flex-col gap-3 rule-top pt-6">
       {!confirming ? (
         <button type="button" className="button-secondary self-start" onClick={() => setConfirming(true)}>
-          Remove scene
+          Remove Scene
         </button>
       ) : (
         <div role="group" aria-label={`Remove ${name}`} className="flex flex-col gap-3 panel p-4">

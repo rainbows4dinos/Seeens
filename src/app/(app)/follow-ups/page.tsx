@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 export default function FollowUpsPage({ searchParams }: PageProps<"/follow-ups">) {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-bold sm:text-[52px] sm:leading-[52px]">Follow-ups</h1>
+      <h1 className="display-l sm:display-xl">Follow-ups</h1>
       <Suspense fallback={<p className="text-muted">Loading follow-ups…</p>}>
         <FollowUps searchParams={searchParams} />
       </Suspense>
@@ -53,7 +53,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
 
       <form action="/follow-ups" method="get" className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col gap-2">
-          <label htmlFor="fu-who" className="text-sm font-medium">
+          <label htmlFor="fu-who" className="label">
             Who&rsquo;s on it
           </label>
           <select id="fu-who" name="who" defaultValue={who} className="field">
@@ -77,20 +77,20 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
           <p className="font-medium">Nothing planned.</p>
           <p className="text-muted">Plan a next step from any connection&rsquo;s page and it shows up here.</p>
           <Link href="/" className="button-secondary">
-            Go to the directory
+            Go to the Directory
           </Link>
         </div>
       ) : shown.length === 0 ? (
         <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
           <p className="font-medium">Nothing planned for them.</p>
           <Link href="/follow-ups" className="button-secondary">
-            Show everyone
+            Show Everyone
           </Link>
         </div>
       ) : (
         <>
-          {dated.length ? <ActionList title="With a date" actions={dated} today={today} /> : null}
-          {undated.length ? <ActionList title="No date yet" actions={undated} today={today} /> : null}
+          {dated.length ? <ActionList title="With a Date" actions={dated} today={today} /> : null}
+          {undated.length ? <ActionList title="No Date Yet" actions={undated} today={today} /> : null}
         </>
       )}
     </div>

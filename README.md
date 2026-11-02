@@ -14,6 +14,8 @@ Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27,
 
 All data shown is fictional sample data from `supabase/seed.sql`.
 
+To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run screenshots` (first time: `npx playwright install chromium`).
+
 | | |
 | --- | --- |
 | ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png) | ![A band's page with status, next action, outreach log, and connections](docs/screenshots/connection.png) |

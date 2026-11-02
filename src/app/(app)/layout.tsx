@@ -65,7 +65,7 @@ async function Account() {
       </p>
       <form action="/auth/signout" method="post">
         <button type="submit" className="button-secondary">
-          Sign out
+          Sign Out
         </button>
       </form>
     </div>
