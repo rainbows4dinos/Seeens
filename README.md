@@ -124,6 +124,8 @@ The schema lives in `supabase/migrations/`. Every private table carries a `works
 
 History is kept, not overwritten: connections are archived instead of deleted, status changes are logged, replacing a next action closes the old one (`set_next_action`), and outreach entries can only be changed by their author.
 
+Saves that touch several tables run as one database function, so they either fully land or change nothing: `save_connection` (the connection, its town, links, and scenes) and `create_linked_connection` (adding someone new as a member, label, or related band).
+
 ### Pushing to the hosted project
 
 ```bash
