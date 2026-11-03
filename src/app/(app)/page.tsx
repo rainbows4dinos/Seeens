@@ -1,7 +1,8 @@
 import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
 import { Combobox } from "@/components/combobox";
-import { AutoFilterForm, FilterPanel } from "@/components/filter-form";
+import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
+import { Add } from "@carbon/icons-react";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { ConnectionCard } from "@/components/connection-card";
@@ -102,61 +103,67 @@ async function Directory({
       network.sharedMembersWithUs(id).length ? "Shares a member" : null,
     ].filter((t): t is string => Boolean(t));
 
+  const filtersOpen = Boolean(asked.statuses.length || filters.type || filters.scene || filters.town);
+  const clearable = hasFilters(list ? { ...asked, statuses: [] } : asked);
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    // key: a server render with a different layout (a shared link) resets it.
+    <LayoutProvider key={layout} initial={layout}>
+      <div className="flex flex-col gap-6">
         <h1 className="display-l sm:display-xl">Directory</h1>
-        <Link href="/connections/new" className="button-primary">
-          Add Connection
-        </Link>
-      </div>
 
-      <nav aria-label="Directory views" className="segmented">
-        {VIEWS.map((v) => (
-          <ViewLink key={v.id} href={viewHref(v.id)} current={view === v.id}>
-            {v.label}
-          </ViewLink>
-        ))}
-      </nav>
-
-      {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
-
-      {all.length ? (
-        <FilterForm
-          filters={filters}
-          view={view}
-          scenes={nestScenes(scenes)}
-          towns={towns}
-          open={Boolean(
-            asked.statuses.length ||
-            filters.type ||
-            filters.scene ||
-            filters.town,
-          )}
-        />
-      ) : null}
-
-      {all.length === 0 ? (
-        archived ? (
-          <p className="text-muted">Nothing archived.</p>
-        ) : list ? (
-          <p className="text-muted">{list.empty}</p>
-        ) : (
-          <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-            <p className="font-medium">No connections yet.</p>
-            <p className="text-muted">
-              Start with a band you&rsquo;ve shared a bill with, a venue
-              you&rsquo;ve played, or someone you&rsquo;d like to meet.
-            </p>
-            <Link href="/connections/new" className="button-secondary">
-              Add Your First Connection
-            </Link>
-          </div>
-        )
-      ) : (
-        // key: a server render with a different layout (a shared link) resets it.
-        <LayoutProvider key={layout} initial={layout}>
+        {/* Every directory control in one bar, pinned while the list scrolls.
+            Phones pin only the search row. */}
+        <div className="directory-bar">
           <div className="flex flex-wrap items-center justify-between gap-3">
+            <nav aria-label="Directory views" className="segmented">
+              {VIEWS.map((v) => (
+                <ViewLink key={v.id} href={viewHref(v.id)} current={view === v.id}>
+                  {v.label}
+                </ViewLink>
+              ))}
+            </nav>
+            <div className="flex flex-wrap items-center gap-3">
+              {all.length ? <LayoutToggle hrefs={layoutHrefs} /> : null}
+              <Link href="/connections/new" className="button-primary">
+                <Add size={16} aria-hidden="true" />
+                Add Connection
+              </Link>
+            </div>
+          </div>
+
+          {all.length ? (
+            <FilterForm
+              filters={filters}
+              view={view}
+              scenes={nestScenes(scenes)}
+              towns={towns}
+              open={filtersOpen}
+            />
+          ) : null}
+        </div>
+
+        {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
+
+        {all.length === 0 ? (
+          archived ? (
+            <p className="text-muted">Nothing archived.</p>
+          ) : list ? (
+            <p className="text-muted">{list.empty}</p>
+          ) : (
+            <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
+              <p className="font-medium">No connections yet.</p>
+              <p className="text-muted">
+                Start with a band you&rsquo;ve shared a bill with, a venue
+                you&rsquo;ve played, or someone you&rsquo;d like to meet.
+              </p>
+              <Link href="/connections/new" className="button-secondary">
+                Add Your First Connection
+              </Link>
+            </div>
+          )
+        ) : (
+          <>
             <div
               className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted"
               aria-live="polite"
@@ -174,68 +181,72 @@ async function Directory({
                   {hiddenAvoid} in Avoid, hidden. Show them
                 </Link>
               ) : null}
+              {clearable ? (
+                <Link href={viewHref(view)} className="link">
+                  Clear filters
+                </Link>
+              ) : null}
             </div>
-            {connections.length ? <LayoutToggle hrefs={layoutHrefs} /> : null}
-          </div>
 
-          {connections.length === 0 && list && !filtering ? (
-            <p className="text-muted">{list.empty}</p>
-          ) : connections.length === 0 ? (
-            <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-              <p className="font-medium">Nothing matches.</p>
-              <p className="text-muted">
-                Try fewer filters or a shorter search.
-              </p>
-              <Link href={viewHref(view)} className="button-secondary">
-                Clear Filters
-              </Link>
-            </div>
-          ) : null}
+            {connections.length === 0 && list && !filtering ? (
+              <p className="text-muted">{list.empty}</p>
+            ) : connections.length === 0 ? (
+              <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
+                <p className="font-medium">Nothing matches.</p>
+                <p className="text-muted">
+                  Try fewer filters or a shorter search.
+                </p>
+                <Link href={viewHref(view)} className="button-secondary">
+                  Clear Filters
+                </Link>
+              </div>
+            ) : null}
 
-          {us.length ? (
-            <section aria-labelledby="group-us" className="flex flex-col gap-2">
-              <h2
-                id="group-us"
-                className="label"
-              >
-                <span className="tag tag-ink">Us</span>
-              </h2>
-              <ConnectionGroup connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
-            </section>
-          ) : null}
-          {STATUSES.map((status) => {
-            const group = connections.filter(
-              (c) => c.status === status && !c.is_us,
-            );
-            if (!group.length) return null;
-            return (
-              <section
-                key={status}
-                aria-labelledby={`group-${status}`}
-                className="flex flex-col gap-2"
-              >
+            {us.length ? (
+              <section aria-labelledby="group-us" className="flex flex-col gap-2">
                 <h2
-                  id={`group-${status}`}
+                  id="group-us"
                   className="label"
                 >
-                  <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
-                  <span className="text-muted">({group.length})</span>
+                  <span className="tag tag-ink">Us</span>
                 </h2>
-                <ConnectionGroup connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
+                <ConnectionGroup connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
               </section>
-            );
-          })}
-        </LayoutProvider>
-      )}
+            ) : null}
+            {STATUSES.map((status) => {
+              const group = connections.filter(
+                (c) => c.status === status && !c.is_us,
+              );
+              if (!group.length) return null;
+              return (
+                <section
+                  key={status}
+                  aria-labelledby={`group-${status}`}
+                  className="flex flex-col gap-2"
+                >
+                  <h2
+                    id={`group-${status}`}
+                    className="label"
+                  >
+                    <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
+                    <span className="text-muted">({group.length})</span>
+                  </h2>
+                  <ConnectionGroup connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
+                </section>
+              );
+            })}
+          </>
+        )}
 
-      {all.length ? (
-        <p className="rule-top pt-4">
-          <Link href="/export" className="action-link text-sm">
-            Export the directory as CSV
-          </Link>
-        </p>
-      ) : null}
-    </div>
+        {all.length ? (
+          <p className="rule-top pt-4">
+            <Link href="/export" className="action-link text-sm">
+              Export the directory as CSV
+            </Link>
+          </p>
+        ) : null}
+      </div>
+    </LayoutProvider>
   );
 }
 
@@ -314,98 +325,94 @@ function FilterForm({
   towns: (readonly [string, string])[];
   open: boolean;
 }) {
-  const clearHref = viewHref(view);
   const isList = Boolean(LISTS[view as ListView]);
+  const active = [!isList && f.statuses.length, f.type, f.scene, f.town].filter(Boolean).length;
   return (
     <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
-      className="page-measure flex flex-col gap-3"
+      className="bar-search page-measure flex flex-col gap-3"
     >
       {view !== "current" ? <input type="hidden" name="view" value={view} /> : null}
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex min-w-48 flex-1 flex-col gap-2">
-          <label htmlFor="f-q" className="label">
-            Search by Name
-          </label>
-          <input {...noAutofill}
-            id="f-q"
-            name="q"
-            type="search"
-            defaultValue={f.q}
-            className="field"
-          />
-        </div>
-        <button type="submit" className="button-primary">
-          Search
-        </button>
-        {hasFilters(isList ? { ...f, statuses: [] } : f) ? (
-          <Link href={clearHref} className="button-secondary">
-            Clear Filters
-          </Link>
-        ) : null}
-      </div>
-
-      <FilterPanel
+      <FilterDisclosure
         initialOpen={open}
-        summary={
-          <summary className="cursor-pointer text-sm font-medium">
-            Filters
-          </summary>
+        active={active}
+        search={
+          <>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <label htmlFor="f-q" className="sr-only">
+                Search by Name
+              </label>
+              <input {...noAutofill}
+                id="f-q"
+                name="q"
+                type="search"
+                placeholder="Search by Name"
+                defaultValue={f.q}
+                className="field"
+              />
+            </div>
+            <button type="submit" className="button-primary">
+              Search
+            </button>
+          </>
         }
       >
-        <div className="flex flex-col gap-4 pt-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {isList ? null : (
-              <Combobox
-                label="Status"
-                name="status"
-                options={STATUSES.map((st) => ({ value: st, label: STATUS_LABELS[st] }))}
-                defaultValue={f.statuses}
-                autoSubmit
-              />
-            )}
+        <div className={`grid grid-cols-2 gap-3 ${isList ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
+          {isList ? null : (
             <Combobox
-              label="Type"
-              name="type"
-              multiple={false}
-              placeholder="Any"
-              options={TYPE_OPTIONS.map((o) => ({
-                value: o.value,
-                label: o.label,
-                hint: o.group === "People" ? "person" : "group",
-              }))}
-              defaultValue={f.type ? [f.type] : []}
+              label="Status"
+              labelClassName="sr-only"
+              name="status"
+              placeholder="Status"
+              options={STATUSES.map((st) => ({ value: st, label: STATUS_LABELS[st] }))}
+              defaultValue={f.statuses}
               autoSubmit
             />
-            <Combobox
-              label="Scene"
-              name="scene"
-              multiple={false}
-              placeholder="Any"
-              options={scenes.flatMap(({ scene, children }) => [
-                {
-                  value: scene.id,
-                  label: scene.name,
-                  hint: children.length ? "and the scenes inside it" : undefined,
-                },
-                ...children.map((c) => ({ value: c.id, label: c.name, depth: 1 })),
-              ])}
-              defaultValue={f.scene ? [f.scene] : []}
-              autoSubmit
-            />
-            <Combobox
-              label="Town"
-              name="town"
-              multiple={false}
-              placeholder="Any"
-              options={towns.map(([id, label]) => ({ value: id, label }))}
-              defaultValue={f.town ? [f.town] : []}
-              autoSubmit
-            />
-          </div>
+          )}
+          <Combobox
+            label="Connection Type"
+            labelClassName="sr-only"
+            name="type"
+            multiple={false}
+            placeholder="Connection Type"
+            options={TYPE_OPTIONS.map((o) => ({
+              value: o.value,
+              label: o.label,
+              hint: o.group === "People" ? "person" : "group",
+            }))}
+            defaultValue={f.type ? [f.type] : []}
+            autoSubmit
+          />
+          <Combobox
+            label="Scene"
+            labelClassName="sr-only"
+            name="scene"
+            multiple={false}
+            placeholder="Scene"
+            options={scenes.flatMap(({ scene, children }) => [
+              {
+                value: scene.id,
+                label: scene.name,
+                hint: children.length ? "and the scenes inside it" : undefined,
+              },
+              ...children.map((c) => ({ value: c.id, label: c.name, depth: 1 })),
+            ])}
+            defaultValue={f.scene ? [f.scene] : []}
+            autoSubmit
+          />
+          <Combobox
+            label="Town"
+            labelClassName="sr-only"
+            name="town"
+            multiple={false}
+            placeholder="Town"
+            options={towns.map(([id, label]) => ({ value: id, label }))}
+            defaultValue={f.town ? [f.town] : []}
+            autoSubmit
+          />
         </div>
-      </FilterPanel>
+      </FilterDisclosure>
     </AutoFilterForm>
   );
 }

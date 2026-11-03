@@ -454,6 +454,7 @@
     min-height: var(--control-height);
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
+    gap: 6px;
     padding: 0.25rem 0.75rem;
     line-height: 20px;
     font-family: var(--type-mono);
@@ -461,6 +462,10 @@
     font-weight: 500;
     color: var(--color-text-primary);
     text-decoration: none;
+  }
+  /* Figma Button with Icon L: 8px in from the edge, icon, then the label. */
+  :is(.button-primary, .button-secondary):has(> svg:first-child) {
+    padding-left: 8px;
   }
   .button-primary {
     background: var(--color-accent-primary);
@@ -534,13 +539,67 @@
      wider screens, so the directory and Boards can use the room. Reading and
      form pages hold a measure instead, left-aligned with the logo. */
   .page-gutter {
-    padding-inline: 16px;
+    --gutter: 16px;
+    padding-inline: var(--gutter);
     @media (width >= 48rem) {
-      padding-inline: 24px;
+      --gutter: 24px;
     }
     @media (width >= 80rem) {
-      padding-inline: 32px;
+      --gutter: 32px;
     }
+  }
+
+  /* Directory controls: views, layout, Add, search, and filters in one bar,
+     pinned to the top of the window while the list scrolls. It runs edge to
+     edge (back out through the gutter) on solid ground so rows slide under
+     it, with a hairline underneath, like the save bar. Phones pin only the
+     search row (and the filters, when open); the views scroll away. */
+  .directory-bar,
+  .bar-search {
+    --bar-pad: 12px;
+  }
+  .directory-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* Phones: let the search row stick to the page, not to this box. */
+    @media (width < 48rem) {
+      display: contents;
+    }
+    @media (width >= 48rem) {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin-inline: calc(-1 * var(--gutter));
+      padding: var(--bar-pad) var(--gutter);
+      background: var(--color-bg-ground);
+      box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);
+    }
+  }
+  /* Doubled class to beat .page-measure, which the form uses on wider screens. */
+  .bar-search.bar-search {
+    @media (width < 48rem) {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin-inline: calc(-1 * var(--gutter));
+      /* Full bleed, so the measure no longer applies. The bar's padding
+         stands in for part of the page gap above it. */
+      margin-top: -12px;
+      width: auto;
+      max-width: none;
+      padding: var(--bar-pad) var(--gutter);
+      background: var(--color-bg-ground);
+      box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);
+    }
+  }
+  /* A short vertical rule between search and Show Filters (Figma "vr"). */
+  .bar-divider {
+    flex: none;
+    align-self: stretch;
+    width: 12px;
+    background: linear-gradient(var(--color-border-strong), var(--color-border-strong)) center / var(--stroke-hair) 20px
+      no-repeat;
   }
 
   .page-measure {

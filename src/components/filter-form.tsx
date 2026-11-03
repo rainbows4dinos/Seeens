@@ -2,7 +2,8 @@
 
 import Form from "next/form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { SettingsAdjust } from "@carbon/icons-react";
+import { useEffect, useId, useRef, useState } from "react";
 
 // The directory's search and filter form. A plain GET form (the URL stays
 // shareable), navigated client-side by next/form. Menus apply as soon as
@@ -43,22 +44,46 @@ export function AutoFilterForm({
   );
 }
 
-// Starts open when the URL has filters, then stays however the person left
-// it. A plain open={…} would snap shut when the last filter is cleared.
-export function FilterPanel({
+// The search row and the filter fields under it. "Show Filters" toggles the
+// fields; they start open when the URL has filters, then stay however the
+// person left them (a plain open={…} would snap shut when the last filter
+// is cleared).
+export function FilterDisclosure({
   initialOpen,
-  summary,
+  active,
+  search,
   children,
 }: {
   initialOpen: boolean;
-  summary: React.ReactNode;
+  /** How many filters are set, shown on the button while the fields are hidden. */
+  active: number;
+  search: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(initialOpen);
+  const panelId = useId();
+  const label = open ? "Hide Filters" : "Show Filters";
   return (
-    <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
-      {summary}
-      {children}
-    </details>
+    <>
+      <div className="flex items-end gap-2">
+        {search}
+        <span className="bar-divider" aria-hidden="true" />
+        <button
+          type="button"
+          className="button-primary"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <SettingsAdjust size={16} aria-hidden="true" />
+          {/* Phones show the icon and count; the name is still read out. */}
+          <span className="max-sm:sr-only">{label}</span>
+          {!open && active ? <span className="tabular-nums">({active})</span> : null}
+        </button>
+      </div>
+      <div id={panelId} hidden={!open}>
+        {children}
+      </div>
+    </>
   );
 }
