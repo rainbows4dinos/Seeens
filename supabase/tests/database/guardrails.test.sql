@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(17);
 
 insert into auth.users (id, email) values
   ('9a111111-1111-1111-1111-111111111111', 'guard-alex@example.com'),
@@ -124,6 +124,25 @@ select is(
   (select created_by from public.connections where id = '9ac00000-0000-0000-0000-000000000002'),
   null,
   'their connections stay, without an author'
+);
+
+-- ---------------------------------------------------------------------------
+-- Band time zone (#86)
+-- ---------------------------------------------------------------------------
+
+select is(
+  (select time_zone from public.workspaces where id = '9aaaaaaa-0000-0000-0000-0000000000a1'),
+  'America/Los_Angeles',
+  'a band''s time zone defaults to Pacific'
+);
+select lives_ok(
+  $$update public.workspaces set time_zone = 'America/New_York' where id = '9aaaaaaa-0000-0000-0000-0000000000a1'$$,
+  'a real time zone can be set'
+);
+select throws_ok(
+  $$update public.workspaces set time_zone = 'Mars/Olympus' where id = '9aaaaaaa-0000-0000-0000-0000000000a1'$$,
+  '23514', null,
+  'a made-up time zone is rejected'
 );
 
 select * from finish();

@@ -1,18 +1,20 @@
 import "server-only";
-import { requireWorkspaceId } from "@/lib/auth/dal";
+import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
 import { STATUS_LABELS, formatType } from "@/lib/connections/labels";
 import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
 
-// Timestamps become the band's local (Pacific) calendar date, YYYY-MM-DD.
-const day = (ts: string | null) => (ts ? todayISO(new Date(ts)) : "");
 
 // Everything in the current workspace. Outreach history is
 // not included.
 export async function buildExportRows({ includeArchived }: { includeArchived: boolean }) {
-  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
+  const [supabase, membership] = await Promise.all([createClient(), getMembership()]);
+  if (!membership) throw new Error("Not in a workspace.");
+  const ws = membership.workspaceId;
+  // Timestamps become calendar dates (YYYY-MM-DD) in the band's time zone.
+  const day = (ts: string | null) => (ts ? todayISO(new Date(ts), membership.timeZone) : "");
   // Paged, so a big directory exports every row instead of the first 1,000.
   const data = await fetchAll((from, to) => {
     const query = supabase

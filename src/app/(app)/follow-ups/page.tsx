@@ -52,7 +52,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
   ]);
   if (actions.error || members.error) throw new Error("Couldn't load follow-ups.");
 
-  const today = todayISO();
+  const today = todayISO(new Date(), membership.timeZone);
   const open = (actions.data ?? []).filter((a) => a.connection && !a.connection.archived_at);
   const shown = open.filter((a) => (who === "" ? true : who === "anyone" ? !a.assignee_id : a.assignee_id === who));
   const dated = shown.filter((a) => a.due_on);
