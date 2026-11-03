@@ -1,6 +1,7 @@
 import type { LinkRow } from "@/components/links-panel";
 import type { ConnectionDetail } from "@/lib/connections/queries";
 import { addOptionsFor, sectionFor } from "./options";
+import { catalogNo } from "@/lib/connections/card";
 
 // Everything the Connections block (LinksPanel) needs for one connection.
 // Shared by the detail and edit pages so both show the same thing.
@@ -30,6 +31,7 @@ function linkRows(
           otherId: a.other.id,
           otherName: a.other.is_us ? `${a.other.name} (us)` : a.other.name,
           otherArchived: Boolean(a.other.archived_at),
+          otherCatalog: catalogNo(a.other),
           role: a.role,
           isCurrent: a.is_current,
           notes: a.notes,

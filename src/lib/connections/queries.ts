@@ -4,6 +4,7 @@ import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
 import { buildNetwork } from "./network";
+import { catalogNo } from "./card";
 import { formatPlace } from "@/lib/places";
 import { EMPTY_FORM, type ConnectionFormValues } from "./form";
 
@@ -38,14 +39,14 @@ export async function getConnection(id: string) {
     supabase
       .from("affiliations")
       .select(
-        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, is_us, archived_at )",
+        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, archived_at )",
       )
       .eq("from_connection_id", id)
       .eq("workspace_id", ws),
     supabase
       .from("affiliations")
       .select(
-        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, is_us, archived_at )",
+        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, archived_at )",
       )
       .eq("to_connection_id", id)
       .eq("workspace_id", ws),
@@ -123,7 +124,10 @@ export async function getConnection(id: string) {
     candidates: network.connections
       .filter((c) => c.id !== id && !c.archived_at)
       .map(({ id, name, kind, group_type }) => ({ id, name, kind, group_type })),
-    labelMates: network.labelMatesOf(id),
+    labelMates: network.labelMatesOf(id).map((m) => {
+      const mate = network.connections.find((n) => n.id === m.id);
+      return { ...m, catalog: mate ? catalogNo(mate) : null };
+    }),
     sharedWithUs: network.sharedMembersWithUs(id),
     isLabelMateWithUs: network.isLabelMateWithUs(id),
   };
@@ -164,7 +168,7 @@ export async function loadNetwork() {
     fetchAll((from, to) =>
       supabase
         .from("connections")
-        .select("id, name, kind, group_type, is_us, archived_at")
+        .select("id, name, kind, group_type, person_roles, catalog_no, is_us, archived_at")
         .eq("workspace_id", ws)
         .order("name")
         .order("id")

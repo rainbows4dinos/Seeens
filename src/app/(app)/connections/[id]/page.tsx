@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { catalogNo } from "@/lib/connections/card";
 import { Suspense } from "react";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { todayISO } from "@/lib/outreach/labels";
@@ -69,7 +70,7 @@ async function Connection({
           </Link>
         </div>
         <p className="text-muted">
-          {[formatType(c), place].filter(Boolean).join(" · ")}
+          {[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}
         </p>
         {/* Where things stand in time: the latest outreach and the next plan.
             Details are in Next action and Outreach log below. */}
@@ -163,6 +164,7 @@ async function Connection({
                   {m.name}
                 </Link>
                 {m.is_us ? <span className="text-muted"> (us)</span> : null}
+                {m.catalog ? <span className="caption whitespace-nowrap"> {m.catalog}</span> : null}
               </li>
             ))}
           </ul>

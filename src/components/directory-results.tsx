@@ -8,6 +8,7 @@ import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
 import { STATUSES, STATUS_LABELS, formatLocality, formatType } from "@/lib/connections/labels";
+import { catalogNo } from "@/lib/connections/card";
 
 // The directory's rows or cards, grouped by status, a page at a time.
 // "Show More" fetches the next page and appends it in place; a group that
@@ -137,7 +138,9 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                   <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">
                     {c.name}
                   </span>
-                  <span className="caption">{formatType(c)}</span>
+                  <span className="caption">
+                    {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
+                  </span>
                 </span>
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>

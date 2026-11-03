@@ -3,6 +3,7 @@ import Papa from "papaparse";
 // Stable export columns. Don't rename or reorder: people build spreadsheets
 // on top of these headers. Add new columns at the end.
 export const EXPORT_COLUMNS = [
+  "catalog_no",
   "name",
   "kind",
   "types",

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { DateLines } from "@/components/date-line";
 import { formatLocality, formatType, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
-import { initials, recordId } from "@/lib/connections/card";
+import { catalogNo, initials } from "@/lib/connections/card";
 
 // Figma Connection Card: a print on top, a machine meta box below, both
 // straight (tilt is only for small pieces like tape and script notes). The
@@ -19,6 +19,7 @@ export type CardConnection = {
   person_roles: PersonRole[];
   group_type: GroupType | null;
   played_together: boolean;
+  catalog_no: number;
   localities: Parameters<typeof formatLocality>[0];
   outreach_entries: { occurred_on: string; summary: string }[];
   next_actions: { description: string; due_on: string | null }[];
@@ -48,9 +49,7 @@ export function ConnectionCard({
           <span className="display-m break-words">{c.name}</span>
           <span className="caption flex items-start justify-between gap-3">
             <span>{[formatType(c), place].filter(Boolean).join(" · ")}</span>
-            <span aria-hidden="true" className="shrink-0 whitespace-nowrap">
-              {recordId(c.id)}
-            </span>
+            <span className="shrink-0 whitespace-nowrap">{catalogNo(c)}</span>
           </span>
         </span>
         {tags.length ? <span className="flex flex-wrap gap-1">{tags}</span> : null}

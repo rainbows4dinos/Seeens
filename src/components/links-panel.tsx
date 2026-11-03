@@ -26,6 +26,8 @@ export type LinkRow = {
   section: string;
   otherId: string;
   otherName: string;
+  /** "BND-0042" */
+  otherCatalog: string;
   otherArchived: boolean;
   role: string | null;
   isCurrent: boolean;
@@ -154,7 +156,8 @@ function LinkItem({ row }: { row: LinkRow }) {
         <p>
           <Link href={`/connections/${row.otherId}`} className="link font-medium">
             {row.otherName}
-          </Link>
+          </Link>{" "}
+          <span className="caption whitespace-nowrap">{row.otherCatalog}</span>
           {row.role ? <span> · {row.role}</span> : null}
           {!row.isCurrent ? <span className="text-muted"> (former)</span> : null}
           {row.otherArchived ? <span className="text-muted"> (archived)</span> : null}
