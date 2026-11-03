@@ -92,7 +92,10 @@ export function Combobox({
       return;
     }
     onChange?.(selected, created);
-    if (autoSubmit) (inputRef.current?.form ?? wrapRef.current?.closest("form"))?.requestSubmit();
+    // Picks that only caught up with the URL (filters cleared by a link)
+    // are already applied; submitting them again would navigate twice.
+    if (autoSubmit && selected.join("\u0000") !== defaultKey)
+      (inputRef.current?.form ?? wrapRef.current?.closest("form"))?.requestSubmit();
     // onChange is a callback prop; only react to the picks themselves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, created, autoSubmit]);

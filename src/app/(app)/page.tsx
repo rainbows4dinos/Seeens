@@ -1,11 +1,13 @@
 import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
 import { Combobox } from "@/components/combobox";
-import { AutoFilterForm, FilterPanel } from "@/components/filter-form";
+import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
+import { Add, Search as SearchIcon } from "@carbon/icons-react";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { ConnectionCard } from "@/components/connection-card";
 import { LayoutProvider, LayoutSlot, LayoutToggle } from "@/components/layout-toggle";
+import { PinWatch } from "@/components/pin-watch";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { loadDirectory } from "@/lib/connections/queries";
@@ -102,61 +104,69 @@ async function Directory({
       network.sharedMembersWithUs(id).length ? "Shares a member" : null,
     ].filter((t): t is string => Boolean(t));
 
+  const filtersOpen = Boolean(asked.statuses.length || filters.type || filters.scene || filters.town);
+  const clearable = hasFilters(list ? { ...asked, statuses: [] } : asked);
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    // key: a server render with a different layout (a shared link) resets it.
+    <LayoutProvider key={layout} initial={layout}>
+      <div className="flex flex-col gap-6">
         <h1 className="display-l sm:display-xl">Directory</h1>
-        <Link href="/connections/new" className="button-primary">
-          Add Connection
-        </Link>
-      </div>
 
-      <nav aria-label="Directory views" className="segmented">
-        {VIEWS.map((v) => (
-          <ViewLink key={v.id} href={viewHref(v.id)} current={view === v.id}>
-            {v.label}
-          </ViewLink>
-        ))}
-      </nav>
+        {/* Every directory control in one bar, pinned while the list scrolls.
+            Phones pin only the search row. */}
+        <PinWatch selector=".directory-bar, .bar-search" />
+        {/* DOM order is reading and tab order: views, search and filters,
+            then Add. Wide screens fit it all on one row; narrower ones put
+            views and Add on top and search under them (see .directory-bar). */}
+        <div className="directory-bar">
+          <nav aria-label="Directory views" className="segmented bar-views">
+            {VIEWS.map((v) => (
+              <ViewLink key={v.id} href={viewHref(v.id)} current={view === v.id}>
+                {v.label}
+              </ViewLink>
+            ))}
+          </nav>
 
-      {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
+          {/* Phones stack the bar in the page column, so Add goes above the
+              pinned search row. Only one of the two Adds is ever displayed. */}
+          <AddConnection className="self-start md:hidden" />
 
-      {all.length ? (
-        <FilterForm
-          filters={filters}
-          view={view}
-          scenes={nestScenes(scenes)}
-          towns={towns}
-          open={Boolean(
-            asked.statuses.length ||
-            filters.type ||
-            filters.scene ||
-            filters.town,
-          )}
-        />
-      ) : null}
+          {all.length ? (
+            <FilterForm
+              filters={filters}
+              view={view}
+              scenes={nestScenes(scenes)}
+              towns={towns}
+              open={filtersOpen}
+              layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
+            />
+          ) : null}
 
-      {all.length === 0 ? (
-        archived ? (
-          <p className="text-muted">Nothing archived.</p>
-        ) : list ? (
-          <p className="text-muted">{list.empty}</p>
+          <AddConnection className="bar-add max-md:hidden" />
+        </div>
+
+        {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
+
+        {all.length === 0 ? (
+          archived ? (
+            <p className="text-muted">Nothing archived.</p>
+          ) : list ? (
+            <p className="text-muted">{list.empty}</p>
+          ) : (
+            <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
+              <p className="font-medium">No connections yet.</p>
+              <p className="text-muted">
+                Start with a band you&rsquo;ve shared a bill with, a venue
+                you&rsquo;ve played, or someone you&rsquo;d like to meet.
+              </p>
+              <Link href="/connections/new" className="button-secondary">
+                Add Your First Connection
+              </Link>
+            </div>
+          )
         ) : (
-          <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-            <p className="font-medium">No connections yet.</p>
-            <p className="text-muted">
-              Start with a band you&rsquo;ve shared a bill with, a venue
-              you&rsquo;ve played, or someone you&rsquo;d like to meet.
-            </p>
-            <Link href="/connections/new" className="button-secondary">
-              Add Your First Connection
-            </Link>
-          </div>
-        )
-      ) : (
-        // key: a server render with a different layout (a shared link) resets it.
-        <LayoutProvider key={layout} initial={layout}>
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <>
             <div
               className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted"
               aria-live="polite"
@@ -174,68 +184,72 @@ async function Directory({
                   {hiddenAvoid} in Avoid, hidden. Show them
                 </Link>
               ) : null}
+              {clearable ? (
+                <Link href={viewHref(view)} className="link">
+                  Clear filters
+                </Link>
+              ) : null}
             </div>
-            {connections.length ? <LayoutToggle hrefs={layoutHrefs} /> : null}
-          </div>
 
-          {connections.length === 0 && list && !filtering ? (
-            <p className="text-muted">{list.empty}</p>
-          ) : connections.length === 0 ? (
-            <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-              <p className="font-medium">Nothing matches.</p>
-              <p className="text-muted">
-                Try fewer filters or a shorter search.
-              </p>
-              <Link href={viewHref(view)} className="button-secondary">
-                Clear Filters
-              </Link>
-            </div>
-          ) : null}
+            {connections.length === 0 && list && !filtering ? (
+              <p className="text-muted">{list.empty}</p>
+            ) : connections.length === 0 ? (
+              <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
+                <p className="font-medium">Nothing matches.</p>
+                <p className="text-muted">
+                  Try fewer filters or a shorter search.
+                </p>
+                <Link href={viewHref(view)} className="button-secondary">
+                  Clear Filters
+                </Link>
+              </div>
+            ) : null}
 
-          {us.length ? (
-            <section aria-labelledby="group-us" className="flex flex-col gap-2">
-              <h2
-                id="group-us"
-                className="label"
-              >
-                <span className="tag tag-ink">Us</span>
-              </h2>
-              <ConnectionGroup connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
-            </section>
-          ) : null}
-          {STATUSES.map((status) => {
-            const group = connections.filter(
-              (c) => c.status === status && !c.is_us,
-            );
-            if (!group.length) return null;
-            return (
-              <section
-                key={status}
-                aria-labelledby={`group-${status}`}
-                className="flex flex-col gap-2"
-              >
+            {us.length ? (
+              <section aria-labelledby="group-us" className="flex flex-col gap-2">
                 <h2
-                  id={`group-${status}`}
+                  id="group-us"
                   className="label"
                 >
-                  <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
-                  <span className="text-muted">({group.length})</span>
+                  <span className="tag tag-ink">Us</span>
                 </h2>
-                <ConnectionGroup connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
+                <ConnectionGroup connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
               </section>
-            );
-          })}
-        </LayoutProvider>
-      )}
+            ) : null}
+            {STATUSES.map((status) => {
+              const group = connections.filter(
+                (c) => c.status === status && !c.is_us,
+              );
+              if (!group.length) return null;
+              return (
+                <section
+                  key={status}
+                  aria-labelledby={`group-${status}`}
+                  className="flex flex-col gap-2"
+                >
+                  <h2
+                    id={`group-${status}`}
+                    className="label"
+                  >
+                    <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
+                    <span className="text-muted">({group.length})</span>
+                  </h2>
+                  <ConnectionGroup connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
+                </section>
+              );
+            })}
+          </>
+        )}
 
-      {all.length ? (
-        <p className="rule-top pt-4">
-          <Link href="/export" className="action-link text-sm">
-            Export the directory as CSV
-          </Link>
-        </p>
-      ) : null}
-    </div>
+        {all.length ? (
+          <p className="rule-top pt-4">
+            <Link href="/export" className="action-link text-sm">
+              Export the directory as CSV
+            </Link>
+          </p>
+        ) : null}
+      </div>
+    </LayoutProvider>
   );
 }
 
@@ -304,6 +318,7 @@ function FilterForm({
   scenes,
   towns,
   open,
+  layoutToggle,
 }: {
   filters: DirectoryFilters;
   view: View;
@@ -313,100 +328,115 @@ function FilterForm({
   }[];
   towns: (readonly [string, string])[];
   open: boolean;
+  layoutToggle: React.ReactNode;
 }) {
-  const clearHref = viewHref(view);
   const isList = Boolean(LISTS[view as ListView]);
+  const active = [!isList && f.statuses.length, f.type, f.scene, f.town].filter(Boolean).length;
   return (
     <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
-      className="page-measure flex flex-col gap-3"
+      className="bar-search flex flex-col gap-3"
     >
       {view !== "current" ? <input type="hidden" name="view" value={view} /> : null}
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex min-w-48 flex-1 flex-col gap-2">
-          <label htmlFor="f-q" className="label">
-            Search by Name
-          </label>
-          <input {...noAutofill}
-            id="f-q"
-            name="q"
-            type="search"
-            defaultValue={f.q}
-            className="field"
-          />
-        </div>
-        <button type="submit" className="button-primary">
-          Search
-        </button>
-        {hasFilters(isList ? { ...f, statuses: [] } : f) ? (
-          <Link href={clearHref} className="button-secondary">
-            Clear Filters
-          </Link>
-        ) : null}
-      </div>
-
-      <FilterPanel
+      <FilterDisclosure
         initialOpen={open}
-        summary={
-          <summary className="cursor-pointer text-sm font-medium">
-            Filters
-          </summary>
+        active={active}
+        after={layoutToggle}
+        search={
+          <>
+            <div className="search-field">
+              <label htmlFor="f-q" className="sr-only">
+                Search by Name
+              </label>
+              <SearchIcon size={16} aria-hidden="true" />
+              <input {...noAutofill}
+                id="f-q"
+                name="q"
+                type="search"
+                placeholder="Search by Name"
+                defaultValue={f.q}
+                className="field"
+                enterKeyHint="search"
+              />
+              <kbd className="search-hint" aria-hidden="true">
+                Enter
+              </kbd>
+            </div>
+            {/* Enter searches. The filter boxes are text inputs too, which
+                turns off a form's implicit submit unless it has a submit
+                button, so keep one, out of sight and out of the tab order. */}
+            <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
+              Search
+            </button>
+          </>
         }
       >
-        <div className="flex flex-col gap-4 pt-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {isList ? null : (
-              <Combobox
-                label="Status"
-                name="status"
-                options={STATUSES.map((st) => ({ value: st, label: STATUS_LABELS[st] }))}
-                defaultValue={f.statuses}
-                autoSubmit
-              />
-            )}
+        <div className={`grid grid-cols-2 gap-3 ${isList ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
+          {isList ? null : (
             <Combobox
-              label="Type"
-              name="type"
-              multiple={false}
-              placeholder="Any"
-              options={TYPE_OPTIONS.map((o) => ({
-                value: o.value,
-                label: o.label,
-                hint: o.group === "People" ? "person" : "group",
-              }))}
-              defaultValue={f.type ? [f.type] : []}
+              label="Status"
+              labelClassName="sr-only"
+              name="status"
+              placeholder="Status"
+              options={STATUSES.map((st) => ({ value: st, label: STATUS_LABELS[st] }))}
+              defaultValue={f.statuses}
               autoSubmit
             />
-            <Combobox
-              label="Scene"
-              name="scene"
-              multiple={false}
-              placeholder="Any"
-              options={scenes.flatMap(({ scene, children }) => [
-                {
-                  value: scene.id,
-                  label: scene.name,
-                  hint: children.length ? "and the scenes inside it" : undefined,
-                },
-                ...children.map((c) => ({ value: c.id, label: c.name, depth: 1 })),
-              ])}
-              defaultValue={f.scene ? [f.scene] : []}
-              autoSubmit
-            />
-            <Combobox
-              label="Town"
-              name="town"
-              multiple={false}
-              placeholder="Any"
-              options={towns.map(([id, label]) => ({ value: id, label }))}
-              defaultValue={f.town ? [f.town] : []}
-              autoSubmit
-            />
-          </div>
+          )}
+          <Combobox
+            label="Connection Type"
+            labelClassName="sr-only"
+            name="type"
+            multiple={false}
+            placeholder="Connection Type"
+            options={TYPE_OPTIONS.map((o) => ({
+              value: o.value,
+              label: o.label,
+              hint: o.group === "People" ? "person" : "group",
+            }))}
+            defaultValue={f.type ? [f.type] : []}
+            autoSubmit
+          />
+          <Combobox
+            label="Scene"
+            labelClassName="sr-only"
+            name="scene"
+            multiple={false}
+            placeholder="Scene"
+            options={scenes.flatMap(({ scene, children }) => [
+              {
+                value: scene.id,
+                label: scene.name,
+                hint: children.length ? "and the scenes inside it" : undefined,
+              },
+              ...children.map((c) => ({ value: c.id, label: c.name, depth: 1 })),
+            ])}
+            defaultValue={f.scene ? [f.scene] : []}
+            autoSubmit
+          />
+          <Combobox
+            label="Town"
+            labelClassName="sr-only"
+            name="town"
+            multiple={false}
+            placeholder="Town"
+            options={towns.map(([id, label]) => ({ value: id, label }))}
+            defaultValue={f.town ? [f.town] : []}
+            autoSubmit
+          />
         </div>
-      </FilterPanel>
+      </FilterDisclosure>
     </AutoFilterForm>
+  );
+}
+
+function AddConnection({ className }: { className: string }) {
+  return (
+    <Link href="/connections/new" className={`button-primary ${className}`}>
+      <Add size={16} aria-hidden="true" />
+      Add Connection
+    </Link>
   );
 }
 

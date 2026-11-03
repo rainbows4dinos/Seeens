@@ -34,30 +34,43 @@ function useLayout() {
   return ctx;
 }
 
-// Figma Segmented Control. Real links, so they still work before the page's
-// script loads, or opened in a new tab.
+// Figma Segmented Control on wider screens; on phones, one square button
+// that switches to the other layout and shows its icon. Real links, so they
+// still work before the page's script loads, or opened in a new tab.
 export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string> }) {
   const { layout: current, setLayout } = useLayout();
+  const pick = (layout: DirectoryLayout) => (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    setLayout(layout);
+    remember(layout);
+  };
+  const other = current === "list" ? "cards" : "list";
   return (
-    <nav aria-label="Directory layout" className="segmented">
-      {(["list", "cards"] as const).map((layout) => (
-        <Link
-          key={layout}
-          href={hrefs[layout]}
-          aria-current={current === layout ? "page" : undefined}
-          onClick={(e) => {
-            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-            e.preventDefault();
-            setLayout(layout);
-            remember(layout);
-          }}
-          className="inline-flex items-center gap-2"
-        >
-          {layout === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
-          {layout === "list" ? "List" : "Cards"}
-        </Link>
-      ))}
-    </nav>
+    <>
+      <nav aria-label="Directory layout" className="segmented segmented-secondary shrink-0 max-sm:hidden">
+        {(["list", "cards"] as const).map((layout) => (
+          <Link
+            key={layout}
+            href={hrefs[layout]}
+            aria-current={current === layout ? "page" : undefined}
+            onClick={pick(layout)}
+            className="inline-flex items-center gap-2"
+          >
+            {layout === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
+            {layout === "list" ? "List" : "Cards"}
+          </Link>
+        ))}
+      </nav>
+      <Link
+        href={hrefs[other]}
+        onClick={pick(other)}
+        className="button-secondary button-icon shrink-0 sm:hidden"
+        aria-label={other === "cards" ? "Show as cards" : "Show as a list"}
+      >
+        {other === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
+      </Link>
+    </>
   );
 }
 

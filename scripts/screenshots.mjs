@@ -60,7 +60,7 @@ try {
   await shot(page, "directory.png");
 
   await page.goto(`${BASE_URL}/?view=lets_play`);
-  await page.locator("summary", { hasText: "Filters" }).click();
+  await page.getByRole("button", { name: "Filters" }).click();
   await shot(page, "lets-play.png");
 
   await page.goto(`${BASE_URL}/`);

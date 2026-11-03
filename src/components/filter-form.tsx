@@ -2,7 +2,8 @@
 
 import Form from "next/form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { SettingsAdjust } from "@carbon/icons-react";
+import { useEffect, useId, useRef, useState } from "react";
 
 // The directory's search and filter form. A plain GET form (the URL stays
 // shareable), navigated client-side by next/form. Menus apply as soon as
@@ -43,22 +44,60 @@ export function AutoFilterForm({
   );
 }
 
-// Starts open when the URL has filters, then stays however the person left
-// it. A plain open={…} would snap shut when the last filter is cleared.
-export function FilterPanel({
+// The search row and the filter fields under it. "Filters" toggles the
+// fields; they start open when the URL has filters, then stay however the
+// person left them (a plain open={…} would snap shut when the last filter
+// is cleared).
+export function FilterDisclosure({
   initialOpen,
-  summary,
+  active,
+  search,
+  after,
   children,
 }: {
   initialOpen: boolean;
-  summary: React.ReactNode;
+  /** How many filters are set, shown on the button while the fields are hidden. */
+  active: number;
+  search: React.ReactNode;
+  /** Controls pinned to the right end of the row (the List/Cards toggle). */
+  after?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(initialOpen);
+  const panelId = useId();
+  // Paper by default; ink while the fields are open or a filter is set, so
+  // ink means something is in play.
+  const lit = open || active > 0;
   return (
-    <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
-      {summary}
-      {children}
-    </details>
+    <>
+      <div className="flex items-center gap-2">
+        {search}
+        <button
+          type="button"
+          className={`${lit ? "button-primary" : "button-secondary"} shrink-0 ${
+            // Icon-only on phones until a filter is set; then the count shows too.
+            active ? "max-sm:px-2.5" : "button-icon-phone"
+          }`}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <SettingsAdjust size={16} aria-hidden="true" />
+          {/* Phones show the icon and count; the name is still read out. */}
+          <span className="max-sm:sr-only">Filters</span>
+          {active ? (
+            <span className="tabular-nums">
+              ({active}
+              <span className="sr-only"> set</span>)
+            </span>
+          ) : null}
+        </button>
+        {/* Search and Filters hold the left; the layout switch sits right. */}
+        {after ? <div className="ml-auto flex shrink-0">{after}</div> : null}
+      </div>
+      <div id={panelId} hidden={!open}>
+        {children}
+      </div>
+    </>
   );
 }
