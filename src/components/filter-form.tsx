@@ -59,7 +59,7 @@ export function FilterDisclosure({
   /** How many filters are set, shown on the button while the fields are hidden. */
   active: number;
   search: React.ReactNode;
-  /** Controls after Filters, behind a rule (the List/Cards toggle). */
+  /** Controls pinned to the right end of the row (the List/Cards toggle). */
   after?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -89,12 +89,8 @@ export function FilterDisclosure({
             </span>
           ) : null}
         </button>
-        {after ? (
-          <>
-            <span className="bar-divider" aria-hidden="true" />
-            {after}
-          </>
-        ) : null}
+        {/* Search and Filters hold the left; the layout switch sits right. */}
+        {after ? <div className="ml-auto flex shrink-0">{after}</div> : null}
       </div>
       <div id={panelId} hidden={!open}>
         {children}

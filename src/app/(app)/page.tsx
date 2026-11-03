@@ -340,7 +340,7 @@ function FilterForm({
         after={layoutToggle}
         search={
           <>
-            <div className="search-field min-w-0 flex-1">
+            <div className="search-field">
               <label htmlFor="f-q" className="sr-only">
                 Search by Name
               </label>
@@ -352,7 +352,11 @@ function FilterForm({
                 placeholder="Search by Name"
                 defaultValue={f.q}
                 className="field"
+                enterKeyHint="search"
               />
+              <kbd className="search-hint" aria-hidden="true">
+                Enter
+              </kbd>
             </div>
             {/* Enter searches. The filter boxes are text inputs too, which
                 turns off a form's implicit submit unless it has a submit

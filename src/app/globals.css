@@ -592,6 +592,9 @@
   /* Search field with its icon inside, on the left. Enter searches. */
   .search-field {
     position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 20rem;
   }
   .search-field > svg {
     position: absolute;
@@ -604,15 +607,27 @@
   .search-field > .field {
     width: 100%;
     padding-left: 34px;
+    padding-right: 62px;
   }
-
-  /* A short vertical rule between search and filters and List/Cards (Figma "vr"). */
-  .bar-divider {
-    flex: none;
-    align-self: stretch;
-    width: 12px;
-    background: linear-gradient(var(--color-border-strong), var(--color-border-strong)) center / var(--stroke-hair) 20px
-      no-repeat;
+  /* The hint stands in for the browser's clear button. */
+  .search-field > .field::-webkit-search-cancel-button {
+    appearance: none;
+  }
+  /* An [ENTER] keycap pinned inside the right edge: Enter searches. */
+  .search-hint {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    translate: 0 -50%;
+    padding: 1px 4px;
+    border: var(--stroke-hair) solid var(--color-border-subtle);
+    font-family: var(--type-mono);
+    font-size: 10px;
+    line-height: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    pointer-events: none;
   }
 
   .page-measure {
