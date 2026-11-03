@@ -20,7 +20,10 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
       .select(
         "name, kind, person_roles, group_type, status, played_together, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
       )
-      .eq("workspace_id", ws);
+      .eq("workspace_id", ws)
+      // Only the current plan, not every plan the connection ever had.
+      // Connections without one are still exported.
+      .eq("next_actions.status", "open");
     return (includeArchived ? query : query.is("archived_at", null)).order("name").order("id").range(from, to);
   }).catch(() => {
     throw new Error("export query failed");
