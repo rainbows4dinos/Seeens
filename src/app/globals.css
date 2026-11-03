@@ -464,7 +464,7 @@
     text-decoration: none;
   }
   /* Figma Button with Icon L: 8px in from the edge, icon, then the label. */
-  :is(.button-primary, .button-secondary):not(.button-icon):has(> svg:first-child) {
+  :is(.button-primary, .button-secondary):not(.button-icon, .button-icon-phone):has(> svg:first-child) {
     padding-left: 8px;
   }
   .button-primary {
@@ -484,10 +484,29 @@
   }
   /* Icon-only button (Figma Button, Icon Only=True): a 36px square. Needs
      an aria-label. */
+  /* Icon-only buttons are locked to 36 x 36 (border included): no padding,
+     and they never grow or shrink in a flex row. .button-icon-phone does
+     the same below 640px, for buttons that drop their label on phones. */
   .button-icon {
+    flex: none;
     width: var(--control-height);
     height: var(--control-height);
+    min-width: var(--control-height);
     padding: 0;
+  }
+  @media (width >= 40rem) {
+    .button-icon-phone:has(> svg:first-child) {
+      padding-left: 8px;
+    }
+  }
+  @media (width < 40rem) {
+    .button-icon-phone {
+      flex: none;
+      width: var(--control-height);
+      height: var(--control-height);
+      min-width: var(--control-height);
+      padding: 0;
+    }
   }
   .button-primary:disabled,
   .button-secondary:disabled {

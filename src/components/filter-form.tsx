@@ -74,7 +74,10 @@ export function FilterDisclosure({
         {search}
         <button
           type="button"
-          className={`${lit ? "button-primary" : "button-secondary"} shrink-0 max-sm:px-2.5`}
+          className={`${lit ? "button-primary" : "button-secondary"} shrink-0 ${
+            // Icon-only on phones until a filter is set; then the count shows too.
+            active ? "max-sm:px-2.5" : "button-icon-phone"
+          }`}
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((o) => !o)}
