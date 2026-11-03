@@ -32,10 +32,15 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
       .select(
         "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, archived_at )",
       )
+      .eq("workspace_id", membership.workspaceId)
       .eq("status", "open")
       .order("due_on", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true }),
-    supabase.from("workspace_members").select("user_id, display_name").order("display_name"),
+    supabase
+      .from("workspace_members")
+      .select("user_id, display_name")
+      .eq("workspace_id", membership.workspaceId)
+      .order("display_name"),
   ]);
   if (actions.error || members.error) throw new Error("Couldn't load follow-ups.");
 

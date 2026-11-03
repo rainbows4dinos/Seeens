@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getMembership } from "@/lib/auth/dal";
+import { getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { GROUP_TYPES, type GroupType, type PersonRole } from "@/lib/connections/labels";
 import { createClient } from "@/lib/supabase/server";
 import { addOptionsFor, fitsTarget, newGroupTypes } from "./options";
@@ -25,6 +25,7 @@ export async function addLink(
     .from("connections")
     .select("id, kind, group_type")
     .eq("id", connectionId)
+    .eq("workspace_id", membership.workspaceId)
     .maybeSingle();
   if (!subject) return fail("Couldn't find this connection.");
 
@@ -42,6 +43,7 @@ export async function addLink(
       .from("connections")
       .select("id, kind, group_type")
       .eq("id", picked)
+      .eq("workspace_id", membership.workspaceId)
       .maybeSingle();
     if (!other || other.id === subject.id || !fitsTarget(option.target, other)) {
       return fail("Pick someone from the list.");
@@ -106,7 +108,7 @@ export async function updateLink(
   _prev: LinkState,
   formData: FormData,
 ): Promise<LinkState> {
-  const supabase = await createClient();
+  const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);
   const { data, error } = await supabase
     .from("affiliations")
     .update({
@@ -114,6 +116,7 @@ export async function updateLink(
       is_current: formData.get("former") !== "on",
     })
     .eq("id", linkId)
+    .eq("workspace_id", workspaceId)
     .select("id");
   if (error || !data.length) return fail("Couldn't save. Try again.");
   // Any change can show up on other pages (both ends of a link, the
@@ -123,8 +126,13 @@ export async function updateLink(
 }
 
 export async function removeLink(linkId: string): Promise<LinkState> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("affiliations").delete().eq("id", linkId).select("id");
+  const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);
+  const { data, error } = await supabase
+    .from("affiliations")
+    .delete()
+    .eq("id", linkId)
+    .eq("workspace_id", workspaceId)
+    .select("id");
   if (error || !data.length) return fail("Couldn't remove it. Try again.");
   // Any change can show up on other pages (both ends of a link, the
   // directory), so drop the client's cached pages, not just this one.

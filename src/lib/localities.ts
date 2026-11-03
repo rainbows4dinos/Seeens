@@ -33,6 +33,7 @@ export async function resolveLocality(
   const existing = await supabase
     .from("localities")
     .select("id")
+    .eq("workspace_id", workspaceId)
     .eq("place_id", locality.placeId)
     .maybeSingle();
   if (existing.error) throw existing.error;
@@ -62,7 +63,12 @@ export async function resolveLocality(
     .single();
   if (error?.code === "23505") {
     // A bandmate added the same town at the same moment.
-    const again = await supabase.from("localities").select("id").eq("place_id", place.id).single();
+    const again = await supabase
+      .from("localities")
+      .select("id")
+      .eq("workspace_id", workspaceId)
+      .eq("place_id", place.id)
+      .single();
     if (again.error) throw again.error;
     return again.data.id;
   }

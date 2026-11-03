@@ -1,4 +1,5 @@
 import "server-only";
+import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABELS, formatType } from "@/lib/connections/labels";
 import { todayISO } from "@/lib/outreach/labels";
@@ -7,15 +8,16 @@ import { LIST_SEPARATOR, type ExportRow } from "./csv";
 // Timestamps become the band's local (Pacific) calendar date, YYYY-MM-DD.
 const day = (ts: string | null) => (ts ? todayISO(new Date(ts)) : "");
 
-// Everything RLS lets this member see in their workspace. Outreach history is
+// Everything in the current workspace. Outreach history is
 // not included.
 export async function buildExportRows({ includeArchived }: { includeArchived: boolean }) {
-  const supabase = await createClient();
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
   let query = supabase
     .from("connections")
     .select(
       "name, kind, person_roles, group_type, status, played_together, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
     )
+    .eq("workspace_id", ws)
     .order("name");
   if (!includeArchived) query = query.is("archived_at", null);
   const { data, error } = await query;

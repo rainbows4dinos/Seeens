@@ -1,5 +1,6 @@
 import "server-only";
 import { notFound } from "next/navigation";
+import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 
 const SCENE_FIELDS =
@@ -18,10 +19,11 @@ function withCount<
 }
 
 export async function listScenes() {
-  const supabase = await createClient();
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
   const { data, error } = await supabase
     .from("scenes")
     .select(SCENE_FIELDS)
+    .eq("workspace_id", ws)
     .order("name");
   if (error) throw new Error("Couldn't load scenes.");
   return data.map(withCount);
@@ -30,11 +32,12 @@ export async function listScenes() {
 export type SceneItem = Awaited<ReturnType<typeof listScenes>>[number];
 
 export async function getScene(id: string) {
-  const supabase = await createClient();
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
   const { data, error } = await supabase
     .from("scenes")
     .select(SCENE_FIELDS)
     .eq("id", id)
+    .eq("workspace_id", ws)
     .maybeSingle();
   if (error?.code === "22P02") notFound();
   if (error) throw new Error("Couldn't load this scene.");

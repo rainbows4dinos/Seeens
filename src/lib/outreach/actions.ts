@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getCurrentUser, getMembership } from "@/lib/auth/dal";
+import { getCurrentUser, getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { CHANNELS, isISODate, todayISO, type OutreachChannel } from "./labels";
 
@@ -66,8 +66,13 @@ export async function logOutreach(
 
 // Only the author can remove an entry (enforced by RLS).
 export async function removeOutreach(id: string): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("outreach_entries").delete().eq("id", id).select("id");
+  const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);
+  const { data, error } = await supabase
+    .from("outreach_entries")
+    .delete()
+    .eq("id", id)
+    .eq("workspace_id", workspaceId)
+    .select("id");
   if (error || !data.length) return { error: "Couldn't remove that entry. Try again." };
   revalidatePath("/", "layout");
   return {};
@@ -126,11 +131,12 @@ export async function setNextAction(
 
 export async function closeNextAction(id: string, how: "done" | "dropped"): Promise<{ error?: string }> {
   if (how !== "done" && how !== "dropped") return { error: "Something went wrong." };
-  const supabase = await createClient();
+  const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);
   const { data, error } = await supabase
     .from("next_actions")
     .update({ status: how })
     .eq("id", id)
+    .eq("workspace_id", workspaceId)
     .eq("status", "open")
     .select("id");
   if (error || !data.length) return { error: "Couldn't update the plan. Try again." };

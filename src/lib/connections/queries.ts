@@ -1,18 +1,21 @@
 import "server-only";
 import { notFound } from "next/navigation";
+import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { formatPlace } from "@/lib/places";
 import { EMPTY_FORM, type ConnectionFormValues } from "./form";
 
-// All reads go through RLS: a member only ever sees their workspace's rows.
+// All reads go through RLS, and each also filters to the current workspace
+// so someone in two bands only sees this band's rows.
 
 export async function listConnections({ archived }: { archived: boolean }) {
-  const supabase = await createClient();
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
   let query = supabase
     .from("connections")
     .select(
       "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id )",
     )
+    .eq("workspace_id", ws)
     .order("name");
   query = archived ? query.not("archived_at", "is", null) : query.is("archived_at", null);
 
@@ -24,7 +27,7 @@ export async function listConnections({ archived }: { archived: boolean }) {
 export type ConnectionListItem = Awaited<ReturnType<typeof listConnections>>[number];
 
 export async function getConnection(id: string) {
-  const supabase = await createClient();
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
 
   // The network doesn't depend on this connection, so load it in the same
   // round trip as everything else.
@@ -33,47 +36,54 @@ export async function getConnection(id: string) {
       .from("connections")
       .select("*, localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )")
       .eq("id", id)
+      .eq("workspace_id", ws)
       .maybeSingle(),
     supabase
       .from("affiliations")
       .select(
         "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, is_us, archived_at )",
       )
-      .eq("from_connection_id", id),
+      .eq("from_connection_id", id)
+      .eq("workspace_id", ws),
     supabase
       .from("affiliations")
       .select(
         "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, is_us, archived_at )",
       )
-      .eq("to_connection_id", id),
+      .eq("to_connection_id", id)
+      .eq("workspace_id", ws),
     supabase
       .from("next_actions")
       .select(
         "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name )",
       )
       .eq("connection_id", id)
+      .eq("workspace_id", ws)
       .eq("status", "open")
       .maybeSingle(),
     supabase
       .from("connection_status_changes")
       .select("id, from_status, to_status, changed_by, changed_at")
       .eq("connection_id", id)
+      .eq("workspace_id", ws)
       .order("changed_at", { ascending: false })
       .order("id", { ascending: false })
       .limit(10),
-    supabase.from("workspace_members").select("user_id, display_name").order("display_name"),
+    supabase.from("workspace_members").select("user_id, display_name").eq("workspace_id", ws).order("display_name"),
     supabase
       .from("outreach_entries")
       .select(
         "id, occurred_on, channel, summary, author_id, created_at, author:workspace_members!outreach_entries_workspace_id_author_id_fkey ( display_name )",
       )
       .eq("connection_id", id)
+      .eq("workspace_id", ws)
       .order("occurred_on", { ascending: false })
       .order("created_at", { ascending: false }),
     supabase
       .from("next_actions")
       .select("id, description, due_on, status, closed_at")
       .eq("connection_id", id)
+      .eq("workspace_id", ws)
       .in("status", ["done", "dropped"])
       .order("closed_at", { ascending: false })
       .limit(5),
@@ -151,10 +161,14 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
 // The whole workspace's link graph is small, so derive network facts in memory:
 // label mates (bands sharing a label) and members shared with "us".
 export async function loadNetwork() {
-  const supabase = await createClient();
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
   const [links, conns] = await Promise.all([
-    supabase.from("affiliations").select("from_connection_id, to_connection_id, kind"),
-    supabase.from("connections").select("id, name, kind, group_type, is_us, archived_at").order("name"),
+    supabase.from("affiliations").select("from_connection_id, to_connection_id, kind").eq("workspace_id", ws),
+    supabase
+      .from("connections")
+      .select("id, name, kind, group_type, is_us, archived_at")
+      .eq("workspace_id", ws)
+      .order("name"),
   ]);
   if (links.error || conns.error) throw new Error("Couldn't load your network.");
 

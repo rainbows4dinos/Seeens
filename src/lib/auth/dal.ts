@@ -54,3 +54,13 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
     role: data.role,
   };
 });
+
+// The current workspace's id. RLS lets a user read every workspace they
+// belong to, so queries also filter by this one to keep bands apart for
+// anyone in more than one. Pages check getMembership() first, so this
+// only throws if that check was skipped.
+export async function requireWorkspaceId(): Promise<string> {
+  const membership = await getMembership();
+  if (!membership) throw new Error("Not in a workspace.");
+  return membership.workspaceId;
+}
