@@ -1,0 +1,54 @@
+name: Migrate
+
+# Applies new database migrations to the production Supabase project whenever
+# they land on main, so the hosted database never lags behind the code.
+#
+# Needs three repository secrets (Settings > Secrets and variables > Actions):
+#   SUPABASE_ACCESS_TOKEN  a personal access token from supabase.com/dashboard/account/tokens
+#   SUPABASE_PROJECT_ID    the project ref, as in https://<ref>.supabase.co
+#   SUPABASE_DB_PASSWORD   the database password from Project Settings > Database
+#
+# It can also be run by hand from the Actions tab (Run workflow).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+# Never run two pushes against the database at once. A later run waits for
+# the earlier one instead of cancelling it mid-migration.
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Same Supabase CLI version as local development (from package-lock.json).
+      - run: npm ci
+      - name: Check secrets
+        run: |
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository secret $name. See the comment at the top of .github/workflows/migrate.yml."
+              exit 1
+            fi
+          done
+      - run: npx supabase link --project-ref "$SUPABASE_PROJECT_ID"
+      - name: Migrations before
+        run: npx supabase migration list --linked
+      - run: npx supabase db push --linked
+      - name: Migrations after
+        run: npx supabase migration list --linked
