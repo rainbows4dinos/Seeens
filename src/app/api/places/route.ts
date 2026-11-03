@@ -8,15 +8,9 @@ export async function GET(request: Request) {
   if (q.length < 2) return Response.json([]);
 
   const supabase = await createClient();
-  // Favor countries this workspace already has connections in.
-  const { data: used } = await supabase.from("localities").select("country_code");
-  const prefer = [...new Set((used ?? []).map((l) => l.country_code).filter((c): c is string => Boolean(c)))];
-
-  const { data, error } = await supabase.rpc("search_places", {
-    q: q.slice(0, 80),
-    max_results: 8,
-    prefer_countries: prefer,
-  });
+  // Without prefer_countries, the search favors countries this workspace
+  // already has towns in.
+  const { data, error } = await supabase.rpc("search_places", { q: q.slice(0, 80), max_results: 8 });
   if (error) {
     return Response.json({ error: "Search isn't working right now." }, { status: 500 });
   }
