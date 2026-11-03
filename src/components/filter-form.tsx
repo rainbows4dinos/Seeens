@@ -44,7 +44,7 @@ export function AutoFilterForm({
   );
 }
 
-// The search row and the filter fields under it. "Show Filters" toggles the
+// The search row and the filter fields under it. "Filters" toggles the
 // fields; they start open when the URL has filters, then stay however the
 // person left them (a plain open={…} would snap shut when the last filter
 // is cleared).
@@ -59,29 +59,35 @@ export function FilterDisclosure({
   /** How many filters are set, shown on the button while the fields are hidden. */
   active: number;
   search: React.ReactNode;
-  /** Controls after Show Filters, behind another rule (the List/Cards toggle). */
+  /** Controls after Filters, behind a rule (the List/Cards toggle). */
   after?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(initialOpen);
   const panelId = useId();
-  const label = open ? "Hide Filters" : "Show Filters";
+  // Paper by default; ink while the fields are open or a filter is set, so
+  // ink means something is in play.
+  const lit = open || active > 0;
   return (
     <>
-      <div className="flex items-end gap-2">
+      <div className="flex items-center gap-2">
         {search}
-        <span className="bar-divider" aria-hidden="true" />
         <button
           type="button"
-          className="button-primary max-sm:px-2.5"
+          className={`${lit ? "button-primary" : "button-secondary"} shrink-0 max-sm:px-2.5`}
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((o) => !o)}
         >
           <SettingsAdjust size={16} aria-hidden="true" />
           {/* Phones show the icon and count; the name is still read out. */}
-          <span className="max-sm:sr-only">{label}</span>
-          {!open && active ? <span className="tabular-nums">({active})</span> : null}
+          <span className="max-sm:sr-only">Filters</span>
+          {active ? (
+            <span className="tabular-nums">
+              ({active}
+              <span className="sr-only"> set</span>)
+            </span>
+          ) : null}
         </button>
         {after ? (
           <>

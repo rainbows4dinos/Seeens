@@ -340,10 +340,11 @@ function FilterForm({
         after={layoutToggle}
         search={
           <>
-            <div className="flex min-w-0 flex-1 flex-col">
+            <div className="search-field min-w-0 flex-1">
               <label htmlFor="f-q" className="sr-only">
                 Search by Name
               </label>
+              <SearchIcon size={16} aria-hidden="true" />
               <input {...noAutofill}
                 id="f-q"
                 name="q"
@@ -353,10 +354,11 @@ function FilterForm({
                 className="field"
               />
             </div>
-            {/* Phones show the icon only, to leave the field room. */}
-            <button type="submit" className="button-primary max-sm:px-2.5">
-              <span className="max-sm:sr-only">Search</span>
-              <SearchIcon size={16} aria-hidden="true" className="sm:hidden" />
+            {/* Enter searches. The filter boxes are text inputs too, which
+                turns off a form's implicit submit unless it has a submit
+                button, so keep one, out of sight and out of the tab order. */}
+            <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
+              Search
             </button>
           </>
         }
