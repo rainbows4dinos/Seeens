@@ -1,7 +1,7 @@
 // Small, pure helpers for the directory card (Figma Connection Card).
 
-// A stable number in [0, 1) from a record id, so a card's tilt is the same on
-// every visit and every device.
+// A stable hash of a record id. seed() maps it to [0, 1), for anything that
+// should vary per record but look the same on every visit (tape, #63).
 function hash(id: string) {
   let h = 2166136261;
   for (let i = 0; i < id.length; i++) {
@@ -13,15 +13,6 @@ function hash(id: string) {
 
 export function seed(id: string) {
   return hash(id) / 2 ** 32;
-}
-
-// Photo tilt in degrees: between 0.4 and 1 either way (Figma: about 1°),
-// never flat, so the print reads as stuck on by hand. The meta box below
-// never tilts.
-export function tiltFor(id: string) {
-  const s = seed(id);
-  const size = 0.4 + ((s * 2) % 1) * 0.6;
-  return Math.round((s < 0.5 ? -size : size) * 10) / 10;
 }
 
 // Short, stable record ID for the card corner, e.g. "CN-3F2A". From a hash,

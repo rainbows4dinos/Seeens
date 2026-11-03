@@ -2,12 +2,11 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { DateLines } from "@/components/date-line";
 import { formatLocality, formatType, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
-import { initials, recordId, tiltFor } from "@/lib/connections/card";
+import { initials, recordId } from "@/lib/connections/card";
 
-// Figma Connection Card: a scrapbook print on top, a straight machine meta
-// box below. The whole card is one link. Only the print tilts, by a seeded
-// angle, so a card looks the same on every visit and nothing under the
-// pointer moves.
+// Figma Connection Card: a print on top, a machine meta box below, both
+// straight (tilt is only for small pieces like tape and script notes). The
+// whole card is one link.
 //
 // Kept independent of the directory layout so Boards (#49) can reuse it.
 // Until connection photos (#37) ship, the print is a paper placeholder with
@@ -40,7 +39,7 @@ export function ConnectionCard({
 
   return (
     <Link href={`/connections/${c.id}`} className="connection-card">
-      <span className="card-print" style={{ rotate: `${tiltFor(c.id)}deg` }} aria-hidden="true">
+      <span className="card-print" aria-hidden="true">
         <span className="card-print-initials">{initials(c.name)}</span>
       </span>
       <span className="card-meta">

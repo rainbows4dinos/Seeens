@@ -593,8 +593,8 @@
     color: var(--color-text-inverse);
   }
 
-  /* Connection card (Figma Connection Card): a tilted print over a straight
-     meta box; the whole card is one link. */
+  /* Connection card (Figma Connection Card): a print over a meta box, both
+     straight; the whole card is one link. */
   .connection-card {
     display: flex;
     flex-direction: column;
@@ -605,14 +605,12 @@
   }
   .card-print {
     position: relative;
-    z-index: 1;
     display: grid;
     place-items: center;
     aspect-ratio: 300 / 230;
     overflow: hidden;
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-photo-paper);
-    transform-origin: 50% 50%;
   }
   .card-print-initials {
     font-family: var(--type-display);
@@ -627,10 +625,8 @@
     flex: 1;
     flex-direction: column;
     gap: var(--space-sm);
-    /* Its own top edge, tucked under the print, so a tilted print never
-       leaves a gap in the line. */
-    margin-top: calc(var(--stroke-hair) * -1);
     border: var(--stroke-hair) solid var(--color-border-strong);
+    border-top: 0;
     background: var(--color-bg-surface);
     padding: var(--space-md);
   }

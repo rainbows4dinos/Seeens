@@ -1,7 +1,7 @@
 // Directory card helpers. Run with: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { initials, readLayout, recordId, seed, tiltFor } from "./card.ts";
+import { initials, readLayout, recordId, seed } from "./card.ts";
 
 const ids = [
   "c0000000-0000-0000-0000-000000000001",
@@ -9,16 +9,6 @@ const ids = [
   "ffffffff-ffff-ffff-ffff-ffffffffffff",
   "00000000-0000-0000-0000-000000000000",
 ];
-
-test("tilt is stable, never flat, and at most 1 degree", () => {
-  for (const id of ids) {
-    const t = tiltFor(id);
-    assert.equal(tiltFor(id), t, "same id, same tilt");
-    assert.ok(Math.abs(t) >= 0.4 && Math.abs(t) <= 1, `${id}: ${t}`);
-  }
-  const many = Array.from({ length: 500 }, (_, i) => tiltFor(`id-${i}`));
-  assert.ok(many.some((t) => t < 0) && many.some((t) => t > 0), "tilts go both ways");
-});
 
 test("seed is in [0, 1)", () => {
   for (const id of ids) assert.ok(seed(id) >= 0 && seed(id) < 1);
