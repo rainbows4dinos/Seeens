@@ -155,6 +155,7 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
     links: c.connection_links.length
       ? c.connection_links.map((l) => ({ label: l.label ?? "", url: l.url }))
       : EMPTY_FORM.links,
+    updatedAt: c.updated_at,
   };
 }
 

@@ -111,6 +111,22 @@ function FormBody({
 
   return (
     <form action={formAction} noValidate className="flex flex-col gap-8">
+      <input type="hidden" name="updated_at" value={v.updatedAt} />
+      {state.conflict ? (
+        <div role="alert" className="flex flex-col gap-2 border-2 border-error bg-surface p-3 text-sm">
+          <p className="font-semibold text-error">A bandmate saved changes here while you were editing.</p>
+          <p>
+            Nothing was saved, and your edits are still below. Compare them with their version, then save again to
+            replace theirs with yours.
+          </p>
+          <p>
+            <a href={cancelHref} target="_blank" rel="noopener" className="link">
+              Open Their Version
+            </a>{" "}
+            <span className="text-muted">(opens in a new tab)</span>
+          </p>
+        </div>
+      ) : null}
       {errors.form || errorCount > 0 ? (
         <div role="alert" className="border-2 border-error bg-surface p-3 text-sm">
           <p className="font-semibold text-error">
