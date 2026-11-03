@@ -5,7 +5,7 @@ import { AutoFilterForm, FilterPanel } from "@/components/filter-form";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { ConnectionCard } from "@/components/connection-card";
-import { LayoutToggle } from "@/components/layout-toggle";
+import { LayoutProvider, LayoutSlot, LayoutToggle } from "@/components/layout-toggle";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { loadDirectory } from "@/lib/connections/queries";
@@ -154,7 +154,8 @@ async function Directory({
           </div>
         )
       ) : (
-        <>
+        // key: a server render with a different layout (a shared link) resets it.
+        <LayoutProvider key={layout} initial={layout}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div
               className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted"
@@ -174,7 +175,7 @@ async function Directory({
                 </Link>
               ) : null}
             </div>
-            {connections.length ? <LayoutToggle current={layout} hrefs={layoutHrefs} /> : null}
+            {connections.length ? <LayoutToggle hrefs={layoutHrefs} /> : null}
           </div>
 
           {connections.length === 0 && list && !filtering ? (
@@ -199,7 +200,7 @@ async function Directory({
               >
                 <span className="tag tag-ink">Us</span>
               </h2>
-              <ConnectionGroup layout={layout} connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
+              <ConnectionGroup connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
             </section>
           ) : null}
           {STATUSES.map((status) => {
@@ -220,11 +221,11 @@ async function Directory({
                   <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
                   <span className="text-muted">({group.length})</span>
                 </h2>
-                <ConnectionGroup layout={layout} connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
+                <ConnectionGroup connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
               </section>
             );
           })}
-        </>
+        </LayoutProvider>
       )}
 
       {all.length ? (
@@ -425,21 +426,38 @@ function ViewLink({
   );
 }
 
-// One status group, as list rows or cards. Same groups, same order.
+// One status group, as list rows or cards. Same groups, same order. Both
+// are sent so switching is instant; only the chosen one is mounted.
 function ConnectionGroup({
-  layout,
   connections,
   tagsFor,
   sceneNames,
   today,
 }: {
-  layout: DirectoryLayout;
   connections: ConnectionListItem[];
   tagsFor: (id: string) => string[];
   sceneNames: Map<string, string>;
   today: string;
 }) {
-  if (layout === "list") return <ConnectionList connections={connections} tagsFor={tagsFor} today={today} />;
+  return (
+    <LayoutSlot
+      list={<ConnectionList connections={connections} tagsFor={tagsFor} today={today} />}
+      cards={<ConnectionCards connections={connections} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />}
+    />
+  );
+}
+
+function ConnectionCards({
+  connections,
+  tagsFor,
+  sceneNames,
+  today,
+}: {
+  connections: ConnectionListItem[];
+  tagsFor: (id: string) => string[];
+  sceneNames: Map<string, string>;
+  today: string;
+}) {
   return (
     <ul className="card-grid">
       {connections.map((c) => {
