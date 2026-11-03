@@ -17,9 +17,14 @@ function fetchDirectoryConnections(supabase: Supabase, ws: string) {
     supabase
       .from("connections")
       .select(
-        "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id )",
+        "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
       )
       .eq("workspace_id", ws)
+      // Date lines: only the latest outreach and the open plan.
+      .eq("next_actions.status", "open")
+      .order("occurred_on", { referencedTable: "outreach_entries", ascending: false })
+      .order("created_at", { referencedTable: "outreach_entries", ascending: false })
+      .limit(1, { referencedTable: "outreach_entries" })
       .order("name")
       .order("id")
       .range(from, to),

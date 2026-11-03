@@ -4,6 +4,7 @@ import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
 import { OutreachPanel } from "@/components/outreach-panel";
+import { DateLines } from "@/components/date-line";
 import { getConnection } from "@/lib/connections/queries";
 import {
   STATUS_LABELS,
@@ -70,6 +71,9 @@ async function Connection({
         <p className="text-muted">
           {[formatType(c), place].filter(Boolean).join(" · ")}
         </p>
+        {/* Where things stand in time: the latest outreach and the next plan.
+            Details are in Next action and Outreach log below. */}
+        <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
         <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
           {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
           {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}

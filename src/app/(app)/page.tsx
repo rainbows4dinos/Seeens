@@ -14,6 +14,8 @@ import {
 import type { ConnectionListItem } from "@/lib/connections/queries";
 import type { ConnectionStatus } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
+import { DateLines } from "@/components/date-line";
+import { todayISO } from "@/lib/outreach/labels";
 import { listSceneOptions, nestScenes, sceneAndChildren } from "@/lib/scenes/queries";
 import {
   TYPE_OPTIONS,
@@ -38,6 +40,7 @@ async function Directory({
 }) {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
+  const today = todayISO(new Date(), membership.timeZone);
 
   const params = await searchParams;
   const view = readView(params.view);
@@ -181,7 +184,7 @@ async function Directory({
               >
                 <span className="tag tag-ink">Us</span>
               </h2>
-              <ConnectionList connections={us} tagsFor={tagsFor} />
+              <ConnectionList connections={us} tagsFor={tagsFor} today={today} />
             </section>
           ) : null}
           {STATUSES.map((status) => {
@@ -202,7 +205,7 @@ async function Directory({
                   <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
                   <span className="text-muted">({group.length})</span>
                 </h2>
-                <ConnectionList connections={group} tagsFor={tagsFor} />
+                <ConnectionList connections={group} tagsFor={tagsFor} today={today} />
               </section>
             );
           })}
@@ -399,9 +402,11 @@ function ViewLink({
 function ConnectionList({
   connections,
   tagsFor,
+  today,
 }: {
   connections: ConnectionListItem[];
   tagsFor: (id: string) => string[];
+  today: string;
 }) {
   return (
     <ul className="panel rows flex flex-col">
@@ -413,12 +418,15 @@ function ConnectionList({
               href={`/connections/${c.id}`}
               className="flex flex-col gap-1 px-3 py-3 row-link sm:flex-row sm:items-start sm:justify-between sm:gap-4"
             >
-              {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
-              <span className="flex flex-col-reverse gap-1">
-                <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">
-                  {c.name}
+              <span className="flex min-w-0 flex-col gap-2">
+                {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
+                <span className="flex flex-col-reverse gap-1">
+                  <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">
+                    {c.name}
+                  </span>
+                  <span className="caption">{formatType(c)}</span>
                 </span>
-                <span className="caption">{formatType(c)}</span>
+                <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>
               <span className="flex flex-wrap items-center gap-2 sm:justify-end">
                 {place ? <span className="text-sm text-muted">{place}</span> : null}
