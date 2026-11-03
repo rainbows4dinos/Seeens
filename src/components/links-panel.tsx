@@ -42,11 +42,14 @@ export function LinksPanel({
   rows,
   options,
   candidates,
+  note,
 }: {
   subjectId: string;
   rows: LinkRow[];
   options: AddOption[];
   candidates: Candidate[];
+  // Optional line under the heading, such as how saving works on the edit page.
+  note?: string;
 }) {
   const [adding, setAdding] = useState<string | null>(null);
   const sections = SECTION_ORDER.map((title) => ({
@@ -59,6 +62,7 @@ export function LinksPanel({
       <h2 id="links-heading" className="display-s">
         Connections
       </h2>
+      {note ? <p className="-mt-2 text-sm text-muted">{note}</p> : null}
 
       {sections.length === 0 ? (
         <p className="text-muted">No links yet. Add bandmates, labels, or the places they work.</p>
