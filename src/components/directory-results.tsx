@@ -138,7 +138,9 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                   <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">
                     {c.name}
                   </span>
-                  <span className="caption">{formatType(c)}</span>
+                  <span className="caption">
+                    {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
+                  </span>
                 </span>
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>
@@ -150,7 +152,6 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                     {t}
                   </span>
                 ))}
-                <span className="caption whitespace-nowrap">{catalogNo(c)}</span>
               </span>
             </Link>
           </li>
