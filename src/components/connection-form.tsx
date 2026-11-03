@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
 import { Combobox } from "@/components/combobox";
 import { LINK_TYPES, detectLinkType, splitLinkLabel, type LinkType } from "@/lib/connections/link-types";
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
   GROUP_TYPES,
@@ -28,12 +28,17 @@ export function ConnectionForm({
   scenes,
   submitLabel,
   cancelHref,
+  linksSlot,
 }: {
   action: Action;
   initial: ConnectionFormValues;
   scenes: SceneOption[];
   submitLabel: string;
   cancelHref: string;
+  // Shown in More details, above Can Help With (the edit page's Connections
+  // block). It must not contain form fields of its own that belong to this
+  // form; see DetachedForm in links-panel.tsx.
+  linksSlot?: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState<ConnectionFormState, FormData>(
     async (prev, fd) => {
@@ -62,6 +67,7 @@ export function ConnectionForm({
       scenes={scenes}
       submitLabel={submitLabel}
       cancelHref={cancelHref}
+      linksSlot={linksSlot}
     />
   );
 }
@@ -73,6 +79,7 @@ function FormBody({
   scenes,
   submitLabel,
   cancelHref,
+  linksSlot,
 }: {
   state: ConnectionFormState;
   formAction: (fd: FormData) => void;
@@ -80,6 +87,7 @@ function FormBody({
   scenes: SceneOption[];
   submitLabel: string;
   cancelHref: string;
+  linksSlot?: ReactNode;
 }) {
   const { values: v, errors } = state;
   const [links, setLinks] = useState(() =>
@@ -97,6 +105,7 @@ function FormBody({
   const us = kind === "group" && isUs;
   // Open "More details" when it has content or an error to show.
   const detailsOpen = Boolean(
+    linksSlot ||
     errors.email ||
       errors.linkUrls ||
       v.email ||
@@ -383,6 +392,8 @@ function FormBody({
             Add a Link
           </button>
         </fieldset>
+
+        {linksSlot}
 
         <Field id="c-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
           <input {...noAutofill}

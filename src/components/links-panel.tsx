@@ -5,6 +5,7 @@ import { Combobox } from "@/components/combobox";
 import { offline } from "@/lib/offline";
 import Link from "next/link";
 import { useActionState, useId, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { addLink, removeLink, updateLink, type LinkState } from "@/lib/affiliations/actions";
 import {
   SECTION_ORDER,
@@ -147,19 +148,20 @@ function LinkItem({ row }: { row: LinkRow }) {
       </div>
 
       {mode === "edit" ? (
-        <form action={action} className="flex flex-col gap-3 panel p-3">
+        <div role="group" aria-label={`Edit link to ${row.otherName}`} className="flex flex-col gap-3 panel p-3">
+          <DetachedForm id={formId} action={action} />
           <div className="flex flex-col gap-2">
             <label htmlFor={`${formId}-role`} className="label">
               Role or Detail
             </label>
-            <input {...noAutofill} id={`${formId}-role`} name="role" defaultValue={row.role ?? ""} className="field" autoFocus />
+            <input {...noAutofill} id={`${formId}-role`} form={formId} name="role" defaultValue={row.role ?? ""} className="field" autoFocus />
           </div>
           <label className="choice self-start">
-            <input type="checkbox" name="former" defaultChecked={!row.isCurrent} />
+            <input type="checkbox" form={formId} name="former" defaultChecked={!row.isCurrent} />
             <span>Former</span>
           </label>
           <div className="flex flex-wrap gap-3">
-            <button type="submit" className="button-primary" disabled={saving}>
+            <button type="submit" form={formId} className="button-primary" disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </button>
             <button
@@ -176,7 +178,7 @@ function LinkItem({ row }: { row: LinkRow }) {
           <p role="alert" className="text-sm font-medium text-error">
             {state.error ? `Error: ${state.error}` : null}
           </p>
-        </form>
+        </div>
       ) : null}
 
       {mode === "remove" ? (
@@ -234,11 +236,13 @@ function AddLinkForm({
   const types = newGroupTypes(option.target);
 
   return (
-    <form action={action} className="flex flex-col gap-4 panel p-4">
-      <h3 className="font-semibold">{option.label}</h3>
+    <div role="group" aria-labelledby={`${id}-title`} className="flex flex-col gap-4 panel p-4">
+      <DetachedForm id={id} action={action} />
+      <h3 id={`${id}-title`} className="font-semibold">{option.label}</h3>
 
       <Combobox
         label="Find in your directory, or type a new name"
+        form={id}
         multiple={false}
         autoFocus
         options={candidates.map((c) => ({
@@ -252,15 +256,15 @@ function AddLinkForm({
           setNewName(created[0] ?? "");
         }}
       />
-      <input type="hidden" name="other_id" value={picked} />
-      <input type="hidden" name="new_name" value={picked === "__new__" ? newName : ""} />
+      <input type="hidden" form={id} name="other_id" value={picked} />
+      <input type="hidden" form={id} name="new_name" value={picked === "__new__" ? newName : ""} />
 
       {picked === "__new__" && types.length > 1 ? (
         <div className="flex flex-col gap-2">
           <label htmlFor={`${id}-type`} className="label">
             What is {newName}?
           </label>
-          <select id={`${id}-type`} name="new_group_type" className="field" defaultValue={types[0]}>
+          <select id={`${id}-type`} form={id} name="new_group_type" className="field" defaultValue={types[0]}>
             {types.map((t) => (
               <option key={t} value={t}>
                 {GROUP_TYPE_LABELS[t]}
@@ -274,16 +278,16 @@ function AddLinkForm({
         <label htmlFor={`${id}-role`} className="label">
           Role or Detail <span className="font-normal text-muted">(Optional)</span>
         </label>
-        <input {...noAutofill} id={`${id}-role`} name="role" placeholder={option.rolePlaceholder} className="field" />
+        <input {...noAutofill} id={`${id}-role`} form={id} name="role" placeholder={option.rolePlaceholder} className="field" />
       </div>
 
       <label className="choice self-start">
-        <input type="checkbox" name="former" />
+        <input type="checkbox" form={id} name="former" />
         <span>Former</span>
       </label>
 
       <div className="flex flex-wrap gap-3">
-        <button type="submit" className="button-primary" disabled={pending || !picked}>
+        <button type="submit" form={id} className="button-primary" disabled={pending || !picked}>
           {pending ? "Saving…" : "Save Link"}
         </button>
         <button type="button" className="button-secondary" onClick={onDone}>
@@ -293,6 +297,15 @@ function AddLinkForm({
       <p role="alert" className="text-sm font-medium text-error">
         {state.error ? `Error: ${state.error}` : null}
       </p>
-    </form>
+    </div>
   );
+}
+
+// An empty <form> at the end of <body>, which fields join through their
+// `form` attribute. This lets the Connections block sit inside the
+// connection editor's form (on the edit page) without nesting forms, and
+// Enter in a field here submits this form, not the editor.
+function DetachedForm({ id, action }: { id: string; action: (fd: FormData) => void }) {
+  if (typeof document === "undefined") return null;
+  return createPortal(<form id={id} action={action} hidden />, document.body);
 }

@@ -36,16 +36,13 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
         scenes={scenes}
         submitLabel="Save Changes"
         cancelHref={`/connections/${id}`}
+        linksSlot={
+          <LinksPanel
+            {...linksPanelProps(detail)}
+            note="Changes here save right away. Save Changes and Cancel don't affect them."
+          />
+        }
       />
-
-      {/* Outside the form: links save on their own, and a link save keeps
-          whatever is typed above. */}
-      <div className="border-t border-line pt-8">
-        <LinksPanel
-          {...linksPanelProps(detail)}
-          note="Changes here save right away. Save Changes and Cancel above don't affect them."
-        />
-      </div>
     </div>
   );
 }
