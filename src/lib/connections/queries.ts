@@ -26,7 +26,9 @@ export type ConnectionListItem = Awaited<ReturnType<typeof listConnections>>[num
 export async function getConnection(id: string) {
   const supabase = await createClient();
 
-  const [connection, outgoing, incoming, nextAction, history, members, outreach, pastPlans] = await Promise.all([
+  // The network doesn't depend on this connection, so load it in the same
+  // round trip as everything else.
+  const [connection, outgoing, incoming, nextAction, history, members, outreach, pastPlans, network] = await Promise.all([
     supabase
       .from("connections")
       .select("*, localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )")
@@ -75,6 +77,7 @@ export async function getConnection(id: string) {
       .in("status", ["done", "dropped"])
       .order("closed_at", { ascending: false })
       .limit(5),
+    loadNetwork(),
   ]);
 
   // An invalid UUID comes back as an error; treat it like a missing record.
@@ -98,7 +101,6 @@ export async function getConnection(id: string) {
     .map((cs) => cs.scenes)
     .filter((s): s is NonNullable<typeof s> => Boolean(s))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-  const network = await loadNetwork();
 
   return {
     connection: { ...connection.data, connection_links: links, scenes },
