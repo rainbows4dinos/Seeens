@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Scenes · Seeens" };
 
 export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="page-measure flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="display-l sm:display-xl">Scenes</h1>
         <Link href="/scenes/new" className="button-primary">

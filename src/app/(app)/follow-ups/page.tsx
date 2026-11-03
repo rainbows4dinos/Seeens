@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 
 export default function FollowUpsPage({ searchParams }: PageProps<"/follow-ups">) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="page-measure flex flex-col gap-6">
       <h1 className="display-l sm:display-xl">Follow-ups</h1>
       <Suspense fallback={<p className="text-muted">Loading follow-ups…</p>}>
         <FollowUps searchParams={searchParams} />

@@ -28,7 +28,7 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
   const { connection } = detail;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="page-measure flex flex-col gap-6">
       <h1 className="display-l sm:display-xl break-words">Edit {connection.name}</h1>
       <ConnectionForm
         action={updateConnection.bind(null, id)}

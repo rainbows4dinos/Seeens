@@ -45,7 +45,7 @@ async function Connection({
   const archived = Boolean(c.archived_at);
 
   return (
-    <article className="flex flex-col gap-8">
+    <article className="page-measure flex flex-col gap-8">
       <Link href={archived ? "/?view=archived" : "/"} className="link text-sm text-muted">
         Back to directory
       </Link>
