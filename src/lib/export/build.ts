@@ -1,4 +1,5 @@
 import "server-only";
+import { catalogNo } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
@@ -20,7 +21,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
     const query = supabase
       .from("connections")
       .select(
-        "name, kind, person_roles, group_type, status, played_together, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
+        "catalog_no, name, kind, person_roles, group_type, status, played_together, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
       )
       .eq("workspace_id", ws)
       // Only the current plan, not every plan the connection ever had.
@@ -34,6 +35,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
   return data.map((c): ExportRow => {
     const next = c.next_actions.find((a) => a.status === "open");
     return {
+      catalog_no: catalogNo(c),
       name: c.name,
       kind: c.kind === "group" ? "group" : "person",
       types: formatType(c).split(", ").join(LIST_SEPARATOR),

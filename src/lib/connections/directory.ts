@@ -47,6 +47,7 @@ export type DirectoryItem = {
   status: ConnectionStatus;
   is_us: boolean;
   played_together: boolean;
+  catalog_no: number;
   localities: {
     name: string;
     region: string | null;
@@ -137,7 +138,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
+          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
         )
         .eq("workspace_id", ws)
         .in("id", ids)
