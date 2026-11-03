@@ -128,7 +128,12 @@ Saves that touch several tables run as one database function, so they either ful
 
 ### Pushing to the hosted project
 
+Migrations apply to production automatically: the Migrate workflow (`.github/workflows/migrate.yml`) runs `supabase db push` whenever a change to `supabase/migrations/` lands on main. It needs the `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID`, and `SUPABASE_DB_PASSWORD` repository secrets. Vercel deploys the same push in parallel, so a migration the new code depends on can lag the deploy by a minute.
+
+To push by hand (pull main first, or the CLI only sees the migrations on your machine):
+
 ```bash
+git pull
 npx supabase login
 npx supabase link --project-ref <project-id>
 npx supabase db push --linked
