@@ -103,17 +103,6 @@ function FormBody({
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
   const [isUs, setIsUs] = useState(v.isUs);
   const us = kind === "group" && isUs;
-  // Open "More details" when it has content or an error to show.
-  const detailsOpen = Boolean(
-    linksSlot ||
-    errors.email ||
-      errors.linkUrls ||
-      v.email ||
-      v.phone ||
-      v.notes ||
-      v.canHelpWith ||
-      v.links.some((l) => l.url || l.label),
-  );
   const errorCount =
     Object.keys(errors).filter((k) => k !== "form" && k !== "linkUrls").length +
     Object.keys(errors.linkUrls ?? {}).length;
@@ -291,11 +280,10 @@ function FormBody({
         </div>
       </fieldset>
 
-      <details open={detailsOpen}>
-        <summary className="cursor-pointer text-lg leading-6 font-semibold">
+      <fieldset className="flex flex-col gap-5">
+        <legend className="mb-3 text-lg leading-6 font-semibold">
           More details <span className="text-sm font-normal text-muted">(all optional)</span>
-        </summary>
-        <div className="flex flex-col gap-5 pt-5">
+        </legend>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field id="c-email" label="Email" error={errors.email}>
             <input {...noAutofill}
@@ -408,8 +396,7 @@ function FormBody({
         <Field id="c-notes" label="Notes">
           <textarea {...noAutofill} id="c-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
         </Field>
-        </div>
-      </details>
+      </fieldset>
 
       <div className="save-bar flex flex-wrap gap-3">
         <button type="submit" disabled={pending} className="button-primary">
