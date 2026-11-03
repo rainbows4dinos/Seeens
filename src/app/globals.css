@@ -677,13 +677,42 @@
   .mobile-menu:not([open]) > summary .icon-close {
     display: none;
   }
+  /* Open, the menu floats over the page: the header row (logo and close
+     button) stays sharp, everything behind it blurs, and tapping the blur
+     closes it. The panel sits 12px under the 36px header row. */
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--color-bg-ground) 55%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
   .menu-panel {
+    position: absolute;
+    top: calc(var(--space-lg) + var(--control-height) + var(--space-md));
+    right: var(--space-lg);
+    left: var(--space-lg);
+    z-index: 30;
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);
-    margin-top: var(--space-md);
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-surface);
     padding: var(--space-lg);
+  }
+  .mobile-menu > summary {
+    z-index: 30;
+  }
+  .header-row {
+    position: relative;
+    z-index: 30;
+  }
+}
+
+/* While the mobile menu is open, the page behind it doesn't scroll. */
+@media (width < 40rem) {
+  html:has(.mobile-menu[open]) {
+    overflow: hidden;
   }
 }

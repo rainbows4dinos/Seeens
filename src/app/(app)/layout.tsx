@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         {/* Desktop: logo, nav chips, and the account on one row. Phones: logo
             and a Menu button; the nav and account move into the menu. */}
         <div className="relative mx-auto w-full max-w-4xl px-4 pt-4 pb-2">
-          <div className="flex items-center justify-between gap-3">
+          <div className="header-row flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Link href="/" className="logo uppercase">
                 Seeens
@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
           {/* Its button sits at the right end of the logo row; the panel
-              opens below it. */}
+              opens over the page below it. */}
           <MobileMenu>
             <MainNav layout="menu" />
             <div className="flex flex-col gap-4 border-t border-line pt-6">
