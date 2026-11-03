@@ -21,7 +21,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
   }, [error]);
 
   return (
-    <div role="alert" className="flex flex-col items-start gap-4">
+    <div role="alert" className="page-measure flex flex-col items-start gap-4">
       <h1 ref={headingRef} tabIndex={-1} className="display-l sm:display-xl outline-none">
         That didn&rsquo;t load.
       </h1>

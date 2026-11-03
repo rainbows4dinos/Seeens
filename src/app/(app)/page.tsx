@@ -119,7 +119,7 @@ async function Directory({
         ))}
       </nav>
 
-      {list ? <p className="text-muted">{list.intro}</p> : null}
+      {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
 
       {all.length ? (
         <FilterForm
@@ -319,7 +319,7 @@ function FilterForm({
     <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
-      className="flex flex-col gap-3"
+      className="page-measure flex flex-col gap-3"
     >
       {view !== "current" ? <input type="hidden" name="view" value={view} /> : null}
       <div className="flex flex-wrap items-end gap-2">
@@ -441,7 +441,7 @@ function ConnectionGroup({
 }) {
   if (layout === "list") return <ConnectionList connections={connections} tagsFor={tagsFor} today={today} />;
   return (
-    <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="card-grid">
       {connections.map((c) => {
         const tags = [
           c.played_together ? "Played together" : null,

@@ -10,7 +10,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <header>
         {/* Desktop: logo, nav chips, and the account on one row. Phones: logo
             and a Menu button; the nav and account move into the menu. */}
-        <div className="relative mx-auto w-full max-w-4xl px-4 pt-4 pb-2">
+        <div className="page-gutter relative w-full pt-4 pb-2">
           <div className="header-row flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Link href="/" className="logo uppercase">
@@ -38,9 +38,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </MobileMenu>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 pt-8 pb-16">{children}</main>
+      <main className="page-gutter w-full flex-1 pt-8 pb-16">{children}</main>
       <footer className="rule-top rule-strong bg-surface">
-        <p className="caption mx-auto w-full max-w-4xl px-4 py-4 normal-case">
+        <p className="caption page-gutter w-full py-4 normal-case">
           Town data from{" "}
           <a href="https://www.geonames.org/" className="link" target="_blank" rel="noopener noreferrer">
             GeoNames

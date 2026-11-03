@@ -25,7 +25,7 @@ async function EditScene({ params }: { params: PageProps<"/scenes/[id]">["params
   const l = scene.localities;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="page-measure flex flex-col gap-6">
       <h1 className="display-l sm:display-xl break-words">Edit {scene.name}</h1>
       <SceneForm
         action={updateScene.bind(null, id)}

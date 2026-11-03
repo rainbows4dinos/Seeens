@@ -35,7 +35,9 @@ Seeens is not a sales tool. Bands work on their own time, and urgency comes and 
 - Make browsing, search, and scene filters easy to reach on desktop and mobile.
 - Show connection name, type, scene, and status before secondary metadata.
 - Keep primary actions clear: add a connection, favorite it, or record outreach.
-- Use comfortable reading widths and a consistent spacing scale. Define shared tokens when styling begins.
+- **Page width:** the app has no max width. Gutters are 16px, 24px from `md`, and 32px from `xl` (`.page-gutter`). The directory and Boards use the full width. Reading and form pages (connection detail, edit forms, scenes, follow-ups, export) and long text such as the search row and view intros hold a 56rem measure (`.page-measure`), left-aligned with the logo.
+- Card grids fill the row with as many 280px-minimum columns as fit (`.card-grid`).
+- Use a consistent spacing scale.
 - Keep the first release focused on directory and detail views; prioritize useful relationship context over metrics.
 
 ## Components and states

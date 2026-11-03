@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Export · Seeens" };
 
 export default function ExportPage({ searchParams }: PageProps<"/export">) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="page-measure flex flex-col gap-6">
       <h1 className="text-3xl font-bold tracking-tight">Export</h1>
       <Suspense fallback={<p className="text-muted">Loading…</p>}>
         <Export searchParams={searchParams} />

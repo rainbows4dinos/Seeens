@@ -530,6 +530,31 @@
 
   /* Segmented control (Figma Segmented Control): joined boxes, current
      one inverted. Used for directory views. */
+  /* Page width. The app shell spans the window, with gutters that grow on
+     wider screens, so the directory and Boards can use the room. Reading and
+     form pages hold a measure instead, left-aligned with the logo. */
+  .page-gutter {
+    padding-inline: 16px;
+    @media (width >= 48rem) {
+      padding-inline: 24px;
+    }
+    @media (width >= 80rem) {
+      padding-inline: 32px;
+    }
+  }
+
+  .page-measure {
+    width: 100%;
+    max-width: 56rem;
+  }
+
+  /* Cards fill the row: as many 280px-minimum columns as fit. */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(17.5rem, 100%), 1fr));
+    gap: 24px;
+  }
+
   .segmented {
     display: inline-flex;
     flex-wrap: wrap;
