@@ -5,6 +5,7 @@ import { getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { GROUP_TYPES, type GroupType, type PersonRole } from "@/lib/connections/labels";
 import { createClient } from "@/lib/supabase/server";
 import { addOptionsFor, fitsTarget, newGroupTypes } from "./options";
+import { MAX_NAME_LENGTH, MAX_ROLE_LENGTH, MAX_ROWS } from "./lineup";
 
 export type LinkState = { ok?: boolean; error?: string; attempt?: number };
 
@@ -138,4 +139,56 @@ export async function removeLink(linkId: string): Promise<LinkState> {
   // directory), so drop the client's cached pages, not just this one.
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Paste a lineup: add several members to a band at once (#75).
+
+export type MemberRowInput = {
+  name: string;
+  roles: string;
+  former: boolean;
+  personId: string | null; // link this existing person, or null to add someone new
+};
+export type AddMembersResult = { ok: true; added: number; skipped: number } | { ok: false; error: string };
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function addBandMembers(bandId: string, rows: MemberRowInput[]): Promise<AddMembersResult> {
+  if (!Array.isArray(rows) || rows.length === 0) return { ok: false, error: "Pick at least one person to add." };
+  if (rows.length > MAX_ROWS) return { ok: false, error: `Add up to ${MAX_ROWS} people at a time.` };
+
+  const clean = [];
+  for (const r of rows) {
+    const name = String(r?.name ?? "").replace(/\s+/g, " ").trim();
+    const roles = String(r?.roles ?? "").trim();
+    const personId = r?.personId && UUID_RE.test(r.personId) ? r.personId : null;
+    if (!personId && !name) return { ok: false, error: "Every new person needs a name." };
+    if (name.length > MAX_NAME_LENGTH) return { ok: false, error: `Keep names under ${MAX_NAME_LENGTH} characters.` };
+    if (roles.length > MAX_ROLE_LENGTH) return { ok: false, error: `Keep roles under ${MAX_ROLE_LENGTH} characters: ${name}.` };
+    clean.push({ name, roles, former: Boolean(r?.former), person_id: personId });
+  }
+
+  const membership = await getMembership();
+  if (!membership) return { ok: false, error: "You're not in a workspace." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("add_band_members", {
+    p_workspace_id: membership.workspaceId,
+    p_band_id: bandId,
+    p_rows: clean,
+  });
+  if (error) {
+    return {
+      ok: false,
+      error:
+        error.code === "P0002"
+          ? "Couldn't find this band or one of the people. Refresh and try again."
+          : "Couldn't add them. Nothing was saved; try again.",
+    };
+  }
+
+  const results = (data ?? []) as { added: boolean }[];
+  const added = results.filter((r) => r.added).length;
+  revalidatePath("/", "layout");
+  return { ok: true, added, skipped: results.length - added };
 }

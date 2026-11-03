@@ -299,6 +299,8 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            "add_band_members":
+{ Args: { "p_band_id": string,"p_rows": Json,"p_workspace_id": string }; Returns: Json },
             "create_linked_connection":
 { Args: { "p_affiliation_kind": Database["public"]['Enums']["affiliation_kind"],"p_group_type"?: Database["public"]['Enums']["group_type"],"p_is_current": boolean,"p_kind": Database["public"]['Enums']["connection_kind"],"p_name": string,"p_new_is_from": boolean,"p_other_id": string,"p_person_roles": (Database["public"]['Enums']["person_role"])[],"p_role"?: string,"p_workspace_id": string }; Returns: string },
 "save_connection":
