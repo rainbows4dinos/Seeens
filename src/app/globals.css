@@ -619,6 +619,39 @@
     text-decoration-thickness: 2px;
   }
 
+  /* Date line (Figma Date Line): history or plan at a glance. Mono/Small.
+     Past is muted; the next plan is SemiBold ink with a dashed underline
+     on its label. Long labels end in an ellipsis on one line. */
+  .date-line {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    min-width: 0;
+    max-width: 100%;
+    font-family: var(--type-mono);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .date-line-past {
+    color: var(--color-text-secondary);
+    font-weight: 400;
+  }
+  .date-line-future {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+  .date-line-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .date-line-future .date-line-label {
+    border-bottom: var(--stroke-hair) dashed var(--color-border-strong);
+  }
+
   /* Nav chip (Figma Nav Chip): Hanken in a box; current page inverts. */
   .nav-chip {
     display: inline-flex;

@@ -51,3 +51,15 @@ export function formatDay(iso: string, today = todayISO()) {
     timeZone: "UTC",
   });
 }
+
+const MAX_LABEL = 40;
+
+// Keep the label to one short line, cut at a word where possible, so a long
+// outreach note doesn't swamp a directory row (or its link name).
+export function shortLabel(text: string, max = MAX_LABEL) {
+  const flat = text.replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  const cut = flat.slice(0, max - 1);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[\s,.;:–—-]+$/, "")}…`;
+}
