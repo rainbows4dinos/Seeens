@@ -109,7 +109,7 @@ npm run dev                  # http://localhost:3000
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Route types + TypeScript |
-| `npm test` | Unit tests (CSV export round-trip) |
+| `npm test` | Unit tests (CSV export round-trip, paging past 1,000 rows) |
 | `npm run db:start` / `db:stop` | Local Supabase via the CLI (Docker) |
 | `npm run db:migration <name>` | New versioned migration in `supabase/migrations/` |
 | `npm run db:reset` | Rebuild local DB from migrations |

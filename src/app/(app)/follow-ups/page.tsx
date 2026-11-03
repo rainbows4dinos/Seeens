@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAll } from "@/lib/supabase/paginate";
 import { formatDay, todayISO } from "@/lib/outreach/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 
@@ -27,15 +28,22 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
 
   const supabase = await createClient();
   const [actions, members] = await Promise.all([
-    supabase
-      .from("next_actions")
-      .select(
-        "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, archived_at )",
-      )
-      .eq("workspace_id", membership.workspaceId)
-      .eq("status", "open")
-      .order("due_on", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: true }),
+    fetchAll((from, to) =>
+      supabase
+        .from("next_actions")
+        .select(
+          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, archived_at )",
+        )
+        .eq("workspace_id", membership.workspaceId)
+        .eq("status", "open")
+        .order("due_on", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: true })
+        .order("id")
+        .range(from, to),
+    ).then(
+      (data) => ({ data, error: null }),
+      (error: unknown) => ({ data: null, error }),
+    ),
     supabase
       .from("workspace_members")
       .select("user_id, display_name")
@@ -45,7 +53,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
   if (actions.error || members.error) throw new Error("Couldn't load follow-ups.");
 
   const today = todayISO();
-  const open = actions.data.filter((a) => a.connection && !a.connection.archived_at);
+  const open = (actions.data ?? []).filter((a) => a.connection && !a.connection.archived_at);
   const shown = open.filter((a) => (who === "" ? true : who === "anyone" ? !a.assignee_id : a.assignee_id === who));
   const dated = shown.filter((a) => a.due_on);
   const undated = shown.filter((a) => !a.due_on);
