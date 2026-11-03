@@ -464,7 +464,7 @@
     text-decoration: none;
   }
   /* Figma Button with Icon L: 8px in from the edge, icon, then the label. */
-  :is(.button-primary, .button-secondary):has(> svg:first-child) {
+  :is(.button-primary, .button-secondary):not(.button-icon):has(> svg:first-child) {
     padding-left: 8px;
   }
   .button-primary {
