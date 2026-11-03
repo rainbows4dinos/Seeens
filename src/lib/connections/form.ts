@@ -29,6 +29,9 @@ export type ConnectionFormValues = {
   phone: string;
   notes: string;
   links: { label: string; url: string }[];
+  // Edit only: the connection's updated_at when the form was opened, so a
+  // save can tell if a bandmate saved in the meantime.
+  updatedAt: string;
 };
 
 export type ConnectionFormErrors = Partial<Record<keyof ConnectionFormValues | "form", string>> & {
@@ -40,6 +43,8 @@ export type ConnectionFormState = {
   errors: ConnectionFormErrors;
   // Changes on every failed save so the form remounts with submitted values.
   attempt?: number;
+  // Set when a bandmate saved this connection while the form was open.
+  conflict?: boolean;
 };
 
 export type ValidConnection = {
@@ -78,6 +83,7 @@ export const EMPTY_FORM: ConnectionFormValues = {
   phone: "",
   notes: "",
   links: [{ label: "", url: "" }],
+  updatedAt: "",
 };
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
@@ -106,6 +112,7 @@ export function readForm(fd: FormData): ConnectionFormValues {
     phone: str(fd, "phone"),
     notes: str(fd, "notes"),
     links: urls.map((url, i) => ({ label: labels[i] ?? "", url })),
+    updatedAt: str(fd, "updated_at"),
   };
 }
 

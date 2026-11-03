@@ -30,7 +30,12 @@ async function requireWorkspace() {
 
 // Saves the connection, its town, links, and scene tags (adding any new
 // scenes) in one database transaction. It all lands, or nothing changes.
-async function saveConnection(workspaceId: string, id: string | null, data: ValidConnection) {
+async function saveConnection(
+  workspaceId: string,
+  id: string | null,
+  data: ValidConnection,
+  expectedUpdatedAt?: string,
+) {
   const supabase = await createClient();
   const locality = data.locality;
   const { data: savedId, error } = await supabase.rpc("save_connection", {
@@ -52,6 +57,7 @@ async function saveConnection(workspaceId: string, id: string | null, data: Vali
     p_scene_ids: data.scene_ids,
     p_new_scenes: data.new_scenes,
     p_links: data.links,
+    p_expected_updated_at: expectedUpdatedAt || undefined,
   });
   if (error) throw error;
   return savedId;
@@ -89,13 +95,39 @@ export async function updateConnection(
 
   const workspaceId = await requireWorkspace();
   try {
-    await saveConnection(workspaceId, id, result.data);
+    await saveConnection(workspaceId, id, result.data, values.updatedAt);
   } catch (error) {
+    if ((error as { code?: string } | null)?.code === "PT409") {
+      return conflictState(workspaceId, id, values);
+    }
     return { values, errors: saveErrors(error), attempt: Date.now() };
   }
 
   revalidatePath("/", "layout");
   redirect(`/connections/${id}?saved=1`);
+}
+
+// A bandmate saved this connection after the form was opened. Nothing was
+// saved. Keep what was typed, and take on their version's timestamp so that
+// saving again (after a look at their changes) goes through.
+async function conflictState(
+  workspaceId: string,
+  id: string,
+  values: ConnectionFormState["values"],
+): Promise<ConnectionFormState> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("connections")
+    .select("updated_at")
+    .eq("id", id)
+    .eq("workspace_id", workspaceId)
+    .maybeSingle();
+  return {
+    values: { ...values, updatedAt: data?.updated_at ?? values.updatedAt },
+    errors: {},
+    conflict: true,
+    attempt: Date.now(),
+  };
 }
 
 export type ArchiveState = { error?: string };
