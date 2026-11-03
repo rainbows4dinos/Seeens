@@ -2,6 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAll } from "@/lib/supabase/paginate";
 import { formatPlace } from "@/lib/places";
 import { EMPTY_FORM, type ConnectionFormValues } from "./form";
 
@@ -10,18 +11,22 @@ import { EMPTY_FORM, type ConnectionFormValues } from "./form";
 
 export async function listConnections({ archived }: { archived: boolean }) {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  let query = supabase
-    .from("connections")
-    .select(
-      "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id )",
-    )
-    .eq("workspace_id", ws)
-    .order("name");
-  query = archived ? query.not("archived_at", "is", null) : query.is("archived_at", null);
-
-  const { data, error } = await query;
-  if (error) throw new Error("Couldn't load the directory.");
-  return data;
+  try {
+    return await fetchAll((from, to) => {
+      const query = supabase
+        .from("connections")
+        .select(
+          "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id )",
+        )
+        .eq("workspace_id", ws);
+      return (archived ? query.not("archived_at", "is", null) : query.is("archived_at", null))
+        .order("name")
+        .order("id")
+        .range(from, to);
+    });
+  } catch {
+    throw new Error("Couldn't load the directory.");
+  }
 }
 
 export type ConnectionListItem = Awaited<ReturnType<typeof listConnections>>[number];
@@ -163,20 +168,30 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
 // label mates (bands sharing a label) and members shared with "us".
 export async function loadNetwork() {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  const [links, conns] = await Promise.all([
-    supabase.from("affiliations").select("from_connection_id, to_connection_id, kind").eq("workspace_id", ws),
-    supabase
-      .from("connections")
-      .select("id, name, kind, group_type, is_us, archived_at")
-      .eq("workspace_id", ws)
-      .order("name"),
-  ]);
-  if (links.error || conns.error) throw new Error("Couldn't load your network.");
+  const [edges, connections] = await Promise.all([
+    fetchAll((from, to) =>
+      supabase
+        .from("affiliations")
+        .select("from_connection_id, to_connection_id, kind")
+        .eq("workspace_id", ws)
+        .order("id")
+        .range(from, to),
+    ),
+    fetchAll((from, to) =>
+      supabase
+        .from("connections")
+        .select("id, name, kind, group_type, is_us, archived_at")
+        .eq("workspace_id", ws)
+        .order("name")
+        .order("id")
+        .range(from, to),
+    ),
+  ]).catch(() => {
+    throw new Error("Couldn't load your network.");
+  });
 
-  const connections = conns.data;
   const byId = new Map(connections.map((c) => [c.id, c]));
   const usId = connections.find((c) => c.is_us)?.id ?? null;
-  const edges = links.data;
 
   const labelsOf = (id: string) =>
     edges.filter((e) => e.kind === "on_label" && e.from_connection_id === id).map((e) => e.to_connection_id);

@@ -2,6 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAll } from "@/lib/supabase/paginate";
 
 const SCENE_FIELDS =
   "id, name, description, parent_id, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( connection_id, connection:connections ( archived_at ) )";
@@ -20,13 +21,12 @@ function withCount<
 
 export async function listScenes() {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  const { data, error } = await supabase
-    .from("scenes")
-    .select(SCENE_FIELDS)
-    .eq("workspace_id", ws)
-    .order("name");
-  if (error) throw new Error("Couldn't load scenes.");
-  return data.map(withCount);
+  const scenes = await fetchAll((from, to) =>
+    supabase.from("scenes").select(SCENE_FIELDS).eq("workspace_id", ws).order("name").order("id").range(from, to),
+  ).catch(() => {
+    throw new Error("Couldn't load scenes.");
+  });
+  return scenes.map(withCount);
 }
 
 export type SceneItem = Awaited<ReturnType<typeof listScenes>>[number];
