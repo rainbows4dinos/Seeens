@@ -3,6 +3,10 @@ import Link from "next/link";
 import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterPanel } from "@/components/filter-form";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
+import { ConnectionCard } from "@/components/connection-card";
+import { LayoutToggle } from "@/components/layout-toggle";
+import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { loadDirectory } from "@/lib/connections/queries";
 import {
@@ -42,8 +46,15 @@ async function Directory({
   if (!membership) return <NoWorkspace />;
   const today = todayISO(new Date(), membership.timeZone);
 
-  const params = await searchParams;
+  const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
   const view = readView(params.view);
+  // List or cards: the URL wins (shared links), then this device's last choice.
+  const layout: DirectoryLayout =
+    readLayout(params.layout) ?? readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ?? "list";
+  const layoutHrefs = {
+    list: withLayout(params, "list"),
+    cards: withLayout(params, "cards"),
+  };
   const archived = view === "archived";
   const list = LISTS[view as ListView] ?? null;
   const asked = readFilters(params);
@@ -84,6 +95,7 @@ async function Directory({
   // In Let's play and Prospects, "of Y" counts that list, not everyone.
   const total = list ? all.filter((c) => c.status === list.status).length : all.length;
   const us = connections.filter((c) => c.is_us);
+  const sceneNames = new Map(scenes.map((sc) => [sc.id, sc.name]));
   const tagsFor = (id: string) =>
     [
       network.isLabelMateWithUs(id) ? "Label mate" : null,
@@ -143,23 +155,26 @@ async function Directory({
         )
       ) : (
         <>
-          <div
-            className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted"
-            aria-live="polite"
-          >
-            <p>
-              {filtering || connections.length !== total
-                ? `Showing ${connections.length} of ${total}`
-                : `${total} ${total === 1 ? "connection" : "connections"}`}
-            </p>
-            {hiddenAvoid ? (
-              <Link
-                href={filterHref({ ...filters, statuses: ["avoid"] }, view)}
-                className="link"
-              >
-                {hiddenAvoid} in Avoid, hidden. Show them
-              </Link>
-            ) : null}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div
+              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted"
+              aria-live="polite"
+            >
+              <p>
+                {filtering || connections.length !== total
+                  ? `Showing ${connections.length} of ${total}`
+                  : `${total} ${total === 1 ? "connection" : "connections"}`}
+              </p>
+              {hiddenAvoid ? (
+                <Link
+                  href={filterHref({ ...filters, statuses: ["avoid"] }, view)}
+                  className="link"
+                >
+                  {hiddenAvoid} in Avoid, hidden. Show them
+                </Link>
+              ) : null}
+            </div>
+            {connections.length ? <LayoutToggle current={layout} hrefs={layoutHrefs} /> : null}
           </div>
 
           {connections.length === 0 && list && !filtering ? (
@@ -184,7 +199,7 @@ async function Directory({
               >
                 <span className="tag tag-ink">Us</span>
               </h2>
-              <ConnectionList connections={us} tagsFor={tagsFor} today={today} />
+              <ConnectionGroup layout={layout} connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
             </section>
           ) : null}
           {STATUSES.map((status) => {
@@ -205,7 +220,7 @@ async function Directory({
                   <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
                   <span className="text-muted">({group.length})</span>
                 </h2>
-                <ConnectionList connections={group} tagsFor={tagsFor} today={today} />
+                <ConnectionGroup layout={layout} connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
               </section>
             );
           })}
@@ -256,6 +271,17 @@ function readView(v: string | string[] | undefined): View {
 
 function viewHref(view: View) {
   return view === "current" ? "/" : `/?view=${view}`;
+}
+
+// The same directory URL with a different layout.
+function withLayout(params: Record<string, string | string[] | undefined>, layout: DirectoryLayout) {
+  const p = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (key === "layout" || value === undefined) continue;
+    (Array.isArray(value) ? value : [value]).forEach((v) => p.append(key, v));
+  }
+  p.set("layout", layout);
+  return `/?${p.toString()}`;
 }
 
 function filterHref(f: DirectoryFilters, view: View) {
@@ -396,6 +422,47 @@ function ViewLink({
     <Link href={href} aria-current={current ? "page" : undefined}>
       {children}
     </Link>
+  );
+}
+
+// One status group, as list rows or cards. Same groups, same order.
+function ConnectionGroup({
+  layout,
+  connections,
+  tagsFor,
+  sceneNames,
+  today,
+}: {
+  layout: DirectoryLayout;
+  connections: ConnectionListItem[];
+  tagsFor: (id: string) => string[];
+  sceneNames: Map<string, string>;
+  today: string;
+}) {
+  if (layout === "list") return <ConnectionList connections={connections} tagsFor={tagsFor} today={today} />;
+  return (
+    <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {connections.map((c) => {
+        const tags = [
+          c.played_together ? "Played together" : null,
+          ...tagsFor(c.id),
+          ...c.connection_scenes.map((cs) => sceneNames.get(cs.scene_id)),
+        ].filter((t): t is string => Boolean(t));
+        return (
+          <li key={c.id} className="flex">
+            <ConnectionCard
+              connection={c}
+              today={today}
+              tags={tags.map((t) => (
+                <span key={t} className="tag">
+                  {t}
+                </span>
+              ))}
+            />
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
