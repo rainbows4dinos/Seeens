@@ -3,33 +3,58 @@ import { notFound } from "next/navigation";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
+import { buildNetwork } from "./network";
 import { formatPlace } from "@/lib/places";
 import { EMPTY_FORM, type ConnectionFormValues } from "./form";
 
 // All reads go through RLS, and each also filters to the current workspace
 // so someone in two bands only sees this band's rows.
 
-export async function listConnections({ archived }: { archived: boolean }) {
-  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  try {
-    return await fetchAll((from, to) => {
-      const query = supabase
-        .from("connections")
-        .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id )",
-        )
-        .eq("workspace_id", ws);
-      return (archived ? query.not("archived_at", "is", null) : query.is("archived_at", null))
-        .order("name")
-        .order("id")
-        .range(from, to);
-    });
-  } catch {
-    throw new Error("Couldn't load the directory.");
-  }
+type Supabase = Awaited<ReturnType<typeof createClient>>;
+
+function fetchDirectoryConnections(supabase: Supabase, ws: string) {
+  return fetchAll((from, to) =>
+    supabase
+      .from("connections")
+      .select(
+        "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id )",
+      )
+      .eq("workspace_id", ws)
+      .order("name")
+      .order("id")
+      .range(from, to),
+  );
 }
 
-export type ConnectionListItem = Awaited<ReturnType<typeof listConnections>>[number];
+function fetchEdges(supabase: Supabase, ws: string) {
+  return fetchAll((from, to) =>
+    supabase
+      .from("affiliations")
+      .select("from_connection_id, to_connection_id, kind")
+      .eq("workspace_id", ws)
+      .order("id")
+      .range(from, to),
+  );
+}
+
+// The directory and its network tags from one pass over the connections
+// table: every connection (archived ones too, which the network needs) plus
+// the links between them. `list` is the current or archived half.
+export async function loadDirectory({ archived }: { archived: boolean }) {
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
+  const [all, edges] = await Promise.all([fetchDirectoryConnections(supabase, ws), fetchEdges(supabase, ws)]).catch(
+    () => {
+      throw new Error("Couldn't load the directory.");
+    },
+  );
+  return {
+    all,
+    list: all.filter((c) => Boolean(c.archived_at) === archived),
+    network: buildNetwork(all, edges),
+  };
+}
+
+export type ConnectionListItem = Awaited<ReturnType<typeof loadDirectory>>["list"][number];
 
 export async function getConnection(id: string) {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
@@ -168,15 +193,7 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
 // label mates (bands sharing a label) and members shared with "us".
 export async function loadNetwork() {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  const [edges, connections] = await Promise.all([
-    fetchAll((from, to) =>
-      supabase
-        .from("affiliations")
-        .select("from_connection_id, to_connection_id, kind")
-        .eq("workspace_id", ws)
-        .order("id")
-        .range(from, to),
-    ),
+  const [connections, edges] = await Promise.all([
     fetchAll((from, to) =>
       supabase
         .from("connections")
@@ -186,46 +203,9 @@ export async function loadNetwork() {
         .order("id")
         .range(from, to),
     ),
+    fetchEdges(supabase, ws),
   ]).catch(() => {
     throw new Error("Couldn't load your network.");
   });
-
-  const byId = new Map(connections.map((c) => [c.id, c]));
-  const usId = connections.find((c) => c.is_us)?.id ?? null;
-
-  const labelsOf = (id: string) =>
-    edges.filter((e) => e.kind === "on_label" && e.from_connection_id === id).map((e) => e.to_connection_id);
-  const membersOf = (id: string) =>
-    new Set(edges.filter((e) => e.kind === "member" && e.to_connection_id === id).map((e) => e.from_connection_id));
-
-  const labelMatesOf = (id: string) => {
-    const labels = new Set(labelsOf(id));
-    const ids = new Set(
-      edges
-        .filter((e) => e.kind === "on_label" && labels.has(e.to_connection_id) && e.from_connection_id !== id)
-        .map((e) => e.from_connection_id),
-    );
-    return [...ids]
-      .map((mid) => byId.get(mid))
-      .filter((c): c is NonNullable<typeof c> => Boolean(c && !c.archived_at))
-      .map((c) => ({ id: c.id, name: c.name, is_us: c.is_us }));
-  };
-
-  const usLabelMates = new Set(usId ? labelMatesOf(usId).map((c) => c.id) : []);
-  const usMembers = usId ? membersOf(usId) : new Set<string>();
-
-  return {
-    connections,
-    usId,
-    labelMatesOf,
-    isLabelMateWithUs: (id: string) => usLabelMates.has(id),
-    // Names of people in both this band and ours (current or former).
-    sharedMembersWithUs: (id: string) =>
-      id === usId
-        ? []
-        : [...membersOf(id)]
-            .filter((m) => usMembers.has(m))
-            .map((m) => byId.get(m)?.name)
-            .filter((n): n is string => Boolean(n)),
-  };
+  return buildNetwork(connections, edges);
 }
