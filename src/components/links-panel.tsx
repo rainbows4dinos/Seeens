@@ -5,7 +5,8 @@ import { Combobox } from "@/components/combobox";
 import { offline } from "@/lib/offline";
 import Link from "next/link";
 import { useActionState, useId, useRef, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
+import { DetachedForm } from "@/components/detached-form";
+import { PasteLineup } from "@/components/paste-lineup";
 import { addLink, removeLink, updateLink, type LinkState } from "@/lib/affiliations/actions";
 import {
   SECTION_ORDER,
@@ -43,16 +44,21 @@ export function LinksPanel({
   rows,
   options,
   candidates,
+  memberIds,
   note,
 }: {
   subjectId: string;
   rows: LinkRow[];
   options: AddOption[];
   candidates: Candidate[];
+  // Set on a band: who's already in it, for Paste Members.
+  memberIds?: string[];
   // Optional line under the heading, such as how saving works on the edit page.
   note?: string;
 }) {
   const [adding, setAdding] = useState<string | null>(null);
+  // Bands can take a pasted lineup.
+  const canPaste = Boolean(memberIds) && options.some((o) => o.id === "member");
   const sections = SECTION_ORDER.map((title) => ({
     title,
     rows: rows.filter((r) => r.section === title),
@@ -94,7 +100,26 @@ export function LinksPanel({
             {o.label}
           </button>
         ))}
+        {canPaste ? (
+          <button
+            type="button"
+            className="button-secondary"
+            aria-expanded={adding === "paste"}
+            onClick={() => setAdding(adding === "paste" ? null : "paste")}
+          >
+            Paste Members
+          </button>
+        ) : null}
       </div>
+
+      {canPaste && adding === "paste" ? (
+        <PasteLineup
+          bandId={subjectId}
+          people={candidates.filter((c) => c.kind === "person").map(({ id, name }) => ({ id, name }))}
+          memberIds={memberIds ?? []}
+          onDone={() => setAdding(null)}
+        />
+      ) : null}
 
       {options
         .filter((o) => o.id === adding)
@@ -299,13 +324,4 @@ function AddLinkForm({
       </p>
     </div>
   );
-}
-
-// An empty <form> at the end of <body>, which fields join through their
-// `form` attribute. This lets the Connections block sit inside the
-// connection editor's form (on the edit page) without nesting forms, and
-// Enter in a field here submits this form, not the editor.
-function DetachedForm({ id, action }: { id: string; action: (fd: FormData) => void }) {
-  if (typeof document === "undefined") return null;
-  return createPortal(<form id={id} action={action} hidden />, document.body);
 }

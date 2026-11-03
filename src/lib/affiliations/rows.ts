@@ -10,6 +10,8 @@ export function linksPanelProps(detail: ConnectionDetail) {
     rows: linkRows(detail.connection, detail.affiliations),
     options: addOptionsFor(detail.connection),
     candidates: detail.candidates,
+    // People already in this band (current or former), for the lineup paste.
+    memberIds: detail.affiliations.incoming.filter((a) => a.kind === "member" && a.other).map((a) => a.other!.id),
   };
 }
 
