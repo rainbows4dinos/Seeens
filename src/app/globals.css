@@ -71,6 +71,7 @@
   --stroke-strong: 1.5px;
   /* Standard control height: fields, buttons, choices, segments. */
   --control-height: 36px;
+  --menu-motion: 300ms ease-in-out;
 
   /* Type families (Figma text styles: Display/*, UI/Nav, Mono/*, Hand/Note) */
   --type-display:
@@ -200,7 +201,8 @@
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
+  *::after,
+  ::details-content {
     transition: none !important;
     animation: none !important;
   }
@@ -475,6 +477,13 @@
     background: var(--color-accent-primary);
     color: var(--color-text-inverse);
   }
+  /* Icon-only button (Figma Button, Icon Only=True): a 36px square. Needs
+     an aria-label. */
+  .button-icon {
+    width: var(--control-height);
+    height: var(--control-height);
+    padding: 0;
+  }
   .button-primary:disabled,
   .button-secondary:disabled {
     opacity: 0.6;
@@ -614,20 +623,24 @@
   .nav-chip {
     display: inline-flex;
     align-items: center;
-    min-height: 28px;
+    min-height: var(--control-height);
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    padding: 3px 10px;
+    padding: var(--space-xs) var(--space-md);
+    color: var(--color-text-primary);
     font-family: var(--type-display);
     font-size: 15px;
     line-height: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
+    white-space: nowrap;
   }
   .nav-chip:hover {
     background: var(--color-bg-hover);
   }
-  .nav-chip[aria-current="page"] {
+  .nav-chip[aria-current="page"],
+  .nav-chip-inverse,
+  .nav-chip-inverse:hover {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
   }
@@ -637,7 +650,7 @@
     min-height: var(--control-height);
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    padding: 3px 10px;
+    padding: 3px var(--space-md); /* 100 x 36, as in Figma */
     font-family: var(--type-display);
     font-size: 22px;
     line-height: 28px;
@@ -645,5 +658,102 @@
     letter-spacing: -0.03em;
     text-transform: uppercase;
     text-shadow: var(--misregister-cyan);
+  }
+
+  /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):
+     the full header row needs about 740px. A <details>, so it
+     opens without JavaScript. Open, the button turns ink and shows Close. */
+  .mobile-menu > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .mobile-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+  /* Open, it stays ink even under the pointer: on phones a tap leaves
+     :hover stuck, which would flip it back to paper. */
+  .mobile-menu[open] > summary,
+  .mobile-menu[open] > summary:hover {
+    background: var(--color-accent-primary);
+    color: var(--color-text-inverse);
+  }
+  .mobile-menu[open] > summary .icon-menu,
+  .mobile-menu:not([open]) > summary .icon-close {
+    display: none;
+  }
+  /* Open, the menu floats over the page: the header row (logo and close
+     button) stays sharp, everything behind it blurs, and tapping the blur
+     closes it. The panel sits 12px under the 36px header row. */
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--color-bg-ground) 55%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .menu-panel {
+    position: absolute;
+    top: calc(var(--space-lg) + var(--control-height) + var(--space-md));
+    right: var(--space-lg);
+    left: var(--space-lg);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    padding: var(--space-lg);
+  }
+  .mobile-menu > summary {
+    z-index: 30;
+  }
+
+  /* Open and close: the panel fades and slides 8px down into place, the
+     blur fades, 300ms ease-in-out. ::details-content keeps the panel
+     rendered while it fades out (browsers without it just close at once).
+     Reduced motion turns transitions off, so it simply appears. */
+  .mobile-menu::details-content {
+    transition: content-visibility var(--menu-motion) allow-discrete;
+  }
+  .menu-panel,
+  .menu-backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--menu-motion),
+      translate var(--menu-motion);
+  }
+  .menu-panel {
+    translate: 0 -8px;
+  }
+  /* Fading out, it no longer catches taps. */
+  .mobile-menu:not([open]) .menu-panel,
+  .mobile-menu:not([open]) .menu-backdrop {
+    pointer-events: none;
+  }
+  .mobile-menu[open] .menu-panel,
+  .mobile-menu[open] .menu-backdrop {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    .mobile-menu[open] .menu-panel,
+    .mobile-menu[open] .menu-backdrop {
+      opacity: 0;
+    }
+    .mobile-menu[open] .menu-panel {
+      translate: 0 -8px;
+    }
+  }
+  .header-row {
+    position: relative;
+    z-index: 30;
+  }
+}
+
+/* While the mobile menu is open, the page behind it doesn't scroll. */
+@media (width < 48rem) {
+  html:has(.mobile-menu[open]) {
+    overflow: hidden;
   }
 }
