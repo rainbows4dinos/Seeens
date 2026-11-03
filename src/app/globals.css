@@ -475,6 +475,13 @@
     background: var(--color-accent-primary);
     color: var(--color-text-inverse);
   }
+  /* Icon-only button (Figma Button, Icon Only=True): a 36px square. Needs
+     an aria-label. */
+  .button-icon {
+    width: var(--control-height);
+    height: var(--control-height);
+    padding: 0;
+  }
   .button-primary:disabled,
   .button-secondary:disabled {
     opacity: 0.6;
@@ -614,10 +621,11 @@
   .nav-chip {
     display: inline-flex;
     align-items: center;
-    min-height: 28px;
+    min-height: var(--control-height);
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    padding: 3px 10px;
+    padding: var(--space-xs) var(--space-md);
+    color: var(--color-text-primary);
     font-family: var(--type-display);
     font-size: 15px;
     line-height: 20px;
@@ -627,7 +635,9 @@
   .nav-chip:hover {
     background: var(--color-bg-hover);
   }
-  .nav-chip[aria-current="page"] {
+  .nav-chip[aria-current="page"],
+  .nav-chip-inverse,
+  .nav-chip-inverse:hover {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
   }
@@ -637,7 +647,7 @@
     min-height: var(--control-height);
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    padding: 3px 10px;
+    padding: 3px var(--space-md); /* 100 x 36, as in Figma */
     font-family: var(--type-display);
     font-size: 22px;
     line-height: 28px;
@@ -645,5 +655,35 @@
     letter-spacing: -0.03em;
     text-transform: uppercase;
     text-shadow: var(--misregister-cyan);
+  }
+
+  /* Mobile menu (Figma App Header, Viewport=Mobile). A <details>, so it
+     opens without JavaScript. Open, the button turns ink and shows Close. */
+  .mobile-menu > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .mobile-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+  /* Open, it stays ink even under the pointer: on phones a tap leaves
+     :hover stuck, which would flip it back to paper. */
+  .mobile-menu[open] > summary,
+  .mobile-menu[open] > summary:hover {
+    background: var(--color-accent-primary);
+    color: var(--color-text-inverse);
+  }
+  .mobile-menu[open] > summary .icon-menu,
+  .mobile-menu:not([open]) > summary .icon-close {
+    display: none;
+  }
+  .menu-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    margin-top: var(--space-md);
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    padding: var(--space-lg);
   }
 }
