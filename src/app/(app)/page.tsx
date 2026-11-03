@@ -5,31 +5,18 @@ import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
 import { Add, Search as SearchIcon } from "@carbon/icons-react";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { ConnectionCard } from "@/components/connection-card";
-import { LayoutProvider, LayoutSlot, LayoutToggle } from "@/components/layout-toggle";
+import { DirectoryResults } from "@/components/directory-results";
+import { LayoutProvider, LayoutToggle } from "@/components/layout-toggle";
 import { PinWatch } from "@/components/pin-watch";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
-import { loadDirectory } from "@/lib/connections/queries";
-import {
-  STATUSES,
-  STATUS_LABELS,
-  formatLocality,
-  formatType,
-} from "@/lib/connections/labels";
-import type { ConnectionListItem } from "@/lib/connections/queries";
+import { loadDirectoryPage, readCursor, readDirectoryQuery, readView, type View } from "@/lib/connections/directory";
+import { STATUSES, STATUS_LABELS, formatLocality } from "@/lib/connections/labels";
 import type { ConnectionStatus } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
-import { DateLines } from "@/components/date-line";
 import { todayISO } from "@/lib/outreach/labels";
-import { listSceneOptions, nestScenes, sceneAndChildren } from "@/lib/scenes/queries";
-import {
-  TYPE_OPTIONS,
-  hasFilters,
-  matches,
-  readFilters,
-  type DirectoryFilters,
-} from "@/lib/connections/filters";
+import { nestScenes } from "@/lib/scenes/queries";
+import { TYPE_OPTIONS, hasFilters, type DirectoryFilters } from "@/lib/connections/filters";
 
 export default function DirectoryPage({ searchParams }: PageProps<"/">) {
   return (
@@ -59,50 +46,17 @@ async function Directory({
   };
   const archived = view === "archived";
   const list = LISTS[view as ListView] ?? null;
-  const asked = readFilters(params);
-  // The Let's play and Prospects views are the directory with one status.
-  const filters = list ? { ...asked, statuses: [list.status] } : asked;
+  const { asked, filters } = readDirectoryQuery(params);
   const filtering = hasFilters(asked);
-  // "all" is everyone in this view (current or archived).
-  const [{ list: all, network }, scenes] = await Promise.all([
-    loadDirectory({ archived }),
-    listSceneOptions(),
-  ]);
-  const sceneIds = filters.scene
-    ? sceneAndChildren(scenes, filters.scene)
-    : null;
-  const connections = all.filter((c) =>
-    matches(c, filters, { sceneIds, hideAvoid: !archived }),
-  );
-  const hiddenAvoid =
-    view === "current" && !filters.statuses.length
-      ? all.filter(
-          (c) =>
-            c.status === "avoid" &&
-            !c.is_us &&
-            matches(
-              c,
-              { ...filters, statuses: ["avoid"] },
-              { sceneIds, hideAvoid: false },
-            ),
-        ).length
-      : 0;
-  const towns = [
-    ...new Map(
-      all
-        .filter((c) => c.locality_id && c.localities)
-        .map((c) => [c.locality_id!, formatLocality(c.localities)!] as const),
-    ),
-  ].sort((a, b) => a[1].localeCompare(b[1]));
-  // In Let's play and Prospects, "of Y" counts that list, not everyone.
-  const total = list ? all.filter((c) => c.status === list.status).length : all.length;
-  const us = connections.filter((c) => c.is_us);
-  const sceneNames = new Map(scenes.map((sc) => [sc.id, sc.name]));
-  const tagsFor = (id: string) =>
-    [
-      network.isLabelMateWithUs(id) ? "Label mate" : null,
-      network.sharedMembersWithUs(id).length ? "Shares a member" : null,
-    ].filter((t): t is string => Boolean(t));
+  // No-script "Show More" lands here with ?after=…; with script it loads in place.
+  const after = readAfter(params.after);
+  const { items, next, counts, scenes } = await loadDirectoryPage({ view, asked, filters }, { after });
+  const c = counts!;
+  const towns = c.towns
+    .map((t) => [t.id, formatLocality(t)!] as const)
+    .sort((x, y) => x[1].localeCompare(y[1]));
+  // The results' state resets whenever the filters change.
+  const query = resultsQuery(params);
 
   const filtersOpen = Boolean(asked.statuses.length || filters.type || filters.scene || filters.town);
   const clearable = hasFilters(list ? { ...asked, statuses: [] } : asked);
@@ -132,7 +86,7 @@ async function Directory({
               pinned search row. Only one of the two Adds is ever displayed. */}
           <AddConnection className="self-start md:hidden" />
 
-          {all.length ? (
+          {c.view ? (
             <FilterForm
               filters={filters}
               view={view}
@@ -148,7 +102,7 @@ async function Directory({
 
         {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
 
-        {all.length === 0 ? (
+        {c.view === 0 ? (
           archived ? (
             <p className="text-muted">Nothing archived.</p>
           ) : list ? (
@@ -172,16 +126,16 @@ async function Directory({
               aria-live="polite"
             >
               <p>
-                {filtering || connections.length !== total
-                  ? `Showing ${connections.length} of ${total}`
-                  : `${total} ${total === 1 ? "connection" : "connections"}`}
+                {filtering || c.matched !== c.total
+                  ? `Showing ${c.matched} of ${c.total}`
+                  : `${c.total} ${c.total === 1 ? "connection" : "connections"}`}
               </p>
-              {hiddenAvoid ? (
+              {c.hiddenAvoid ? (
                 <Link
                   href={filterHref({ ...filters, statuses: ["avoid"] }, view)}
                   className="link"
                 >
-                  {hiddenAvoid} in Avoid, hidden. Show them
+                  {c.hiddenAvoid} in Avoid, hidden. Show them
                 </Link>
               ) : null}
               {clearable ? (
@@ -189,11 +143,16 @@ async function Directory({
                   Clear filters
                 </Link>
               ) : null}
+              {after ? (
+                <Link href={query ? `/?${query}` : "/"} className="link">
+                  Back to the start
+                </Link>
+              ) : null}
             </div>
 
-            {connections.length === 0 && list && !filtering ? (
+            {c.matched === 0 && list && !filtering ? (
               <p className="text-muted">{list.empty}</p>
-            ) : connections.length === 0 ? (
+            ) : c.matched === 0 ? (
               <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
                 <p className="font-medium">Nothing matches.</p>
                 <p className="text-muted">
@@ -205,43 +164,19 @@ async function Directory({
               </div>
             ) : null}
 
-            {us.length ? (
-              <section aria-labelledby="group-us" className="flex flex-col gap-2">
-                <h2
-                  id="group-us"
-                  className="label"
-                >
-                  <span className="tag tag-ink">Us</span>
-                </h2>
-                <ConnectionGroup connections={us} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
-              </section>
-            ) : null}
-            {STATUSES.map((status) => {
-              const group = connections.filter(
-                (c) => c.status === status && !c.is_us,
-              );
-              if (!group.length) return null;
-              return (
-                <section
-                  key={status}
-                  aria-labelledby={`group-${status}`}
-                  className="flex flex-col gap-2"
-                >
-                  <h2
-                    id={`group-${status}`}
-                    className="label"
-                  >
-                    <span className={`tag tag-${status}`}>{STATUS_LABELS[status]}</span>{" "}
-                    <span className="text-muted">({group.length})</span>
-                  </h2>
-                  <ConnectionGroup connections={group} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />
-                </section>
-              );
-            })}
+            <DirectoryResults
+              key={`${query}|${after ? JSON.stringify(after) : ""}`}
+              initialItems={items}
+              initialNext={next}
+              groups={c.groups}
+              matched={c.matched}
+              query={query}
+              today={today}
+            />
           </>
         )}
 
-        {all.length ? (
+        {c.view ? (
           <p className="rule-top pt-4">
             <Link href="/export" className="action-link text-sm">
               Export the directory as CSV
@@ -253,7 +188,6 @@ async function Directory({
   );
 }
 
-type View = "current" | "lets_play" | "prospects" | "archived";
 type ListView = "lets_play" | "prospects";
 
 const VIEWS: { id: View; label: string }[] = [
@@ -279,20 +213,35 @@ const LISTS: Record<ListView, { status: ConnectionStatus; intro: string; empty: 
   },
 };
 
-function readView(v: string | string[] | undefined): View {
-  const value = Array.isArray(v) ? v[0] : v;
-  return VIEWS.some((x) => x.id === value) ? (value as View) : "current";
-}
-
 function viewHref(view: View) {
   return view === "current" ? "/" : `/?view=${view}`;
+}
+
+// The query string the results reload for: everything but layout and paging.
+function resultsQuery(params: Record<string, string | string[] | undefined>) {
+  const p = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (key === "layout" || key === "after" || value === undefined) continue;
+    (Array.isArray(value) ? value : [value]).forEach((v) => p.append(key, v));
+  }
+  return p.toString();
+}
+
+function readAfter(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw) return null;
+  try {
+    return readCursor(JSON.parse(raw));
+  } catch {
+    return null;
+  }
 }
 
 // The same directory URL with a different layout.
 function withLayout(params: Record<string, string | string[] | undefined>, layout: DirectoryLayout) {
   const p = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (key === "layout" || value === undefined) continue;
+    if (key === "layout" || key === "after" || value === undefined) continue;
     (Array.isArray(value) ? value : [value]).forEach((v) => p.append(key, v));
   }
   p.set("layout", layout);
@@ -453,109 +402,5 @@ function ViewLink({
     <Link href={href} aria-current={current ? "page" : undefined}>
       {children}
     </Link>
-  );
-}
-
-// One status group, as list rows or cards. Same groups, same order. Both
-// are sent so switching is instant; only the chosen one is mounted.
-function ConnectionGroup({
-  connections,
-  tagsFor,
-  sceneNames,
-  today,
-}: {
-  connections: ConnectionListItem[];
-  tagsFor: (id: string) => string[];
-  sceneNames: Map<string, string>;
-  today: string;
-}) {
-  return (
-    <LayoutSlot
-      list={<ConnectionList connections={connections} tagsFor={tagsFor} today={today} />}
-      cards={<ConnectionCards connections={connections} tagsFor={tagsFor} sceneNames={sceneNames} today={today} />}
-    />
-  );
-}
-
-function ConnectionCards({
-  connections,
-  tagsFor,
-  sceneNames,
-  today,
-}: {
-  connections: ConnectionListItem[];
-  tagsFor: (id: string) => string[];
-  sceneNames: Map<string, string>;
-  today: string;
-}) {
-  return (
-    <ul className="card-grid">
-      {connections.map((c) => {
-        const tags = [
-          c.played_together ? "Played together" : null,
-          ...tagsFor(c.id),
-          ...c.connection_scenes.map((cs) => sceneNames.get(cs.scene_id)),
-        ].filter((t): t is string => Boolean(t));
-        return (
-          <li key={c.id} className="flex">
-            <ConnectionCard
-              connection={c}
-              today={today}
-              tags={tags.map((t) => (
-                <span key={t} className="tag">
-                  {t}
-                </span>
-              ))}
-            />
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-function ConnectionList({
-  connections,
-  tagsFor,
-  today,
-}: {
-  connections: ConnectionListItem[];
-  tagsFor: (id: string) => string[];
-  today: string;
-}) {
-  return (
-    <ul className="panel rows flex flex-col">
-      {connections.map((c) => {
-        const place = formatLocality(c.localities);
-        return (
-          <li key={c.id}>
-            <Link
-              href={`/connections/${c.id}`}
-              className="flex flex-col gap-1 px-3 py-3 row-link sm:flex-row sm:items-start sm:justify-between sm:gap-4"
-            >
-              <span className="flex min-w-0 flex-col gap-2">
-                {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
-                <span className="flex flex-col-reverse gap-1">
-                  <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">
-                    {c.name}
-                  </span>
-                  <span className="caption">{formatType(c)}</span>
-                </span>
-                <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
-              </span>
-              <span className="flex flex-wrap items-center gap-2 sm:justify-end">
-                {place ? <span className="text-sm text-muted">{place}</span> : null}
-                {c.played_together ? <span className="tag">Played together</span> : null}
-                {tagsFor(c.id).map((t) => (
-                  <span key={t} className="tag">
-                    {t}
-                  </span>
-                ))}
-              </span>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
   );
 }

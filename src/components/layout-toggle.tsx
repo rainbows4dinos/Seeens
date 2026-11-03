@@ -5,9 +5,9 @@ import Link from "next/link";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { LAYOUT_COOKIE, type DirectoryLayout } from "@/lib/connections/card";
 
-// List / Cards for the directory. Switching happens in the browser: the page
-// sends both layouts once, and the toggle swaps which one is mounted, so
-// there's no trip to the server. The choice still goes in the URL (shareable)
+// List / Cards for the directory. Switching happens in the browser: the
+// results render from the same loaded data either way, so there's no trip
+// to the server. The choice still goes in the URL (shareable)
 // and a cookie (this device opens the same way next time).
 
 const LayoutContext = createContext<{
@@ -28,7 +28,7 @@ export function LayoutProvider({ initial, children }: { initial: DirectoryLayout
   return <LayoutContext.Provider value={{ layout, setLayout }}>{children}</LayoutContext.Provider>;
 }
 
-function useLayout() {
+export function useLayout() {
   const ctx = useContext(LayoutContext);
   if (!ctx) throw new Error("LayoutToggle and LayoutSlot need a LayoutProvider.");
   return ctx;
@@ -72,9 +72,4 @@ export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string>
       </Link>
     </>
   );
-}
-
-// Shows whichever layout is chosen.
-export function LayoutSlot({ list, cards }: { list: ReactNode; cards: ReactNode }) {
-  return <>{useLayout().layout === "list" ? list : cards}</>;
 }
