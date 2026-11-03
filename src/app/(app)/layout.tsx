@@ -16,11 +16,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Link href="/" className="logo uppercase">
                 Seeens
               </Link>
-              <div className="hidden sm:block">
+              <div className="hidden md:block">
                 <MainNav />
               </div>
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <Suspense fallback={<span className="caption">Loading…</span>}>
                 <Account />
               </Suspense>

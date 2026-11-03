@@ -633,6 +633,7 @@
     line-height: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
+    white-space: nowrap;
   }
   .nav-chip:hover {
     background: var(--color-bg-hover);
@@ -659,7 +660,8 @@
     text-shadow: var(--misregister-cyan);
   }
 
-  /* Mobile menu (Figma App Header, Viewport=Mobile). A <details>, so it
+  /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):
+     the full header row needs about 740px. A <details>, so it
      opens without JavaScript. Open, the button turns ink and shows Close. */
   .mobile-menu > summary {
     list-style: none;
@@ -750,7 +752,7 @@
 }
 
 /* While the mobile menu is open, the page behind it doesn't scroll. */
-@media (width < 40rem) {
+@media (width < 48rem) {
   html:has(.mobile-menu[open]) {
     overflow: hidden;
   }
