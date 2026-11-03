@@ -71,6 +71,7 @@
   --stroke-strong: 1.5px;
   /* Standard control height: fields, buttons, choices, segments. */
   --control-height: 36px;
+  --menu-motion: 300ms ease-in-out;
 
   /* Type families (Figma text styles: Display/*, UI/Nav, Mono/*, Hand/Note) */
   --type-display:
@@ -200,7 +201,8 @@
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
+  *::after,
+  ::details-content {
     transition: none !important;
     animation: none !important;
   }
@@ -703,6 +705,43 @@
   }
   .mobile-menu > summary {
     z-index: 30;
+  }
+
+  /* Open and close: the panel fades and slides 8px down into place, the
+     blur fades, 300ms ease-in-out. ::details-content keeps the panel
+     rendered while it fades out (browsers without it just close at once).
+     Reduced motion turns transitions off, so it simply appears. */
+  .mobile-menu::details-content {
+    transition: content-visibility var(--menu-motion) allow-discrete;
+  }
+  .menu-panel,
+  .menu-backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--menu-motion),
+      translate var(--menu-motion);
+  }
+  .menu-panel {
+    translate: 0 -8px;
+  }
+  /* Fading out, it no longer catches taps. */
+  .mobile-menu:not([open]) .menu-panel,
+  .mobile-menu:not([open]) .menu-backdrop {
+    pointer-events: none;
+  }
+  .mobile-menu[open] .menu-panel,
+  .mobile-menu[open] .menu-backdrop {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    .mobile-menu[open] .menu-panel,
+    .mobile-menu[open] .menu-backdrop {
+      opacity: 0;
+    }
+    .mobile-menu[open] .menu-panel {
+      translate: 0 -8px;
+    }
   }
   .header-row {
     position: relative;
