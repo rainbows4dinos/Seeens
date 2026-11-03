@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { safeTimeZone } from "@/lib/outreach/labels";
 
 export type CurrentUser = {
   id: string;
@@ -13,6 +14,7 @@ export type Membership = {
   workspaceName: string;
   displayName: string;
   role: "owner" | "member";
+  timeZone: string;
 };
 
 // Verified user for this request, or a redirect to /login.
@@ -38,7 +40,7 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
 
   const { data, error } = await supabase
     .from("workspace_members")
-    .select("workspace_id, display_name, role, workspaces ( name )")
+    .select("workspace_id, display_name, role, workspaces ( name, time_zone )")
     .eq("user_id", user.id)
     .order("created_at")
     .limit(1)
@@ -52,6 +54,7 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
     workspaceName: data.workspaces?.name ?? "Workspace",
     displayName: data.display_name,
     role: data.role,
+    timeZone: safeTimeZone(data.workspaces?.time_zone),
   };
 });
 

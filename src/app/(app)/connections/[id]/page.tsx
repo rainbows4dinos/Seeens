@@ -37,7 +37,8 @@ async function Connection({
 
   const [{ id }, { saved }] = await Promise.all([params, searchParams]);
   const [detail, user] = await Promise.all([getConnection(id), getCurrentUser()]);
-  const today = todayISO();
+  const tz = membership.timeZone;
+  const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
   const rows = linkRows(c, detail.affiliations);
   const place = formatLocality(c.localities);
@@ -55,7 +56,7 @@ async function Connection({
 
       {archived ? (
         <p className="window p-3 text-sm font-medium">
-          Archived {formatDate(c.archived_at!)}. Hidden from the directory; everything below is kept.
+          Archived {formatDate(c.archived_at!, tz)}. Hidden from the directory; everything below is kept.
         </p>
       ) : null}
 
@@ -106,7 +107,7 @@ async function Connection({
                   {h.from_status ? `${STATUS_LABELS[h.from_status]} to ${STATUS_LABELS[h.to_status]}` : `Added as ${STATUS_LABELS[h.to_status]}`}
                   <span className="text-muted">
                     {" · "}
-                    {[formatDate(h.changed_at), h.by].filter(Boolean).join(" · ")}
+                    {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}
                   </span>
                 </li>
               ))}
@@ -133,7 +134,7 @@ async function Connection({
                   <span className="text-muted">
                     {" · "}
                     {p.status === "done" ? "done" : "dropped"}
-                    {p.closed_at ? ` ${formatDate(p.closed_at)}` : ""}
+                    {p.closed_at ? ` ${formatDate(p.closed_at, tz)}` : ""}
                   </span>
                 </li>
               ))}
@@ -221,7 +222,7 @@ async function Connection({
 
       <footer className="flex flex-col gap-4 rule-top pt-6">
         <p className="text-sm text-muted">
-          Added {formatDate(c.created_at)} · Updated {formatDate(c.updated_at)}
+          Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
         </p>
         <ArchiveControl id={c.id} name={c.name} archived={archived} />
       </footer>

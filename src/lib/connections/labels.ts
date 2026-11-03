@@ -1,5 +1,6 @@
 import type { Database } from "@/lib/supabase/database.types";
 import { formatShortPlace } from "@/lib/places";
+import { DEFAULT_TIME_ZONE, safeTimeZone } from "@/lib/outreach/labels";
 
 type Enums = Database["public"]["Enums"];
 export type ConnectionKind = Enums["connection_kind"];
@@ -86,11 +87,12 @@ export function formatLocality(
   return locality ? formatShortPlace(locality) : null;
 }
 
-export function formatDate(iso: string) {
+// A timestamp as a date in the band's time zone: "Nov 2, 2026".
+export function formatDate(iso: string, timeZone = DEFAULT_TIME_ZONE) {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-    timeZone: "America/Los_Angeles",
+    timeZone: safeTimeZone(timeZone),
   });
 }

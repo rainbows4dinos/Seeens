@@ -30,9 +30,14 @@ export async function logOutreach(
     channel: str(fd, "channel"),
     summary: str(fd, "summary"),
   };
+  const membership = await getMembership();
+  if (!membership) return { values, errors: { form: "You're not in a workspace yet." }, attempt: Date.now() };
+  // "The future" means after today where the band is.
+  const today = todayISO(new Date(), membership.timeZone);
+
   const errors: OutreachState["errors"] = {};
   if (!isISODate(values.occurredOn)) errors.occurredOn = "Pick the date it happened.";
-  else if (values.occurredOn > todayISO()) {
+  else if (values.occurredOn > today) {
     errors.occurredOn = "Outreach is for what already happened. Plan future steps under Next action.";
   } else if (values.occurredOn < "1990-01-01") errors.occurredOn = "That date looks too far back.";
   if (!CHANNELS.includes(values.channel as OutreachChannel)) errors.channel = "Pick how you reached out.";
@@ -40,9 +45,7 @@ export async function logOutreach(
   else if (values.summary.length > 4000) errors.summary = "Keep it under 4,000 characters.";
   if (Object.keys(errors).length) return { values, errors, attempt: Date.now() };
 
-  const membership = await getMembership();
   const user = await getCurrentUser();
-  if (!membership) return { values, errors: { form: "You're not in a workspace yet." }, attempt: Date.now() };
   const supabase = await createClient();
   const { error } = await supabase.from("outreach_entries").insert({
     workspace_id: membership.workspaceId,
@@ -61,7 +64,7 @@ export async function logOutreach(
   }
 
   revalidatePath("/", "layout");
-  return { values: { occurredOn: todayISO(), channel: values.channel, summary: "" }, errors: {}, savedAt: Date.now() };
+  return { values: { occurredOn: today, channel: values.channel, summary: "" }, errors: {}, savedAt: Date.now() };
 }
 
 // Only the author can remove an entry (enforced by RLS).

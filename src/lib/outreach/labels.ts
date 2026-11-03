@@ -14,11 +14,23 @@ export const CHANNEL_LABELS: Record<OutreachChannel, string> = {
 
 export const CHANNELS = Object.keys(CHANNEL_LABELS) as OutreachChannel[];
 
-// The band's dates are Pacific for now (Seeens' first workspace is in Portland).
-const TZ = "America/Los_Angeles";
+// Each band has its own time zone (workspaces.time_zone). Pacific is the
+// default, and the fallback if a zone name isn't one this runtime knows.
+export const DEFAULT_TIME_ZONE = "America/Los_Angeles";
 
-export function todayISO(now = new Date()) {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(now);
+export function safeTimeZone(timeZone: string | null | undefined) {
+  if (!timeZone) return DEFAULT_TIME_ZONE;
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone });
+    return timeZone;
+  } catch {
+    return DEFAULT_TIME_ZONE;
+  }
+}
+
+// The calendar date (YYYY-MM-DD) at `now` in the band's time zone.
+export function todayISO(now = new Date(), timeZone = DEFAULT_TIME_ZONE) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: safeTimeZone(timeZone) }).format(now);
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

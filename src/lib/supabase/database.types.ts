@@ -281,14 +281,14 @@ isOneToOne: false
                   ]
                 },"workspaces": {
                   Row: {
-                    "created_at": string,"id": string,"name": string
+                    "created_at": string,"id": string,"name": string,"time_zone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string
+                    "created_at"?: string,"id"?: string,"name": string,"time_zone"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string
+                    "created_at"?: string,"id"?: string,"name"?: string,"time_zone"?: string
                   }
                   Relationships: [
                     

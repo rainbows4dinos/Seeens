@@ -151,6 +151,12 @@ returning display_name, role;
 
 Without `returning`, the Supabase SQL editor reports 0 rows even when the insert worked.
 
+Dates ("today" for outreach and follow-ups, and the dates in the CSV export) use the band's time zone, Pacific by default. To change it:
+
+```sql
+update public.workspaces set time_zone = 'America/New_York' where name = 'Merwulf';
+```
+
 To remove a member, delete their membership. They can still sign in, but they see "No workspace yet," and the database returns none of the band's data.
 
 ```sql
