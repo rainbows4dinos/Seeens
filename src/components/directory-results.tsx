@@ -61,7 +61,7 @@ export function DirectoryResults({
         focusId.current = fresh[0]?.id ?? null;
         setItems([...items, ...fresh]);
         setNext(page.next);
-        setAnnounce(`${fresh.length} more loaded. Showing ${items.length + fresh.length} of ${matched}.`);
+        setAnnounce(`${fresh.length} more loaded, ${items.length + fresh.length} of ${matched}.`);
       } catch {
         setFailed(true);
         setAnnounce("Couldn't load more. Try again.");
@@ -108,7 +108,7 @@ export function DirectoryResults({
             {pending ? "Loading…" : "Show More"}
           </Link>
           <span className="text-sm text-muted">
-            Showing {items.length} of {matched}
+            {items.length} of {matched} loaded
           </span>
           {failed ? <span className="text-sm">Couldn&rsquo;t load more. Try again.</span> : null}
         </div>

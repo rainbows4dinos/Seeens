@@ -126,9 +126,10 @@ async function Directory({
               aria-live="polite"
             >
               <p>
-                {filtering || c.matched !== c.total
-                  ? `Showing ${c.matched} of ${c.total}`
-                  : `${c.total} ${c.total === 1 ? "connection" : "connections"}`}
+                {/* How many match, never how many are loaded (that's under the list). */}
+                {filtering
+                  ? `${c.matched} of ${c.total} match`
+                  : `${c.matched} ${c.matched === 1 ? "connection" : "connections"}`}
               </p>
               {c.hiddenAvoid ? (
                 <Link
