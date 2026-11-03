@@ -12,25 +12,6 @@ import { EMPTY_FORM, type ConnectionFormValues } from "./form";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
-function fetchDirectoryConnections(supabase: Supabase, ws: string) {
-  return fetchAll((from, to) =>
-    supabase
-      .from("connections")
-      .select(
-        "id, name, kind, person_roles, group_type, status, played_together, is_us, archived_at, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
-      )
-      .eq("workspace_id", ws)
-      // Date lines: only the latest outreach and the open plan.
-      .eq("next_actions.status", "open")
-      .order("occurred_on", { referencedTable: "outreach_entries", ascending: false })
-      .order("created_at", { referencedTable: "outreach_entries", ascending: false })
-      .limit(1, { referencedTable: "outreach_entries" })
-      .order("name")
-      .order("id")
-      .range(from, to),
-  );
-}
-
 function fetchEdges(supabase: Supabase, ws: string) {
   return fetchAll((from, to) =>
     supabase
@@ -41,25 +22,6 @@ function fetchEdges(supabase: Supabase, ws: string) {
       .range(from, to),
   );
 }
-
-// The directory and its network tags from one pass over the connections
-// table: every connection (archived ones too, which the network needs) plus
-// the links between them. `list` is the current or archived half.
-export async function loadDirectory({ archived }: { archived: boolean }) {
-  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  const [all, edges] = await Promise.all([fetchDirectoryConnections(supabase, ws), fetchEdges(supabase, ws)]).catch(
-    () => {
-      throw new Error("Couldn't load the directory.");
-    },
-  );
-  return {
-    all,
-    list: all.filter((c) => Boolean(c.archived_at) === archived),
-    network: buildNetwork(all, edges),
-  };
-}
-
-export type ConnectionListItem = Awaited<ReturnType<typeof loadDirectory>>["list"][number];
 
 export async function getConnection(id: string) {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
