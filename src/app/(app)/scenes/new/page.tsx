@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { createScene } from "@/lib/scenes/actions";
-import { listScenes } from "@/lib/scenes/queries";
+import { listSceneOptions } from "@/lib/scenes/queries";
 import { SceneForm } from "@/components/scene-form";
 import { NoWorkspace } from "@/components/no-workspace";
 
@@ -22,7 +22,7 @@ export default function NewScenePage() {
 async function NewScene() {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
-  const scenes = await listScenes();
+  const scenes = await listSceneOptions();
 
   return (
     <SceneForm

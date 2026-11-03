@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { updateScene } from "@/lib/scenes/actions";
-import { getScene, listScenes } from "@/lib/scenes/queries";
+import { getScene, listSceneOptions } from "@/lib/scenes/queries";
 import { formatPlace } from "@/lib/places";
 import { SceneForm } from "@/components/scene-form";
 import { NoWorkspace } from "@/components/no-workspace";
@@ -21,7 +21,7 @@ async function EditScene({ params }: { params: PageProps<"/scenes/[id]">["params
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
   const { id } = await params;
-  const [scene, scenes] = await Promise.all([getScene(id), listScenes()]);
+  const [scene, scenes] = await Promise.all([getScene(id), listSceneOptions()]);
   const l = scene.localities;
 
   return (

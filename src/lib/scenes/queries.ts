@@ -31,6 +31,23 @@ export async function listScenes() {
 
 export type SceneItem = Awaited<ReturnType<typeof listScenes>>[number];
 
+// Just names and nesting, for pickers and filters. listScenes() also loads
+// every tagged connection to count them, which only the Scenes page needs.
+export async function listSceneOptions() {
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
+  return fetchAll((from, to) =>
+    supabase
+      .from("scenes")
+      .select("id, name, parent_id")
+      .eq("workspace_id", ws)
+      .order("name")
+      .order("id")
+      .range(from, to),
+  ).catch(() => {
+    throw new Error("Couldn't load scenes.");
+  });
+}
+
 export async function getScene(id: string) {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
   const { data, error } = await supabase

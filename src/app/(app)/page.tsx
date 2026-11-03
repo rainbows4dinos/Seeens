@@ -4,7 +4,7 @@ import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterPanel } from "@/components/filter-form";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
-import { listConnections, loadNetwork } from "@/lib/connections/queries";
+import { loadDirectory } from "@/lib/connections/queries";
 import {
   STATUSES,
   STATUS_LABELS,
@@ -14,7 +14,7 @@ import {
 import type { ConnectionListItem } from "@/lib/connections/queries";
 import type { ConnectionStatus } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
-import { listScenes, nestScenes, sceneAndChildren } from "@/lib/scenes/queries";
+import { listSceneOptions, nestScenes, sceneAndChildren } from "@/lib/scenes/queries";
 import {
   TYPE_OPTIONS,
   hasFilters,
@@ -47,10 +47,10 @@ async function Directory({
   // The Let's play and Prospects views are the directory with one status.
   const filters = list ? { ...asked, statuses: [list.status] } : asked;
   const filtering = hasFilters(asked);
-  const [all, network, scenes] = await Promise.all([
-    listConnections({ archived }),
-    loadNetwork(),
-    listScenes(),
+  // "all" is everyone in this view (current or archived).
+  const [{ list: all, network }, scenes] = await Promise.all([
+    loadDirectory({ archived }),
+    listSceneOptions(),
   ]);
   const sceneIds = filters.scene
     ? sceneAndChildren(scenes, filters.scene)
