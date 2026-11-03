@@ -304,7 +304,7 @@ isOneToOne: false
 "save_connection":
 { Args: { "p_can_help_with": (string)[],"p_email"?: string,"p_group_type"?: Database["public"]['Enums']["group_type"],"p_id"?: string,"p_is_us": boolean,"p_keep_locality_id"?: string,"p_kind": Database["public"]['Enums']["connection_kind"],"p_links": Json,"p_name": string,"p_new_scenes": (string)[],"p_notes"?: string,"p_person_roles": (Database["public"]['Enums']["person_role"])[],"p_phone"?: string,"p_place_id"?: number,"p_played_together": boolean,"p_scene_ids": (string)[],"p_status": Database["public"]['Enums']["connection_status"],"p_workspace_id": string }; Returns: string },
 "search_places":
-{ Args: { "max_results"?: number,"prefer_countries"?: (string)[],"q": string }; Returns: {
+{ Args: { "max_results"?: number,"prefer_countries"?: (string)[],"q": string,"workspace_id"?: string }; Returns: {
               "ascii_name": string,
 "country_code": string,
 "country_name": string,

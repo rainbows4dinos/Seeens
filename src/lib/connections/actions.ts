@@ -101,12 +101,13 @@ export async function updateConnection(
 export type ArchiveState = { error?: string };
 
 async function setArchived(id: string, archived: boolean): Promise<ArchiveState> {
-  await requireWorkspace();
+  const workspaceId = await requireWorkspace();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("connections")
     .update({ archived_at: archived ? new Date().toISOString() : null })
     .eq("id", id)
+    .eq("workspace_id", workspaceId)
     .select("id");
 
   if (error || !data.length) {
@@ -135,7 +136,7 @@ export async function quickUpdate(
   id: string,
   change: { status: ConnectionStatus } | { playedTogether: boolean },
 ): Promise<QuickResult> {
-  await requireWorkspace();
+  const workspaceId = await requireWorkspace();
   const supabase = await createClient();
   const patch =
     "status" in change
@@ -145,7 +146,12 @@ export async function quickUpdate(
       : { played_together: Boolean(change.playedTogether) };
 
   const current = async () => {
-    const { data } = await supabase.from("connections").select("status, played_together").eq("id", id).maybeSingle();
+    const { data } = await supabase
+      .from("connections")
+      .select("status, played_together")
+      .eq("id", id)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle();
     return data ? { status: data.status, playedTogether: data.played_together } : null;
   };
   if (!patch) return { ok: false, saved: await current() };
@@ -154,6 +160,7 @@ export async function quickUpdate(
     .from("connections")
     .update(patch)
     .eq("id", id)
+    .eq("workspace_id", workspaceId)
     .select("status, played_together")
     .maybeSingle();
   if (error || !data) return { ok: false, saved: await current() };

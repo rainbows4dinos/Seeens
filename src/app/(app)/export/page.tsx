@@ -27,8 +27,16 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
 
   const supabase = await createClient();
   const [current, archivedCount] = await Promise.all([
-    supabase.from("connections").select("id", { count: "exact", head: true }).is("archived_at", null),
-    supabase.from("connections").select("id", { count: "exact", head: true }).not("archived_at", "is", null),
+    supabase
+      .from("connections")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", membership.workspaceId)
+      .is("archived_at", null),
+    supabase
+      .from("connections")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", membership.workspaceId)
+      .not("archived_at", "is", null),
   ]);
   const nCurrent = current.count ?? 0;
   const nArchived = archivedCount.count ?? 0;
