@@ -29,6 +29,7 @@ export function Combobox({
   autoFocus,
   labelClassName = "label",
   placeholder,
+  form,
 }: {
   label: string;
   hint?: string;
@@ -44,6 +45,8 @@ export function Combobox({
   autoFocus?: boolean;
   labelClassName?: string;
   placeholder?: string;
+  /** Id of the form this belongs to, when it isn't the surrounding one. */
+  form?: string;
 }) {
   const id = useId();
   const listId = `${id}-list`;
@@ -89,7 +92,7 @@ export function Combobox({
       return;
     }
     onChange?.(selected, created);
-    if (autoSubmit) wrapRef.current?.closest("form")?.requestSubmit();
+    if (autoSubmit) (inputRef.current?.form ?? wrapRef.current?.closest("form"))?.requestSubmit();
     // onChange is a callback prop; only react to the picks themselves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, created, autoSubmit]);
@@ -224,6 +227,7 @@ export function Combobox({
           id={`${id}-input`}
           type="text"
           role="combobox"
+          form={form}
           aria-expanded={open}
           aria-controls={listId}
           aria-autocomplete="list"
@@ -320,8 +324,8 @@ export function Combobox({
         </p>
       ) : null}
 
-      {name ? selected.map((v) => <input key={v} type="hidden" name={name} value={v} />) : null}
-      {create?.name ? <input type="hidden" name={create.name} value={created.join(", ")} /> : null}
+      {name ? selected.map((v) => <input key={v} type="hidden" form={form} name={name} value={v} />) : null}
+      {create?.name ? <input type="hidden" form={form} name={create.name} value={created.join(", ")} /> : null}
     </div>
   );
 }

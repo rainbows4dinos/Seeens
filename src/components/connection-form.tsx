@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
 import { Combobox } from "@/components/combobox";
 import { LINK_TYPES, detectLinkType, splitLinkLabel, type LinkType } from "@/lib/connections/link-types";
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
   GROUP_TYPES,
@@ -28,12 +28,17 @@ export function ConnectionForm({
   scenes,
   submitLabel,
   cancelHref,
+  linksSlot,
 }: {
   action: Action;
   initial: ConnectionFormValues;
   scenes: SceneOption[];
   submitLabel: string;
   cancelHref: string;
+  // Shown in More details, above Can Help With (the edit page's Connections
+  // block). It must not contain form fields of its own that belong to this
+  // form; see DetachedForm in links-panel.tsx.
+  linksSlot?: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState<ConnectionFormState, FormData>(
     async (prev, fd) => {
@@ -62,6 +67,7 @@ export function ConnectionForm({
       scenes={scenes}
       submitLabel={submitLabel}
       cancelHref={cancelHref}
+      linksSlot={linksSlot}
     />
   );
 }
@@ -73,6 +79,7 @@ function FormBody({
   scenes,
   submitLabel,
   cancelHref,
+  linksSlot,
 }: {
   state: ConnectionFormState;
   formAction: (fd: FormData) => void;
@@ -80,6 +87,7 @@ function FormBody({
   scenes: SceneOption[];
   submitLabel: string;
   cancelHref: string;
+  linksSlot?: ReactNode;
 }) {
   const { values: v, errors } = state;
   const [links, setLinks] = useState(() =>
@@ -95,16 +103,6 @@ function FormBody({
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
   const [isUs, setIsUs] = useState(v.isUs);
   const us = kind === "group" && isUs;
-  // Open "More details" when it has content or an error to show.
-  const detailsOpen = Boolean(
-    errors.email ||
-      errors.linkUrls ||
-      v.email ||
-      v.phone ||
-      v.notes ||
-      v.canHelpWith ||
-      v.links.some((l) => l.url || l.label),
-  );
   const errorCount =
     Object.keys(errors).filter((k) => k !== "form" && k !== "linkUrls").length +
     Object.keys(errors.linkUrls ?? {}).length;
@@ -282,11 +280,10 @@ function FormBody({
         </div>
       </fieldset>
 
-      <details open={detailsOpen}>
-        <summary className="cursor-pointer text-lg leading-6 font-semibold">
+      <fieldset className="flex flex-col gap-5">
+        <legend className="mb-3 text-lg leading-6 font-semibold">
           More details <span className="text-sm font-normal text-muted">(all optional)</span>
-        </summary>
-        <div className="flex flex-col gap-5 pt-5">
+        </legend>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field id="c-email" label="Email" error={errors.email}>
             <input {...noAutofill}
@@ -384,6 +381,8 @@ function FormBody({
           </button>
         </fieldset>
 
+        {linksSlot}
+
         <Field id="c-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
           <input {...noAutofill}
             id="c-can_help_with"
@@ -397,8 +396,7 @@ function FormBody({
         <Field id="c-notes" label="Notes">
           <textarea {...noAutofill} id="c-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
         </Field>
-        </div>
-      </details>
+      </fieldset>
 
       <div className="save-bar flex flex-wrap gap-3">
         <button type="submit" disabled={pending} className="button-primary">

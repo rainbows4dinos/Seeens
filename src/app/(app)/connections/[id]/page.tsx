@@ -4,16 +4,16 @@ import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
 import { OutreachPanel } from "@/components/outreach-panel";
-import { getConnection, type ConnectionDetail } from "@/lib/connections/queries";
+import { getConnection } from "@/lib/connections/queries";
 import {
   STATUS_LABELS,
   formatDate,
   formatLocality,
   formatType,
 } from "@/lib/connections/labels";
-import { addOptionsFor, sectionFor } from "@/lib/affiliations/options";
+import { linksPanelProps } from "@/lib/affiliations/rows";
 import { ArchiveControl } from "@/components/archive-control";
-import { LinksPanel, type LinkRow } from "@/components/links-panel";
+import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { QuickStatus } from "@/components/quick-status";
 
@@ -40,7 +40,6 @@ async function Connection({
   const tz = membership.timeZone;
   const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
-  const rows = linkRows(c, detail.affiliations);
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
 
@@ -149,12 +148,7 @@ async function Connection({
       </>
       )}
 
-      <LinksPanel
-        subjectId={c.id}
-        rows={rows}
-        options={addOptionsFor(c)}
-        candidates={detail.candidates}
-      />
+      <LinksPanel {...linksPanelProps(detail)} />
 
       {c.group_type === "band" && labelMates.length ? (
         <Section title="Label mates">
@@ -237,30 +231,4 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       {children}
     </section>
   );
-}
-
-function linkRows(
-  subject: ConnectionDetail["connection"],
-  affiliations: ConnectionDetail["affiliations"],
-): LinkRow[] {
-  const make = (
-    a: ConnectionDetail["affiliations"]["outgoing"][number],
-    direction: "out" | "in",
-  ): LinkRow | null =>
-    a.other
-      ? {
-          id: a.id,
-          section: sectionFor(subject, { kind: a.kind, direction }),
-          otherId: a.other.id,
-          otherName: a.other.is_us ? `${a.other.name} (us)` : a.other.name,
-          otherArchived: Boolean(a.other.archived_at),
-          role: a.role,
-          isCurrent: a.is_current,
-          notes: a.notes,
-        }
-      : null;
-  return [
-    ...affiliations.outgoing.map((a) => make(a, "out")),
-    ...affiliations.incoming.map((a) => make(a, "in")),
-  ].filter((r): r is LinkRow => r !== null);
 }

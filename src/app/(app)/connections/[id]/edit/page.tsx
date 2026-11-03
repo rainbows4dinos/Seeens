@@ -4,6 +4,8 @@ import { getMembership } from "@/lib/auth/dal";
 import { updateConnection } from "@/lib/connections/actions";
 import { getConnection, toFormValues } from "@/lib/connections/queries";
 import { ConnectionForm } from "@/components/connection-form";
+import { LinksPanel } from "@/components/links-panel";
+import { linksPanelProps } from "@/lib/affiliations/rows";
 import { NoWorkspace } from "@/components/no-workspace";
 import { listSceneOptions } from "@/lib/scenes/queries";
 
@@ -22,7 +24,8 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
   if (!membership) return <NoWorkspace />;
 
   const { id } = await params;
-  const [{ connection }, scenes] = await Promise.all([getConnection(id), listSceneOptions()]);
+  const [detail, scenes] = await Promise.all([getConnection(id), listSceneOptions()]);
+  const { connection } = detail;
 
   return (
     <div className="flex flex-col gap-6">
@@ -33,6 +36,12 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
         scenes={scenes}
         submitLabel="Save Changes"
         cancelHref={`/connections/${id}`}
+        linksSlot={
+          <LinksPanel
+            {...linksPanelProps(detail)}
+            note="Changes here save right away. Save Changes and Cancel don't affect them."
+          />
+        }
       />
     </div>
   );
