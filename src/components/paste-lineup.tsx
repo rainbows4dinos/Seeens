@@ -7,7 +7,7 @@ import { DetachedForm } from "@/components/detached-form";
 import { addBandMembers, type AddMembersResult } from "@/lib/affiliations/actions";
 import { MAX_NAME_LENGTH, MAX_ROLE_LENGTH, MAX_ROWS, parseLineup } from "@/lib/affiliations/lineup";
 
-type Person = { id: string; name: string };
+type Person = { id: string; name: string; catalog: string };
 
 type Row = {
   key: number;
@@ -249,10 +249,9 @@ function PreviewRow({
               onChange={(e) => onChange({ personId: e.target.value })}
               className="field"
             >
-              {r.matches.map((m, i) => (
+              {r.matches.map((m) => (
                 <option key={m.id} value={m.id}>
-                  Link to {m.name}
-                  {r.matches.length > 1 ? ` (${i + 1} of ${r.matches.length})` : ""}
+                  Link to {m.name} ({m.catalog})
                 </option>
               ))}
               <option value="">Add as a New Person</option>

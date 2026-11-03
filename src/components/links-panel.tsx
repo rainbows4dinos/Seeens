@@ -19,6 +19,7 @@ import {
   formatType,
   type ConnectionKind,
   type GroupType,
+  type PersonRole,
 } from "@/lib/connections/labels";
 
 export type LinkRow = {
@@ -39,6 +40,9 @@ export type Candidate = {
   name: string;
   kind: ConnectionKind;
   group_type: GroupType | null;
+  person_roles: PersonRole[];
+  /** "BND-0042" */
+  catalog: string;
 };
 
 export function LinksPanel({
@@ -117,7 +121,7 @@ export function LinksPanel({
       {canPaste && adding === "paste" ? (
         <PasteLineup
           bandId={subjectId}
-          people={candidates.filter((c) => c.kind === "person").map(({ id, name }) => ({ id, name }))}
+          people={candidates.filter((c) => c.kind === "person").map(({ id, name, catalog }) => ({ id, name, catalog }))}
           memberIds={memberIds ?? []}
           onDone={() => setAdding(null)}
         />
@@ -276,7 +280,10 @@ function AddLinkForm({
         options={candidates.map((c) => ({
           value: c.id,
           label: c.name,
-          hint: formatType({ ...c, person_roles: [] }),
+          // The number tells apart two people with the same name, and you can
+          // type it to find someone.
+          hint: `${formatType(c)} · ${c.catalog}`,
+          search: c.catalog,
         }))}
         create={{ verb: "Add New" }}
         onChange={(values, created) => {

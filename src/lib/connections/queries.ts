@@ -123,7 +123,14 @@ export async function getConnection(id: string) {
     })),
     candidates: network.connections
       .filter((c) => c.id !== id && !c.archived_at)
-      .map(({ id, name, kind, group_type }) => ({ id, name, kind, group_type })),
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        kind: c.kind,
+        group_type: c.group_type,
+        person_roles: c.person_roles,
+        catalog: catalogNo(c),
+      })),
     labelMates: network.labelMatesOf(id).map((m) => {
       const mate = network.connections.find((n) => n.id === m.id);
       return { ...m, catalog: mate ? catalogNo(mate) : null };

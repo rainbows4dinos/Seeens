@@ -3,7 +3,8 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { noAutofill } from "@/lib/no-autofill";
 
-export type ComboOption = { value: string; label: string; hint?: string; depth?: number };
+// search: extra text the box also matches, like a catalog number.
+export type ComboOption = { value: string; label: string; hint?: string; depth?: number; search?: string };
 
 type Item = { kind: "option"; option: ComboOption } | { kind: "create"; label: string };
 
@@ -76,10 +77,11 @@ export function Combobox({
     const q = query.trim().toLowerCase();
     const singlePicked = !multiple && selected[0] && byValue.get(selected[0])?.label === query;
     const list: Item[] = options
-      .filter((o) => !q || singlePicked || o.label.toLowerCase().includes(q))
+      .filter((o) => !q || singlePicked || o.label.toLowerCase().includes(q) || Boolean(o.search?.toLowerCase().includes(q)))
       .map((option) => ({ kind: "option", option }));
     const exists =
-      options.some((o) => o.label.toLowerCase() === q) || created.some((c) => c.toLowerCase() === q);
+      options.some((o) => o.label.toLowerCase() === q || o.search?.toLowerCase() === q) ||
+      created.some((c) => c.toLowerCase() === q);
     if (create && q && !exists) list.push({ kind: "create", label: query.trim() });
     return list;
   }, [options, query, created, create, multiple, selected, byValue]);

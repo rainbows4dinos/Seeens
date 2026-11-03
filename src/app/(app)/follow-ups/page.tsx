@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
 import { formatDay, todayISO } from "@/lib/outreach/labels";
 import { NoWorkspace } from "@/components/no-workspace";
+import { catalogNo } from "@/lib/connections/card";
+import { formatType } from "@/lib/connections/labels";
 
 export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 
@@ -32,7 +34,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
       supabase
         .from("next_actions")
         .select(
-          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, archived_at )",
+          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, archived_at )",
         )
         .eq("workspace_id", membership.workspaceId)
         .eq("status", "open")
@@ -115,7 +117,9 @@ type Action = {
   description: string;
   due_on: string | null;
   assignee: { display_name: string } | null;
-  connection: { id: string; name: string } | null;
+  connection:
+    | (Parameters<typeof catalogNo>[0] & { id: string; name: string })
+    | null;
 };
 
 function ActionList({ title, actions, today }: { title: string; actions: Action[]; today: string }) {
@@ -133,7 +137,13 @@ function ActionList({ title, actions, today }: { title: string; actions: Action[
               className="flex flex-col gap-1 px-3 py-3 row-link sm:flex-row sm:items-start sm:justify-between sm:gap-4"
             >
               <span className="flex flex-col">
-                <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">{a.connection!.name}</span>
+                {/* Name first for screen readers; the caption sits above it visually, like the directory. */}
+                <span className="flex flex-col-reverse gap-1">
+                  <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">{a.connection!.name}</span>
+                  <span className="caption">
+                    {formatType(a.connection!)} · <span className="whitespace-nowrap">{catalogNo(a.connection!)}</span>
+                  </span>
+                </span>
                 <span>{a.description}</span>
               </span>
               <span className="flex flex-wrap gap-x-3 text-sm text-muted sm:justify-end">
