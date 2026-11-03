@@ -552,7 +552,7 @@
   /* Directory controls: views, layout, Add, search, and filters in one bar,
      pinned to the top of the window while the list scrolls. It runs edge to
      edge (back out through the gutter) on solid ground so rows slide under
-     it, with a hairline underneath, like the save bar. Phones pin only the
+     it, with a hairline underneath once it pins. Phones pin only the
      search row (and the filters, when open); the views scroll away. */
   .directory-bar,
   .bar-search {
@@ -568,26 +568,30 @@
     }
     @media (width >= 48rem) {
       position: sticky;
-      top: 0;
+      /* -1px: once pinned, PinWatch sees a pixel off-screen. */
+      top: -1px;
       z-index: 10;
       margin-inline: calc(-1 * var(--gutter));
       padding: var(--bar-pad) var(--gutter);
-      background: var(--color-bg-ground);
-      box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);
     }
   }
   .bar-search {
     @media (width < 48rem) {
       position: sticky;
-      top: 0;
+      /* -1px: once pinned, PinWatch sees a pixel off-screen. */
+      top: -1px;
       z-index: 10;
       margin-inline: calc(-1 * var(--gutter));
       /* The bar's padding stands in for part of the page gap above it. */
       margin-top: -12px;
       padding: var(--bar-pad) var(--gutter);
-      background: var(--color-bg-ground);
-      box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);
     }
+  }
+  /* Ground and a bottom rule only while pinned (PinWatch sets data-pinned);
+     at rest the bar sits on the dot grid like the rest of the page. */
+  :is(.directory-bar, .bar-search)[data-pinned] {
+    background: var(--color-bg-ground);
+    box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);
   }
   /* Search field with its icon inside, on the left. Enter searches. */
   .search-field {

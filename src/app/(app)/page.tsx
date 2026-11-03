@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { ConnectionCard } from "@/components/connection-card";
 import { LayoutProvider, LayoutSlot, LayoutToggle } from "@/components/layout-toggle";
+import { PinWatch } from "@/components/pin-watch";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { loadDirectory } from "@/lib/connections/queries";
@@ -114,6 +115,7 @@ async function Directory({
 
         {/* Every directory control in one bar, pinned while the list scrolls.
             Phones pin only the search row. */}
+        <PinWatch selector=".directory-bar, .bar-search" />
         <div className="directory-bar">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <nav aria-label="Directory views" className="segmented">
