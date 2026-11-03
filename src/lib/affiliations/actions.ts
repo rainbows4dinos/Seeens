@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getMembership } from "@/lib/auth/dal";
-import { GROUP_TYPES, type GroupType } from "@/lib/connections/labels";
+import { GROUP_TYPES, type GroupType, type PersonRole } from "@/lib/connections/labels";
 import { createClient } from "@/lib/supabase/server";
 import { addOptionsFor, fitsTarget, newGroupTypes } from "./options";
 
@@ -35,7 +35,7 @@ export async function addLink(
   const isCurrent = formData.get("former") !== "on";
   const picked = str(formData, "other_id");
   const newName = str(formData, "new_name");
-  let otherId: string;
+  let error: { code?: string } | null;
 
   if (picked && picked !== "__new__") {
     const { data: other } = await supabase
@@ -46,13 +46,23 @@ export async function addLink(
     if (!other || other.id === subject.id || !fitsTarget(option.target, other)) {
       return fail("Pick someone from the list.");
     }
-    otherId = other.id;
+    const [from, to] = option.direction === "out" ? [subject.id, other.id] : [other.id, subject.id];
+    ({ error } = await supabase.from("affiliations").insert({
+      workspace_id: membership.workspaceId,
+      from_connection_id: from,
+      to_connection_id: to,
+      kind: option.kind,
+      role,
+      is_current: isCurrent,
+    }));
   } else if (picked === "__new__" && newName) {
-    let row:
-      | { kind: "person"; person_roles: NonNullable<typeof option.newPersonRoles>; group_type: null }
-      | { kind: "group"; person_roles: []; group_type: GroupType };
+    let shape: { kind: "person"; person_roles: PersonRole[]; group_type?: undefined } | {
+      kind: "group";
+      person_roles: [];
+      group_type: GroupType;
+    };
     if (option.target.kind === "person") {
-      row = { kind: "person", person_roles: option.newPersonRoles ?? ["other"], group_type: null };
+      shape = { kind: "person", person_roles: option.newPersonRoles ?? ["other"] };
     } else {
       const allowed = newGroupTypes(option.target);
       const chosen = str(formData, "new_group_type") as GroupType;
@@ -60,28 +70,28 @@ export async function addLink(
       if (!GROUP_TYPES.includes(type) || !allowed.includes(type)) {
         return fail("Choose what kind of place or org it is.");
       }
-      row = { kind: "group", person_roles: [], group_type: type };
+      shape = { kind: "group", person_roles: [], group_type: type };
     }
-    const { data: created, error } = await supabase
-      .from("connections")
-      .insert({ workspace_id: membership.workspaceId, name: newName.slice(0, 200), ...row })
-      .select("id")
-      .single();
-    if (error || !created) return fail("Couldn't add them. Try again.");
-    otherId = created.id;
+    // Adds the new connection and the link together, so a failed link never
+    // leaves a stray connection behind.
+    ({ error } = await supabase.rpc("create_linked_connection", {
+      p_workspace_id: membership.workspaceId,
+      p_other_id: subject.id,
+      // "out" links go from the subject, so the new connection is on the "to" end.
+      p_new_is_from: option.direction !== "out",
+      p_name: newName.slice(0, 200),
+      p_kind: shape.kind,
+      p_person_roles: shape.person_roles,
+      p_group_type: shape.group_type,
+      p_affiliation_kind: option.kind,
+      p_role: role ?? undefined,
+      p_is_current: isCurrent,
+    }));
+    if (error) return fail("Couldn't add them. Try again.");
   } else {
     return fail("Pick someone, or type a name to add someone new.");
   }
 
-  const [from, to] = option.direction === "out" ? [subject.id, otherId] : [otherId, subject.id];
-  const { error } = await supabase.from("affiliations").insert({
-    workspace_id: membership.workspaceId,
-    from_connection_id: from,
-    to_connection_id: to,
-    kind: option.kind,
-    role,
-    is_current: isCurrent,
-  });
   if (error?.code === "23505") return fail("They're already linked this way.");
   if (error) return fail("Couldn't save the link. Try again.");
 
