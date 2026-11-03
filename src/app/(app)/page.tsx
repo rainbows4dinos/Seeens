@@ -116,20 +116,21 @@ async function Directory({
         {/* Every directory control in one bar, pinned while the list scrolls.
             Phones pin only the search row. */}
         <PinWatch selector=".directory-bar, .bar-search" />
+        {/* DOM order is reading and tab order: views, search and filters,
+            then Add. Wide screens fit it all on one row; narrower ones put
+            views and Add on top and search under them (see .directory-bar). */}
         <div className="directory-bar">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <nav aria-label="Directory views" className="segmented">
-              {VIEWS.map((v) => (
-                <ViewLink key={v.id} href={viewHref(v.id)} current={view === v.id}>
-                  {v.label}
-                </ViewLink>
-              ))}
-            </nav>
-            <Link href="/connections/new" className="button-primary">
-              <Add size={16} aria-hidden="true" />
-              Add Connection
-            </Link>
-          </div>
+          <nav aria-label="Directory views" className="segmented bar-views">
+            {VIEWS.map((v) => (
+              <ViewLink key={v.id} href={viewHref(v.id)} current={view === v.id}>
+                {v.label}
+              </ViewLink>
+            ))}
+          </nav>
+
+          {/* Phones stack the bar in the page column, so Add goes above the
+              pinned search row. Only one of the two Adds is ever displayed. */}
+          <AddConnection className="self-start md:hidden" />
 
           {all.length ? (
             <FilterForm
@@ -141,6 +142,8 @@ async function Directory({
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
             />
           ) : null}
+
+          <AddConnection className="bar-add max-md:hidden" />
         </div>
 
         {list ? <p className="page-measure text-muted">{list.intro}</p> : null}
@@ -425,6 +428,15 @@ function FilterForm({
         </div>
       </FilterDisclosure>
     </AutoFilterForm>
+  );
+}
+
+function AddConnection({ className }: { className: string }) {
+  return (
+    <Link href="/connections/new" className={`button-primary ${className}`}>
+      <Add size={16} aria-hidden="true" />
+      Add Connection
+    </Link>
   );
 }
 

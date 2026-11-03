@@ -48,7 +48,7 @@ export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string>
   const other = current === "list" ? "cards" : "list";
   return (
     <>
-      <nav aria-label="Directory layout" className="segmented shrink-0 max-sm:hidden">
+      <nav aria-label="Directory layout" className="segmented segmented-secondary shrink-0 max-sm:hidden">
         {(["list", "cards"] as const).map((layout) => (
           <Link
             key={layout}

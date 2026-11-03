@@ -559,10 +559,12 @@
     --bar-pad: 12px;
   }
   .directory-bar {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
     gap: 12px;
-    /* Phones: let the search row stick to the page, not to this box. */
+    /* Phones: let the search row stick to the page, not to this box. Views,
+       search, and Add stack in the page column. */
     @media (width < 48rem) {
       display: contents;
     }
@@ -589,6 +591,30 @@
   }
   /* Ground and a bottom rule only while pinned (PinWatch sets data-pinned);
      at rest the bar sits on the dot grid like the rest of the page. */
+  /* Tablet up to 1280: views and Add on top, search and filters under them.
+     From 1280: one row, views | search, Filters ... List/Cards | Add, with the
+     filter fields opening under the middle. */
+  .bar-views {
+    grid-area: 1 / 1;
+  }
+  .bar-add {
+    grid-area: 1 / 2;
+    justify-self: end;
+  }
+  .directory-bar > .bar-search {
+    grid-area: 2 / 1 / 3 / -1;
+  }
+  @media (width >= 80rem) {
+    .directory-bar {
+      grid-template-columns: auto 1fr auto;
+    }
+    .bar-add {
+      grid-area: 1 / 3;
+    }
+    .directory-bar > .bar-search {
+      grid-area: 1 / 2;
+    }
+  }
   :is(.directory-bar, .bar-search)[data-pinned] {
     background: var(--color-bg-ground);
     box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);
@@ -677,6 +703,17 @@
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
     font-weight: 600;
+  }
+  /* Tone=Secondary: a quieter selected state for settings that sit beside
+     the main choice (List/Cards next to the views). Paper stays paper; the
+     pick gets ink text and a 2px ink underline, the rest go muted. */
+  .segmented-secondary > * {
+    color: var(--color-text-secondary);
+  }
+  .segmented-secondary > [aria-current="page"] {
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    box-shadow: inset 0 -2px 0 var(--color-border-strong);
   }
 
   /* Tag (Figma Tag): mono caption in a box. Status colors from the plates. */
