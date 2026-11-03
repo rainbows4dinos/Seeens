@@ -54,7 +54,8 @@ export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string>
           className="inline-flex items-center gap-2"
         >
           {layout === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
-          {layout === "list" ? "List" : "Cards"}
+          {/* Phones show the icons only; the names are still read out. */}
+          <span className="max-sm:sr-only">{layout === "list" ? "List" : "Cards"}</span>
         </Link>
       ))}
     </nav>

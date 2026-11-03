@@ -2,7 +2,7 @@ import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
 import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
-import { Add } from "@carbon/icons-react";
+import { Add, Search as SearchIcon } from "@carbon/icons-react";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { ConnectionCard } from "@/components/connection-card";
@@ -123,13 +123,10 @@ async function Directory({
                 </ViewLink>
               ))}
             </nav>
-            <div className="flex flex-wrap items-center gap-3">
-              {all.length ? <LayoutToggle hrefs={layoutHrefs} /> : null}
-              <Link href="/connections/new" className="button-primary">
-                <Add size={16} aria-hidden="true" />
-                Add Connection
-              </Link>
-            </div>
+            <Link href="/connections/new" className="button-primary">
+              <Add size={16} aria-hidden="true" />
+              Add Connection
+            </Link>
           </div>
 
           {all.length ? (
@@ -139,6 +136,7 @@ async function Directory({
               scenes={nestScenes(scenes)}
               towns={towns}
               open={filtersOpen}
+              layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
             />
           ) : null}
         </div>
@@ -315,6 +313,7 @@ function FilterForm({
   scenes,
   towns,
   open,
+  layoutToggle,
 }: {
   filters: DirectoryFilters;
   view: View;
@@ -324,6 +323,7 @@ function FilterForm({
   }[];
   towns: (readonly [string, string])[];
   open: boolean;
+  layoutToggle: React.ReactNode;
 }) {
   const isList = Boolean(LISTS[view as ListView]);
   const active = [!isList && f.statuses.length, f.type, f.scene, f.town].filter(Boolean).length;
@@ -331,12 +331,13 @@ function FilterForm({
     <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
-      className="bar-search page-measure flex flex-col gap-3"
+      className="bar-search flex flex-col gap-3"
     >
       {view !== "current" ? <input type="hidden" name="view" value={view} /> : null}
       <FilterDisclosure
         initialOpen={open}
         active={active}
+        after={layoutToggle}
         search={
           <>
             <div className="flex min-w-0 flex-1 flex-col">
@@ -352,8 +353,10 @@ function FilterForm({
                 className="field"
               />
             </div>
-            <button type="submit" className="button-primary">
-              Search
+            {/* Phones show the icon only, to leave the field room. */}
+            <button type="submit" className="button-primary max-sm:px-2.5">
+              <span className="max-sm:sr-only">Search</span>
+              <SearchIcon size={16} aria-hidden="true" className="sm:hidden" />
             </button>
           </>
         }

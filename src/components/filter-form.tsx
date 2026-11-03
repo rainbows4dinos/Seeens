@@ -52,12 +52,15 @@ export function FilterDisclosure({
   initialOpen,
   active,
   search,
+  after,
   children,
 }: {
   initialOpen: boolean;
   /** How many filters are set, shown on the button while the fields are hidden. */
   active: number;
   search: React.ReactNode;
+  /** Controls after Show Filters, behind another rule (the List/Cards toggle). */
+  after?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(initialOpen);
@@ -70,7 +73,7 @@ export function FilterDisclosure({
         <span className="bar-divider" aria-hidden="true" />
         <button
           type="button"
-          className="button-primary"
+          className="button-primary max-sm:px-2.5"
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((o) => !o)}
@@ -80,6 +83,12 @@ export function FilterDisclosure({
           <span className="max-sm:sr-only">{label}</span>
           {!open && active ? <span className="tabular-nums">({active})</span> : null}
         </button>
+        {after ? (
+          <>
+            <span className="bar-divider" aria-hidden="true" />
+            {after}
+          </>
+        ) : null}
       </div>
       <div id={panelId} hidden={!open}>
         {children}
