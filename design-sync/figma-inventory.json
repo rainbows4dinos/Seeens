@@ -1,0 +1,465 @@
+{
+ "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
+ "readAt": "2026-11-04, code 494e347",
+ "variables": {
+  "Primitives": {
+   "modes": [
+    "Value"
+   ],
+   "vars": {
+    "ink/900": "#141414",
+    "ink/600": "#5d5d58",
+    "paper/50": "#f8f7f3",
+    "paper/photo": "#fbfaf5",
+    "ground/200": "#e4e4df",
+    "ground/300": "#c9c9c2",
+    "ground/dot": "#b9b9b2",
+    "plate/cyan": "#00b4e6",
+    "plate/magenta": "#ff40a6",
+    "plate/yellow": "#ffe500",
+    "stock/pink": "#f7c8dc",
+    "stock/mint": "#c9eddc",
+    "stock/lilac": "#dcd2f6",
+    "stock/butter": "#fbeeaa",
+    "red/error": "#b0002a"
+   }
+  },
+  "Color": {
+   "modes": [
+    "Paper"
+   ],
+   "vars": {
+    "color/bg/ground": "@ground/200",
+    "color/bg/surface": "@paper/50",
+    "color/bg/photo-paper": "@paper/photo",
+    "color/bg/inverse": "@ink/900",
+    "color/text/primary": "@ink/900",
+    "color/text/secondary": "@ink/600",
+    "color/text/inverse": "@paper/50",
+    "color/border/strong": "@ink/900",
+    "color/border/subtle": "@ground/300",
+    "color/pattern/dot": "@ground/dot",
+    "color/plate/cyan": "@plate/cyan",
+    "color/plate/magenta": "@plate/magenta",
+    "color/plate/yellow": "@plate/yellow",
+    "color/status/homie": "@plate/magenta",
+    "color/status/prospect": "@plate/cyan",
+    "color/stock/pink": "@stock/pink",
+    "color/stock/mint": "@stock/mint",
+    "color/stock/lilac": "@stock/lilac",
+    "color/stock/butter": "@stock/butter",
+    "color/status/lets-play": "@plate/yellow",
+    "color/status/avoid": "@ink/900",
+    "color/text/error": "@red/error",
+    "color/border/error": "@red/error",
+    "color/focus/outline": "@ink/900",
+    "color/focus/glow": "@plate/magenta",
+    "color/accent/primary": "@ink/900",
+    "color/bg/hover": "@ground/200",
+    "Number0": "@space/2xs"
+   }
+  },
+  "Spacing": {
+   "modes": [
+    "Value"
+   ],
+   "vars": {
+    "space/2xs": 2,
+    "space/xs": 4,
+    "space/sm": 8,
+    "space/md": 12,
+    "space/lg": 16,
+    "space/xl": 24,
+    "space/2xl": 32,
+    "space/section": 72,
+    "stroke/hair": 1,
+    "stroke/strong": 1.5,
+    "radius/none": 0,
+    "size/control-height": 36
+   }
+  },
+  "Style Stacks": {
+   "modes": [
+    "Mode 1"
+   ],
+   "vars": {
+    "Dot Grid BG": "(string: plugin style stack)",
+    "Display Title": "(string: plugin style stack)",
+    "Window": "(string: plugin style stack)"
+   }
+  }
+ },
+ "textStyles": {
+  "Display/XXL": {
+   "family": "Hanken Grotesk",
+   "style": "Bold",
+   "size": 96,
+   "lineHeight": 88,
+   "letterSpacing": "-4.5%"
+  },
+  "Display/XL": {
+   "family": "Hanken Grotesk",
+   "style": "Bold",
+   "size": 52,
+   "lineHeight": 52,
+   "letterSpacing": "-4.5%"
+  },
+  "Display/L": {
+   "family": "Hanken Grotesk",
+   "style": "Bold",
+   "size": 36,
+   "lineHeight": 40,
+   "letterSpacing": "-4.5%"
+  },
+  "Display/M": {
+   "family": "Hanken Grotesk",
+   "style": "Bold",
+   "size": 28,
+   "lineHeight": 28,
+   "letterSpacing": "-4.5%"
+  },
+  "Display/S": {
+   "family": "Hanken Grotesk",
+   "style": "Bold",
+   "size": 20,
+   "lineHeight": 24,
+   "letterSpacing": "-3%"
+  },
+  "UI/Nav": {
+   "family": "Hanken Grotesk",
+   "style": "SemiBold",
+   "size": 16,
+   "lineHeight": 20,
+   "letterSpacing": "-1%"
+  },
+  "Mono/Body": {
+   "family": "IBM Plex Mono",
+   "style": "Regular",
+   "size": 14,
+   "lineHeight": 20,
+   "letterSpacing": 0
+  },
+  "Mono/Small": {
+   "family": "IBM Plex Mono",
+   "style": "Regular",
+   "size": 12,
+   "lineHeight": 16,
+   "letterSpacing": 0
+  },
+  "Mono/Small Strong": {
+   "family": "IBM Plex Mono",
+   "style": "SemiBold",
+   "size": 12,
+   "lineHeight": 16,
+   "letterSpacing": 0
+  },
+  "Mono/Label": {
+   "family": "IBM Plex Mono",
+   "style": "Medium",
+   "size": 14,
+   "lineHeight": 20,
+   "letterSpacing": 0
+  },
+  "Mono/Caption": {
+   "family": "IBM Plex Mono",
+   "style": "Regular",
+   "size": 12,
+   "lineHeight": 16,
+   "letterSpacing": "5%",
+   "textCase": "UPPER"
+  },
+  "Hand/Note": {
+   "family": "Reenie Beanie",
+   "style": "Regular",
+   "size": 30,
+   "lineHeight": 32,
+   "letterSpacing": 0
+  }
+ },
+ "effectStyles": {
+  "Shadow/Hard": "drop 5 5 0 0 #141414",
+  "Shadow/Photo": "drop 0 3 6 0 #00000038",
+  "Misregister/Cyan": "drop 2 1 0 0 #00b4e6",
+  "Texture/Rub-down": "texture 1.5 | noise",
+  "Texture/Rub-down on paper": "texture 1.5 | noise"
+ },
+ "paintStyles": {},
+ "components": {
+  "Avatar": {
+   "nodeId": "82:2229",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": []
+  },
+  "Button": {
+   "nodeId": "10:22",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Label"
+   ],
+   "nested": [
+    "Arrow--right",
+    "Favorite"
+   ]
+  },
+  "Nav Chip": {
+   "nodeId": "10:8",
+   "page": "Components",
+   "textStyles": [
+    "UI/Nav"
+   ],
+   "nested": []
+  },
+  "Segment": {
+   "nodeId": "10:27",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": [
+    "List"
+   ]
+  },
+  "Segmented Control": {
+   "nodeId": "11:2",
+   "page": "Components",
+   "textStyles": [],
+   "nested": [
+    "Segment"
+   ]
+  },
+  "Tag": {
+   "nodeId": "10:15",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Caption"
+   ],
+   "nested": []
+  },
+  "Date Line": {
+   "nodeId": "10:34",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Small",
+    "Mono/Small Strong"
+   ],
+   "nested": []
+  },
+  "Window": {
+   "nodeId": "11:9",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Small"
+   ],
+   "nested": []
+  },
+  "Connection Card": {
+   "nodeId": "11:17",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Caption",
+    "Display/M"
+   ],
+   "nested": [
+    "Date Line",
+    "Tag",
+    "Tape"
+   ]
+  },
+  "Tape": {
+   "nodeId": "10:41",
+   "page": "Components",
+   "textStyles": [],
+   "nested": []
+  },
+  "Pattern/Dot Grid": {
+   "nodeId": "33:103",
+   "page": "Components",
+   "textStyles": [],
+   "nested": []
+  },
+  "Field": {
+   "nodeId": "47:170",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": []
+  },
+  "Form Field": {
+   "nodeId": "47:172",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Label",
+    "Mono/Body"
+   ],
+   "nested": [
+    "Field"
+   ]
+  },
+  "Choice": {
+   "nodeId": "47:187",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body",
+    "Mono/Label"
+   ],
+   "nested": []
+  },
+  "Disclosure": {
+   "nodeId": "47:197",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Label"
+   ],
+   "nested": []
+  },
+  "App Header": {
+   "nodeId": "48:191",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": [
+    "Button",
+    "Close",
+    "Menu",
+    "Nav Chip"
+   ]
+  },
+  "App Footer": {
+   "nodeId": "48:197",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Small"
+   ],
+   "nested": []
+  },
+  "Save Bar": {
+   "nodeId": "48:209",
+   "page": "Components",
+   "textStyles": [],
+   "nested": [
+    "Button"
+   ]
+  },
+  "Directory Row": {
+   "nodeId": "50:189",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Caption",
+    "Display/S",
+    "Mono/Body"
+   ],
+   "nested": [
+    "Date Line",
+    "Tag"
+   ]
+  },
+  "Follow-up Row": {
+   "nodeId": "50:207",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Caption",
+    "Display/S",
+    "Mono/Body"
+   ],
+   "nested": []
+  },
+  "Scene Row": {
+   "nodeId": "50:209",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Label",
+    "Mono/Body"
+   ],
+   "nested": []
+  },
+  "Affiliation Row": {
+   "nodeId": "50:217",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body",
+    "Mono/Small"
+   ],
+   "nested": []
+  },
+  "Outreach Entry": {
+   "nodeId": "50:225",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": []
+  },
+  "Next Action Card": {
+   "nodeId": "50:232",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": [
+    "Button"
+   ]
+  },
+  "Search Field": {
+   "nodeId": "88:302",
+   "page": "Components",
+   "textStyles": [],
+   "nested": [
+    "Search"
+   ]
+  },
+  "Layout Toggle": {
+   "nodeId": "88:352",
+   "page": "Components",
+   "textStyles": [],
+   "nested": [
+    "Button",
+    "Grid",
+    "List",
+    "Segment"
+   ]
+  },
+  "Show More": {
+   "nodeId": "88:354",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": [
+    "Button"
+   ]
+  },
+  "Directory Bar": {
+   "nodeId": "89:634",
+   "page": "Components",
+   "textStyles": [],
+   "nested": [
+    "Add",
+    "Button",
+    "Field",
+    "Grid",
+    "Layout Toggle",
+    "List",
+    "Search",
+    "Search Field",
+    "Segment",
+    "Settings--adjust"
+   ]
+  },
+  "Account Nav Item": {
+   "nodeId": "82:2255",
+   "page": "Components",
+   "textStyles": [
+    "Mono/Body"
+   ],
+   "nested": [
+    "Avatar",
+    "Caret--down"
+   ]
+  }
+ }
+}

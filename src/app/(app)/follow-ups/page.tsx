@@ -139,7 +139,7 @@ function ActionList({ title, actions, today }: { title: string; actions: Action[
               <span className="flex flex-col">
                 {/* Name first for screen readers; the caption sits above it visually, like the directory. */}
                 <span className="flex flex-col-reverse gap-1">
-                  <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">{a.connection!.name}</span>
+                  <span className="display-s break-words">{a.connection!.name}</span>
                   <span className="caption">
                     {formatType(a.connection!)} · <span className="whitespace-nowrap">{catalogNo(a.connection!)}</span>
                   </span>

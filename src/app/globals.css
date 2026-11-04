@@ -32,9 +32,7 @@
   --color-text-primary: var(--ink-900);
   --color-text-secondary: var(--ink-600);
   --color-text-inverse: var(--paper-50);
-  --color-text-error: var(
-    --red-error
-  ); /* 6.4:1 on paper; errors also say "Error:" */
+  --color-text-error: var(--red-error); /* 6.4:1 on paper; errors also say "Error:" */
   --color-border-strong: var(--ink-900);
   --color-border-subtle: var(--ground-300);
   --color-border-error: var(--red-error);
@@ -69,6 +67,7 @@
   --space-section: 72px;
   --stroke-hair: 1px;
   --stroke-strong: 1.5px;
+  --radius-none: 0px;
   /* Standard control height: fields, buttons, choices, segments. */
   --control-height: 36px;
   --menu-motion: 300ms ease-in-out;
@@ -224,7 +223,7 @@
   /* Mono/Caption: tiny metadata like "BAND". */
   .caption {
     font-family: var(--type-mono);
-    font-size: 11px;
+    font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -526,7 +525,9 @@
     background: var(--color-bg-surface);
     padding: 0.25rem 0.625rem;
     font-family: var(--type-mono);
-    font-size: 13px;
+    /* Mono/Body; checked is Mono/Label */
+    font-size: 14px;
+    line-height: 20px;
     cursor: pointer;
   }
   .choice input {
@@ -540,7 +541,7 @@
   .choice:has(input:checked) {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
-    font-weight: 600;
+    font-weight: 500;
   }
   /* Keep the native control visible on the ink fill. */
   .choice:has(input:checked) input {
@@ -717,7 +718,9 @@
     min-height: calc(var(--control-height) - 2px);
     padding: 0.25rem 0.75rem;
     font-family: var(--type-mono);
-    font-size: 13px;
+    /* Mono/Body */
+    font-size: 14px;
+    line-height: 20px;
   }
   /* Dividers sit on the left of every segment after the first, so no
      segment overlaps its neighbor or the outer border. */
@@ -736,7 +739,6 @@
   .segmented > [aria-current="page"] {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
-    font-weight: 600;
   }
   /* Tone=Secondary: a quieter selected state for settings that sit beside
      the main choice (List/Cards next to the views). Paper stays paper; the
@@ -766,8 +768,10 @@
     border-radius: 0;
     /* 1 + 1 + 16 + 1 + 1 = 20px tall */
     padding: 1px 6px;
+    /* Mono/Caption (Regular, even inside a .label heading) */
     font-family: var(--type-mono);
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 400;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 16px;
@@ -979,7 +983,9 @@
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
     font-family: var(--type-mono);
-    font-size: 13px;
+    /* Window title: Mono/Small */
+    font-size: 12px;
+    line-height: 16px;
   }
   .dialog-title h2 {
     min-width: 0;
@@ -1090,7 +1096,6 @@
   .segmented-radio > label:has(input:checked) {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
-    font-weight: 600;
   }
   .segmented-radio > label:has(input:focus-visible) {
     outline: 2px solid var(--color-focus-outline);
@@ -1206,8 +1211,9 @@
     background: var(--color-bg-surface);
     padding: var(--space-xs) var(--space-md);
     color: var(--color-text-primary);
+    /* UI/Nav */
     font-family: var(--type-display);
-    font-size: 15px;
+    font-size: 16px;
     line-height: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
