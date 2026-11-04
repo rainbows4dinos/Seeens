@@ -773,6 +773,12 @@
       font-size: 12px;
     }
   }
+  /* Figma Segment, Icon Only: a 16px icon with 12px each side, 40 wide. */
+  .segmented > .segment-icon {
+    justify-content: center;
+    width: 40px;
+    padding-inline: 0;
+  }
   .segmented > *:hover {
     background: var(--color-bg-hover);
   }

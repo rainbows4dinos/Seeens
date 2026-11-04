@@ -40,7 +40,7 @@ async function Directory({
   const view = readView(params.view);
   // List or cards: the URL wins (shared links), then this device's last choice.
   const layout: DirectoryLayout =
-    readLayout(params.layout) ?? readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ?? "list";
+    readLayout(params.layout) ?? readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ?? "cards";
   const layoutHrefs = {
     list: withLayout(params, "list"),
     cards: withLayout(params, "cards"),

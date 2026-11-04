@@ -5,7 +5,7 @@ import Link from "next/link";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { LAYOUT_COOKIE, type DirectoryLayout } from "@/lib/connections/card";
 
-// List / Cards for the directory. Switching happens in the browser: the
+// Cards / List for the directory (Cards by default). Switching happens in the browser: the
 // results render from the same loaded data either way, so there's no trip
 // to the server. The choice still goes in the URL (shareable)
 // and a cookie (this device opens the same way next time).
@@ -34,9 +34,11 @@ export function useLayout() {
   return ctx;
 }
 
-// Figma Segmented Control on wider screens; on phones, one square button
-// that switches to the other layout and shows its icon. Real links, so they
-// still work before the page's script loads, or opened in a new tab.
+// Figma Layout Toggle: icon-only segments, Cards first, on wider screens;
+// on phones, one square button that switches to the other layout and shows
+// its icon. Each keeps its name for screen readers and as a tooltip. Real
+// links, so they still work before the page's script loads, or opened in a
+// new tab.
 export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string> }) {
   const { layout: current, setLayout } = useLayout();
   const pick = (layout: DirectoryLayout) => (e: React.MouseEvent) => {
@@ -49,16 +51,17 @@ export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string>
   return (
     <>
       <nav aria-label="Directory layout" className="segmented segmented-secondary shrink-0 max-sm:hidden">
-        {(["list", "cards"] as const).map((layout) => (
+        {(["cards", "list"] as const).map((layout) => (
           <Link
             key={layout}
             href={hrefs[layout]}
             aria-current={current === layout ? "page" : undefined}
+            aria-label={layout === "list" ? "List" : "Cards"}
+            title={layout === "list" ? "List" : "Cards"}
             onClick={pick(layout)}
-            className="inline-flex items-center gap-2"
+            className="segment-icon"
           >
             {layout === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
-            {layout === "list" ? "List" : "Cards"}
           </Link>
         ))}
       </nav>
@@ -67,6 +70,7 @@ export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string>
         onClick={pick(other)}
         className="button-secondary button-icon shrink-0 sm:hidden"
         aria-label={other === "cards" ? "Show as cards" : "Show as a list"}
+        title={other === "cards" ? "Show as cards" : "Show as a list"}
       >
         {other === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
       </Link>
