@@ -70,14 +70,18 @@ Launch means two authorized band members can update the same records across devi
 
 ## Scope boundaries
 
-Automated scraping, AI recommendations, automatic messaging, social integrations, graph visualization, touring routes, public profiles, and multi-band customer support come after the MVP.
+Automated scraping, automatic messaging, social integrations, and multi-band customer support stay out of scope. Seeens can suggest (scene links, carry-overs), but a person always decides: nothing is linked, messaged, or published on its own.
 
-Planned after launch, among others:
+## Roadmap
 
-- [#37](https://github.com/rainbows4dinos/seeens/issues/37) Connection photos
-- [#44](https://github.com/rainbows4dinos/seeens/issues/44) Link member accounts to their person in the directory
-- [#45](https://github.com/rainbows4dinos/seeens/issues/45) Groups can find, claim, and edit their own listing
-- [#21](https://github.com/rainbows4dinos/seeens/issues/21) Scene data capture and discovery (spike)
+Priorities live on the issues (`priority: now`, `next`, `later`); this is the order.
+
+1. **Now:** take Us out of the directory, the band chip opens our page ([#123](https://github.com/rainbows4dinos/seeens/issues/123)).
+2. **Next, the directory for daily use:** browse by type, Bands, People, Venues, Labels & more ([#122](https://github.com/rainbows4dinos/seeens/issues/122)) with type-specific fields ([#48](https://github.com/rainbows4dinos/seeens/issues/48)); played together, town, and scenes carry over between bands and members ([#124](https://github.com/rainbows4dinos/seeens/issues/124)); zone the connection and edit pages (Figma, [#126](https://github.com/rainbows4dinos/seeens/issues/126)).
+3. **Then, scene intelligence:** town, scene, and genre ([#125](https://github.com/rainbows4dinos/seeens/issues/125), with [#21](https://github.com/rainbows4dinos/seeens/issues/21)): town as the host scene, sub-scenes as communities, genre as self-description, and suggested meta-scenes across towns for touring and labels.
+4. **Growth, so suggestions can see past one band:** accounts and you versus the band ([#67](https://github.com/rainbows4dinos/seeens/issues/67), [#44](https://github.com/rainbows4dinos/seeens/issues/44)), invites ([#68](https://github.com/rainbows4dinos/seeens/issues/68)), and claimed listings ([#45](https://github.com/rainbows4dinos/seeens/issues/45), [#70](https://github.com/rainbows4dinos/seeens/issues/70)).
+5. **Ongoing polish:** phase 2 design ([#58](https://github.com/rainbows4dinos/seeens/issues/58)); Boards ([#49](https://github.com/rainbows4dinos/seeens/issues/49)) once scenes settle.
+6. **Later:** aliases and solo projects ([#29](https://github.com/rainbows4dinos/seeens/issues/29)), band-set focus ([#23](https://github.com/rainbows4dinos/seeens/issues/23)), show check-ins ([#26](https://github.com/rainbows4dinos/seeens/issues/26)), and public pages and feedback ([#71](https://github.com/rainbows4dinos/seeens/issues/71)–[#73](https://github.com/rainbows4dinos/seeens/issues/73)).
 
 ## Development status
 
@@ -93,7 +97,7 @@ The MVP launched on November 1, 2026. What it does:
 - CSV export.
 - Error and not-found pages, and phase 1 design tokens from Figma.
 
-Database schema, Row Level Security, and access tests are in `supabase/`. Next up: the phase 2 visual pass ([#12](https://github.com/rainbows4dinos/seeens/issues/12)).
+Database schema, Row Level Security, and access tests are in `supabase/`. What's next is in the Roadmap above.
 
 ## Local setup
 
