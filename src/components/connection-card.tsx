@@ -12,7 +12,8 @@ import {
 import { catalogNo, initials, seed } from "@/lib/connections/card";
 
 // Figma Connection Card: a print on top, a machine meta box below. The whole
-// card is one link and leans a little, like a snapshot pinned to a board.
+// card is one link; it sits straight and leans a little when you point at
+// it, like picking a snapshot up off a board.
 //
 // Kept independent of the directory layout so Boards (#49) can reuse it.
 // The print is the connection's copied photo (#37), or the initials on photo
@@ -58,13 +59,14 @@ export function ConnectionCard({
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
   const nextAction = c.next_actions[0];
-  // Tape: up to 2° either way. The card itself: up to 1°, seeded apart from
-  // the tape so the two don't lean together.
+  // Tape: up to 2° either way. The card sits straight and leans when you
+  // point at it: 0.6° to 1.2°, left or right, seeded apart from the tape.
   const tilt = (-2 + seed(c.id) * 4).toFixed(2);
-  const cardTilt = (-1 + seed(`${c.id}:card`) * 2).toFixed(2);
+  const lean = seed(`${c.id}:card`);
+  const cardTilt = ((lean < 0.5 ? -1 : 1) * (0.6 + (lean % 0.5) * 1.2)).toFixed(2);
 
   return (
-    <Link href={`/connections/${c.id}`} className="connection-card" style={{ rotate: `${cardTilt}deg` }}>
+    <Link href={`/connections/${c.id}`} className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
       <span className="card-print" aria-hidden="true">
         {c.photo_url ? (
           // Signed storage links change on every load, so next/image's cache wouldn't help.

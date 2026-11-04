@@ -1089,6 +1089,18 @@
     background: var(--plate-yellow);
   }
 
+  /* Straight at rest; leans on hover (the angle is seeded per card). */
+  .connection-card {
+    transition: rotate 120ms ease-out;
+  }
+  .connection-card:hover {
+    rotate: var(--card-tilt, 0deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .connection-card {
+      transition: none;
+    }
+  }
   .connection-card:hover .card-meta {
     background: var(--color-bg-hover);
   }
