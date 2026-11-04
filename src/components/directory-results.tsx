@@ -36,6 +36,18 @@ export function DirectoryResults({
   const { layout } = useLayout();
   const [items, setItems] = useState(initialItems);
   const [next, setNext] = useState(initialNext);
+
+  // Next keeps this page's state when you navigate away and back (Activity).
+  // When the server sends a fresh first page (say, after adding a photo),
+  // take it, and keep any pages already loaded with Show More after it.
+  const [shown, setShown] = useState(initialItems);
+  if (shown !== initialItems) {
+    const extra = items.slice(shown.length);
+    const fresh = new Set(initialItems.map((c) => c.id));
+    setShown(initialItems);
+    setItems([...initialItems, ...extra.filter((c) => !fresh.has(c.id))]);
+    if (!extra.length) setNext(initialNext);
+  }
   const [pending, startTransition] = useTransition();
   const [announce, setAnnounce] = useState("");
   const [failed, setFailed] = useState(false);
@@ -156,14 +168,19 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>
               </span>
-              <span className="flex flex-wrap items-center gap-2 sm:justify-end">
+              {/* Phones: town on the left, tags on the right (Figma Directory Row, Mobile). */}
+              <span className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
                 {place ? <span className="text-sm text-muted">{place}</span> : null}
-                {c.played_together ? <span className="tag">Played together</span> : null}
-                {c.tags.map((t) => (
-                  <span key={t} className="tag">
-                    {t}
+                {c.played_together || c.tags.length ? (
+                  <span className="flex flex-wrap gap-2 max-sm:ml-auto">
+                    {c.played_together ? <span className="tag">Played together</span> : null}
+                    {c.tags.map((t) => (
+                      <span key={t} className="tag">
+                        {t}
+                      </span>
+                    ))}
                   </span>
-                ))}
+                ) : null}
               </span>
             </Link>
           </li>
