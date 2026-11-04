@@ -4,7 +4,7 @@ Status: phase 1 tokens are in. The source of truth is the [Seeens Figma file](ht
 
 ## Tokens (phase 1)
 
-- **Color:** ink `#141414` on paper `#f8f7f3`, over a dotted ground `#e4e4df`. The secondary text is `#5d5d58`. Process plates are for status and accents. Ink is the primary accent (`color/accent/primary`), used for primary buttons and checked controls. Hover is a quiet ground tint (`color/bg/hover`) or an inversion. Color is saved for highlights and tags. Status plates: magenta (Homies), cyan (Prospect), and yellow (Let's play).
+- **Color:** ink `#141414` on paper `#f8f7f3`, over a dotted ground `#e4e4df`. The secondary text is `#5d5d58`. Process plates are for status and accents. Ink is the primary accent (`color/accent/primary`), used for primary buttons and checked controls. Hover is a quiet ground tint (`color/bg/hover`) or an inversion. Color is saved for highlights and tags. Status plates: magenta (Homies), cyan (Crush), and yellow (Let's play).
 - **Type:** Hanken Grotesk for headings and nav. IBM Plex Mono for body, labels, and controls. Reenie Beanie for rare handwritten notes. Fonts are self-hosted with Fontsource. Headings use the `display-*` utilities, which mirror the Figma Display styles (XXL 96, XL 52, L 36, M 28, S 20); page titles are `display-l sm:display-xl`. Form labels, section labels, and button text use Mono/Label (`.label`, 14/20 Medium, no caps).
 - **Label case:** write button, form, and section labels in APA title case ("Add Connection", "Search by Name", "Scenes (Optional)"). Keep sentence case when a label reads as a sentence or question ("Who's on it", "What is it?", "We've played together"). Headings and body copy stay in sentence case.
 - **Size and rhythm:** every height sits on a 4px grid. Fields, buttons, choices, and segments are 36px (`--control-height`, Figma `size/control-height`), tags are 20, and nav chips are 36. Line heights are 16 for captions and tags, 20 for body, labels, buttons, and nav, 24 for Display/S, and 1:1 for larger display sizes. Spacing tokens are 2, 4, 8, 12, 16, 24, 32, and 72. Panel, window, and row-divider edges are drawn as overlays, so they add no height.
@@ -27,7 +27,7 @@ Seeens is not a sales tool. Bands work on their own time, and urgency comes and 
 
 - Never tell a band something is urgent. No overdue alarms, red badges, streaks, or counts of what they're behind on.
 - Show dates as plain facts ("planned for Oct 12") rather than warnings.
-- Don't score or rank people. Use the band's own words: Homies, Let's play, Prospect, Neutral, Avoid.
+- Don't score or rank people. Use the band's own words: Homies, Let's play, Crush, Heard of, Avoid.
 - Recommendations are offers, not tasks. A band can ignore them without consequence.
 - Any heightened urgency is something the band turns on, such as a focus on an upcoming release or tour.
 

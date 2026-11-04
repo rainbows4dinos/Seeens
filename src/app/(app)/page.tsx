@@ -189,12 +189,12 @@ async function Directory({
   );
 }
 
-type ListView = "lets_play" | "prospects";
+type ListView = "lets_play" | "crushes";
 
 const VIEWS: { id: View; label: string }[] = [
   { id: "current", label: "Current" },
   { id: "lets_play", label: "Let's play" },
-  { id: "prospects", label: "Prospects" },
+  { id: "crushes", label: "Crushes" },
   { id: "archived", label: "Archived" },
 ];
 
@@ -207,10 +207,10 @@ const LISTS: Record<ListView, { status: ConnectionStatus; intro: string; empty: 
     empty:
       "No one here yet. Mark a connection Let's play when you both want to share a bill.",
   },
-  prospects: {
+  crushes: {
     status: "prospect",
     intro: "Who you'd like to know. Notes are what bandmates have picked up, not checked facts.",
-    empty: "No prospects yet. Mark a connection Prospect when you'd like to reach out.",
+    empty: "No crushes yet. Mark a connection Crush when you'd like to reach out.",
   },
 };
 

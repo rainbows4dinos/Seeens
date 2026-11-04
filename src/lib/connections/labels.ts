@@ -47,8 +47,8 @@ export const GROUP_TYPE_LABELS: Record<GroupType, string> = {
 export const STATUS_LABELS: Record<ConnectionStatus, string> = {
   homies: "Homies",
   lets_play: "Let's play",
-  prospect: "Prospect",
-  neutral: "Neutral",
+  prospect: "Crush",
+  neutral: "Heard of",
   avoid: "Avoid",
 };
 

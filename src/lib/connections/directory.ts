@@ -13,16 +13,19 @@ export const PAGE_SIZE = 48;
 
 type Params = Record<string, string | string[] | undefined>;
 
-export type View = "current" | "lets_play" | "prospects" | "archived";
-const VIEW_IDS: View[] = ["current", "lets_play", "prospects", "archived"];
-// Let's play and Prospects are the directory with one status.
+export type View = "current" | "lets_play" | "crushes" | "archived";
+const VIEW_IDS: View[] = ["current", "lets_play", "crushes", "archived"];
+// Let's play and Crushes are the directory with one status. Crush is
+// stored as `prospect` and Heard of as `neutral`; only the labels changed.
 export const VIEW_STATUS: Partial<Record<View, ConnectionStatus>> = {
   lets_play: "lets_play",
-  prospects: "prospect",
+  crushes: "prospect",
 };
 
 export function readView(v: string | string[] | undefined): View {
-  const value = Array.isArray(v) ? v[0] : v;
+  const raw = Array.isArray(v) ? v[0] : v;
+  // Old links from before the rename still land on the right list.
+  const value = raw === "prospects" ? "crushes" : raw;
   return VIEW_IDS.includes(value as View) ? (value as View) : "current";
 }
 
