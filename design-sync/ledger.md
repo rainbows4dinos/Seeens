@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-04 (re-read after Search Field rebuild)
-- Code baseline: 06a2569 (2026-11-04)
+- Code baseline: e5f4c27 (2026-11-04)
 - Rendered 2026-11-04 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -25,6 +25,7 @@ Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
 - 2026-11-04: Figma fixes Nov 4: Number0 removed, space/none added (synced), Form Field error bound to Mono/Label, Logo component added and synced to code.
 - 2026-11-04: Nov 4 hygiene: H-03, H-05, H-06 fixed in Figma and synced; H-04 still open; added Mono/Hint and Keyboard Hint
 - 2026-11-04: Search Field rebuilt in Figma (134:4549); H-04 fixed, C-25 synced with a clear button
+- 2026-11-04: Off-token paddings fixed in Figma: Field 12 (md), Choice 8 (sm), Tag 8 (sm). Code follows (border + padding = token).
 
 ## Rows
 
@@ -65,7 +66,7 @@ Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
 | C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-10 | Components | Tape | 10:41 | `.tape` | structure-drift | skipped | Synced in #114 (CSS strips stand in for the Figma shader). No text; not re-audited. |
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
-| C-12 | Components | Field | 47:170 | `.field` | structure-drift | pending | Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Nov 4: Field gained Show Icon L, Show Key Hint, Show Clear booleans; code uses them only in the search field so far. Layout, anatomy, and variants not re-audited in this pass. |
+| C-12 | Components | Field | 47:170 | `.field` | structure-drift | pending | Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Side padding now space/md (12): code 1px border + 11px, select chevron and combobox text too. Field gained Show Icon L, Show Key Hint, Show Clear booleans (used by Search Field). Layout, anatomy, and variants not re-audited. |
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
@@ -78,7 +79,7 @@ Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
 | C-22 | Components | Affiliation Row | 50:217 | `src/components/links-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-23 | Components | Outreach Entry | 50:225 | `src/components/outreach-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-24 | Components | Next Action Card | 50:232 | `src/components/next-action-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-25 | Components | Search Field | 134:4549 | `.search-field, .search-hint, src/components/search-clear.tsx` | structure-drift | synced | Rebuilt in Figma Nov 4 (Placeholder/Value variants). Code: 10px side padding and 8px gaps; keycap at 10px from the edge; new Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28). |
+| C-25 | Components | Search Field | 134:4549 | `.search-field, .search-hint, src/components/search-clear.tsx` | structure-drift | synced | Rebuilt in Figma Nov 4 (Placeholder/Value variants). Padding moved to space/md (12) the same day. Code: icon and keycap 12px from the edges, 8px gaps; Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28). |
 | C-26 | Components | Layout Toggle | 88:352 | `src/components/layout-toggle.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-27 | Components | Show More | 88:354 | `src/components/directory-results.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-28 | Components | Directory Bar | 89:634 | `.directory-bar` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |

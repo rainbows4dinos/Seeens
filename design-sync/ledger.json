@@ -384,7 +384,7 @@
   "cref": ".field",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Nov 4: Field gained Show Icon L, Show Key Hint, Show Clear booleans; code uses them only in the search field so far. Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Side padding now space/md (12): code 1px border + 11px, select chevron and combobox text too. Field gained Show Icon L, Show Key Hint, Show Clear booleans (used by Search Field). Layout, anatomy, and variants not re-audited.",
   "checklist": [
    "[x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)"
   ]
@@ -550,7 +550,7 @@
   "cref": ".search-field, .search-hint, src/components/search-clear.tsx",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Rebuilt in Figma Nov 4 (Placeholder/Value variants). Code: 10px side padding and 8px gaps; keycap at 10px from the edge; new Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28).",
+  "notes": "Rebuilt in Figma Nov 4 (Placeholder/Value variants). Padding moved to space/md (12) the same day. Code: icon and keycap 12px from the edges, 8px gaps; Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28).",
   "checklist": [
    "[ ] Typography: both text layers unstyled in Figma (see hygiene); depends on the Field decision"
   ],

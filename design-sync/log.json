@@ -14,5 +14,9 @@
  {
   "date": "2026-11-04",
   "entry": "Search Field rebuilt in Figma (134:4549); H-04 fixed, C-25 synced with a clear button"
+ },
+ {
+  "date": "2026-11-04",
+  "entry": "Off-token paddings fixed in Figma: Field 12 (md), Choice 8 (sm), Tag 8 (sm). Code follows (border + padding = token)."
  }
 ]

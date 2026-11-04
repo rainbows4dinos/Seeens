@@ -134,7 +134,7 @@ export function PlaceField({
               choose(s);
             }}
             onMouseEnter={() => setActive(i)}
-            className={`cursor-pointer px-3 py-2.5 ${i === active ? "bg-line/50 font-semibold" : ""}`}
+            className={`cursor-pointer px-3 py-2 ${i === active ? "bg-line/50 font-semibold" : ""}`}
           >
             {s.label}
           </li>
