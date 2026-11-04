@@ -6,5 +6,17 @@
  {
   "date": "2026-11-04",
   "entry": "Figma fixes Nov 4: Number0 removed, space/none added (synced), Form Field error bound to Mono/Label, Logo component added and synced to code."
+ },
+ {
+  "date": "2026-11-04",
+  "entry": "Nov 4 hygiene: H-03, H-05, H-06 fixed in Figma and synced; H-04 still open; added Mono/Hint and Keyboard Hint"
+ },
+ {
+  "date": "2026-11-04",
+  "entry": "Search Field rebuilt in Figma (134:4549); H-04 fixed, C-25 synced with a clear button"
+ },
+ {
+  "date": "2026-11-04",
+  "entry": "Off-token paddings fixed in Figma: Field 12 (md), Choice 8 (sm), Tag 8 (sm). Code follows (border + padding = token)."
  }
 ]

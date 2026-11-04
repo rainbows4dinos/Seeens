@@ -384,7 +384,7 @@
   "cref": ".field",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Side padding now space/md (12): code 1px border + 11px, select chevron and combobox text too. Field gained Show Icon L, Show Key Hint, Show Clear booleans (used by Search Field). Layout, anatomy, and variants not re-audited.",
   "checklist": [
    "[x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)"
   ]
@@ -546,14 +546,15 @@
   "id": "C-25",
   "cat": "Components",
   "item": "Search Field",
-  "fref": "88:302",
-  "cref": ".search-field, .search-hint",
+  "fref": "134:4549",
+  "cref": ".search-field, .search-hint, src/components/search-clear.tsx",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Rebuilt in Figma Nov 4 (Placeholder/Value variants). Padding moved to space/md (12) the same day. Code: icon and keycap 12px from the edges, 8px gaps; Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28).",
   "checklist": [
    "[ ] Typography: both text layers unstyled in Figma (see hygiene); depends on the Field decision"
-  ]
+  ],
+  "evidence": "design-sync/evidence/search-field.png"
  },
  {
   "id": "C-26",
@@ -646,18 +647,18 @@
   "fref": "50:227",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Date text has no text style (Plex SemiBold 14/20). No matching style; add Mono/Body Strong or reuse one."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: date bound to Mono/Label (Plex Medium 14/20). Code already matches (text-sm, font-medium)."
  },
  {
   "id": "H-04",
   "cat": "Figma hygiene",
   "item": "Search Field / Text and ENTER hint",
-  "fref": "88:305",
+  "fref": "134:4549",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Placeholder (Plex 16/24) and the ENTER hint have no text style. Placeholder ties to the Field decision (C-12)."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: Search Field rebuilt (134:4549) from Form Field > Field with Show Icon L, Show Key Hint, Show Clear. Value is Mono/Body 14; hint is the Keyboard Hint component. Old 88:302 removed."
  },
  {
   "id": "H-05",
@@ -666,8 +667,8 @@
   "fref": "95:460",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Placeholder initials (Hanken Bold 64) have no text style. Decorative; fine to leave, or add a Display style for prints."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: initials bound to Display/XL (52/52). Code .card-print-initials 64px -> 52px."
  },
  {
   "id": "H-06",
@@ -676,7 +677,27 @@
   "fref": "109:79",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Thumb initials (Hanken Bold 18) have no text style. Added by Claude on Nov 3; decorative."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%."
+ },
+ {
+  "id": "T-13",
+  "cat": "Text styles",
+  "item": "Mono/Hint",
+  "fref": "text style",
+  "cref": "src/app/globals.css .search-hint",
+  "cls": "match",
+  "status": "synced",
+  "notes": "New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key."
+ },
+ {
+  "id": "C-31",
+  "cat": "Components",
+  "item": "Keyboard Hint",
+  "fref": "133:4158",
+  "cref": "kbd.search-hint",
+  "cls": "match",
+  "status": "pending",
+  "notes": "New in Figma Nov 4. Figma has a 2px corner radius; code corners are square everywhere (radius/none). Needs a call."
  }
 ]

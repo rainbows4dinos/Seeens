@@ -43,6 +43,19 @@ async function signIn(context) {
 
 await mkdir(OUT, { recursive: true });
 const browser = await chromium.launch();
+// Hide the Next dev-tools badge so it never lands in a screenshot.
+const newContext = browser.newContext.bind(browser);
+browser.newContext = async (options) => {
+  const context = await newContext(options);
+  await context.addInitScript(() =>
+    addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = "nextjs-portal { display: none !important; }";
+      document.head.append(style);
+    }),
+  );
+  return context;
+};
 
 try {
   // Signed out
