@@ -10,7 +10,10 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center gap-10 px-4 py-16">
       <header className="flex flex-col items-start gap-6">
-        <h1 className="logo uppercase">Seeens</h1>
+        <h1 className="logo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
+        </h1>
         <p className="font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:display-xxl">
           Your people.
           <br />

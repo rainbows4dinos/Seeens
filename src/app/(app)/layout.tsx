@@ -13,8 +13,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="page-gutter relative w-full pt-4 pb-2">
           <div className="header-row flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Link href="/" className="logo uppercase">
-                Seeens
+              <Link href="/" className="logo">
+                {/* Figma Logo component: the hand-set wordmark with its cyan misregister and rub-down. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
               </Link>
               <div className="hidden md:block">
                 <MainNav />

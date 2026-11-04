@@ -1,6 +1,6 @@
 {
  "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
- "readAt": "2026-11-04, code 494e347",
+ "readAt": "2026-11-04 (re-read after Figma fixes)",
  "variables": {
   "Primitives": {
    "modes": [
@@ -55,8 +55,7 @@
     "color/focus/outline": "@ink/900",
     "color/focus/glow": "@plate/magenta",
     "color/accent/primary": "@ink/900",
-    "color/bg/hover": "@ground/200",
-    "Number0": "@space/2xs"
+    "color/bg/hover": "@ground/200"
    }
   },
   "Spacing": {
@@ -75,7 +74,8 @@
     "stroke/hair": 1,
     "stroke/strong": 1.5,
     "radius/none": 0,
-    "size/control-height": 36
+    "size/control-height": 36,
+    "space/none": 0
    }
   },
   "Style Stacks": {
@@ -210,7 +210,9 @@
    "textStyles": [
     "UI/Nav"
    ],
-   "nested": []
+   "nested": [
+    "Logo"
+   ]
   },
   "Segment": {
    "nodeId": "10:27",
@@ -460,6 +462,12 @@
     "Avatar",
     "Caret--down"
    ]
+  },
+  "Logo": {
+   "nodeId": "128:3618",
+   "page": "Components",
+   "textStyles": [],
+   "nested": []
   }
  }
 }

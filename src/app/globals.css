@@ -57,6 +57,7 @@
   --color-focus-glow: var(--plate-magenta);
 
   /* Spacing and strokes */
+  --space-none: 0px;
   --space-2xs: 2px;
   --space-xs: 4px;
   --space-sm: 8px;
@@ -1241,14 +1242,13 @@
     min-height: var(--control-height);
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    padding: 3px var(--space-md); /* 100 x 36, as in Figma */
-    font-family: var(--type-display);
-    font-size: 22px;
-    line-height: 28px;
-    font-weight: 600; /* Figma Nav Chip, Style=Logo: SemiBold, all caps */
-    letter-spacing: -0.03em;
-    text-transform: uppercase;
-    text-shadow: var(--misregister-cyan);
+    /* Figma Nav Chip, Style=Logo: the Logo component (75 x 18) at 4px 12px,
+       100 x 36 overall. */
+    padding: var(--space-xs) var(--space-md);
+    line-height: 0;
+  }
+  .logo > img {
+    display: block;
   }
 
   /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):

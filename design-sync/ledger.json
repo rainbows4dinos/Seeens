@@ -26,8 +26,9 @@
   "fref": "Color",
   "cref": "src/app/globals.css",
   "cls": "missing-in-code",
-  "status": "needs-figma-fix",
-  "notes": "A stray variable named \"Number0\" in the Color collection, aliasing space/2xs. Delete it, or move and rename it in Spacing."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: Number0 deleted from Color. Re-read confirms it is gone; nothing in code.",
+  "count": 0
  },
  {
   "id": "V-04",
@@ -58,6 +59,16 @@
   "cls": "missing-in-code",
   "status": "skipped",
   "notes": "String variables holding plugin style-stack data, not design tokens. No CSS equivalent."
+ },
+ {
+  "id": "V-07",
+  "cat": "Variables",
+  "item": "space/none (1)",
+  "fref": "Spacing",
+  "cref": "src/app/globals.css :root",
+  "cls": "missing-in-code",
+  "status": "synced",
+  "notes": "Added by the designer Nov 4; added --space-none: 0px."
  },
  {
   "id": "T-01",
@@ -262,7 +273,8 @@
   "status": "pending",
   "notes": "Layout, anatomy, and variants not re-audited in this pass.",
   "checklist": [
-   "[x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene)."
+   "[x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).",
+   "[x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg"
   ]
  },
  {
@@ -593,14 +605,29 @@
   "notes": "Not built in code yet; part of account settings (#67)."
  },
  {
+  "id": "C-30",
+  "cat": "Components",
+  "item": "Logo",
+  "fref": "128:3618",
+  "cref": "public/brand/seeens-logo.svg, .logo",
+  "cls": "missing-in-code",
+  "status": "synced",
+  "notes": "New in Figma Nov 4. Exported SVG: wordmark, cyan misregister copy (+2, +1, hard-light), and the rub-down texture as an SVG filter. Used in the header and on login.",
+  "checklist": [
+   "[x] Anatomy: shadow and wordmark from the Figma export",
+   "[x] Size: 75 x 18 in a 4px 12px chip (101 x 36 vs Figma 100 x 36)"
+  ],
+  "evidence": "design-sync/evidence/logo-header-login.png"
+ },
+ {
   "id": "H-01",
   "cat": "Figma hygiene",
   "item": "Nav Chip / Logo text",
   "fref": "10:7",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "SEEENS logo text has no text style (Hanken SemiBold 22/28, uppercase). Code .logo matches it; add a style or bind one."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: new Logo component (128:3618, vector wordmark) placed in Nav Chip Style=Logo. Code now uses it (C-30)."
  },
  {
   "id": "H-02",
@@ -609,8 +636,8 @@
   "fref": "47:177",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Error text has no text style; its values (Plex Medium 14/20) equal Mono/Label. Bind to Mono/Label."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: error text bound to Mono/Label. Code error text already uses that size and weight."
  },
  {
   "id": "H-03",
