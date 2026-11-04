@@ -768,6 +768,7 @@
   /* Connection card (Figma Connection Card): a print over a meta box, both
      straight; the whole card is one link. */
   .connection-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -807,6 +808,45 @@
     border-top: var(--stroke-hair) solid var(--color-border-subtle);
     padding-top: var(--space-sm);
   }
+  /* Tape (Figma Tape, #63): a strip with notched ends, multiplied over the
+     print. Decoration only: aria-hidden, and placed so it never covers text
+     or a control. Set the angle per record (Tilt rule). */
+  .tape {
+    position: absolute;
+    width: 92px;
+    height: 28px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    background:
+      linear-gradient(104deg, transparent 25%, rgb(255 255 255 / 0.2) 46%, transparent 66%),
+      var(--tape-color);
+    clip-path: polygon(
+      0 0, 100% 0,
+      calc(100% - 3px) 16.67%, 100% 33.33%, calc(100% - 3px) 50%, 100% 66.67%, calc(100% - 3px) 83.33%,
+      100% 100%, 0 100%,
+      3px 83.33%, 0 66.67%, 3px 50%, 0 33.33%, 3px 16.67%
+    );
+  }
+  .tape-clear {
+    --tape-color: rgb(255 255 255 / 0.55);
+    mix-blend-mode: normal;
+  }
+  .tape-yellow {
+    --tape-color: color-mix(in srgb, var(--plate-yellow) 30%, transparent);
+  }
+  .tape-magenta {
+    --tape-color: color-mix(in srgb, var(--plate-magenta) 30%, transparent);
+  }
+  .tape-cyan {
+    --tape-color: color-mix(in srgb, var(--plate-cyan) 30%, transparent);
+  }
+  /* On a card it holds the print's top-right corner, hanging 16px over the
+     top and 10px past the edge (the grid gap and page gutter leave room). */
+  .card-tape {
+    top: -16px;
+    right: -10px;
+  }
+
   .connection-card:hover .card-meta {
     background: var(--color-bg-hover);
   }
