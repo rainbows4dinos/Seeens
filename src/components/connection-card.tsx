@@ -51,10 +51,13 @@ export function ConnectionCard({
   connection: c,
   tags,
   today,
+  detail,
 }: {
   connection: CardConnection;
   tags: ReactNode[];
   today: string;
+  /** One more line under the name: members, the bands someone plays in, a note (#122). */
+  detail?: string | null;
 }) {
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
@@ -86,6 +89,7 @@ export function ConnectionCard({
             <span className="shrink-0 whitespace-nowrap">{catalogNo(c)}</span>
           </span>
         </span>
+        {detail ? <span className="detail-line">{detail}</span> : null}
         {tags.length ? <span className="flex flex-wrap gap-1">{tags}</span> : null}
         {lastOutreach || nextAction ? (
           <span className="card-dates">

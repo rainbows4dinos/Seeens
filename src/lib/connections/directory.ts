@@ -5,6 +5,9 @@ import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
 import { signPhotos } from "@/lib/photos/urls";
 import { readFilters, type DirectoryFilters } from "./filters";
 import type { ConnectionKind, ConnectionStatus, GroupType, PersonRole } from "./labels";
+import { readTab, type Tab } from "./tabs";
+
+export { DEFAULT_TAB, TABS, detailFor, directoryHrefFor, readTab, tabFor, type Tab } from "./tabs";
 
 // The directory, one page at a time (#109). The directory_page RPC filters,
 // orders, counts, and works out the network tags in the database; this file
@@ -13,47 +16,6 @@ import type { ConnectionKind, ConnectionStatus, GroupType, PersonRole } from "./
 export const PAGE_SIZE = 48;
 
 type Params = Record<string, string | string[] | undefined>;
-
-// The directory by type (#122): one tab per kind of connection, Bands first.
-// "Labels & more" is every group that isn't a band or a venue.
-export type Tab = "bands" | "people" | "venues" | "more" | "all";
-export const TABS: { id: Tab; label: string; one: string; many: string; add: string; addType: string | null }[] = [
-  { id: "bands", label: "Bands", one: "band", many: "bands", add: "Add Band", addType: "band" },
-  { id: "people", label: "People", one: "person", many: "people", add: "Add Person", addType: "person" },
-  { id: "venues", label: "Venues", one: "venue", many: "venues", add: "Add Venue", addType: "venue" },
-  { id: "more", label: "Labels & more", one: "connection", many: "connections", add: "Add Label", addType: "label" },
-  { id: "all", label: "All", one: "connection", many: "connections", add: "Add Connection", addType: null },
-];
-export const DEFAULT_TAB: Tab = "bands";
-
-/** The tab a connection is listed under. */
-export function tabFor(kind: ConnectionKind, groupType: GroupType | null): Tab {
-  if (kind === "person") return "people";
-  if (groupType === "band") return "bands";
-  if (groupType === "venue") return "venues";
-  return "more";
-}
-
-/** Back to the directory, on a connection's own tab (and the archived half if it's archived). */
-export function directoryHrefFor(kind: ConnectionKind, groupType: GroupType | null, archived: boolean) {
-  const p = new URLSearchParams();
-  const tab = tabFor(kind, groupType);
-  if (tab !== DEFAULT_TAB) p.set("type", tab);
-  if (archived) p.set("archived", "1");
-  const qs = p.toString();
-  return qs ? `/?${qs}` : "/";
-}
-
-export function readTab(v: string | string[] | undefined): Tab {
-  const raw = (Array.isArray(v) ? v[0] : v) ?? "";
-  if (TABS.some((t) => t.id === raw)) return raw as Tab;
-  // The old Type filter (?type=group:band, person:dj) lands on its tab.
-  if (raw.startsWith("person:")) return "people";
-  if (raw === "group:band") return "bands";
-  if (raw === "group:venue") return "venues";
-  if (raw.startsWith("group:")) return "more";
-  return DEFAULT_TAB;
-}
 
 // Where the next page starts: the last row's sort key.
 export type Cursor = { rank: number; name: string; id: string };
@@ -92,7 +54,14 @@ export type DirectoryItem = {
   /** "Label mate", "Shares a member" */
   tags: string[];
   scenes: string[];
+  /** A band's current members, by name (#122). */
+  members: string[];
+  /** The bands a person plays in now, by name (#122). */
+  plays_in: string[];
+  /** The first line of the notes, for Labels & more (#122). */
+  note: string | null;
 };
+
 
 export type GroupCounts = Record<ConnectionStatus, number>;
 export type TabCounts = Record<Tab, number>;
@@ -161,7 +130,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
+          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, notes, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, archived_at ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, archived_at ) )",
         )
         .eq("workspace_id", ws)
         .in("id", ids)
@@ -179,7 +148,13 @@ export async function loadDirectoryPage(
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
-    const { connection_scenes, photo_path, ...rest } = d;
+    const { connection_scenes, photo_path, notes, incoming, outgoing, ...rest } = d;
+    // Current, unarchived members only, in name order.
+    const names = (links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[]) =>
+      links
+        .filter((a) => a.kind === "member" && a.is_current && a.other && !a.other.archived_at)
+        .map((a) => a.other!.name)
+        .sort((x, y) => x.localeCompare(y));
     return [
       {
         ...rest,
@@ -188,6 +163,9 @@ export async function loadDirectoryPage(
           (t): t is string => Boolean(t),
         ),
         scenes: connection_scenes.map((cs) => sceneNames.get(cs.scene_id)).filter((n): n is string => Boolean(n)),
+        members: names(incoming),
+        plays_in: names(outgoing),
+        note: notes?.split("\n").find((line) => line.trim())?.trim() ?? null,
       },
     ];
   });
