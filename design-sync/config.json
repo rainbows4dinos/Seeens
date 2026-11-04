@@ -94,5 +94,49 @@
     }
   },
   "batchSize": 3,
-  "mirror": false
+  "mirror": true,
+  "mirrorTarget": {
+    "page": "Sync status",
+    "frame": "Design sync ledger"
+  },
+  "mirrorStyle": {
+    "variables": {
+      "surface": "color/bg/surface",
+      "headerFill": "color/bg/ground",
+      "rowStroke": "color/border/subtle",
+      "text": "color/text/primary",
+      "textSecondary": "color/text/secondary",
+      "textMuted": "color/text/secondary"
+    },
+    "numberVariables": {
+      "padding": "space/2xl",
+      "sectionGap": "space/xl",
+      "stackGap": "space/sm",
+      "cellGap": "space/md",
+      "rowPad": "space/sm"
+    },
+    "textStyles": {
+      "title": "Display/L",
+      "subtitle": "Mono/Body",
+      "note": "Mono/Small",
+      "section": "Display/S",
+      "head": "Mono/Caption",
+      "body": "Mono/Small",
+      "mono": "Mono/Small"
+    },
+    "badge": {
+      "nodeId": "10:15",
+      "property": "Status",
+      "values": {
+        "synced": "Crush",
+        "fixed-in-figma": "Crush",
+        "pending": "Heard of",
+        "skipped": "Heard of",
+        "needs-decision": "Let's play",
+        "blocked": "Homie",
+        "needs-figma-fix": "Homie"
+      }
+    },
+    "notesLimit": 280
+  }
 }
