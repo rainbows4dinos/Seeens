@@ -21,8 +21,8 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
 - **Status:** one band-wide choice per connection, set in a single tap:
   - **Homies:** the ultimate band-to-band relationship. Love playing together, love each other's music, love hanging out, support each other, top tour-mate candidates.
   - **Let's play:** mutual "we should play together," not booked yet. The booking backlog of agreed admiration and opportunity.
-  - **Prospect:** we'd like to connect; not mutual yet.
-  - **Neutral:** we know of them, no particular plans. The default.
+  - **Crush:** we'd like to connect; not mutual yet. Stored as `prospect`.
+  - **Heard of:** we know of them, no particular plans. The default. Stored as `neutral`.
   - **Avoid:** the honest "nope" (cold shoulder, or played once and that was enough). Kept, not archived, and can change.
   Status is not inherited through affiliations. Changes are logged.
 - **Played together:** a separate fact, what has already happened, versus how the band feels and what's next. Distinguishes warm leads from cold ones when planning a town.
