@@ -646,8 +646,8 @@
   "fref": "50:227",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Date text has no text style (Plex SemiBold 14/20). No matching style; add Mono/Body Strong or reuse one."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: date bound to Mono/Label (Plex Medium 14/20). Code already matches (text-sm, font-medium)."
  },
  {
   "id": "H-04",
@@ -657,7 +657,7 @@
   "cref": "-",
   "cls": "hygiene",
   "status": "needs-figma-fix",
-  "notes": "Placeholder (Plex 16/24) and the ENTER hint have no text style. Placeholder ties to the Field decision (C-12)."
+  "notes": "Nov 4: Mono/Hint and a Keyboard Hint component (133:4158) now exist, but Search Field (88:302) still has its own unstyled Text (Plex 16/24) and Enter Hint frame. Swap in a Keyboard Hint instance and bind the placeholder (Mono/Body per C-12)."
  },
  {
   "id": "H-05",
@@ -666,8 +666,8 @@
   "fref": "95:460",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Placeholder initials (Hanken Bold 64) have no text style. Decorative; fine to leave, or add a Display style for prints."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: initials bound to Display/XL (52/52). Code .card-print-initials 64px -> 52px."
  },
  {
   "id": "H-06",
@@ -676,7 +676,27 @@
   "fref": "109:79",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "Thumb initials (Hanken Bold 18) have no text style. Added by Claude on Nov 3; decorative."
+  "status": "fixed-in-figma",
+  "notes": "Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%."
+ },
+ {
+  "id": "T-13",
+  "cat": "Text styles",
+  "item": "Mono/Hint",
+  "fref": "text style",
+  "cref": "src/app/globals.css .search-hint",
+  "cls": "match",
+  "status": "synced",
+  "notes": "New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key."
+ },
+ {
+  "id": "C-31",
+  "cat": "Components",
+  "item": "Keyboard Hint",
+  "fref": "133:4158",
+  "cref": "kbd.search-hint",
+  "cls": "match",
+  "status": "pending",
+  "notes": "New in Figma Nov 4. Figma has a 2px corner radius; code corners are square everywhere (radius/none). Needs a call."
  }
 ]

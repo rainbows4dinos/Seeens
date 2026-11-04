@@ -1,8 +1,8 @@
 # Design sync ledger
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
-- Inventory read: 2026-11-04 (re-read after Figma fixes)
-- Code baseline: 421078a (2026-11-04)
+- Inventory read: 2026-11-04 (re-read after hygiene fixes)
+- Code baseline: ae5e9ae (2026-11-04)
 - Rendered 2026-11-04 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -11,18 +11,19 @@
 | Category | Figma count | Ledger rows | Synced | Open |
 |---|---|---|---|---|
 | Variables | 58 | 7 groups (58 items) | 5 | 0 |
-| Text styles | 12 | 12 | 12 | 0 |
+| Text styles | 13 | 13 | 13 | 0 |
 | Effect styles | 5 | 5 | 3 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 30 | 30 | 1 | 24 |
-| Figma hygiene | - | 6 | 0 | 4 |
+| Components | 31 | 31 | 1 | 25 |
+| Figma hygiene | - | 6 | 0 | 1 |
 
-Status totals: fixed-in-figma 3, needs-figma-fix 4, pending 24, skipped 8, synced 21
+Status totals: fixed-in-figma 6, needs-figma-fix 1, pending 25, skipped 8, synced 22
 
 ## Log
 
 - 2026-11-04: Typography sync: 2 text styles fixed (UI/Nav, Mono/Caption), 10 components' type aligned to their bound styles, --radius-none added. dslib.blocks patched to ignore an @import before :root.
 - 2026-11-04: Figma fixes Nov 4: Number0 removed, space/none added (synced), Form Field error bound to Mono/Label, Logo component added and synced to code.
+- 2026-11-04: Nov 4 hygiene: H-03, H-05, H-06 fixed in Figma and synced; H-04 still open; added Mono/Hint and Keyboard Hint
 
 ## Rows
 
@@ -84,10 +85,12 @@ Status totals: fixed-in-figma 3, needs-figma-fix 4, pending 24, skipped 8, synce
 | C-30 | Components | Logo | 128:3618 | `public/brand/seeens-logo.svg, .logo` | missing-in-code | synced | New in Figma Nov 4. Exported SVG: wordmark, cyan misregister copy (+2, +1, hard-light), and the rub-down texture as an SVG filter. Used in the header and on login. |
 | H-01 | Figma hygiene | Nav Chip / Logo text | 10:7 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: new Logo component (128:3618, vector wordmark) placed in Nav Chip Style=Logo. Code now uses it (C-30). |
 | H-02 | Figma hygiene | Form Field / Error text | 47:177 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: error text bound to Mono/Label. Code error text already uses that size and weight. |
-| H-03 | Figma hygiene | Outreach Entry / Date | 50:227 | `-` | hygiene | needs-figma-fix | Date text has no text style (Plex SemiBold 14/20). No matching style; add Mono/Body Strong or reuse one. |
-| H-04 | Figma hygiene | Search Field / Text and ENTER hint | 88:305 | `-` | hygiene | needs-figma-fix | Placeholder (Plex 16/24) and the ENTER hint have no text style. Placeholder ties to the Field decision (C-12). |
-| H-05 | Figma hygiene | Connection Card / Print initials | 95:460 | `-` | hygiene | needs-figma-fix | Placeholder initials (Hanken Bold 64) have no text style. Decorative; fine to leave, or add a Display style for prints. |
-| H-06 | Figma hygiene | Directory Row / Thumb initials | 109:79 | `-` | hygiene | needs-figma-fix | Thumb initials (Hanken Bold 18) have no text style. Added by Claude on Nov 3; decorative. |
+| H-03 | Figma hygiene | Outreach Entry / Date | 50:227 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: date bound to Mono/Label (Plex Medium 14/20). Code already matches (text-sm, font-medium). |
+| H-04 | Figma hygiene | Search Field / Text and ENTER hint | 88:305 | `-` | hygiene | needs-figma-fix | Nov 4: Mono/Hint and a Keyboard Hint component (133:4158) now exist, but Search Field (88:302) still has its own unstyled Text (Plex 16/24) and Enter Hint frame. Swap in a Keyboard Hint instance and bind the placeholder (Mono/Body per C-12). |
+| H-05 | Figma hygiene | Connection Card / Print initials | 95:460 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/XL (52/52). Code .card-print-initials 64px -> 52px. |
+| H-06 | Figma hygiene | Directory Row / Thumb initials | 109:79 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%. |
+| T-13 | Text styles | Mono/Hint | text style | `src/app/globals.css .search-hint` | match | synced | New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key. |
+| C-31 | Components | Keyboard Hint | 133:4158 | `kbd.search-hint` | match | pending | New in Figma Nov 4. Figma has a 2px corner radius; code corners are square everywhere (radius/none). Needs a call. |
 
 ## Component checklists
 
