@@ -10,6 +10,29 @@ import { MAX_NAME_LENGTH, MAX_ROLE_LENGTH, MAX_ROWS } from "./lineup";
 export type LinkState = { ok?: boolean; error?: string; attempt?: number };
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
+
+type Supabase = Awaited<ReturnType<typeof createClient>>;
+export type CarryInput = { town: boolean; sceneIds: string[]; played: boolean };
+
+// What a new member takes from the band (#124): only what was ticked, and
+// only the band's own values, whatever the browser sent.
+async function carryFromBand(supabase: Supabase, workspaceId: string, bandId: string, pick: CarryInput | null) {
+  if (!pick) return {};
+  const { data: band } = await supabase
+    .from("connections")
+    .select("locality_id, played_together, connection_scenes ( scene_id )")
+    .eq("id", bandId)
+    .eq("workspace_id", workspaceId)
+    .maybeSingle();
+  if (!band) return {};
+  const scenes = new Set(band.connection_scenes.map((s) => s.scene_id));
+  const sceneIds = (Array.isArray(pick.sceneIds) ? pick.sceneIds : []).filter((id) => scenes.has(id));
+  return {
+    p_locality_id: pick.town && band.locality_id ? band.locality_id : undefined,
+    p_scene_ids: sceneIds.length ? sceneIds : undefined,
+    p_played_together: Boolean(pick.played && band.played_together),
+  };
+}
 const fail = (error: string): LinkState => ({ error, attempt: Date.now() });
 
 export async function addLink(
@@ -75,9 +98,20 @@ export async function addLink(
       }
       shape = { kind: "group", person_roles: [], group_type: type };
     }
+    // A new member of a band can take the band's town, scenes, and played
+    // together (#124), as ticked in the form.
+    const carry =
+      option.kind === "member" && option.target.kind === "person" && formData.get("carry") === "1"
+        ? await carryFromBand(supabase, membership.workspaceId, subject.id, {
+            town: formData.get("carry_town") === "on",
+            sceneIds: formData.getAll("carry_scene").map(String),
+            played: formData.get("carry_played") === "on",
+          })
+        : {};
     // Adds the new connection and the link together, so a failed link never
     // leaves a stray connection behind.
     ({ error } = await supabase.rpc("create_linked_connection", {
+      ...carry,
       p_workspace_id: membership.workspaceId,
       p_other_id: subject.id,
       // "out" links go from the subject, so the new connection is on the "to" end.
@@ -154,7 +188,11 @@ export type AddMembersResult = { ok: true; added: number; skipped: number } | { 
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export async function addBandMembers(bandId: string, rows: MemberRowInput[]): Promise<AddMembersResult> {
+export async function addBandMembers(
+  bandId: string,
+  rows: MemberRowInput[],
+  carry: CarryInput | null = null,
+): Promise<AddMembersResult> {
   if (!Array.isArray(rows) || rows.length === 0) return { ok: false, error: "Pick at least one person to add." };
   if (rows.length > MAX_ROWS) return { ok: false, error: `Add up to ${MAX_ROWS} people at a time.` };
 
@@ -173,6 +211,8 @@ export async function addBandMembers(bandId: string, rows: MemberRowInput[]): Pr
   if (!membership) return { ok: false, error: "You're not in a workspace." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("add_band_members", {
+    // New people can take the band's town, scenes, and played together (#124).
+    ...(await carryFromBand(supabase, membership.workspaceId, bandId, carry)),
     p_workspace_id: membership.workspaceId,
     p_band_id: bandId,
     p_rows: clean,

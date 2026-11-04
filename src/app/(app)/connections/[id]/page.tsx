@@ -8,6 +8,8 @@ import { OutreachPanel } from "@/components/outreach-panel";
 import { DateLines } from "@/components/date-line";
 import { getConnection } from "@/lib/connections/queries";
 import { directoryHrefFor } from "@/lib/connections/directory";
+import { loadPlayedOffer } from "@/lib/connections/played-together";
+import { createClient } from "@/lib/supabase/server";
 import {
   STATUS_LABELS,
   formatDate,
@@ -41,7 +43,7 @@ async function Connection({
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
 
-  const [{ id }, { saved }] = await Promise.all([params, searchParams]);
+  const [{ id }, { saved, offer }] = await Promise.all([params, searchParams]);
   const [detail, user] = await Promise.all([getConnection(id), getCurrentUser()]);
   const tz = membership.timeZone;
   const today = todayISO(new Date(), tz);
@@ -49,6 +51,11 @@ async function Connection({
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
   const photos = await signPhotos([c.photo_path, c.photo_original_path]);
+  // Just saved from the edit form with "played together" newly on (#124).
+  const playedOffer =
+    offer === "played" && c.played_together && !c.is_us
+      ? await loadPlayedOffer(await createClient(), membership.workspaceId, c.id)
+      : null;
 
   return (
     <article className="page-measure flex flex-col gap-8">
@@ -120,7 +127,11 @@ async function Connection({
       {c.is_us ? null : (
       <>
       <Section title="Where things stand">
-        <QuickStatus id={c.id} initial={{ status: c.status, playedTogether: c.played_together }} />
+        <QuickStatus
+          id={c.id}
+          initial={{ status: c.status, playedTogether: c.played_together }}
+          initialOffer={playedOffer}
+        />
         {statusHistory.length > 1 ? (
           <details className="text-sm">
             <summary className="cursor-pointer text-muted">Status history</summary>

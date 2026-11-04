@@ -1,8 +1,10 @@
 "use client";
 
 import { unstable_rethrow } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { quickUpdate, type QuickState } from "@/lib/connections/actions";
+import type { PlayedOffer as Offer } from "@/lib/connections/played-together";
+import { PlayedOffer } from "@/components/played-offer";
 import { STATUSES, STATUS_HINTS, STATUS_LABELS, type ConnectionStatus } from "@/lib/connections/labels";
 
 type Change = { status: ConnectionStatus } | { playedTogether: boolean };
@@ -10,7 +12,28 @@ type Change = { status: ConnectionStatus } | { playedTogether: boolean };
 // Saves as soon as a choice changes. While saving, the control shows the
 // new choice; if the save fails it snaps back to what's actually saved and
 // offers a retry.
-export function QuickStatus({ id, initial }: { id: string; initial: QuickState }) {
+//
+// Ticking "We've played together" then offers to mark the members (or the
+// bands) too (#124). The edit form's save lands here with that offer open.
+export function QuickStatus({
+  id,
+  initial,
+  initialOffer = null,
+}: {
+  id: string;
+  initial: QuickState;
+  initialOffer?: Offer | null;
+}) {
+  const [offer, setOffer] = useState(initialOffer);
+  // Next keeps this page's state between visits, so take a new offer from the
+  // server (an edit-form save) when it arrives.
+  const offerKey = initialOffer ? JSON.stringify(initialOffer) : "";
+  const [prevOfferKey, setPrevOfferKey] = useState(offerKey);
+  if (offerKey !== prevOfferKey) {
+    setPrevOfferKey(offerKey);
+    if (initialOffer) setOffer(initialOffer);
+  }
+  const played = useRef<HTMLInputElement>(null);
   const [saved, setSaved] = useState(initial);
   const [shown, setShown] = useState(initial);
   const [failed, setFailed] = useState<Change | null>(null);
@@ -28,8 +51,21 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
     setShown(initial);
   }
 
+  function closeOffer(done: string) {
+    setOffer(null);
+    setMessage(done);
+    // Don't offer again on a refresh after an edit-form save (?offer=played).
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("offer")) {
+      url.searchParams.delete("offer");
+      window.history.replaceState(window.history.state, "", url);
+    }
+    played.current?.focus();
+  }
+
   function save(change: Change) {
     setFailed(null);
+    if ("playedTogether" in change) setOffer(null);
     setShown((s) => ({ ...s, ...change }));
     setMessage("Saving…");
     startTransition(async () => {
@@ -45,6 +81,7 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
       setShown(truth);
       if (result.ok) {
         setMessage("Saved.");
+        if (result.offer) setOffer(result.offer);
       } else {
         setFailed(change);
         setMessage("");
@@ -77,6 +114,7 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
           </select>
           <label className="choice">
             <input
+              ref={played}
               type="checkbox"
               name="quick_played_together"
               checked={shown.playedTogether}
@@ -86,6 +124,7 @@ export function QuickStatus({ id, initial }: { id: string; initial: QuickState }
           </label>
         </div>
       </div>
+      {offer ? <PlayedOffer sourceId={id} offer={offer} onDone={closeOffer} /> : null}
       <p aria-live="polite" className="min-h-5 text-sm text-muted">
         {pending ? "Saving…" : message}
       </p>

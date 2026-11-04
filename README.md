@@ -76,7 +76,7 @@ Automated scraping, automatic messaging, social integrations, and multi-band cus
 
 Priorities live on the issues (`priority: now`, `next`, `later`); this is the order.
 
-1. **Now, the directory for daily use:** browse by type, Bands, People, Venues, Labels & more ([#122](https://github.com/rainbows4dinos/seeens/issues/122)) with type-specific fields ([#48](https://github.com/rainbows4dinos/seeens/issues/48)); played together, town, and scenes carry over between bands and members ([#124](https://github.com/rainbows4dinos/seeens/issues/124)); zone the connection and edit pages (Figma, [#126](https://github.com/rainbows4dinos/seeens/issues/126)).
+1. **Now, the directory for daily use:** type-specific fields like venue capacity and ages ([#48](https://github.com/rainbows4dinos/seeens/issues/48)); zone the connection and edit pages (Figma, [#126](https://github.com/rainbows4dinos/seeens/issues/126)).
 2. **Then, scene intelligence:** town, scene, and genre ([#125](https://github.com/rainbows4dinos/seeens/issues/125), with [#21](https://github.com/rainbows4dinos/seeens/issues/21)): town as the host scene, sub-scenes as communities, genre as self-description, and suggested meta-scenes across towns for touring and labels.
 3. **Growth, so suggestions can see past one band:** accounts and you versus the band ([#67](https://github.com/rainbows4dinos/seeens/issues/67), [#44](https://github.com/rainbows4dinos/seeens/issues/44)), invites ([#68](https://github.com/rainbows4dinos/seeens/issues/68)), and claimed listings ([#45](https://github.com/rainbows4dinos/seeens/issues/45), [#70](https://github.com/rainbows4dinos/seeens/issues/70)).
 4. **Ongoing polish:** phase 2 design ([#58](https://github.com/rainbows4dinos/seeens/issues/58)); Boards ([#49](https://github.com/rainbows4dinos/seeens/issues/49)) once scenes settle.
@@ -89,7 +89,7 @@ The MVP launched on November 1, 2026. What it does:
 - Email/password sign-in, with access limited to workspace members.
 - Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, and archived filters.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
-- Status and "we've played together," saved as soon as you change them.
+- Status and "we've played together," saved as soon as you change them. Marking a band offers to mark its current members too (and a person, their bands); new members can take the band's town, scenes, and played together.
 - Affiliations between connections (members, labels, related bands, venues).
 - Outreach log, next actions, and the Follow-ups page.
 - Connection photos through the copier, shown on cards, list rows, and the connection page.

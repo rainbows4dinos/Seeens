@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useActionState, useId, useRef, useState, useTransition } from "react";
 import { DetachedForm } from "@/components/detached-form";
 import { PasteLineup } from "@/components/paste-lineup";
+import { CarryFields, hasCarry, pickAll, type Carry } from "@/components/carry-fields";
 import { addLink, removeLink, updateLink, type LinkState } from "@/lib/affiliations/actions";
 import {
   SECTION_ORDER,
@@ -52,6 +53,7 @@ export function LinksPanel({
   candidates,
   memberIds,
   note,
+  carry,
 }: {
   subjectId: string;
   rows: LinkRow[];
@@ -61,6 +63,8 @@ export function LinksPanel({
   memberIds?: string[];
   // Optional line under the heading, such as how saving works on the edit page.
   note?: string;
+  // Set on a band: what a new member can take from it (#124).
+  carry?: Carry | null;
 }) {
   const [adding, setAdding] = useState<string | null>(null);
   // Bands can take a pasted lineup.
@@ -123,6 +127,7 @@ export function LinksPanel({
           bandId={subjectId}
           people={candidates.filter((c) => c.kind === "person").map(({ id, name, catalog }) => ({ id, name, catalog }))}
           memberIds={memberIds ?? []}
+          carry={carry ?? null}
           onDone={() => setAdding(null)}
         />
       ) : null}
@@ -135,6 +140,7 @@ export function LinksPanel({
             subjectId={subjectId}
             option={o}
             candidates={candidates.filter((c) => fitsTarget(o.target, c))}
+            carry={o.id === "member" ? (carry ?? null) : null}
             onDone={() => setAdding(null)}
           />
         ))}
@@ -250,11 +256,13 @@ function AddLinkForm({
   subjectId,
   option,
   candidates,
+  carry,
   onDone,
 }: {
   subjectId: string;
   option: AddOption;
   candidates: Candidate[];
+  carry: Carry | null;
   onDone: () => void;
 }) {
   const [state, action, pending] = useActionState<LinkState, FormData>(async (prev, fd) => {
@@ -266,6 +274,7 @@ function AddLinkForm({
   const [newName, setNewName] = useState("");
   const id = useId();
   const types = newGroupTypes(option.target);
+  const [pick, setPick] = useState(() => (hasCarry(carry) ? pickAll(carry) : null));
 
   return (
     <div role="group" aria-labelledby={`${id}-title`} className="flex flex-col gap-4 panel p-4">
@@ -307,6 +316,18 @@ function AddLinkForm({
             ))}
           </select>
         </div>
+      ) : null}
+
+      {picked === "__new__" && hasCarry(carry) && pick ? (
+        <>
+          <CarryFields carry={carry} value={pick} onChange={setPick} who={newName || "the new person"} />
+          <input type="hidden" form={id} name="carry" value="1" />
+          {pick.town ? <input type="hidden" form={id} name="carry_town" value="on" /> : null}
+          {pick.sceneIds.map((sid) => (
+            <input key={sid} type="hidden" form={id} name="carry_scene" value={sid} />
+          ))}
+          {pick.played ? <input type="hidden" form={id} name="carry_played" value="on" /> : null}
+        </>
       ) : null}
 
       <div className="flex flex-col gap-2">

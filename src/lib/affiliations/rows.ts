@@ -2,6 +2,7 @@ import type { LinkRow } from "@/components/links-panel";
 import type { ConnectionDetail } from "@/lib/connections/queries";
 import { addOptionsFor, sectionFor } from "./options";
 import { catalogNo } from "@/lib/connections/card";
+import { formatLocality } from "@/lib/connections/labels";
 
 // Everything the Connections block (LinksPanel) needs for one connection.
 // Shared by the detail and edit pages so both show the same thing.
@@ -13,6 +14,15 @@ export function linksPanelProps(detail: ConnectionDetail) {
     candidates: detail.candidates,
     // People already in this band (current or former), for the lineup paste.
     memberIds: detail.affiliations.incoming.filter((a) => a.kind === "member" && a.other).map((a) => a.other!.id),
+    // A band offers its town, scenes, and played together to new members (#124).
+    carry:
+      detail.connection.kind === "group" && detail.connection.group_type === "band"
+        ? {
+            town: formatLocality(detail.connection.localities),
+            scenes: detail.connection.scenes.map((s) => ({ id: s.id, name: s.name })),
+            playedTogether: detail.connection.played_together,
+          }
+        : null,
   };
 }
 

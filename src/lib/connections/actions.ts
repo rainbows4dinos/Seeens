@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { STATUSES, type ConnectionStatus } from "./labels";
+import { loadPlayedOffer, type PlayedOffer } from "./played-together";
 import {
   readForm,
   validate,
@@ -94,6 +95,15 @@ export async function updateConnection(
   if (!result.ok) return { values, errors: result.errors, attempt: Date.now() };
 
   const workspaceId = await requireWorkspace();
+  // Was "played together" off before this save? Turning it on offers the
+  // members (or bands) next (#124).
+  const supabase = await createClient();
+  const { data: before } = await supabase
+    .from("connections")
+    .select("played_together")
+    .eq("id", id)
+    .eq("workspace_id", workspaceId)
+    .maybeSingle();
   try {
     await saveConnection(workspaceId, id, result.data, values.updatedAt);
   } catch (error) {
@@ -104,7 +114,8 @@ export async function updateConnection(
   }
 
   revalidatePath("/", "layout");
-  redirect(`/connections/${id}?saved=1`);
+  const offer = before && !before.played_together && result.data.played_together ? "&offer=played" : "";
+  redirect(`/connections/${id}?saved=1${offer}`);
 }
 
 // A bandmate saved this connection after the form was opened. Nothing was
@@ -160,7 +171,9 @@ export async function restoreConnection(id: string): Promise<ArchiveState> {
 }
 
 export type QuickState = { status: ConnectionStatus; playedTogether: boolean };
-export type QuickResult = { ok: true; saved: QuickState } | { ok: false; saved: QuickState | null };
+export type QuickResult =
+  | { ok: true; saved: QuickState; offer?: PlayedOffer | null }
+  | { ok: false; saved: QuickState | null };
 
 // One-tap status and "played together" changes from the detail page.
 // Status history is logged by a database trigger.
@@ -198,5 +211,32 @@ export async function quickUpdate(
   if (error || !data) return { ok: false, saved: await current() };
 
   revalidatePath("/", "layout");
-  return { ok: true, saved: { status: data.status, playedTogether: data.played_together } };
+  // Just marked played together: offer the members, or the bands (#124).
+  const offer =
+    "playedTogether" in change && change.playedTogether ? await loadPlayedOffer(supabase, workspaceId, id) : null;
+  return { ok: true, saved: { status: data.status, playedTogether: data.played_together }, offer };
+}
+
+export type MarkResult = { ok: true; marked: number } | { ok: false };
+
+// Marks the picked members (or bands) of a connection as played together,
+// in one update. Only current relatives of that connection are touched, and
+// only "played together" changes; status and its history stay as they are.
+export async function markPlayedTogether(sourceId: string, ids: string[]): Promise<MarkResult> {
+  const workspaceId = await requireWorkspace();
+  const supabase = await createClient();
+  const offer = await loadPlayedOffer(supabase, workspaceId, sourceId);
+  const allowed = new Set(offer?.relatives.filter((r) => !r.playedTogether).map((r) => r.id) ?? []);
+  const pick = [...new Set(Array.isArray(ids) ? ids : [])].filter((id) => allowed.has(id));
+  if (!pick.length) return { ok: true, marked: 0 };
+
+  const { data, error } = await supabase
+    .from("connections")
+    .update({ played_together: true })
+    .eq("workspace_id", workspaceId)
+    .in("id", pick)
+    .select("id");
+  if (error) return { ok: false };
+  revalidatePath("/", "layout");
+  return { ok: true, marked: data.length };
 }
