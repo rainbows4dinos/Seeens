@@ -69,7 +69,7 @@ export type DirectoryItem = {
   scenes: string[];
 };
 
-export type GroupCounts = Record<"us" | ConnectionStatus, number>;
+export type GroupCounts = Record<ConnectionStatus, number>;
 
 export type DirectoryCounts = {
   /** Everyone in this half (current or archived), any status. */

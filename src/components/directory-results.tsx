@@ -82,30 +82,21 @@ export function DirectoryResults({
     });
   }
 
-  const sections = [
-    { id: "us", label: "Us", tag: "tag-ink", count: groups.us, rows: items.filter((c) => c.is_us), counted: false },
-    ...STATUSES.map((status) => ({
-      id: status,
-      label: STATUS_LABELS[status],
-      tag: `tag-${status}`,
-      count: groups[status],
-      rows: items.filter((c) => !c.is_us && c.status === status),
-      counted: true,
-    })),
-  ].filter((s) => s.rows.length);
+  // Our own band isn't in the directory; the header's band chip opens it (#123).
+  const sections = STATUSES.map((status) => ({
+    id: status,
+    label: STATUS_LABELS[status],
+    tag: `tag-${status}`,
+    count: groups[status],
+    rows: items.filter((c) => c.status === status),
+  })).filter((s) => s.rows.length);
 
   return (
     <>
       {sections.map((s) => (
         <section key={s.id} aria-labelledby={`group-${s.id}`} className="flex flex-col gap-2">
           <h2 id={`group-${s.id}`} className="label">
-            <span className={`tag ${s.tag}`}>{s.label}</span>
-            {s.counted ? (
-              <>
-                {" "}
-                <span className="text-muted">({s.count})</span>
-              </>
-            ) : null}
+            <span className={`tag ${s.tag}`}>{s.label}</span> <span className="text-muted">({s.count})</span>
           </h2>
           {layout === "list" ? (
             <ConnectionRows connections={s.rows} today={today} />

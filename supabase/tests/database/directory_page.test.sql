@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(24);
 
 insert into auth.users (id, email) values
   ('d9111111-1111-1111-1111-111111111111', 'page-alex@example.com'),
@@ -75,21 +75,21 @@ insert into pages values
     p_after => (select r -> 'next' from pages where k = 'p2'), p_counts => false));
 
 -- Order and paging
-select is(pg_temp.names(r), array['Merwulf', 'Ants', 'bees', 'Cats', 'Dogs', '100% Noise', 'Grey Static', 'Jo Example'],
-  'Us first, then status groups in order, names case-insensitive; Avoid and archived left out')
+select is(pg_temp.names(r), array['Ants', 'bees', 'Cats', 'Dogs', '100% Noise', 'Grey Static', 'Jo Example'],
+  'status groups in order, names case-insensitive; Us, Avoid and archived left out')
   from pages where k = 'all';
-select is(pg_temp.names(r), array['Merwulf', 'Ants', 'bees'], 'first page of three') from pages where k = 'p1';
-select is(pg_temp.names(r), array['Cats', 'Dogs', '100% Noise'], 'second page picks up after the first') from pages where k = 'p2';
-select is(pg_temp.names(r), array['Grey Static', 'Jo Example'], 'last page') from pages where k = 'p3';
+select is(pg_temp.names(r), array['Ants', 'bees', 'Cats'], 'first page of three') from pages where k = 'p1';
+select is(pg_temp.names(r), array['Dogs', '100% Noise', 'Grey Static'], 'second page picks up after the first') from pages where k = 'p2';
+select is(pg_temp.names(r), array['Jo Example'], 'last page') from pages where k = 'p3';
 select ok((select r -> 'next' from pages where k = 'p1') is not null, 'a full page with more after it has a next cursor');
 select ok((select r -> 'next' from pages where k = 'p3') = 'null'::jsonb, 'the last page has no next cursor');
 select ok((select r -> 'counts' from pages where k = 'p2') = 'null'::jsonb, 'counts are skipped when not asked for');
 
 -- Counts
 select is((select r -> 'counts' from pages where k = 'all') - 'towns',
-  '{"view": 9, "total": 9, "matched": 8, "hidden_avoid": 1,
-    "groups": {"us": 1, "homies": 3, "lets_play": 1, "prospect": 0, "neutral": 3, "avoid": 0}}'::jsonb,
-  'view, total, matched, per-group counts, and the hidden Avoid count');
+  '{"view": 8, "total": 8, "matched": 7, "hidden_avoid": 1,
+    "groups": {"homies": 3, "lets_play": 1, "prospect": 0, "neutral": 3, "avoid": 0}}'::jsonb,
+  'view, total, matched, per-group counts, and the hidden Avoid count; Us counted nowhere');
 select is((select jsonb_array_length(r -> 'counts' -> 'towns') from pages where k = 'all'), 2, 'towns in this half');
 
 -- Tags
@@ -97,19 +97,23 @@ select is(
   (select jsonb_object_agg(c.name, jsonb_build_array(e ->> 'label_mate', e ->> 'shares_member'))
    from pages p, jsonb_array_elements(p.r -> 'rows') e
    join public.connections c on c.id = (e ->> 'id')::uuid
-   where p.k = 'all' and c.name in ('Merwulf', 'bees', 'Dogs', 'Ants')),
-  '{"Merwulf": ["false", "false"], "bees": ["true", "false"], "Dogs": ["false", "true"], "Ants": ["false", "false"]}'::jsonb,
-  'label mate and shared member tags; never on Us');
+   where p.k = 'all' and c.name in ('bees', 'Dogs', 'Ants')),
+  '{"bees": ["true", "false"], "Dogs": ["false", "true"], "Ants": ["false", "false"]}'::jsonb,
+  'label mate and shared member tags still come from Us');
 
 -- Filters
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => 'E')),
-  array['Merwulf', 'bees', '100% Noise', 'Grey Static', 'Jo Example'], 'name search is a case-insensitive substring');
+  array['bees', '100% Noise', 'Grey Static', 'Jo Example'], 'name search is a case-insensitive substring');
+select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => 'merwulf')),
+  '{}'::text[], 'searching for Us finds nothing');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => '0%')),
   array['100% Noise'], 'a percent sign in the search is literal');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => '_')),
   '{}'::text[], 'an underscore in the search is literal');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_statuses => '{homies,avoid}')),
-  array['Ants', 'bees', 'Cats', 'Eels'], 'asked-for statuses, Avoid included; Us only when its status is asked for');
+  array['Ants', 'bees', 'Cats', 'Eels'], 'asked-for statuses, Avoid included');
+select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_statuses => '{neutral}')),
+  array['100% Noise', 'Grey Static', 'Jo Example'], 'Us stays out even when its status is asked for');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_kind => 'group', p_group_type => 'venue')),
   array['Cats'], 'group type');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_kind => 'person', p_person_role => 'dj')),
@@ -117,7 +121,7 @@ select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-000000000
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_scene_ids => '{d9200000-0000-0000-0000-000000000001}')),
   array['Ants', 'Dogs'], 'scene');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_town => 'd9100000-0000-0000-0000-000000000001')),
-  array['Merwulf', 'bees'], 'town');
+  array['bees'], 'town');
 select is(
   (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false,
     p_statuses => '{lets_play}', p_list_status => 'lets_play') -> 'counts') ->> 'total',
