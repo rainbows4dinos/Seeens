@@ -597,6 +597,9 @@
     }
   }
   .bar-search {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     @media (width < 48rem) {
       position: sticky;
       /* -1px: once pinned, PinWatch sees a pixel off-screen. */
@@ -612,7 +615,7 @@
      at rest the bar sits on the dot grid like the rest of the page. */
   /* Tablet up to 1280: views and Add on top, search and filters under them.
      From 1280: one row, views | search, Filters ... List/Cards | Add, with the
-     filter fields opening under the middle. */
+     filter fields opening under it, full width. */
   .bar-views {
     grid-area: 1 / 1;
   }
@@ -630,8 +633,17 @@
     .bar-add {
       grid-area: 1 / 3;
     }
+    /* The search form steps aside so its two parts can sit in the bar's
+       grid: the search row in the middle of the top row, and the filter
+       fields across the full width under it (narrower, they wrapped). */
     .directory-bar > .bar-search {
+      display: contents;
+    }
+    .directory-bar .bar-row {
       grid-area: 1 / 2;
+    }
+    .directory-bar .bar-panel {
+      grid-area: 2 / 1 / 3 / -1;
     }
   }
   :is(.directory-bar, .bar-search)[data-pinned] {
