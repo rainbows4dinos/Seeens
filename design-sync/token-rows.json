@@ -294,13 +294,6 @@
   "detail": ""
  },
  {
-  "collection": "Color",
-  "name": "Number0",
-  "css": "--number0",
-  "cls": "missing-in-code",
-  "detail": "Paper: missing (Figma @--space-2xs)"
- },
- {
   "collection": "Spacing",
   "name": "space/2xs",
   "css": "--space-2xs",
@@ -381,6 +374,13 @@
   "collection": "Spacing",
   "name": "size/control-height",
   "css": "--control-height",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/none",
+  "css": "--space-none",
   "cls": "match",
   "detail": ""
  },

@@ -198,7 +198,11 @@ for (const sec of DATA.sections) {
         continue;
       }
       const t = await text(r, role, row[key], w || 0);
-      if (key === 'fref' && /^\d+:\d+$/.test(row.fref)) t.setRangeHyperlink(0, t.characters.length, { type: 'NODE', value: row.fref });
+      if (key === 'fref' && /^\d+:\d+$/.test(row.fref)) {
+        // A ref to a deleted node (or one Figma won't link to) stays plain text and is reported.
+        try { t.setRangeHyperlink(0, t.characters.length, { type: 'NODE', value: row.fref }); }
+        catch (e) { missing.push('link ' + row.id + ' ' + row.fref); }
+      }
     }
     ids.add(row.id);
     rowFrames++;

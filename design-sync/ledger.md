@@ -1,8 +1,8 @@
 # Design sync ledger
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
-- Inventory read: 2026-11-04, code 494e347
-- Code baseline: 3ebbc3f (2026-11-04)
+- Inventory read: 2026-11-04 (re-read after Figma fixes)
+- Code baseline: 421078a (2026-11-04)
 - Rendered 2026-11-04 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -10,18 +10,19 @@
 
 | Category | Figma count | Ledger rows | Synced | Open |
 |---|---|---|---|---|
-| Variables | 58 | 6 groups (58 items) | 4 | 1 |
+| Variables | 58 | 7 groups (58 items) | 5 | 0 |
 | Text styles | 12 | 12 | 12 | 0 |
 | Effect styles | 5 | 5 | 3 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 29 | 29 | 0 | 24 |
-| Figma hygiene | - | 6 | 0 | 6 |
+| Components | 30 | 30 | 1 | 24 |
+| Figma hygiene | - | 6 | 0 | 4 |
 
-Status totals: needs-figma-fix 7, pending 24, skipped 8, synced 19
+Status totals: fixed-in-figma 3, needs-figma-fix 4, pending 24, skipped 8, synced 21
 
 ## Log
 
 - 2026-11-04: Typography sync: 2 text styles fixed (UI/Nav, Mono/Caption), 10 components' type aligned to their bound styles, --radius-none added. dslib.blocks patched to ignore an @import before :root.
+- 2026-11-04: Figma fixes Nov 4: Number0 removed, space/none added (synced), Form Field error bound to Mono/Label, Logo component added and synced to code.
 
 ## Rows
 
@@ -29,10 +30,11 @@ Status totals: needs-figma-fix 7, pending 24, skipped 8, synced 19
 |---|---|---|---|---|---|---|---|
 | V-01 | Variables | Primitives: ink, paper, ground, plate, stock, red (15) | Primitives | `src/app/globals.css :root` | match | synced | token-diff: all match |
 | V-02 | Variables | Color: color/* (27) | Color | `src/app/globals.css :root` | value-drift | synced | token-diff: 26 matched; color/text/error only differed by line wrapping, rewritten on one line |
-| V-03 | Variables | Number0 (1) | Color | `src/app/globals.css` | missing-in-code | needs-figma-fix | A stray variable named "Number0" in the Color collection, aliasing space/2xs. Delete it, or move and rename it in Spacing. |
+| V-03 | Variables | Number0 (1) | Color | `src/app/globals.css` | missing-in-code | fixed-in-figma | Fixed by the designer Nov 4: Number0 deleted from Color. Re-read confirms it is gone; nothing in code. |
 | V-04 | Variables | Spacing: space/*, stroke/*, size/control-height (11) | Spacing | `src/app/globals.css :root` | match | synced | token-diff: all match (size/control-height -> --control-height) |
 | V-05 | Variables | radius/none (1) | Spacing | `src/app/globals.css :root` | missing-in-code | synced | Added --radius-none: 0px. Tailwind radius utilities are already 0 via @theme. |
 | V-06 | Variables | Style Stacks: Dot Grid BG, Display Title, Window (3) | Style Stacks | `-` | missing-in-code | skipped | String variables holding plugin style-stack data, not design tokens. No CSS equivalent. |
+| V-07 | Variables | space/none (1) | Spacing | `src/app/globals.css :root` | missing-in-code | synced | Added by the designer Nov 4; added --space-none: 0px. |
 | T-01 | Text styles | Display/XXL | text style | `src/app/globals.css @utility display-xxl` | match | synced | text-style-classes: match. Font loads via Fontsource in src/app/layout.tsx. |
 | T-02 | Text styles | Display/XL | text style | `src/app/globals.css @utility display-xl` | match | synced | text-style-classes: match. Font loads via Fontsource in src/app/layout.tsx. |
 | T-03 | Text styles | Display/L | text style | `src/app/globals.css @utility display-l` | match | synced | text-style-classes: match. Font loads via Fontsource in src/app/layout.tsx. |
@@ -79,8 +81,9 @@ Status totals: needs-figma-fix 7, pending 24, skipped 8, synced 19
 | C-27 | Components | Show More | 88:354 | `src/components/directory-results.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-28 | Components | Directory Bar | 89:634 | `.directory-bar` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-29 | Components | Account Nav Item | 82:2255 | `-` | missing-in-code | skipped | Not built in code yet; part of account settings (#67). |
-| H-01 | Figma hygiene | Nav Chip / Logo text | 10:7 | `-` | hygiene | needs-figma-fix | SEEENS logo text has no text style (Hanken SemiBold 22/28, uppercase). Code .logo matches it; add a style or bind one. |
-| H-02 | Figma hygiene | Form Field / Error text | 47:177 | `-` | hygiene | needs-figma-fix | Error text has no text style; its values (Plex Medium 14/20) equal Mono/Label. Bind to Mono/Label. |
+| C-30 | Components | Logo | 128:3618 | `public/brand/seeens-logo.svg, .logo` | missing-in-code | synced | New in Figma Nov 4. Exported SVG: wordmark, cyan misregister copy (+2, +1, hard-light), and the rub-down texture as an SVG filter. Used in the header and on login. |
+| H-01 | Figma hygiene | Nav Chip / Logo text | 10:7 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: new Logo component (128:3618, vector wordmark) placed in Nav Chip Style=Logo. Code now uses it (C-30). |
+| H-02 | Figma hygiene | Form Field / Error text | 47:177 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: error text bound to Mono/Label. Code error text already uses that size and weight. |
 | H-03 | Figma hygiene | Outreach Entry / Date | 50:227 | `-` | hygiene | needs-figma-fix | Date text has no text style (Plex SemiBold 14/20). No matching style; add Mono/Body Strong or reuse one. |
 | H-04 | Figma hygiene | Search Field / Text and ENTER hint | 88:305 | `-` | hygiene | needs-figma-fix | Placeholder (Plex 16/24) and the ENTER hint have no text style. Placeholder ties to the Field decision (C-12). |
 | H-05 | Figma hygiene | Connection Card / Print initials | 95:460 | `-` | hygiene | needs-figma-fix | Placeholder initials (Hanken Bold 64) have no text style. Decorative; fine to leave, or add a Display style for prints. |
@@ -97,6 +100,7 @@ Evidence: -
 ### C-03 Nav Chip
 
 - [x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).
+- [x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg
 
 Evidence: -
 
@@ -232,3 +236,10 @@ Evidence: -
 - [x] Typography: via nested components
 
 Evidence: -
+
+### C-30 Logo
+
+- [x] Anatomy: shadow and wordmark from the Figma export
+- [x] Size: 75 x 18 in a 4px 12px chip (101 x 36 vs Figma 100 x 36)
+
+Evidence: design-sync/evidence/logo-header-login.png
