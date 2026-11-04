@@ -827,9 +827,9 @@
       3px 83.33%, 0 66.67%, 3px 50%, 0 33.33%, 3px 16.67%
     );
   }
+  /* Clear tape: a faint gray, so it still shows over white paper. */
   .tape-clear {
-    --tape-color: rgb(255 255 255 / 0.55);
-    mix-blend-mode: normal;
+    --tape-color: color-mix(in srgb, var(--ink-900) 9%, transparent);
   }
   .tape-yellow {
     --tape-color: color-mix(in srgb, var(--plate-yellow) 30%, transparent);

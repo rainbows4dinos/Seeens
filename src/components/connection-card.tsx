@@ -1,7 +1,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { DateLines } from "@/components/date-line";
-import { formatLocality, formatType, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
+import {
+  formatLocality,
+  formatType,
+  type ConnectionKind,
+  type ConnectionStatus,
+  type GroupType,
+  type PersonRole,
+} from "@/lib/connections/labels";
 import { catalogNo, initials, seed } from "@/lib/connections/card";
 
 // Figma Connection Card: a print on top, a machine meta box below, both
@@ -19,11 +26,23 @@ export type CardConnection = {
   kind: ConnectionKind;
   person_roles: PersonRole[];
   group_type: GroupType | null;
+  status: ConnectionStatus;
+  is_us: boolean;
   played_together: boolean;
   catalog_no: number;
   localities: Parameters<typeof formatLocality>[0];
   outreach_entries: { occurred_on: string; summary: string }[];
   next_actions: { description: string; due_on: string | null }[];
+};
+
+// Tape matches the status tag: colored tags get that plate; Neutral (no fill)
+// and Avoid get clear.
+const TAPE: Record<ConnectionStatus, string> = {
+  homies: "tape-magenta",
+  lets_play: "tape-yellow",
+  prospect: "tape-cyan",
+  neutral: "tape-clear",
+  avoid: "tape-clear",
 };
 
 export function ConnectionCard({
@@ -38,15 +57,15 @@ export function ConnectionCard({
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
   const nextAction = c.next_actions[0];
-  // -3° to -1°, around the Figma card's -2°.
-  const tilt = (-3 + seed(c.id) * 2).toFixed(2);
+  // Up to 2° either way.
+  const tilt = (-2 + seed(c.id) * 4).toFixed(2);
 
   return (
     <Link href={`/connections/${c.id}`} className="connection-card">
       <span className="card-print" aria-hidden="true">
         <span className="card-print-initials">{initials(c.name)}</span>
       </span>
-      <span className="tape tape-cyan card-tape" style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
+      <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
       <span className="card-meta">
         {/* Name first for screen readers; the caption row sits above it visually. */}
         <span className="flex flex-col-reverse gap-2">
