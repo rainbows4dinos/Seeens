@@ -10,5 +10,9 @@
  {
   "date": "2026-11-04",
   "entry": "Nov 4 hygiene: H-03, H-05, H-06 fixed in Figma and synced; H-04 still open; added Mono/Hint and Keyboard Hint"
+ },
+ {
+  "date": "2026-11-04",
+  "entry": "Search Field rebuilt in Figma (134:4549); H-04 fixed, C-25 synced with a clear button"
  }
 ]

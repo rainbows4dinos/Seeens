@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { DirectoryResults } from "@/components/directory-results";
 import { LayoutProvider, LayoutToggle } from "@/components/layout-toggle";
 import { PinWatch } from "@/components/pin-watch";
+import { SearchClear } from "@/components/search-clear";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { loadDirectoryPage, readCursor, readDirectoryQuery, readView, type View } from "@/lib/connections/directory";
@@ -312,6 +313,7 @@ function FilterForm({
               <kbd className="search-hint" aria-hidden="true">
                 Enter
               </kbd>
+              <SearchClear inputId="f-q" />
             </div>
             {/* Enter searches. The filter boxes are text inputs too, which
                 turns off a form's implicit submit unless it has a submit

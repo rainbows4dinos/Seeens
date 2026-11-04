@@ -674,10 +674,15 @@
     color: var(--color-text-secondary);
     pointer-events: none;
   }
+  /* Figma Search Field (Field with Show Icon L, Show Key Hint, Show Clear):
+     10px side padding, 8px gaps, so text starts at 10 + 16 + 8. */
   .search-field > .field {
     width: 100%;
     padding-left: 34px;
-    padding-right: 62px;
+    padding-right: 60px;
+  }
+  .search-field:has(.search-clear) > .field:not(:placeholder-shown) {
+    padding-right: 84px;
   }
   /* The hint stands in for the browser's clear button. */
   .search-field > .field::-webkit-search-cancel-button {
@@ -688,7 +693,7 @@
   .search-hint {
     position: absolute;
     top: 50%;
-    right: 8px;
+    right: 10px;
     translate: 0 -50%;
     padding: 1px 4px;
     border: var(--stroke-hair) solid var(--color-border-subtle);
@@ -699,6 +704,28 @@
     text-transform: uppercase;
     color: var(--color-text-secondary);
     pointer-events: none;
+  }
+
+  /* With a value, the keycap moves left and the clear button takes the edge. */
+  .search-field:has(> .field:not(:placeholder-shown)) > .search-hint {
+    right: 34px;
+  }
+  .search-clear {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    color: var(--color-text-secondary);
+  }
+  .search-clear:hover {
+    color: var(--color-text-primary);
+  }
+  .search-field > .field:placeholder-shown ~ .search-clear {
+    display: none;
   }
 
   .page-measure {

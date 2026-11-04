@@ -1,6 +1,6 @@
 {
  "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
- "readAt": "2026-11-04 (re-read after hygiene fixes)",
+ "readAt": "2026-11-04 (re-read after Search Field rebuild)",
  "variables": {
   "Primitives": {
    "modes": [
@@ -415,11 +415,17 @@
    ]
   },
   "Search Field": {
-   "nodeId": "88:302",
+   "nodeId": "134:4549",
    "page": "Components",
-   "textStyles": [],
+   "textStyles": [
+    "Mono/Body"
+   ],
    "nested": [
-    "Search"
+    "Form Field",
+    "Field",
+    "Search",
+    "Keyboard Hint",
+    "Close--filled"
    ]
   },
   "Layout Toggle": {

@@ -1,8 +1,8 @@
 # Design sync ledger
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
-- Inventory read: 2026-11-04 (re-read after hygiene fixes)
-- Code baseline: ae5e9ae (2026-11-04)
+- Inventory read: 2026-11-04 (re-read after Search Field rebuild)
+- Code baseline: 06a2569 (2026-11-04)
 - Rendered 2026-11-04 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -14,16 +14,17 @@
 | Text styles | 13 | 13 | 13 | 0 |
 | Effect styles | 5 | 5 | 3 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 31 | 31 | 1 | 25 |
-| Figma hygiene | - | 6 | 0 | 1 |
+| Components | 31 | 31 | 2 | 24 |
+| Figma hygiene | - | 6 | 0 | 0 |
 
-Status totals: fixed-in-figma 6, needs-figma-fix 1, pending 25, skipped 8, synced 22
+Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
 
 ## Log
 
 - 2026-11-04: Typography sync: 2 text styles fixed (UI/Nav, Mono/Caption), 10 components' type aligned to their bound styles, --radius-none added. dslib.blocks patched to ignore an @import before :root.
 - 2026-11-04: Figma fixes Nov 4: Number0 removed, space/none added (synced), Form Field error bound to Mono/Label, Logo component added and synced to code.
 - 2026-11-04: Nov 4 hygiene: H-03, H-05, H-06 fixed in Figma and synced; H-04 still open; added Mono/Hint and Keyboard Hint
+- 2026-11-04: Search Field rebuilt in Figma (134:4549); H-04 fixed, C-25 synced with a clear button
 
 ## Rows
 
@@ -64,7 +65,7 @@ Status totals: fixed-in-figma 6, needs-figma-fix 1, pending 25, skipped 8, synce
 | C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-10 | Components | Tape | 10:41 | `.tape` | structure-drift | skipped | Synced in #114 (CSS strips stand in for the Figma shader). No text; not re-audited. |
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
-| C-12 | Components | Field | 47:170 | `.field` | structure-drift | pending | Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Layout, anatomy, and variants not re-audited in this pass. |
+| C-12 | Components | Field | 47:170 | `.field` | structure-drift | pending | Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Nov 4: Field gained Show Icon L, Show Key Hint, Show Clear booleans; code uses them only in the search field so far. Layout, anatomy, and variants not re-audited in this pass. |
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
@@ -77,7 +78,7 @@ Status totals: fixed-in-figma 6, needs-figma-fix 1, pending 25, skipped 8, synce
 | C-22 | Components | Affiliation Row | 50:217 | `src/components/links-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-23 | Components | Outreach Entry | 50:225 | `src/components/outreach-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-24 | Components | Next Action Card | 50:232 | `src/components/next-action-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-25 | Components | Search Field | 88:302 | `.search-field, .search-hint` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
+| C-25 | Components | Search Field | 134:4549 | `.search-field, .search-hint, src/components/search-clear.tsx` | structure-drift | synced | Rebuilt in Figma Nov 4 (Placeholder/Value variants). Code: 10px side padding and 8px gaps; keycap at 10px from the edge; new Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28). |
 | C-26 | Components | Layout Toggle | 88:352 | `src/components/layout-toggle.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-27 | Components | Show More | 88:354 | `src/components/directory-results.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-28 | Components | Directory Bar | 89:634 | `.directory-bar` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
@@ -86,7 +87,7 @@ Status totals: fixed-in-figma 6, needs-figma-fix 1, pending 25, skipped 8, synce
 | H-01 | Figma hygiene | Nav Chip / Logo text | 10:7 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: new Logo component (128:3618, vector wordmark) placed in Nav Chip Style=Logo. Code now uses it (C-30). |
 | H-02 | Figma hygiene | Form Field / Error text | 47:177 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: error text bound to Mono/Label. Code error text already uses that size and weight. |
 | H-03 | Figma hygiene | Outreach Entry / Date | 50:227 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: date bound to Mono/Label (Plex Medium 14/20). Code already matches (text-sm, font-medium). |
-| H-04 | Figma hygiene | Search Field / Text and ENTER hint | 88:305 | `-` | hygiene | needs-figma-fix | Nov 4: Mono/Hint and a Keyboard Hint component (133:4158) now exist, but Search Field (88:302) still has its own unstyled Text (Plex 16/24) and Enter Hint frame. Swap in a Keyboard Hint instance and bind the placeholder (Mono/Body per C-12). |
+| H-04 | Figma hygiene | Search Field / Text and ENTER hint | 134:4549 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: Search Field rebuilt (134:4549) from Form Field > Field with Show Icon L, Show Key Hint, Show Clear. Value is Mono/Body 14; hint is the Keyboard Hint component. Old 88:302 removed. |
 | H-05 | Figma hygiene | Connection Card / Print initials | 95:460 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/XL (52/52). Code .card-print-initials 64px -> 52px. |
 | H-06 | Figma hygiene | Directory Row / Thumb initials | 109:79 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%. |
 | T-13 | Text styles | Mono/Hint | text style | `src/app/globals.css .search-hint` | match | synced | New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key. |
@@ -220,7 +221,7 @@ Evidence: -
 
 - [ ] Typography: both text layers unstyled in Figma (see hygiene); depends on the Field decision
 
-Evidence: -
+Evidence: design-sync/evidence/search-field.png
 
 ### C-26 Layout Toggle
 
