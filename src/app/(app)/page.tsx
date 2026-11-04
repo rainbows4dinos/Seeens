@@ -286,7 +286,7 @@ function FilterForm({
     <AutoFilterForm
       role="search"
       aria-label="Search and filter the directory"
-      className="bar-search flex flex-col gap-3"
+      className="bar-search"
     >
       {view !== "current" ? <input type="hidden" name="view" value={view} /> : null}
       <FilterDisclosure

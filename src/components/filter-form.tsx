@@ -70,7 +70,7 @@ export function FilterDisclosure({
   const lit = open || active > 0;
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="bar-row flex items-center gap-2">
         {search}
         <button
           type="button"
@@ -95,7 +95,7 @@ export function FilterDisclosure({
         {/* Search and Filters hold the left; the layout switch sits right. */}
         {after ? <div className="ml-auto flex shrink-0">{after}</div> : null}
       </div>
-      <div id={panelId} hidden={!open}>
+      <div id={panelId} className="bar-panel" hidden={!open}>
         {children}
       </div>
     </>
