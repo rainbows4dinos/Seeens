@@ -67,3 +67,20 @@ export async function requireWorkspaceId(): Promise<string> {
   if (!membership) throw new Error("Not in a workspace.");
   return membership.workspaceId;
 }
+
+// The connection marked "This is us" in the current workspace, if there is
+// one. The header's band chip opens it (#123). Archived still counts.
+export const getUsConnectionId = cache(async (): Promise<string | null> => {
+  const membership = await getMembership();
+  if (!membership) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("connections")
+    .select("id")
+    .eq("workspace_id", membership.workspaceId)
+    .eq("is_us", true)
+    .limit(1)
+    .maybeSingle();
+  if (error) return null;
+  return data?.id ?? null;
+});

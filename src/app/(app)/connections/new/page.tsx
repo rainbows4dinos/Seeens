@@ -9,26 +9,29 @@ import { listSceneOptions } from "@/lib/scenes/queries";
 
 export const metadata: Metadata = { title: "Add connection · Seeens" };
 
-export default function NewConnectionPage() {
+export default function NewConnectionPage({ searchParams }: PageProps<"/connections/new">) {
   return (
     <div className="page-measure flex flex-col gap-6">
       <h1 className="display-l sm:display-xl">Add connection</h1>
       <Suspense fallback={<p className="text-muted">Loading…</p>}>
-        <NewConnection />
+        <NewConnection searchParams={searchParams} />
       </Suspense>
     </div>
   );
 }
 
-async function NewConnection() {
-  const membership = await getMembership();
+async function NewConnection({ searchParams }: { searchParams: PageProps<"/connections/new">["searchParams"] }) {
+  const [membership, params] = await Promise.all([getMembership(), searchParams]);
   if (!membership) return <NoWorkspace />;
   const scenes = await listSceneOptions();
+  // From the header's band chip when there's no Us yet: start our own band.
+  const initial =
+    params.us === "1" ? { ...EMPTY_FORM, name: membership.workspaceName, groupType: "band", isUs: true } : EMPTY_FORM;
 
   return (
     <ConnectionForm
       action={createConnection}
-      initial={EMPTY_FORM}
+      initial={initial}
       scenes={scenes}
       submitLabel="Add Connection"
       cancelHref="/"

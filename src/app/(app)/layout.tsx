@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { getCurrentUser, getMembership } from "@/lib/auth/dal";
+import { getCurrentUser, getMembership, getUsConnectionId } from "@/lib/auth/dal";
 import { MainNav } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
 
@@ -68,6 +68,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   // The header shouldn't take the page down if the workspace can't load;
   // the page's own error state explains what happened.
   const membership = await getMembership().catch(() => null);
+  const usId = membership ? await getUsConnectionId() : null;
   const name = membership?.displayName ?? user.email ?? "you";
   const menu = layout === "menu";
 
@@ -76,7 +77,18 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
     <div className={menu ? "flex flex-col items-end gap-4" : "flex items-center gap-3"}>
       <p className="flex flex-wrap items-center justify-end gap-3 text-sm">
         <span className="text-muted break-all">{name}</span>
-        {membership ? <span className="nav-chip nav-chip-inverse">{membership.workspaceName}</span> : null}
+        {/* The band chip opens our own page, or offers to add it (#123). */}
+        {membership ? (
+          <Link
+            href={usId ? `/connections/${usId}` : "/connections/new?us=1"}
+            className="nav-chip nav-chip-inverse"
+            aria-label={
+              usId ? `${membership.workspaceName}, your band's page` : `${membership.workspaceName}: add your band's page`
+            }
+          >
+            {membership.workspaceName}
+          </Link>
+        ) : null}
       </p>
       <form action="/auth/signout" method="post" className={menu ? "w-full" : undefined}>
         <button type="submit" className={menu ? "nav-chip w-full justify-end" : "nav-chip"}>
