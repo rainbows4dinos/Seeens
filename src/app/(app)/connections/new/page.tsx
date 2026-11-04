@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { createConnection } from "@/lib/connections/actions";
-import { EMPTY_FORM } from "@/lib/connections/form";
+import { EMPTY_FORM, type ConnectionFormValues } from "@/lib/connections/form";
 import { ConnectionForm } from "@/components/connection-form";
 import { NoWorkspace } from "@/components/no-workspace";
 import { listSceneOptions } from "@/lib/scenes/queries";
+
+const PRESETS: Record<string, Partial<ConnectionFormValues>> = {
+  band: { kind: "group", groupType: "band" },
+  venue: { kind: "group", groupType: "venue" },
+  label: { kind: "group", groupType: "label" },
+  person: { kind: "person" },
+};
 
 export const metadata: Metadata = { title: "Add connection · Seeens" };
 
@@ -25,8 +32,14 @@ async function NewConnection({ searchParams }: { searchParams: PageProps<"/conne
   if (!membership) return <NoWorkspace />;
   const scenes = await listSceneOptions();
   // From the header's band chip when there's no Us yet: start our own band.
+  // From a directory tab's Add (#122): start with that type set.
+  const preset = PRESETS[String(params.type ?? "")];
   const initial =
-    params.us === "1" ? { ...EMPTY_FORM, name: membership.workspaceName, groupType: "band", isUs: true } : EMPTY_FORM;
+    params.us === "1"
+      ? { ...EMPTY_FORM, name: membership.workspaceName, groupType: "band", isUs: true }
+      : preset
+        ? { ...EMPTY_FORM, ...preset }
+        : EMPTY_FORM;
 
   return (
     <ConnectionForm

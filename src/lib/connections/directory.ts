@@ -14,20 +14,45 @@ export const PAGE_SIZE = 48;
 
 type Params = Record<string, string | string[] | undefined>;
 
-export type View = "current" | "lets_play" | "crushes" | "archived";
-const VIEW_IDS: View[] = ["current", "lets_play", "crushes", "archived"];
-// Let's play and Crushes are the directory with one status. Crush is
-// stored as `prospect` and Heard of as `neutral`; only the labels changed.
-export const VIEW_STATUS: Partial<Record<View, ConnectionStatus>> = {
-  lets_play: "lets_play",
-  crushes: "prospect",
-};
+// The directory by type (#122): one tab per kind of connection, Bands first.
+// "Labels & more" is every group that isn't a band or a venue.
+export type Tab = "bands" | "people" | "venues" | "more" | "all";
+export const TABS: { id: Tab; label: string; one: string; many: string; add: string; addType: string | null }[] = [
+  { id: "bands", label: "Bands", one: "band", many: "bands", add: "Add Band", addType: "band" },
+  { id: "people", label: "People", one: "person", many: "people", add: "Add Person", addType: "person" },
+  { id: "venues", label: "Venues", one: "venue", many: "venues", add: "Add Venue", addType: "venue" },
+  { id: "more", label: "Labels & more", one: "connection", many: "connections", add: "Add Label", addType: "label" },
+  { id: "all", label: "All", one: "connection", many: "connections", add: "Add Connection", addType: null },
+];
+export const DEFAULT_TAB: Tab = "bands";
 
-export function readView(v: string | string[] | undefined): View {
-  const raw = Array.isArray(v) ? v[0] : v;
-  // Old links from before the rename still land on the right list.
-  const value = raw === "prospects" ? "crushes" : raw;
-  return VIEW_IDS.includes(value as View) ? (value as View) : "current";
+/** The tab a connection is listed under. */
+export function tabFor(kind: ConnectionKind, groupType: GroupType | null): Tab {
+  if (kind === "person") return "people";
+  if (groupType === "band") return "bands";
+  if (groupType === "venue") return "venues";
+  return "more";
+}
+
+/** Back to the directory, on a connection's own tab (and the archived half if it's archived). */
+export function directoryHrefFor(kind: ConnectionKind, groupType: GroupType | null, archived: boolean) {
+  const p = new URLSearchParams();
+  const tab = tabFor(kind, groupType);
+  if (tab !== DEFAULT_TAB) p.set("type", tab);
+  if (archived) p.set("archived", "1");
+  const qs = p.toString();
+  return qs ? `/?${qs}` : "/";
+}
+
+export function readTab(v: string | string[] | undefined): Tab {
+  const raw = (Array.isArray(v) ? v[0] : v) ?? "";
+  if (TABS.some((t) => t.id === raw)) return raw as Tab;
+  // The old Type filter (?type=group:band, person:dj) lands on its tab.
+  if (raw.startsWith("person:")) return "people";
+  if (raw === "group:band") return "bands";
+  if (raw === "group:venue") return "venues";
+  if (raw.startsWith("group:")) return "more";
+  return DEFAULT_TAB;
 }
 
 // Where the next page starts: the last row's sort key.
@@ -70,32 +95,26 @@ export type DirectoryItem = {
 };
 
 export type GroupCounts = Record<ConnectionStatus, number>;
+export type TabCounts = Record<Tab, number>;
 
 export type DirectoryCounts = {
-  /** Everyone in this half (current or archived), any status. */
+  /** Everyone in this half (current or archived), any status, any tab. */
   view: number;
-  /** The "of Y": this half, or this list's status. */
+  /** The "of Y": this tab in this half. */
   total: number;
   /** After filters. */
   matched: number;
   groups: GroupCounts;
   hiddenAvoid: number;
+  /** Each tab's count under the other filters. */
+  types: TabCounts;
   towns: { id: string; name: string; region: string | null; region_code: string | null; country: string | null; country_code: string | null }[];
 };
 
-export type DirectoryQuery = {
-  view: View;
-  /** As asked in the URL (statuses empty in list views). */
-  asked: DirectoryFilters;
-  /** As applied: list views add their status. */
-  filters: DirectoryFilters;
-};
+export type DirectoryQuery = { tab: Tab; filters: DirectoryFilters };
 
 export function readDirectoryQuery(params: Params): DirectoryQuery {
-  const view = readView(params.view);
-  const asked = readFilters(params);
-  const status = VIEW_STATUS[view];
-  return { view, asked, filters: status ? { ...asked, statuses: [status] } : asked };
+  return { tab: readTab(params.type), filters: readFilters(params) };
 }
 
 type RpcRow = { id: string; label_mate: boolean; shares_member: boolean };
@@ -108,27 +127,24 @@ type RpcResult = {
     matched: number;
     groups: GroupCounts;
     hidden_avoid: number;
+    types: TabCounts;
     towns: DirectoryCounts["towns"];
   } | null;
 };
 
 export async function loadDirectoryPage(
-  { view, filters }: DirectoryQuery,
+  { tab, filters }: DirectoryQuery,
   { after = null, counts = true }: { after?: Cursor | null; counts?: boolean } = {},
 ) {
   const [supabase, ws, scenes] = await Promise.all([createClient(), requireWorkspaceId(), listSceneOptions()]);
-  const archived = view === "archived";
-  const [kind, value] = filters.type ? filters.type.split(":") : [];
+  const archived = filters.archived;
 
   const { data, error } = await supabase.rpc("directory_page", {
     p_workspace_id: ws,
     p_archived: archived,
     p_q: filters.q,
     p_statuses: filters.statuses,
-    p_list_status: VIEW_STATUS[view],
-    p_kind: kind as ConnectionKind | undefined,
-    p_group_type: kind === "group" ? (value as GroupType) : undefined,
-    p_person_role: kind === "person" ? (value as PersonRole) : undefined,
+    p_type: tab,
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
     p_hide_avoid: !archived,
@@ -187,6 +203,7 @@ export async function loadDirectoryPage(
           matched: c.matched,
           groups: c.groups,
           hiddenAvoid: c.hidden_avoid,
+          types: c.types,
           towns: c.towns,
         } satisfies DirectoryCounts)
       : null,

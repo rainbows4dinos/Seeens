@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(24);
+select plan(30);
 
 insert into auth.users (id, email) values
   ('d9111111-1111-1111-1111-111111111111', 'page-alex@example.com'),
@@ -86,7 +86,7 @@ select ok((select r -> 'next' from pages where k = 'p3') = 'null'::jsonb, 'the l
 select ok((select r -> 'counts' from pages where k = 'p2') = 'null'::jsonb, 'counts are skipped when not asked for');
 
 -- Counts
-select is((select r -> 'counts' from pages where k = 'all') - 'towns',
+select is((select r -> 'counts' from pages where k = 'all') - 'towns' - 'types',
   '{"view": 8, "total": 8, "matched": 7, "hidden_avoid": 1,
     "groups": {"homies": 3, "lets_play": 1, "prospect": 0, "neutral": 3, "avoid": 0}}'::jsonb,
   'view, total, matched, per-group counts, and the hidden Avoid count; Us counted nowhere');
@@ -126,6 +126,23 @@ select is(
   (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false,
     p_statuses => '{lets_play}', p_list_status => 'lets_play') -> 'counts') ->> 'total',
   '1', 'a list view totals its own status');
+
+-- Type tabs (#122)
+select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'bands')),
+  array['Ants', 'bees', 'Dogs', '100% Noise'], 'Bands tab: bands only, Avoid still hidden');
+select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'people')),
+  array['Jo Example'], 'People tab');
+select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'venues')),
+  array['Cats'], 'Venues tab');
+select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'more')),
+  array['Grey Static'], 'Labels & more tab: groups that are not bands or venues');
+select is((select r -> 'counts' -> 'types' from pages where k = 'all'),
+  '{"bands": 4, "people": 1, "venues": 1, "more": 1, "all": 7}'::jsonb, 'tab counts follow the other filters');
+select is(
+  (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'people') -> 'counts') - 'towns' - 'types',
+  '{"view": 8, "total": 1, "matched": 1, "hidden_avoid": 0,
+    "groups": {"homies": 0, "lets_play": 0, "prospect": 0, "neutral": 1, "avoid": 0}}'::jsonb,
+  'a tab counts only its own rows (the empty workspace check still sees everyone)');
 
 -- Archived half
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', true, p_hide_avoid => false)),

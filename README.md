@@ -8,7 +8,7 @@ Seeens is in closed alpha at [www.seeens.com](https://www.seeens.com). Merwulf i
 
 Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
-![The Seeens directory, grouped by status](docs/screenshots/directory.png)
+![The Seeens directory: type tabs, then bands grouped by status](docs/screenshots/directory.png)
 
 ## Screenshots
 
@@ -20,8 +20,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | --- | --- |
 | ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png) | ![A band's page with status, next action, outreach log, and connections](docs/screenshots/connection.png) |
 | **Sign in.** Invite-only. | **A connection.** Where things stand, the next step, what's happened, and who's connected. |
-| ![The Let's play list](docs/screenshots/lets-play.png) | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png) |
-| **Let's play.** The booking backlog, filterable by town or scene. | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest. |
+| ![Everyone marked Let's play](docs/screenshots/lets-play.png) | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png) |
+| **Let's play.** The booking backlog: All, filtered to Let's play, and by town or scene if you like. | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest. |
 | ![Follow-ups grouped by date](docs/screenshots/follow-ups.png) | ![The directory on a phone](docs/screenshots/mobile-directory.png) |
 | **Follow-ups.** Every next step, with dates as plain facts and no overdue alarms. | **On a phone.** The same app, built for the merch table. |
 
@@ -31,13 +31,13 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Scenes:** organize connections by locality and scene, with multiple memberships when useful.
 - **Status:** one band-wide choice per connection: Homies, Let's play, Crush, Heard of, or Avoid, plus whether you've played together.
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
-- **Crushes:** mark connections you'd like to know as Crush and work through them in the Crushes view. The booking backlog gets its own Let's play view.
+- **By type:** the directory has a tab for Bands, People, Venues, and Labels & more, plus All, each with its count. Status is a filter: everyone but Avoid, or one status, like Crush (who you'd like to know) or Let's play (the booking backlog).
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
 - **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV.
 
-Search by name and filter by scene (a bigger scene includes the scenes inside it), town, connection type, and status. Crushes are picked by hand; automated discovery is deferred.
+Search by name and filter by status, scene (a bigger scene includes the scenes inside it), and town, or look at the archived ones. Crushes are picked by hand; automated discovery is deferred.
 
 ## Architecture
 
@@ -87,7 +87,7 @@ Priorities live on the issues (`priority: now`, `next`, `later`); this is the or
 The MVP launched on November 1, 2026. What it does:
 
 - Email/password sign-in, with access limited to workspace members.
-- Directory: add, edit, view, and archive connections; Current, Let's play, Crushes, and Archived views; search and filters.
+- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, and archived filters.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
 - Status and "we've played together," saved as soon as you change them.
 - Affiliations between connections (members, labels, related bands, venues).

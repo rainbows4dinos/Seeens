@@ -580,11 +580,11 @@
     }
   }
 
-  /* Directory controls: views, layout, Add, search, and filters in one bar,
+  /* Directory controls: type tabs, layout, Add, search, and filters in one bar,
      pinned to the top of the window while the list scrolls. It runs edge to
      edge (back out through the gutter) on solid ground so rows slide under
      it, with a hairline underneath once it pins. Phones pin only the
-     search row (and the filters, when open); the views scroll away. */
+     search row (and the filters, when open); the type tabs scroll away. */
   .directory-bar,
   .bar-search {
     --bar-pad: 12px;
@@ -625,9 +625,9 @@
   }
   /* Ground and a bottom rule only while pinned (PinWatch sets data-pinned);
      at rest the bar sits on the dot grid like the rest of the page. */
-  /* Tablet up to 1280: views and Add on top, search and filters under them.
-     From 1280: one row, views | search, Filters ... List/Cards | Add, with the
-     filter fields opening under it, full width. */
+  /* Figma Directory Bar (#122). Type tabs and Add on top; search, Filters
+     and Cards/List under them, with the filter fields opening below. From
+     1280 the filter fields sit in the search row and Filters goes away. */
   .bar-views {
     grid-area: 1 / 1;
   }
@@ -640,22 +640,68 @@
   }
   @media (width >= 80rem) {
     .directory-bar {
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto auto 1fr auto;
+      align-items: center;
+    }
+    .bar-views {
+      grid-area: 1 / 1 / 2 / 4;
+      justify-self: start;
     }
     .bar-add {
-      grid-area: 1 / 3;
+      grid-area: 1 / 4;
     }
-    /* The search form steps aside so its two parts can sit in the bar's
-       grid: the search row in the middle of the top row, and the filter
-       fields across the full width under it (narrower, they wrapped). */
-    .directory-bar > .bar-search {
+    /* The search form and its row step aside so their parts sit in the
+       bar's grid: search, the filter fields, then Cards/List on the right. */
+    .directory-bar > .bar-search,
+    .directory-bar .bar-row {
       display: contents;
     }
-    .directory-bar .bar-row {
-      grid-area: 1 / 2;
+    .directory-bar .search-field {
+      grid-area: 2 / 1;
+      width: 20rem;
     }
-    .directory-bar .bar-panel {
-      grid-area: 2 / 1 / 3 / -1;
+    .directory-bar .bar-filters {
+      display: none;
+    }
+    .directory-bar .bar-panel,
+    .directory-bar .bar-panel-closed {
+      display: block;
+      grid-area: 2 / 2;
+    }
+    .directory-bar .bar-after {
+      grid-area: 2 / 4;
+    }
+  }
+  /* Search, Filters, and Cards/List. Its layout lives here, not in utility
+     classes, so the 1280 rule above can turn it into display: contents. */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bar-panel-closed {
+    display: none;
+  }
+  /* The filter fields: one to a row on phones (Figma), four from tablet, and in the
+     search row from 1280 (status 220px, scene and town 160px). */
+  .filter-fields {
+    display: grid;
+    gap: 12px;
+    @media (width >= 40rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (width >= 48rem) {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    }
+    @media (width >= 80rem) {
+      display: flex;
+      align-items: center;
+      & > .filter-status {
+        width: 13.75rem;
+      }
+      & > :not(.filter-status, .choice, .sr-only) {
+        width: 10rem;
+      }
     }
   }
   :is(.directory-bar, .bar-search)[data-pinned] {
@@ -782,9 +828,71 @@
   .segmented > *:hover {
     background: var(--color-bg-hover);
   }
-  .segmented > [aria-current="page"] {
+  .segmented > [aria-current="page"],
+  .segmented > .type-more[open] {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
+  }
+  /* Type tabs (#122). Phones show three and put the rest behind ⋮ (Figma
+     Segment, Icon Only), a menu of links with their counts. */
+  .type-tabs > a {
+    gap: 1ch;
+  }
+  /* Under 360px "Labels & more" says "Labels", so four tabs still fit. */
+  .tab-long {
+    @media (width < 22.5rem) {
+      display: none;
+    }
+  }
+  .type-more {
+    position: relative;
+    padding: 0;
+    @media (width >= 40rem) {
+      display: none;
+    }
+  }
+  .type-tab-overflow {
+    @media (width < 40rem) {
+      display: none;
+    }
+  }
+  .type-more > summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    min-height: inherit;
+    height: 100%;
+    list-style: none;
+    cursor: pointer;
+  }
+  .type-more > summary::-webkit-details-marker {
+    display: none;
+  }
+  .type-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: -1px;
+    z-index: 20;
+    min-width: 12.5rem;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-hard);
+  }
+  .type-menu li + li {
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .type-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--control-height);
+    /* 1px border + 11 = 12 (space/md), like a Field. */
+    padding: 0 11px;
+  }
+  .type-menu a:hover {
+    background: var(--color-bg-hover);
   }
   /* Tone=Secondary: a quieter selected state for settings that sit beside
      the main choice (List/Cards next to the views). Paper stays paper; the

@@ -7,7 +7,8 @@ import { useEffect, useId, useRef, useState } from "react";
 
 // The directory's search and filter form. A plain GET form (the URL stays
 // shareable), navigated client-side by next/form. Menus apply as soon as
-// they change; the name search still waits for Enter or the button.
+// they change, and so does the Archived checkbox; the name search still waits
+// for Enter or the button.
 export function AutoFilterForm({
   children,
   ...props
@@ -27,6 +28,9 @@ export function AutoFilterForm({
       const want = now.get(el.name) ?? "";
       if (el.value !== want) el.value = want;
     });
+    form.querySelectorAll<HTMLInputElement>("input[type=checkbox][name]").forEach((el) => {
+      el.checked = now.getAll(el.name).includes(el.value);
+    });
   }, [query]);
 
   return (
@@ -36,7 +40,10 @@ export function AutoFilterForm({
       action="/"
       scroll={false}
       onChange={(e) => {
-        if (e.target instanceof HTMLSelectElement) e.currentTarget.requestSubmit();
+        const t = e.target;
+        if (t instanceof HTMLSelectElement || (t instanceof HTMLInputElement && t.type === "checkbox")) {
+          e.currentTarget.requestSubmit();
+        }
       }}
     >
       {children}
@@ -59,7 +66,7 @@ export function FilterDisclosure({
   /** How many filters are set, shown on the button while the fields are hidden. */
   active: number;
   search: React.ReactNode;
-  /** Controls pinned to the right end of the row (the List/Cards toggle). */
+  /** Controls pinned to the right end of the row (Cards/List, and Add on phones). */
   after?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -70,11 +77,11 @@ export function FilterDisclosure({
   const lit = open || active > 0;
   return (
     <>
-      <div className="bar-row flex items-center gap-2">
+      <div className="bar-row">
         {search}
         <button
           type="button"
-          className={`${lit ? "button-primary" : "button-secondary"} shrink-0 ${
+          className={`bar-filters ${lit ? "button-primary" : "button-secondary"} shrink-0 ${
             // Icon-only on phones until a filter is set; then the count shows too.
             active ? "max-sm:px-2" : "button-icon-phone"
           }`}
@@ -93,9 +100,11 @@ export function FilterDisclosure({
           ) : null}
         </button>
         {/* Search and Filters hold the left; the layout switch sits right. */}
-        {after ? <div className="ml-auto flex shrink-0">{after}</div> : null}
+        {after ? <div className="bar-after ml-auto flex shrink-0 gap-2">{after}</div> : null}
       </div>
-      <div id={panelId} className="bar-panel" hidden={!open}>
+      {/* Closed: a class, not `hidden`, so the bar can always show the
+          fields from 1280 (Tailwind makes [hidden] !important). */}
+      <div id={panelId} className={open ? "bar-panel" : "bar-panel bar-panel-closed"}>
         {children}
       </div>
     </>
