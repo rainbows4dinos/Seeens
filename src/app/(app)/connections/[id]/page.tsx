@@ -7,6 +7,7 @@ import { NextActionPanel } from "@/components/next-action-panel";
 import { OutreachPanel } from "@/components/outreach-panel";
 import { DateLines } from "@/components/date-line";
 import { getConnection } from "@/lib/connections/queries";
+import { directoryHrefFor } from "@/lib/connections/directory";
 import {
   STATUS_LABELS,
   formatDate,
@@ -51,7 +52,7 @@ async function Connection({
 
   return (
     <article className="page-measure flex flex-col gap-8">
-      <Link href={archived ? "/?view=archived" : "/"} className="link text-sm text-muted">
+      <Link href={directoryHrefFor(c.kind, c.group_type, archived)} className="link text-sm text-muted">
         Back to directory
       </Link>
 

@@ -72,8 +72,8 @@ try {
   await page.goto(`${BASE_URL}/`);
   await shot(page, "directory.png");
 
-  await page.goto(`${BASE_URL}/?view=lets_play`);
-  await page.getByRole("button", { name: "Filters" }).click();
+  // From 1280 the filter fields sit in the bar, so there's nothing to open.
+  await page.goto(`${BASE_URL}/?type=all&status=lets_play`);
   await shot(page, "lets-play.png");
 
   await page.goto(`${BASE_URL}/`);
