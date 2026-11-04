@@ -37,3 +37,6 @@ next-env.d.ts
 .pnp
 .pnp.*
 npm-debug.log*
+
+# Python (design-sync scripts)
+__pycache__/

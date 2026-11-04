@@ -302,9 +302,16 @@
     border-radius: 0;
     background: var(--color-bg-surface);
     padding: 0.3125rem 0.625rem;
-    line-height: 1.5;
+    /* Mono/Body, like Figma's Field. */
     font-family: var(--type-mono);
-    font-size: 1rem; /* 16px avoids iOS zoom on focus */
+    font-size: 14px;
+    line-height: 20px;
+    /* Touch screens: 16px, or iOS zooms the page when a field is focused.
+       Fields only; buttons and other controls never trigger the zoom. */
+    @media (pointer: coarse) {
+      font-size: 16px;
+      line-height: 24px;
+    }
   }
   .field[aria-invalid="true"] {
     border-color: var(--color-border-error);
