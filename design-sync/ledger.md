@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-04, code 494e347
-- Code baseline: 494e347 (2026-11-04)
+- Code baseline: 3ebbc3f (2026-11-04)
 - Rendered 2026-11-04 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -17,7 +17,7 @@
 | Components | 29 | 29 | 0 | 24 |
 | Figma hygiene | - | 6 | 0 | 6 |
 
-Status totals: needs-decision 1, needs-figma-fix 7, pending 23, skipped 8, synced 19
+Status totals: needs-figma-fix 7, pending 24, skipped 8, synced 19
 
 ## Log
 
@@ -61,7 +61,7 @@ Status totals: needs-decision 1, needs-figma-fix 7, pending 23, skipped 8, synce
 | C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-10 | Components | Tape | 10:41 | `.tape` | structure-drift | skipped | Synced in #114 (CSS strips stand in for the Figma shader). No text; not re-audited. |
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
-| C-12 | Components | Field | 47:170 | `.field` | structure-drift | needs-decision | Figma Field text is Mono/Body (14px); code uses 16px so iOS doesn't zoom on focus (accessibility, code-owned). Options: keep 16px everywhere, or 14px on fine pointers and 16px on touch. |
+| C-12 | Components | Field | 47:170 | `.field` | structure-drift | pending | Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Layout, anatomy, and variants not re-audited in this pass. |
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
@@ -134,6 +134,12 @@ Evidence: -
 ### C-09 Connection Card
 
 - [x] Typography: caption via .caption (now 12px), name via display-m. Print initials are decorative, unstyled in Figma.
+
+Evidence: -
+
+### C-12 Field
+
+- [x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)
 
 Evidence: -
 

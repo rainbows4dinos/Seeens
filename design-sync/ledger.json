@@ -371,8 +371,11 @@
   "fref": "47:170",
   "cref": ".field",
   "cls": "structure-drift",
-  "status": "needs-decision",
-  "notes": "Figma Field text is Mono/Body (14px); code uses 16px so iOS doesn't zoom on focus (accessibility, code-owned). Options: keep 16px everywhere, or 14px on fine pointers and 16px on touch."
+  "status": "pending",
+  "notes": "Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Fields only. Layout, anatomy, and variants not re-audited in this pass.",
+  "checklist": [
+   "[x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)"
+  ]
  },
  {
   "id": "C-13",
