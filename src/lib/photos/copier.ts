@@ -132,8 +132,8 @@ export function copy(source: HTMLCanvasElement, target: HTMLCanvasElement, s: Co
   gl.uniform2f(u.res, source.width, source.height);
   gl.uniform1f(u.contrast, s.contrast);
   gl.uniform1f(u.toner, s.grit);
-  // The lab's 4px offset at 600px wide, kept in proportion.
-  gl.uniform1f(u.mis, Math.round((4 * Math.max(source.width, source.height)) / 600));
+  // Offset is set on a 600px-wide copy; keep it in proportion.
+  gl.uniform1f(u.mis, Math.round((s.offset * Math.max(source.width, source.height)) / 600));
   gl.uniform1f(u.seed, s.seed % 1000);
   gl.uniform1f(u.plateOn, s.plate === "none" ? 0 : 1);
   gl.uniform3fv(u.plate, PLATE_RGB[s.plate]);

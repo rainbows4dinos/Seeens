@@ -856,6 +856,30 @@
     object-fit: cover;
   }
 
+  /* List row thumbnail: a 48px print beside the name. */
+  .row-thumb {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+  }
+  .row-thumb > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .row-thumb-initials {
+    font-family: var(--type-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.04em;
+    color: var(--color-border-subtle);
+  }
+
   /* Connection header photo (Figma Connection view): a small square print
      that opens the copier. */
   .photo-thumb {
@@ -1122,6 +1146,8 @@
     font-weight: 600;
   }
   .date-line-label {
+    /* Contains its sr-only text, so a clipped label can't widen the page. */
+    position: relative;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;

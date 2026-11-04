@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { offline } from "@/lib/offline";
 import { COPY_MAX, ORIGINAL_MAX, copy, encode, hasWebGL, loadImage, resize } from "@/lib/photos/copier";
 import { discardUpload, removePhoto, savePhoto } from "@/lib/photos/actions";
-import { CONTRAST, GRIT, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
+import { CONTRAST, GRIT, OFFSET, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
 
 // Add or change a connection's photo (#37). Pick or drop a photo (phones get
 // the camera or library), tune the copier, and save. The copier runs here;
@@ -149,6 +149,7 @@ function CopierBody({
     saved.contrast !== settings.contrast ||
     saved.grit !== settings.grit ||
     saved.plate !== settings.plate ||
+    saved.offset !== settings.offset ||
     saved.seed !== settings.seed;
 
   function save() {
@@ -329,6 +330,30 @@ function CopierBody({
               ))}
             </div>
           </fieldset>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between">
+              <label htmlFor={`${ids}-offset`} className="label">
+                Plate offset
+              </label>
+              <output htmlFor={`${ids}-offset`} className="label tabular-nums">
+                {settings.offset} px
+              </output>
+            </div>
+            <input
+              id={`${ids}-offset`}
+              type="range"
+              className="range"
+              {...OFFSET}
+              value={settings.offset}
+              disabled={!source || settings.plate === "none"}
+              aria-describedby={`${ids}-offset-hint`}
+              onChange={(e) => set("offset", Number(e.target.value))}
+            />
+            <p id={`${ids}-offset-hint`} className="text-sm text-muted">
+              How far the ink plate slips. At 0 it hides under the black.
+            </p>
+          </div>
 
           <label className="flex items-center gap-2 text-sm">
             <input

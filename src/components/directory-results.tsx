@@ -8,7 +8,7 @@ import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
 import { STATUSES, STATUS_LABELS, formatLocality, formatType } from "@/lib/connections/labels";
-import { catalogNo } from "@/lib/connections/card";
+import { catalogNo, initials } from "@/lib/connections/card";
 
 // The directory's rows or cards, grouped by status, a page at a time.
 // "Show More" fetches the next page and appends it in place; a group that
@@ -132,6 +132,17 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
               href={`/connections/${c.id}`}
               className="flex flex-col gap-1 px-3 py-3 row-link sm:flex-row sm:items-start sm:justify-between sm:gap-4"
             >
+              <span className="flex min-w-0 items-start gap-3">
+              {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
+              <span className="row-thumb" aria-hidden="true">
+                {c.photo_url ? (
+                  // Signed storage links change on every load, so next/image's cache wouldn't help.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
+                ) : (
+                  <span className="row-thumb-initials">{initials(c.name)}</span>
+                )}
+              </span>
               <span className="flex min-w-0 flex-col gap-2">
                 {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
                 <span className="flex flex-col-reverse gap-1">
@@ -143,6 +154,7 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                   </span>
                 </span>
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
+              </span>
               </span>
               <span className="flex flex-wrap items-center gap-2 sm:justify-end">
                 {place ? <span className="text-sm text-muted">{place}</span> : null}
