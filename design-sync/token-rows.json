@@ -1,0 +1,408 @@
+[
+ {
+  "collection": "Primitives",
+  "name": "ink/900",
+  "css": "--ink-900",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "ink/600",
+  "css": "--ink-600",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "paper/50",
+  "css": "--paper-50",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "paper/photo",
+  "css": "--paper-photo",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "ground/200",
+  "css": "--ground-200",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "ground/300",
+  "css": "--ground-300",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "ground/dot",
+  "css": "--ground-dot",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "plate/cyan",
+  "css": "--plate-cyan",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "plate/magenta",
+  "css": "--plate-magenta",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "plate/yellow",
+  "css": "--plate-yellow",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "stock/pink",
+  "css": "--stock-pink",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "stock/mint",
+  "css": "--stock-mint",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "stock/lilac",
+  "css": "--stock-lilac",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "stock/butter",
+  "css": "--stock-butter",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Primitives",
+  "name": "red/error",
+  "css": "--red-error",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/bg/ground",
+  "css": "--color-bg-ground",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/bg/surface",
+  "css": "--color-bg-surface",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/bg/photo-paper",
+  "css": "--color-bg-photo-paper",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/bg/inverse",
+  "css": "--color-bg-inverse",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/text/primary",
+  "css": "--color-text-primary",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/text/secondary",
+  "css": "--color-text-secondary",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/text/inverse",
+  "css": "--color-text-inverse",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/border/strong",
+  "css": "--color-border-strong",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/border/subtle",
+  "css": "--color-border-subtle",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/pattern/dot",
+  "css": "--color-pattern-dot",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/plate/cyan",
+  "css": "--color-plate-cyan",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/plate/magenta",
+  "css": "--color-plate-magenta",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/plate/yellow",
+  "css": "--color-plate-yellow",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/status/homie",
+  "css": "--color-status-homie",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/status/prospect",
+  "css": "--color-status-prospect",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/stock/pink",
+  "css": "--color-stock-pink",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/stock/mint",
+  "css": "--color-stock-mint",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/stock/lilac",
+  "css": "--color-stock-lilac",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/stock/butter",
+  "css": "--color-stock-butter",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/status/lets-play",
+  "css": "--color-status-lets-play",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/status/avoid",
+  "css": "--color-status-avoid",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/text/error",
+  "css": "--color-text-error",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/border/error",
+  "css": "--color-border-error",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/focus/outline",
+  "css": "--color-focus-outline",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/focus/glow",
+  "css": "--color-focus-glow",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/accent/primary",
+  "css": "--color-accent-primary",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/bg/hover",
+  "css": "--color-bg-hover",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "Number0",
+  "css": "--number0",
+  "cls": "missing-in-code",
+  "detail": "Paper: missing (Figma @--space-2xs)"
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/2xs",
+  "css": "--space-2xs",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/xs",
+  "css": "--space-xs",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/sm",
+  "css": "--space-sm",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/md",
+  "css": "--space-md",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/lg",
+  "css": "--space-lg",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/xl",
+  "css": "--space-xl",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/2xl",
+  "css": "--space-2xl",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "space/section",
+  "css": "--space-section",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "stroke/hair",
+  "css": "--stroke-hair",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "stroke/strong",
+  "css": "--stroke-strong",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "radius/none",
+  "css": "--radius-none",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Spacing",
+  "name": "size/control-height",
+  "css": "--control-height",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Style Stacks",
+  "name": "Dot Grid BG",
+  "css": "--dot-grid-bg",
+  "cls": "missing-in-code",
+  "detail": "Mode 1: missing (Figma (string: plugin style stack))"
+ },
+ {
+  "collection": "Style Stacks",
+  "name": "Display Title",
+  "css": "--display-title",
+  "cls": "missing-in-code",
+  "detail": "Mode 1: missing (Figma (string: plugin style stack))"
+ },
+ {
+  "collection": "Style Stacks",
+  "name": "Window",
+  "css": "--window",
+  "cls": "missing-in-code",
+  "detail": "Mode 1: missing (Figma (string: plugin style stack))"
+ }
+]

@@ -161,7 +161,7 @@ function LinkItem({ row }: { row: LinkRow }) {
           <Link href={`/connections/${row.otherId}`} className="link font-medium">
             {row.otherName}
           </Link>{" "}
-          <span className="caption whitespace-nowrap">{row.otherCatalog}</span>
+          <span className="text-xs text-muted whitespace-nowrap">{row.otherCatalog}</span>
           {row.role ? <span> · {row.role}</span> : null}
           {!row.isCurrent ? <span className="text-muted"> (former)</span> : null}
           {row.otherArchived ? <span className="text-muted"> (archived)</span> : null}

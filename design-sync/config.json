@@ -1,0 +1,98 @@
+{
+  "figma": {
+    "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
+    "fileName": "Seeens",
+    "libraryPages": {
+      "components": "9:2",
+      "foundations": "0:1"
+    }
+  },
+  "code": {
+    "tokens": [
+      "src/app/globals.css"
+    ],
+    "components": "src/components (React) with their styles as classes in src/app/globals.css @layer components",
+    "framework": "Next.js 16, React 19, Tailwind v4",
+    "preview": "Local dev server (npm run dev) with seed data; README screenshots via a Playwright script"
+  },
+  "conventions": {
+    "tokenNaming": "Figma path with / -> - and a -- prefix: color/bg/ground -> --color-bg-ground, ink/900 -> --ink-900",
+    "units": "px",
+    "typography": "Display/* -> @utility display-*; Mono/Label -> .label; Mono/Caption -> .caption; Hand/Note -> .hand; Mono/Body -> body; Mono/Small -> .date-line and others; component classes otherwise set font properties directly",
+    "modes": "One mode (Paper) in :root"
+  },
+  "tokens": {
+    "prefix": "--",
+    "rules": [
+      {
+        "figma": "^size/control-height$",
+        "css": "--control-height"
+      }
+    ],
+    "base": [
+      ":root"
+    ],
+    "modes": {
+      "Paper": [
+        ":root"
+      ]
+    },
+    "defaultMode": "Paper",
+    "ignoreCodeOnly": [
+      "^--type-",
+      "^--shadow-",
+      "^--misregister-",
+      "^--menu-motion",
+      "^--color-status-avoid$",
+      "^--color-(background|surface|inverse|foreground|muted|line|strong|error|cyan|magenta|yellow|accent)$",
+      "^--font-",
+      "^--radius-",
+      "^--gutter",
+      "^--bar-pad",
+      "^--tape-color",
+      "^--card-tilt"
+    ]
+  },
+  "textStyles": {
+    "token": "--type-{slug}-{prop}",
+    "props": {
+      "family": "family",
+      "size": "size",
+      "lineHeight": "line-height",
+      "weight": "weight"
+    },
+    "classes": {
+      "Display/XXL": "@utility display-xxl",
+      "Display/XL": "@utility display-xl",
+      "Display/L": "@utility display-l",
+      "Display/M": "@utility display-m",
+      "Display/S": "@utility display-s",
+      "UI/Nav": ".nav-chip",
+      "Mono/Body": "body",
+      "Mono/Small": ".date-line + .date-line-past",
+      "Mono/Small Strong": ".date-line + .date-line-future",
+      "Mono/Label": ".label",
+      "Mono/Caption": ".caption",
+      "Hand/Note": ".hand"
+    }
+  },
+  "fonts": {
+    "entryPages": [],
+    "fontFaceCss": [],
+    "system": [],
+    "loaded": {
+      "note": "Fontsource imports in src/app/layout.tsx",
+      "Hanken Grotesk": "variable (100-900)",
+      "IBM Plex Mono": [
+        400,
+        500,
+        600
+      ],
+      "Reenie Beanie": [
+        400
+      ]
+    }
+  },
+  "batchSize": 3,
+  "mirror": false
+}

@@ -1,0 +1,6 @@
+[
+ {
+  "date": "2026-11-04",
+  "entry": "Typography sync: 2 text styles fixed (UI/Nav, Mono/Caption), 10 components' type aligned to their bound styles, --radius-none added. dslib.blocks patched to ignore an @import before :root."
+ }
+]

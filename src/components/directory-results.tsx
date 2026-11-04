@@ -157,7 +157,7 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
               <span className="flex min-w-0 flex-col gap-2">
                 {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
                 <span className="flex flex-col-reverse gap-1">
-                  <span className="font-display text-xl leading-6 font-semibold tracking-[-0.03em] break-words">
+                  <span className="display-s break-words">
                     {c.name}
                   </span>
                   <span className="caption">

@@ -182,7 +182,7 @@ async function Connection({
                   {m.name}
                 </Link>
                 {m.is_us ? <span className="text-muted"> (us)</span> : null}
-                {m.catalog ? <span className="caption whitespace-nowrap"> {m.catalog}</span> : null}
+                {m.catalog ? <span className="text-xs text-muted whitespace-nowrap"> {m.catalog}</span> : null}
               </li>
             ))}
           </ul>
