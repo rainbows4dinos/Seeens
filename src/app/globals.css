@@ -847,6 +847,248 @@
     right: -10px;
   }
 
+  /* A stored photo fills the print; the copier already gave it its look. */
+  .card-print > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* List row thumbnail: a 48px print beside the name. */
+  .row-thumb {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+  }
+  .row-thumb > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .row-thumb-initials {
+    font-family: var(--type-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.04em;
+    color: var(--color-border-subtle);
+  }
+
+  /* Connection header photo (Figma Connection view): a small square print
+     that opens the copier. */
+  .photo-thumb {
+    position: relative;
+    flex-shrink: 0;
+    width: 112px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+    cursor: pointer;
+  }
+  @media (max-width: 640px) {
+    .photo-thumb {
+      width: 80px;
+    }
+  }
+  .photo-thumb > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .photo-thumb-empty {
+    display: grid;
+    place-items: center;
+    height: 100%;
+  }
+  .photo-thumb-empty .card-print-initials {
+    font-size: 40px;
+  }
+  .photo-thumb-add {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 2px 0;
+    font-family: var(--type-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
+  .photo-thumb:hover .photo-thumb-add {
+    background: var(--plate-yellow);
+    color: var(--ink-900);
+  }
+
+  /* Dialog: a window over a dimmed page. */
+  .dialog {
+    width: min(56rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    margin: auto;
+    border: 0;
+    overflow: auto;
+    color: inherit;
+  }
+  .dialog::backdrop {
+    background: rgb(20 20 20 / 0.45);
+  }
+  .dialog-title {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 4px 4px 4px 12px;
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    font-family: var(--type-mono);
+    font-size: 13px;
+  }
+  .dialog-title h2 {
+    min-width: 0;
+    font: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dialog-close {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .dialog-close:hover {
+    background: var(--plate-yellow);
+    color: var(--ink-900);
+  }
+  .dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: var(--space-md);
+    border-top: var(--stroke-hair) solid var(--color-border-strong);
+  }
+
+  /* The copier: preview on the left, controls on the right; stacked on phones. */
+  .copier {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+  .copier-stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    min-width: 0;
+    padding: var(--space-md);
+    border-right: var(--stroke-hair) solid var(--color-border-strong);
+  }
+  .copier-stage[data-dragging] {
+    background: var(--color-bg-hover);
+  }
+  .copier-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 60dvh;
+    object-fit: contain;
+    border: var(--stroke-hair) solid var(--color-border-subtle);
+    background: var(--color-bg-photo-paper);
+  }
+  .copier-canvas[hidden] {
+    display: none;
+  }
+  .copier-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    aspect-ratio: 4 / 3;
+    border: var(--stroke-hair) dashed var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+  }
+  .copier-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    min-width: 0;
+    padding: var(--space-md);
+  }
+  @media (max-width: 640px) {
+    .copier {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .copier-stage {
+      border-right: 0;
+      border-bottom: var(--stroke-hair) solid var(--color-border-strong);
+    }
+  }
+  .range {
+    width: 100%;
+    min-height: 24px;
+    accent-color: var(--ink-900);
+    cursor: pointer;
+  }
+  .range:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Segmented control built from radio buttons (the copier's ink plate). */
+  .segmented-radio > label {
+    position: relative;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .segmented-radio input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .segmented-radio > label:has(input:checked) {
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    font-weight: 600;
+  }
+  .segmented-radio > label:has(input:focus-visible) {
+    outline: 2px solid var(--color-focus-outline);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px var(--color-focus-glow);
+    z-index: 1;
+  }
+  fieldset:disabled .segmented-radio > label {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .plate-chip {
+    width: 10px;
+    height: 10px;
+    border: 1px solid currentColor;
+  }
+  .plate-cyan {
+    background: var(--plate-cyan);
+  }
+  .plate-magenta {
+    background: var(--plate-magenta);
+  }
+  .plate-yellow {
+    background: var(--plate-yellow);
+  }
+
   .connection-card:hover .card-meta {
     background: var(--color-bg-hover);
   }
@@ -904,6 +1146,8 @@
     font-weight: 600;
   }
   .date-line-label {
+    /* Contains its sr-only text, so a clipped label can't widen the page. */
+    position: relative;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -8,7 +8,7 @@ import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
 import { STATUSES, STATUS_LABELS, formatLocality, formatType } from "@/lib/connections/labels";
-import { catalogNo } from "@/lib/connections/card";
+import { catalogNo, initials } from "@/lib/connections/card";
 
 // The directory's rows or cards, grouped by status, a page at a time.
 // "Show More" fetches the next page and appends it in place; a group that
@@ -36,6 +36,18 @@ export function DirectoryResults({
   const { layout } = useLayout();
   const [items, setItems] = useState(initialItems);
   const [next, setNext] = useState(initialNext);
+
+  // Next keeps this page's state when you navigate away and back (Activity).
+  // When the server sends a fresh first page (say, after adding a photo),
+  // take it, and keep any pages already loaded with Show More after it.
+  const [shown, setShown] = useState(initialItems);
+  if (shown !== initialItems) {
+    const extra = items.slice(shown.length);
+    const fresh = new Set(initialItems.map((c) => c.id));
+    setShown(initialItems);
+    setItems([...initialItems, ...extra.filter((c) => !fresh.has(c.id))]);
+    if (!extra.length) setNext(initialNext);
+  }
   const [pending, startTransition] = useTransition();
   const [announce, setAnnounce] = useState("");
   const [failed, setFailed] = useState(false);
@@ -132,6 +144,17 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
               href={`/connections/${c.id}`}
               className="flex flex-col gap-1 px-3 py-3 row-link sm:flex-row sm:items-start sm:justify-between sm:gap-4"
             >
+              <span className="flex min-w-0 items-start gap-3">
+              {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
+              <span className="row-thumb" aria-hidden="true">
+                {c.photo_url ? (
+                  // Signed storage links change on every load, so next/image's cache wouldn't help.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
+                ) : (
+                  <span className="row-thumb-initials">{initials(c.name)}</span>
+                )}
+              </span>
               <span className="flex min-w-0 flex-col gap-2">
                 {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
                 <span className="flex flex-col-reverse gap-1">
@@ -144,14 +167,20 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                 </span>
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>
-              <span className="flex flex-wrap items-center gap-2 sm:justify-end">
+              </span>
+              {/* Phones: town on the left, tags on the right (Figma Directory Row, Mobile). */}
+              <span className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
                 {place ? <span className="text-sm text-muted">{place}</span> : null}
-                {c.played_together ? <span className="tag">Played together</span> : null}
-                {c.tags.map((t) => (
-                  <span key={t} className="tag">
-                    {t}
+                {c.played_together || c.tags.length ? (
+                  <span className="flex flex-wrap gap-2 max-sm:ml-auto">
+                    {c.played_together ? <span className="tag">Played together</span> : null}
+                    {c.tags.map((t) => (
+                      <span key={t} className="tag">
+                        {t}
+                      </span>
+                    ))}
                   </span>
-                ))}
+                ) : null}
               </span>
             </Link>
           </li>
