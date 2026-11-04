@@ -26,7 +26,7 @@ precision mediump float;
 varying vec2 uv;
 uniform sampler2D t;
 uniform vec2 res;
-uniform float contrast, toner, mis, seed, plateOn;
+uniform float exposure, contrast, toner, mis, seed, plateOn;
 uniform vec3 plate;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+seed*13.7)*43758.5453);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
@@ -34,7 +34,7 @@ float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 float ink(vec2 q){
   vec3 c=texture2D(t,q).rgb;
   float l=dot(c,vec3(.299,.587,.114));
-  l=(l-.5)*contrast+.5;
+  l=(l+exposure-.5)*contrast+.5;                          // lighter/darker, then contrast
   l+=(vn(vec2(q.y*res.y*.035,seed))-.5)*.22;              // copier streaks
   l-=smoothstep(.62,.95,length((q-.5)*vec2(1.,.9)))*.35;  // dark copier edges
   vec2 px=floor(q*res);
@@ -90,7 +90,7 @@ function setup(): Gl | null {
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const u: Gl["u"] = {};
-    for (const n of ["t", "res", "contrast", "toner", "mis", "seed", "plateOn", "plate"]) u[n] = gl.getUniformLocation(prog, n);
+    for (const n of ["t", "res", "exposure", "contrast", "toner", "mis", "seed", "plateOn", "plate"]) u[n] = gl.getUniformLocation(prog, n);
     const tex = gl.createTexture()!;
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -117,7 +117,7 @@ export function copy(source: HTMLCanvasElement, target: HTMLCanvasElement, s: Co
   const g = setup();
   if (!g) {
     // No WebGL: a plain high-contrast grayscale, so a photo can still be added.
-    out.filter = `grayscale(1) contrast(${(s.contrast * 1.4).toFixed(2)})`;
+    out.filter = `grayscale(1) brightness(${(1 + s.exposure).toFixed(2)}) contrast(${(s.contrast * 1.4).toFixed(2)})`;
     out.drawImage(source, 0, 0);
     out.filter = "none";
     return;
@@ -130,6 +130,7 @@ export function copy(source: HTMLCanvasElement, target: HTMLCanvasElement, s: Co
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
   gl.uniform1i(u.t, 0);
   gl.uniform2f(u.res, source.width, source.height);
+  gl.uniform1f(u.exposure, s.exposure);
   gl.uniform1f(u.contrast, s.contrast);
   gl.uniform1f(u.toner, s.grit);
   // Offset is set on a 600px-wide copy; keep it in proportion.

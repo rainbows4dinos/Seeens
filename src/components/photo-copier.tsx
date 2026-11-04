@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { offline } from "@/lib/offline";
 import { COPY_MAX, ORIGINAL_MAX, copy, encode, hasWebGL, loadImage, resize } from "@/lib/photos/copier";
 import { discardUpload, removePhoto, savePhoto } from "@/lib/photos/actions";
-import { CONTRAST, GRIT, OFFSET, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
+import { CONTRAST, EXPOSURE, GRIT, OFFSET, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
 
 // Add or change a connection's photo (#37). Pick or drop a photo (phones get
 // the camera or library), tune the copier, and save. The copier runs here;
@@ -146,6 +146,7 @@ function CopierBody({
   const copyChanged =
     fileChanged ||
     !saved ||
+    saved.exposure !== settings.exposure ||
     saved.contrast !== settings.contrast ||
     saved.grit !== settings.grit ||
     saved.plate !== settings.plate ||
@@ -271,6 +272,36 @@ function CopierBody({
         </div>
 
         <div className="copier-controls">
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between">
+              <label htmlFor={`${ids}-exposure`} className="label">
+                Lighter / Darker
+              </label>
+              <output htmlFor={`${ids}-exposure`} className="label tabular-nums">
+                {settings.exposure > 0 ? "+" : ""}
+                {settings.exposure.toFixed(2)}
+              </output>
+            </div>
+            <input
+              id={`${ids}-exposure`}
+              type="range"
+              className="range"
+              {...EXPOSURE}
+              value={settings.exposure}
+              disabled={!source}
+              aria-describedby={`${ids}-exposure-hint`}
+              aria-valuetext={
+                settings.exposure === 0
+                  ? "Normal"
+                  : `${Math.abs(settings.exposure).toFixed(2)} ${settings.exposure > 0 ? "lighter" : "darker"}`
+              }
+              onChange={(e) => set("exposure", Number(e.target.value))}
+            />
+            <p id={`${ids}-exposure-hint`} className="text-sm text-muted">
+              Logos and colored artwork usually want it lighter.
+            </p>
+          </div>
+
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
               <label htmlFor={`${ids}-contrast`} className="label">

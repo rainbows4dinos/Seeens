@@ -32,7 +32,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Status:** one band-wide choice per connection: Homies, Let's play, Crush, Heard of, or Avoid, plus whether you've played together.
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
 - **Crushes:** mark connections you'd like to know as Crush and work through them in the Crushes view. The booking backlog gets its own Let's play view.
-- **Photos:** one photo per connection, run through the copier (a xerox look you tune: contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
+- **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
 - **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV.
