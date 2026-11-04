@@ -18,6 +18,9 @@ import { ArchiveControl } from "@/components/archive-control";
 import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { QuickStatus } from "@/components/quick-status";
+import { PhotoPanel } from "@/components/photo-panel";
+import { signPhotos } from "@/lib/photos/urls";
+import { defaultSettings, readSettings } from "@/lib/photos/settings";
 
 export default function ConnectionPage({ params, searchParams }: PageProps<"/connections/[id]">) {
   return (
@@ -44,6 +47,7 @@ async function Connection({
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
+  const photos = await signPhotos([c.photo_path, c.photo_original_path]);
 
   return (
     <article className="page-measure flex flex-col gap-8">
@@ -61,40 +65,54 @@ async function Connection({
         </p>
       ) : null}
 
-      <header className="flex flex-col gap-2">
-        {/* Same layout as the Directory and Scenes headers: action on the right. */}
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h1 className="min-w-0 display-l sm:display-xl break-words">{c.name}</h1>
-          <Link href={`/connections/${c.id}/edit`} className="button-primary">
-            Edit<span className="sr-only"> {c.name}</span>
-          </Link>
-        </div>
-        <p className="text-muted">
-          {[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}
-        </p>
-        {/* Where things stand in time: the latest outreach and the next plan.
-            Details are in Next action and Outreach log below. */}
-        <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
-        <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
-          {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
-          {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}
-          {sharedWithUs.length ? (
-            <span className="tag">Shares a member with us: {sharedWithUs.join(", ")}</span>
+      <header className="flex items-start gap-4">
+        <PhotoPanel
+          connectionId={c.id}
+          workspaceId={membership.workspaceId}
+          name={c.name}
+          photoUrl={c.photo_path ? (photos.get(c.photo_path) ?? null) : null}
+          originalUrl={c.photo_original_path ? (photos.get(c.photo_original_path) ?? null) : null}
+          photoPath={c.photo_path}
+          originalPath={c.photo_original_path}
+          settings={readSettings(c.photo_settings)}
+          alt={c.photo_alt}
+          defaults={defaultSettings(c.status, c.is_us)}
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          {/* Same layout as the Directory and Scenes headers: action on the right. */}
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h1 className="min-w-0 display-l sm:display-xl break-words">{c.name}</h1>
+            <Link href={`/connections/${c.id}/edit`} className="button-primary">
+              Edit<span className="sr-only"> {c.name}</span>
+            </Link>
+          </div>
+          <p className="text-muted">
+            {[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}
+          </p>
+          {/* Where things stand in time: the latest outreach and the next plan.
+              Details are in Next action and Outreach log below. */}
+          <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
+          <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
+            {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
+            {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}
+            {sharedWithUs.length ? (
+              <span className="tag">Shares a member with us: {sharedWithUs.join(", ")}</span>
+            ) : null}
+          </div>
+          {c.scenes.length ? (
+            <p className="text-sm">
+              <span className="text-muted">Scenes: </span>
+              {c.scenes.map((s, i) => (
+                <span key={s.id}>
+                  {i ? ", " : null}
+                  <Link href={`/?scene=${s.id}`} className="link">
+                    {s.name}
+                  </Link>
+                </span>
+              ))}
+            </p>
           ) : null}
         </div>
-        {c.scenes.length ? (
-          <p className="text-sm">
-            <span className="text-muted">Scenes: </span>
-            {c.scenes.map((s, i) => (
-              <span key={s.id}>
-                {i ? ", " : null}
-                <Link href={`/?scene=${s.id}`} className="link">
-                  {s.name}
-                </Link>
-              </span>
-            ))}
-          </p>
-        ) : null}
       </header>
 
       {/* Status, plans, and outreach are about other people, not us. */}

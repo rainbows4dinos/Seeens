@@ -2,6 +2,7 @@ import "server-only";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
+import { signPhotos } from "@/lib/photos/urls";
 import { readFilters, type DirectoryFilters } from "./filters";
 import type { ConnectionKind, ConnectionStatus, GroupType, PersonRole } from "./labels";
 
@@ -51,6 +52,9 @@ export type DirectoryItem = {
   is_us: boolean;
   played_together: boolean;
   catalog_no: number;
+  /** A signed link to the copied photo (#37), if there is one. */
+  photo_url: string | null;
+  photo_alt: string | null;
   localities: {
     name: string;
     region: string | null;
@@ -141,7 +145,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
+          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on )",
         )
         .eq("workspace_id", ws)
         .in("id", ids)
@@ -154,14 +158,16 @@ export async function loadDirectoryPage(
   if (detailError) throw new Error("Couldn't load the directory.");
 
   const byId = new Map((details ?? []).map((d) => [d.id, d]));
+  const photos = await signPhotos((details ?? []).map((d) => d.photo_path));
   const sceneNames = new Map(scenes.map((s) => [s.id, s.name]));
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
-    const { connection_scenes, ...rest } = d;
+    const { connection_scenes, photo_path, ...rest } = d;
     return [
       {
         ...rest,
+        photo_url: photo_path ? (photos.get(photo_path) ?? null) : null,
         tags: [r.label_mate ? "Label mate" : null, r.shares_member ? "Shares a member" : null].filter(
           (t): t is string => Boolean(t),
         ),

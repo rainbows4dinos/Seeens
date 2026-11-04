@@ -16,8 +16,8 @@ import { catalogNo, initials, seed } from "@/lib/connections/card";
 // whole card is one link.
 //
 // Kept independent of the directory layout so Boards (#49) can reuse it.
-// Until connection photos (#37) ship, the print is a paper placeholder with
-// the connection's initials. A strip of tape (#63) holds the print's top-right
+// The print is the connection's copied photo (#37), or the initials on photo
+// paper when there's none. It's decorative: the name is right below. A strip of tape (#63) holds the print's top-right
 // corner; its angle is seeded from the id so it looks the same every visit.
 
 export type CardConnection = {
@@ -30,6 +30,8 @@ export type CardConnection = {
   is_us: boolean;
   played_together: boolean;
   catalog_no: number;
+  photo_url?: string | null;
+  photo_alt?: string | null;
   localities: Parameters<typeof formatLocality>[0];
   outreach_entries: { occurred_on: string; summary: string }[];
   next_actions: { description: string; due_on: string | null }[];
@@ -63,7 +65,13 @@ export function ConnectionCard({
   return (
     <Link href={`/connections/${c.id}`} className="connection-card">
       <span className="card-print" aria-hidden="true">
-        <span className="card-print-initials">{initials(c.name)}</span>
+        {c.photo_url ? (
+          // Signed storage links change on every load, so next/image's cache wouldn't help.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
+        ) : (
+          <span className="card-print-initials">{initials(c.name)}</span>
+        )}
       </span>
       <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
       <span className="card-meta">
