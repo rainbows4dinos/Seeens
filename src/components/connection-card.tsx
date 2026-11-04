@@ -58,10 +58,10 @@ export function ConnectionCard({
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
   const nextAction = c.next_actions[0];
-  // Tape: up to 2° either way. The card itself: up to 1°, seeded apart from
+  // Tape: up to 2° either way. The card itself: up to 0.5°, seeded apart from
   // the tape so the two don't lean together.
   const tilt = (-2 + seed(c.id) * 4).toFixed(2);
-  const cardTilt = (-1 + seed(`${c.id}:card`) * 2).toFixed(2);
+  const cardTilt = (-0.5 + seed(`${c.id}:card`)).toFixed(2);
 
   return (
     <Link href={`/connections/${c.id}`} className="connection-card" style={{ rotate: `${cardTilt}deg` }}>
