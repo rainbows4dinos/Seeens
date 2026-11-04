@@ -706,8 +706,11 @@
     padding: 0.25rem 0.75rem;
     font-family: var(--type-mono);
     font-size: 13px;
-    border-right: var(--stroke-hair) solid var(--color-border-strong);
-    margin-right: -1px;
+  }
+  /* Dividers sit on the left of every segment after the first, so no
+     segment overlaps its neighbor or the outer border. */
+  .segmented > * + * {
+    border-left: var(--stroke-hair) solid var(--color-border-strong);
   }
   @media (max-width: 480px) {
     .segmented > * {
@@ -730,9 +733,17 @@
     color: var(--color-text-secondary);
   }
   .segmented-secondary > [aria-current="page"] {
+    position: relative;
     background: var(--color-bg-surface);
     color: var(--color-text-primary);
-    box-shadow: inset 0 -2px 0 var(--color-border-strong);
+  }
+  /* The underline stays inside the segment's own box, clear of the dividers. */
+  .segmented-secondary > [aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    background: var(--color-border-strong);
   }
 
   /* Tag (Figma Tag): mono caption in a box. Status colors from the plates. */
