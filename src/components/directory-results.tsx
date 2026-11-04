@@ -147,13 +147,12 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
               <span className="flex min-w-0 items-start gap-3">
               {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
               <span className="row-thumb" aria-hidden="true">
+                <span className="row-thumb-initials">{initials(c.name)}</span>
                 {c.photo_url ? (
                   // Signed storage links change on every load, so next/image's cache wouldn't help.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
-                ) : (
-                  <span className="row-thumb-initials">{initials(c.name)}</span>
-                )}
+                ) : null}
               </span>
               <span className="flex min-w-0 flex-col gap-2">
                 {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}

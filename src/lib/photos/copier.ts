@@ -71,6 +71,11 @@ function setup(): Gl | null {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl", { preserveDrawingBuffer: true, premultipliedAlpha: false });
   if (!gl) return null;
+  // Browsers drop WebGL contexts now and then (memory pressure, a background
+  // tab on a phone). A lost context draws nothing, so start a new one.
+  canvas.addEventListener("webglcontextlost", () => {
+    shared = undefined;
+  });
   const compile = (type: number, src: string) => {
     const s = gl.createShader(type)!;
     gl.shaderSource(s, src);
@@ -114,6 +119,7 @@ export function copy(source: HTMLCanvasElement, target: HTMLCanvasElement, s: Co
   target.width = source.width;
   target.height = source.height;
   const out = target.getContext("2d")!;
+  if (shared?.gl.isContextLost()) shared = undefined;
   const g = setup();
   if (!g) {
     // No WebGL: a plain high-contrast grayscale, so a photo can still be added.
@@ -140,6 +146,27 @@ export function copy(source: HTMLCanvasElement, target: HTMLCanvasElement, s: Co
   gl.uniform3fv(u.plate, PLATE_RGB[s.plate]);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   out.drawImage(canvas, 0, 0);
+}
+
+/**
+ * True when a canvas has nothing on it (fully transparent), which is what a
+ * dropped WebGL context leaves behind. Checks a small grid of pixels.
+ */
+export function isBlank(canvas: HTMLCanvasElement) {
+  if (!canvas.width || !canvas.height) return true;
+  const probe = document.createElement("canvas");
+  probe.width = 16;
+  probe.height = 16;
+  const ctx = probe.getContext("2d", { willReadFrequently: true })!;
+  ctx.drawImage(canvas, 0, 0, 16, 16);
+  const data = ctx.getImageData(0, 0, 16, 16).data;
+  for (let i = 3; i < data.length; i += 4) if (data[i] > 0) return false;
+  return true;
+}
+
+/** Forget the WebGL context so the next copy starts a fresh one. */
+export function resetCopier() {
+  shared = undefined;
 }
 
 /**

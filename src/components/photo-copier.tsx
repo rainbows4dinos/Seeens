@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { offline } from "@/lib/offline";
-import { COPY_MAX, ORIGINAL_MAX, copy, encode, hasWebGL, loadImage, resize } from "@/lib/photos/copier";
+import { COPY_MAX, ORIGINAL_MAX, copy, encode, hasWebGL, isBlank, loadImage, resetCopier, resize } from "@/lib/photos/copier";
 import { discardUpload, removePhoto, savePhoto } from "@/lib/photos/actions";
 import { CONTRAST, EXPOSURE, GRIT, OFFSET, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
 
@@ -112,7 +112,12 @@ function CopierBody({
 
   // Run the copier whenever the photo or a setting changes.
   useEffect(() => {
-    if (source && preview.current) copy(source, preview.current, settings);
+    if (!source || !preview.current) return;
+    copy(source, preview.current, settings);
+    if (isBlank(preview.current)) {
+      resetCopier();
+      copy(source, preview.current, settings);
+    }
   }, [source, settings]);
   useEffect(() => {
     const c = plain.current;
@@ -143,16 +148,6 @@ function CopierBody({
   const set = <K extends keyof CopierSettings>(key: K, value: CopierSettings[K]) =>
     setSettings((s) => ({ ...s, [key]: value }));
 
-  const copyChanged =
-    fileChanged ||
-    !saved ||
-    saved.exposure !== settings.exposure ||
-    saved.contrast !== settings.contrast ||
-    saved.grit !== settings.grit ||
-    saved.plate !== settings.plate ||
-    saved.offset !== settings.offset ||
-    saved.seed !== settings.seed;
-
   function save() {
     if (!original || !source || !preview.current) return;
     setError("");
@@ -171,20 +166,25 @@ function CopierBody({
           if (error) throw error;
           uploaded.push(nextOriginal);
         }
-        let nextPath = photoPath;
-        if (copyChanged || !photoPath) {
-          setMessage("Uploading the copy…");
-          // Make sure the canvas holds exactly what's saved.
+        // Always write a fresh copy: it's small, and saving again repairs a
+        // copy that came out wrong (say, blank from a dropped WebGL context).
+        setMessage("Uploading the copy…");
+        // Make sure the canvas holds exactly what's saved, and never save
+        // a blank copy: if the copier lost its context, start a fresh one.
+        copy(source, preview.current!, settings);
+        if (isBlank(preview.current!)) {
+          resetCopier();
           copy(source, preview.current!, settings);
-          const { blob, ext } = await encode(preview.current!, 0.9);
-          nextPath = `${folder}${id}.${ext}`;
-          const { error } = await bucket.upload(nextPath, blob, { contentType: blob.type, upsert: false });
-          if (error) throw error;
-          uploaded.push(nextPath);
         }
+        if (isBlank(preview.current!)) throw new Error("Couldn't run the copier. Try saving again.");
+        const { blob, ext } = await encode(preview.current!, 0.9);
+        const nextPath = `${folder}${id}.${ext}`;
+        const { error } = await bucket.upload(nextPath, blob, { contentType: blob.type, upsert: false });
+        if (error) throw error;
+        uploaded.push(nextPath);
         setMessage("Saving…");
         const result = await savePhoto(connectionId, {
-          path: nextPath!,
+          path: nextPath,
           originalPath: nextOriginal!,
           settings,
           alt,

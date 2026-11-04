@@ -68,13 +68,13 @@ export function ConnectionCard({
   return (
     <Link href={`/connections/${c.id}`} className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
       <span className="card-print" aria-hidden="true">
+        {/* Initials sit under the photo, so a photo that fails to load never leaves a blank print. */}
+        <span className="card-print-initials">{initials(c.name)}</span>
         {c.photo_url ? (
           // Signed storage links change on every load, so next/image's cache wouldn't help.
           // eslint-disable-next-line @next/next/no-img-element
           <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
-        ) : (
-          <span className="card-print-initials">{initials(c.name)}</span>
-        )}
+        ) : null}
       </span>
       <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
       <span className="card-meta">

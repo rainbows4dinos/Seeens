@@ -858,6 +858,7 @@
 
   /* List row thumbnail: a 48px print beside the name. */
   .row-thumb {
+    position: relative;
     display: grid;
     place-items: center;
     flex-shrink: 0;
@@ -868,6 +869,8 @@
     background: var(--color-bg-photo-paper);
   }
   .row-thumb > img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -898,6 +901,8 @@
     }
   }
   .photo-thumb > img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
