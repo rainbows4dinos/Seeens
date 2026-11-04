@@ -666,7 +666,7 @@
     .directory-bar .bar-panel,
     .directory-bar .bar-panel-closed {
       display: block;
-      grid-area: 2 / 2;
+      grid-area: 2 / 2 / 3 / 4;
     }
     .directory-bar .bar-after {
       grid-area: 2 / 4;
@@ -682,8 +682,20 @@
   .bar-panel-closed {
     display: none;
   }
+  /* A row or card's detail line (#122): members, bands, a note. Mono/Small,
+     secondary, two lines at most. */
+  .detail-line {
+    font-family: var(--type-mono);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-text-secondary);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
   /* The filter fields: one to a row on phones (Figma), four from tablet, and in the
-     search row from 1280 (status 220px, scene and town 160px). */
+     search row from 1280 (status 220px; scene and town split the rest). */
   .filter-fields {
     display: grid;
     gap: 12px;
@@ -699,8 +711,10 @@
       & > .filter-status {
         width: 13.75rem;
       }
+      /* Scene and town share what's left of the row, 160px at least. */
       & > :not(.filter-status, .choice, .sr-only) {
-        width: 10rem;
+        flex: 1 1 10rem;
+        min-width: 10rem;
       }
     }
   }

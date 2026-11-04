@@ -171,6 +171,7 @@ async function Directory({
               matched={c.matched}
               query={query}
               today={today}
+              tab={tab}
             />
           </>
         )}

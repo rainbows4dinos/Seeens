@@ -7,6 +7,7 @@ import { DateLines } from "@/components/date-line";
 import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
+import { detailFor, type Tab } from "@/lib/connections/tabs";
 import { STATUSES, STATUS_LABELS, formatLocality, formatType } from "@/lib/connections/labels";
 import { catalogNo, initials } from "@/lib/connections/card";
 
@@ -24,6 +25,7 @@ export function DirectoryResults({
   matched,
   query,
   today,
+  tab,
 }: {
   initialItems: DirectoryItem[];
   initialNext: Cursor | null;
@@ -32,6 +34,8 @@ export function DirectoryResults({
   /** The directory URL's query string, without layout or after. */
   query: string;
   today: string;
+  /** Which tab: decides the detail line and whether scenes show. */
+  tab: Tab;
 }) {
   const { layout } = useLayout();
   const [items, setItems] = useState(initialItems);
@@ -99,9 +103,9 @@ export function DirectoryResults({
             <span className={`tag ${s.tag}`}>{s.label}</span> <span className="text-muted">({s.count})</span>
           </h2>
           {layout === "list" ? (
-            <ConnectionRows connections={s.rows} today={today} />
+            <ConnectionRows connections={s.rows} today={today} tab={tab} />
           ) : (
-            <ConnectionCards connections={s.rows} today={today} />
+            <ConnectionCards connections={s.rows} today={today} tab={tab} />
           )}
         </section>
       ))}
@@ -124,11 +128,21 @@ export function DirectoryResults({
   );
 }
 
-function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; today: string }) {
+// Tags: played together, the network tags, then scenes (not on All, which
+// keeps to type, town, and latest).
+function tagsFor(c: DirectoryItem, tab: Tab) {
+  return [...new Set([c.played_together ? "Played together" : null, ...c.tags, ...(tab === "all" ? [] : c.scenes)])].filter(
+    (t): t is string => Boolean(t),
+  );
+}
+
+function ConnectionRows({ connections, today, tab }: { connections: DirectoryItem[]; today: string; tab: Tab }) {
   return (
     <ul className="panel rows flex flex-col">
       {connections.map((c) => {
         const place = formatLocality(c.localities);
+        const tags = tagsFor(c, tab);
+        const detail = detailFor(c, tab);
         return (
           <li key={c.id}>
             <Link
@@ -155,16 +169,16 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
                     {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
                   </span>
                 </span>
+                {detail ? <span className="detail-line">{detail}</span> : null}
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>
               </span>
               {/* Phones: town on the left, tags on the right (Figma Directory Row, Mobile). */}
               <span className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
                 {place ? <span className="text-sm text-muted">{place}</span> : null}
-                {c.played_together || c.tags.length ? (
-                  <span className="flex flex-wrap gap-2 max-sm:ml-auto">
-                    {c.played_together ? <span className="tag">Played together</span> : null}
-                    {c.tags.map((t) => (
+                {tags.length ? (
+                  <span className="flex flex-wrap gap-1 max-sm:ml-auto sm:justify-end">
+                    {tags.map((t) => (
                       <span key={t} className="tag">
                         {t}
                       </span>
@@ -180,18 +194,17 @@ function ConnectionRows({ connections, today }: { connections: DirectoryItem[]; 
   );
 }
 
-function ConnectionCards({ connections, today }: { connections: DirectoryItem[]; today: string }) {
+function ConnectionCards({ connections, today, tab }: { connections: DirectoryItem[]; today: string; tab: Tab }) {
   return (
     <ul className="card-grid">
       {connections.map((c) => {
-        const tags = [
-          ...new Set([c.played_together ? "Played together" : null, ...c.tags, ...c.scenes]),
-        ].filter((t): t is string => Boolean(t));
+        const tags = tagsFor(c, tab);
         return (
           <li key={c.id} className="flex">
             <ConnectionCard
               connection={c}
               today={today}
+              detail={detailFor(c, tab)}
               tags={tags.map((t) => (
                 <span key={t} className="tag">
                   {t}
