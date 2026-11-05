@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Papa from "papaparse";
+import { Upload } from "@carbon/icons-react";
 import { useId, useMemo, useState, useTransition } from "react";
 import { STATUSES, STATUS_LABELS, formatType, type ConnectionStatus } from "@/lib/connections/labels";
 import { venueLine } from "@/lib/connections/venue-details";
@@ -364,19 +365,22 @@ function FileStep({
         CSV first. You&rsquo;ll check everything before it&rsquo;s saved.
       </p>
       <div className="flex flex-col gap-2">
-        <label htmlFor={fileId} className="label">
-          CSV file
+        {/* A real button: the file input sits inside it, out of sight but focusable. */}
+        <label htmlFor={fileId} className="button-secondary file-button self-start">
+          <Upload size={16} aria-hidden="true" />
+          {sheet ? "Choose Another CSV" : "Upload CSV"}
+          <input
+            id={fileId}
+            type="file"
+            accept=".csv,text/csv"
+            className="sr-only"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onFile(f);
+              e.target.value = "";
+            }}
+          />
         </label>
-        <input
-          id={fileId}
-          type="file"
-          accept=".csv,text/csv"
-          className="text-sm"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) onFile(f);
-          }}
-        />
         {sheet ? (
           <p className="text-sm text-muted">
             {sheet.fileName}: {sheet.data.length} rows, {sheet.headers.length} columns.
