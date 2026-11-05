@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { photoUrl } from "@/lib/photos/urls";
+import { Photo } from "@/components/photo";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ConnectionCard } from "@/components/connection-card";
 import { DateLines } from "@/components/date-line";
@@ -164,8 +165,7 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
                 <span className="row-thumb-initials">{initials(c.name)}</span>
                 {c.photo_path ? (
                   // A small copy at a stable, cached address.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
+                  <Photo src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
                 ) : null}
               </span>
               <span className="flex min-w-0 flex-col gap-2">
