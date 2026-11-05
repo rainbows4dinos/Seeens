@@ -1155,6 +1155,49 @@
     color: var(--ink-900);
   }
 
+  /* Photos load in: until one arrives, a copier's light bar sweeps down the
+     print over the initials; then the photo fades in. Reduced motion gets a
+     still tint instead. */
+  :is(.card-print, .row-thumb, .photo-thumb) > img {
+    transition: opacity 240ms ease-out;
+  }
+  :is(.card-print, .row-thumb, .photo-thumb) > img[data-loading] {
+    opacity: 0;
+  }
+  :is(.card-print, .row-thumb, .photo-thumb):has(> img[data-loading])::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        color-mix(in srgb, var(--ink-900) 10%, transparent) 45%,
+        color-mix(in srgb, var(--ink-900) 16%, transparent) 50%,
+        color-mix(in srgb, var(--ink-900) 10%, transparent) 55%,
+        transparent
+      )
+      0 0 / 100% 45% no-repeat;
+    animation: copier-scan 1.2s ease-in-out infinite;
+  }
+  @keyframes copier-scan {
+    from {
+      background-position: 0 -80%;
+    }
+    to {
+      background-position: 0 180%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :is(.card-print, .row-thumb, .photo-thumb):has(> img[data-loading])::after {
+      animation: none;
+      background: color-mix(in srgb, var(--ink-900) 6%, transparent);
+    }
+    :is(.card-print, .row-thumb, .photo-thumb) > img {
+      transition: none;
+    }
+  }
+
   /* Dialog: a window over a dimmed page. */
   .dialog {
     width: min(56rem, calc(100vw - 2rem));

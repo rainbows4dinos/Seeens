@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { photoSrcSet, photoUrl } from "@/lib/photos/urls";
+import { Photo } from "@/components/photo";
 import type { ReactNode } from "react";
 import { DateLines } from "@/components/date-line";
 import {
@@ -77,8 +78,7 @@ export function ConnectionCard({
         {c.photo_path ? (
           // Served at a stable address and cached by the browser; the card takes
           // the smallest copy that's sharp at its width.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Photo
             src={photoUrl(c.photo_path, 640)!}
             srcSet={photoSrcSet(c.photo_path)}
             sizes="(min-width: 80rem) 25vw, (min-width: 48rem) 33vw, (min-width: 40rem) 50vw, 100vw"
