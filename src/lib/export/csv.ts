@@ -28,6 +28,18 @@ export const EXPORT_COLUMNS = [
   // #139: "status" is the stored value (homies, lets_play, prospect, neutral,
   // avoid), which never changes; this is the word the connection's type uses.
   "status_label",
+  // #48: venue details, as shown (blank when not sure).
+  "ages",
+  "capacity",
+  "space",
+  "pa",
+  "sound_engineer",
+  "backline",
+  "book_via",
+  "book_at",
+  "accessibility",
+  "special_terms",
+  "details_checked_on",
 ] as const;
 
 export type ExportRow = Record<(typeof EXPORT_COLUMNS)[number], string>;

@@ -1,7 +1,8 @@
 import { STATUSES, type ConnectionStatus } from "./labels";
 import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
+import { AGES, CAPACITY, type Ages, type Capacity } from "./venue-details";
 
-// Directory filters live in the URL (?q=&status=&scene=&town=&plays=&archived=1), so
+// Directory filters live in the URL (?q=&status=&scene=&town=&plays=&ages=&cap=&archived=1), so
 // a filtered view can be bookmarked or shared with a bandmate. The type tab
 // (?type=) is separate: it's where you are, not a filter (see directory.ts).
 export type DirectoryFilters = {
@@ -12,6 +13,9 @@ export type DirectoryFilters = {
   town: string;
   /** Plays (#140): people with this instrument in a band role. */
   instrument: Instrument | "";
+  /** Venue details (#48), on the Venues tab. */
+  ages: Ages | "";
+  capacity: Capacity | "";
   archived: boolean;
 };
 
@@ -31,11 +35,13 @@ export function readFilters(params: Params): DirectoryFilters {
     scene: first(params.scene),
     town: first(params.town),
     instrument: first(params.plays) in INSTRUMENTS ? (first(params.plays) as Instrument) : "",
+    ages: first(params.ages) in AGES ? (first(params.ages) as Ages) : "",
+    capacity: first(params.cap) in CAPACITY ? (first(params.cap) as Capacity) : "",
     archived: first(params.archived) === "1" || view === "archived",
   };
 }
 
 /** Filters that narrow the list: search, status, scene, town. Archived is a different half, not a narrowing. */
 export function hasFilters(f: DirectoryFilters) {
-  return Boolean(f.q || f.statuses.length || f.scene || f.town || f.instrument);
+  return Boolean(f.q || f.statuses.length || f.scene || f.town || f.instrument || f.ages || f.capacity);
 }

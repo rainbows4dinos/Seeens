@@ -1,4 +1,5 @@
 import "server-only";
+import { readVenueDetails, venueDetailsToForm } from "./venue-details";
 import { notFound } from "next/navigation";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
@@ -163,6 +164,7 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
     links: c.connection_links.length
       ? c.connection_links.map((l) => ({ label: l.label ?? "", url: l.url }))
       : EMPTY_FORM.links,
+    venue: venueDetailsToForm(readVenueDetails(c.attributes)),
     updatedAt: c.updated_at,
   };
 }

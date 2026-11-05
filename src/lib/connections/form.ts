@@ -9,6 +9,10 @@ import {
   type PersonRole,
 } from "./labels";
 import { joinLinkLabel } from "./link-types";
+import { VENUE_KEYS, venueDetailsFromForm, type VenueDetails } from "./venue-details";
+
+export type VenueKey = (typeof VENUE_KEYS)[number];
+const EMPTY_VENUE = Object.fromEntries(VENUE_KEYS.map((k) => [k, ""])) as Record<VenueKey, string>;
 
 // Raw form values, kept as strings so a failed save can repopulate the form.
 export type ConnectionFormValues = {
@@ -29,13 +33,16 @@ export type ConnectionFormValues = {
   phone: string;
   notes: string;
   links: { label: string; url: string }[];
+  /** Venue details (#48), as form strings; ignored for other types. */
+  venue: Record<VenueKey, string>;
   // Edit only: the connection's updated_at when the form was opened, so a
   // save can tell if a bandmate saved in the meantime.
   updatedAt: string;
 };
 
-export type ConnectionFormErrors = Partial<Record<keyof ConnectionFormValues | "form", string>> & {
+export type ConnectionFormErrors = Partial<Record<Exclude<keyof ConnectionFormValues, "venue"> | "form", string>> & {
   linkUrls?: Record<number, string>;
+  venue?: Partial<Record<VenueKey, string>>;
 };
 
 export type ConnectionFormState = {
@@ -63,6 +70,8 @@ export type ValidConnection = {
   phone: string | null;
   notes: string | null;
   links: { label: string | null; url: string }[];
+  /** Venue details for a venue; null for anything else, which leaves stored details alone. */
+  venue: VenueDetails | null;
 };
 
 export const EMPTY_FORM: ConnectionFormValues = {
@@ -83,6 +92,7 @@ export const EMPTY_FORM: ConnectionFormValues = {
   phone: "",
   notes: "",
   links: [{ label: "", url: "" }],
+  venue: EMPTY_VENUE,
   updatedAt: "",
 };
 
@@ -112,6 +122,7 @@ export function readForm(fd: FormData): ConnectionFormValues {
     phone: str(fd, "phone"),
     notes: str(fd, "notes"),
     links: urls.map((url, i) => ({ label: labels[i] ?? "", url })),
+    venue: Object.fromEntries(VENUE_KEYS.map((k) => [k, str(fd, `venue_${k}`)])) as Record<VenueKey, string>,
     updatedAt: str(fd, "updated_at"),
   };
 }
@@ -186,6 +197,10 @@ export function validate(values: ConnectionFormValues):
   });
   if (Object.keys(linkUrls).length) errors.linkUrls = linkUrls;
 
+  const isVenue = kind === "group" && groupType === "venue";
+  const venue = isVenue ? venueDetailsFromForm(values.venue) : null;
+  if (venue && !venue.ok) errors.venue = venue.errors;
+
   if (Object.keys(errors).length) return { ok: false, errors };
 
   return {
@@ -213,6 +228,7 @@ export function validate(values: ConnectionFormValues):
       phone: optional(values.phone),
       notes: optional(values.notes),
       links,
+      venue: venue?.ok ? venue.details : null,
     },
   };
 }

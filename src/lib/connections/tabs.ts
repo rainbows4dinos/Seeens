@@ -50,9 +50,13 @@ export function readTab(v: string | string[] | undefined): Tab {
 }
 
 /** The extra line a row or card shows on each tab (#122): who's in a band, which bands a person plays in, a label's note. Venue capacity and ages wait for #48. */
-export function detailFor(item: { members: string[]; plays: string | null; note: string | null }, tab: Tab): string | null {
+export function detailFor(
+  item: { members: string[]; plays: string | null; venue: string | null; note: string | null },
+  tab: Tab,
+): string | null {
   if (tab === "bands") return item.members.length ? `Members: ${item.members.join(", ")}` : null;
   if (tab === "people") return item.plays;
+  if (tab === "venues") return item.venue;
   if (tab === "more") return item.note;
   return null;
 }

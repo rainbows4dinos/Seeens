@@ -12,6 +12,20 @@ import {
   type ConnectionFormState,
   type ValidConnection,
 } from "./form";
+import { VENUE_KEYS } from "./venue-details";
+import type { Json } from "@/lib/supabase/database.types";
+
+// Venue details replace the keys the form owns; anything else stored (an
+// import's leftovers, another type's details) is kept (#48).
+function mergeAttributes(stored: unknown, data: ValidConnection): Json | undefined {
+  if (!data.venue) return undefined;
+  const kept = Object.fromEntries(
+    Object.entries(stored && typeof stored === "object" ? (stored as Record<string, Json>) : {}).filter(
+      ([k]) => !(VENUE_KEYS as readonly string[]).includes(k),
+    ),
+  );
+  return { ...kept, ...data.venue } as Json;
+}
 
 const SAVE_FAILED = "Couldn't save. Your changes are still here; try again.";
 
@@ -36,6 +50,7 @@ async function saveConnection(
   id: string | null,
   data: ValidConnection,
   expectedUpdatedAt?: string,
+  storedAttributes: unknown = {},
 ) {
   const supabase = await createClient();
   const locality = data.locality;
@@ -59,6 +74,7 @@ async function saveConnection(
     p_new_scenes: data.new_scenes,
     p_links: data.links,
     p_expected_updated_at: expectedUpdatedAt || undefined,
+    p_attributes: mergeAttributes(storedAttributes, data),
   });
   if (error) throw error;
   return savedId;
@@ -100,12 +116,12 @@ export async function updateConnection(
   const supabase = await createClient();
   const { data: before } = await supabase
     .from("connections")
-    .select("played_together")
+    .select("played_together, attributes")
     .eq("id", id)
     .eq("workspace_id", workspaceId)
     .maybeSingle();
   try {
-    await saveConnection(workspaceId, id, result.data, values.updatedAt);
+    await saveConnection(workspaceId, id, result.data, values.updatedAt, before?.attributes);
   } catch (error) {
     if ((error as { code?: string } | null)?.code === "PT409") {
       return conflictState(workspaceId, id, values);

@@ -10,6 +10,14 @@ import { getConnection } from "@/lib/connections/queries";
 import { directoryHrefFor } from "@/lib/connections/directory";
 import { loadPlayedOffer } from "@/lib/connections/played-together";
 import { INSTRUMENTS, playsAll } from "@/lib/affiliations/instruments";
+import {
+  bookLine,
+  gearLine,
+  isStale,
+  readVenueDetails,
+  venueLine,
+  type VenueDetails,
+} from "@/lib/connections/venue-details";
 import { createClient } from "@/lib/supabase/server";
 import {
   statusLabel,
@@ -145,6 +153,10 @@ async function Connection({
           ) : null}
         </div>
       </header>
+
+      {c.kind === "group" && c.group_type === "venue" ? (
+        <VenueDetailsSection details={readVenueDetails(c.attributes)} editHref={`/connections/${c.id}/edit`} today={today} tz={tz} />
+      ) : null}
 
       {/* Status, plans, and outreach are about other people, not us. */}
       {c.is_us ? null : (
@@ -282,6 +294,55 @@ async function Connection({
       </footer>
     </article>
   );
+}
+
+// Venue details (#48): only what's known. Old details say when they were checked.
+function VenueDetailsSection({
+  details: d,
+  editHref,
+  today,
+  tz,
+}: {
+  details: VenueDetails;
+  editHref: string;
+  today: string;
+  tz: string;
+}) {
+  const rows = [
+    ["Room", venueLine(d)],
+    ["Has", gearLine(d)],
+    ["Booking", bookLine(d)],
+    ["Accessibility", d.accessibility ?? null],
+    ["Special terms", d.special_terms ?? null],
+  ].filter((r): r is [string, string] => Boolean(r[1]));
+  return (
+    <Section title="Venue details">
+      {rows.length ? (
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+          {rows.map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt className="text-muted">{k}</dt>
+              <dd className="break-words">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <p className="text-sm text-muted">
+          Nothing yet: ages, capacity, the room, how to book.{" "}
+          <Link href={editHref} className="link">
+            Add them
+          </Link>
+        </p>
+      )}
+      {isStale(d.checked_on, today) ? (
+        <p className="text-sm text-muted">Details checked {formatMonth(d.checked_on!, tz)}. Worth a look.</p>
+      ) : null}
+    </Section>
+  );
+}
+
+function formatMonth(day: string, tz: string) {
+  return new Date(`${day}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: tz });
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { noAutofill } from "@/lib/no-autofill";
+import { VenueFields } from "@/components/venue-fields";
 import { unstable_rethrow } from "next/navigation";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
@@ -291,6 +292,9 @@ function FormBody({
           ) : null}
         </div>
       </fieldset>
+
+      {/* Venue details (#48), while the type is Venue. */}
+      {kind === "group" && groupType === "venue" ? <VenueFields values={v.venue} errors={errors.venue} /> : null}
 
       <fieldset className="flex flex-col gap-5">
         <legend className="mb-3 text-lg leading-6 font-semibold">
