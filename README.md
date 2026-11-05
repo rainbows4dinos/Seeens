@@ -8,11 +8,11 @@ Seeens is in closed alpha at [www.seeens.com](https://www.seeens.com). Merwulf i
 
 Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
-![The Seeens directory: type tabs, then bands grouped by status](docs/screenshots/directory.png)
+![The Seeens directory: type tabs, then everyone grouped by status, as photocopied snapshots](docs/screenshots/directory.png)
 
 ## Screenshots
 
-All data shown is fictional sample data from `supabase/seed.sql`.
+All data shown is fictional sample data from `supabase/seed.sql`. The photos are AI-generated (made-up people and places), in `supabase/seed-photos`, and the screenshot script adds them through the app's photo copier.
 
 To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run screenshots` (first time: `npx playwright install chromium`).
 

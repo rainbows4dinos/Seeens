@@ -18,6 +18,24 @@ const EMAIL = "alex@example.com"; // seed.sql user, local only
 const PASSWORD = "password123";
 
 const DESKTOP = { viewport: { width: 1280, height: 860 } };
+
+// Sample photos (AI-generated, fictional people and places) for the seed
+// connections, so the screenshots aren't all initials. Each goes through the
+// app's own photo copier, like a real upload. Some connections keep their
+// initials on purpose. The number lightens dark shots in the copier.
+const PHOTOS_DIR = path.resolve(import.meta.dirname, "../supabase/seed-photos");
+const PHOTOS = [
+  ["The Tin Hollows", "the-tin-hollows.jpg", 0.2],
+  ["Glass Coyote", "glass-coyote.jpg"],
+  ["Night Gleaners", "night-gleaners.jpg", 0.15],
+  ["Dee Sample", "dee-sample.jpg"],
+  ["Jo Example", "jo-example.jpg", 0.25],
+  ["Morgan Placeholder", "morgan-placeholder.jpg", 0.25],
+  ["Static Basement", "static-basement.jpg"],
+  ["The Lantern Room", "the-lantern-room.jpg", 0.3],
+  ["Grey Static Records", "grey-static-records.jpg"],
+  ["KXXX Night Shift", "kxxx-night-shift.jpg", 0.3],
+];
 const MOBILE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 
 async function settle(page) {
@@ -42,6 +60,31 @@ async function signIn(context) {
 }
 
 await mkdir(OUT, { recursive: true });
+// Adds each sample photo through the photo copier, skipping any connection
+// that already has one, so running the script twice is fine.
+async function addPhotos(page) {
+  for (const [name, file, lighter = 0] of PHOTOS) {
+    await page.goto(`${BASE_URL}/?type=all&layout=list&q=${encodeURIComponent(name)}`);
+    await page.getByRole("link", { name: new RegExp(name) }).first().click();
+    await page.waitForURL(/\/connections\//);
+    // The print's button says Add or Change; only add where there's none.
+    const print = page.getByRole("button", { name: new RegExp(`(Add a|Change the) photo of ${name}`) });
+    await print.waitFor();
+    const add = page.getByRole("button", { name: `Add a photo of ${name}` });
+    if (!(await add.count())) continue;
+    await add.click();
+    const dialog = page.getByRole("dialog");
+    await dialog.locator('input[type="file"]').setInputFiles(path.join(PHOTOS_DIR, file));
+    const save = dialog.getByRole("button", { name: "Save Photo" });
+    await save.waitFor();
+    await page.waitForFunction((el) => !el.disabled, await save.elementHandle());
+    if (lighter) await dialog.getByLabel("Lighter / Darker").fill(String(lighter));
+    await save.click();
+    await dialog.waitFor({ state: "hidden", timeout: 30_000 });
+    console.log(`photo: ${name}`);
+  }
+}
+
 const browser = await chromium.launch();
 // Hide the Next dev-tools badge so it never lands in a screenshot.
 const newContext = browser.newContext.bind(browser);
@@ -68,8 +111,10 @@ try {
   // Desktop, signed in
   const desktop = await browser.newContext(DESKTOP);
   const page = await signIn(desktop);
+  await addPhotos(page);
 
-  await page.goto(`${BASE_URL}/`);
+  // All, so the first row shows several kinds of connection.
+  await page.goto(`${BASE_URL}/?type=all`);
   await shot(page, "directory.png");
 
   // From 1280 the filter fields sit in the bar, so there's nothing to open.
