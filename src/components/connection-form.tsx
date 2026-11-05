@@ -2,12 +2,18 @@
 
 import { noAutofill } from "@/lib/no-autofill";
 import { VenueFields } from "@/components/venue-fields";
-import { unstable_rethrow } from "next/navigation";
+import { unstable_rethrow, useRouter } from "next/navigation";
+import { LinksPanel, type Candidate, type PendingLink, type PendingLinks } from "@/components/links-panel";
+import { NewPhotoPanel } from "@/components/photo-panel";
+import { uploadCaptured, type CapturedPhoto } from "@/components/photo-copier";
+import { addLink } from "@/lib/affiliations/actions";
+import { addOptionsFor } from "@/lib/affiliations/options";
+import type { CopierSettings } from "@/lib/photos/settings";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
 import { Combobox } from "@/components/combobox";
 import { LINK_TYPES, detectLinkType, splitLinkLabel, type LinkType } from "@/lib/connections/link-types";
-import { useActionState, useState, type ReactNode } from "react";
+import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
   GROUP_TYPES,
@@ -33,6 +39,8 @@ export function ConnectionForm({
   submitLabel,
   cancelHref,
   linksSlot,
+  photoSlot,
+  create,
 }: {
   action: Action;
   initial: ConnectionFormValues;
@@ -43,7 +51,21 @@ export function ConnectionForm({
   // block). It must not contain form fields of its own that belong to this
   // form; see DetachedForm in links-panel.tsx.
   linksSlot?: ReactNode;
+  // The edit page's photo, at the top of Who they are. It saves on its own.
+  photoSlot?: ReactNode;
+  // The Add page: a photo and links can be picked before the connection
+  // exists. They wait here and are added right after it's saved.
+  create?: { workspaceId: string; candidates: Candidate[]; photoDefaults: CopierSettings };
 }) {
+  const router = useRouter();
+  const [photo, setPhoto] = useState<CapturedPhoto | null>(null);
+  const [links, setLinks] = useState<PendingLink[]>([]);
+  const nextKey = useRef(0);
+  const pendingLinks: PendingLinks = {
+    items: links,
+    add: (l) => setLinks((ls) => [...ls, { ...l, key: nextKey.current++ }]),
+    remove: (key) => setLinks((ls) => ls.filter((l) => l.key !== key)),
+  };
   const [state, formAction, pending] = useActionState<ConnectionFormState, FormData>(
     async (prev, fd) => {
       try {
@@ -61,13 +83,49 @@ export function ConnectionForm({
     { values: initial, errors: {} },
   );
 
+  // Saved with a photo or links waiting: add them, then open the new page.
+  // Anything that doesn't go through is named there, so it can be added again.
+  const created = state.createdId;
+  // Saved, and adding the photo and links: keep Save disabled until the page opens.
+  const finishing = Boolean(created);
+  useEffect(() => {
+    if (!created || !create) return;
+    let missedPhoto = false;
+    let missedLinks = 0;
+    (async () => {
+      const name = state.values.name;
+      if (photo) missedPhoto = Boolean(await uploadCaptured(create.workspaceId, created, photo, name).catch(() => "failed"));
+      for (const l of links) {
+        const fd = new FormData();
+        for (const [k, v] of l.entries) fd.append(k, v);
+        const res = await addLink(created, l.optionId, {}, fd).catch(() => ({ ok: false }));
+        if (!res.ok) missedLinks++;
+      }
+      const q = new URLSearchParams({ saved: "1" });
+      if (missedPhoto) q.set("missed_photo", "1");
+      if (missedLinks) q.set("missed_links", String(missedLinks));
+      router.push(`/connections/${created}?${q}`);
+    })();
+    // Runs once per new connection.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [created]);
+
   // Remount after each failed save so fields show what was submitted.
   return (
     <FormBody
       key={state.attempt ?? 0}
       state={state}
       formAction={formAction}
-      pending={pending}
+      pending={pending || finishing}
+      photoSlot={
+        create ? (
+          <NewPhotoPanel photo={photo} defaults={create.photoDefaults} onChange={setPhoto} />
+        ) : (
+          photoSlot
+        )
+      }
+      newLinks={create ? { candidates: create.candidates, pending: pendingLinks } : undefined}
+      returnId={Boolean(create && (photo || links.length))}
       scenes={scenes}
       submitLabel={submitLabel}
       cancelHref={cancelHref}
@@ -84,6 +142,9 @@ function FormBody({
   submitLabel,
   cancelHref,
   linksSlot,
+  photoSlot,
+  newLinks,
+  returnId,
 }: {
   state: ConnectionFormState;
   formAction: (fd: FormData) => void;
@@ -92,6 +153,9 @@ function FormBody({
   submitLabel: string;
   cancelHref: string;
   linksSlot?: ReactNode;
+  photoSlot?: ReactNode;
+  newLinks?: { candidates: Candidate[]; pending: PendingLinks };
+  returnId?: boolean;
 }) {
   const { values: v, errors } = state;
   const [links, setLinks] = useState(() =>
@@ -147,6 +211,8 @@ function FormBody({
 
       <fieldset className="flex flex-col gap-5">
         <legend className="mb-3 text-lg leading-6 font-semibold">Who they are</legend>
+
+        {photoSlot}
 
         <Field id="c-name" label="Name" error={errors.name}>
           <input {...noAutofill}
@@ -400,6 +466,17 @@ function FormBody({
         </fieldset>
 
         {linksSlot}
+        {/* Add: links wait until the connection is saved. Their choices follow the type. */}
+        {newLinks && !us && (kind === "person" || GROUP_TYPES.includes(groupType as GroupType)) ? (
+          <LinksPanel
+            subjectId=""
+            rows={[]}
+            options={addOptionsFor({ kind: kind as "person" | "group", group_type: kind === "group" ? (groupType as GroupType) : null })}
+            candidates={newLinks.candidates}
+            pending={newLinks.pending}
+            note="Added when you save."
+          />
+        ) : null}
 
         <Field id="c-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
           <input {...noAutofill}
@@ -416,6 +493,7 @@ function FormBody({
         </Field>
       </fieldset>
 
+      {returnId ? <input type="hidden" name="return_id" value="1" /> : null}
       <div className="save-bar flex flex-wrap gap-3">
         <button type="submit" disabled={pending} className="button-primary">
           {pending ? "Saving…" : submitLabel}

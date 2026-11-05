@@ -53,7 +53,7 @@ async function Connection({
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
 
-  const [{ id }, { saved, offer }] = await Promise.all([params, searchParams]);
+  const [{ id }, { saved, offer, missed_photo, missed_links }] = await Promise.all([params, searchParams]);
   const [detail, user] = await Promise.all([getConnection(id), getCurrentUser()]);
   const tz = membership.timeZone;
   const today = todayISO(new Date(), tz);
@@ -85,7 +85,7 @@ async function Connection({
       </Link>
 
       <p role="status" className="text-sm font-medium empty:hidden">
-        {saved ? "Saved." : ""}
+        {saved ? savedNote(missed_photo === "1", Number(missed_links) || 0) : ""}
       </p>
 
       {archived ? (
@@ -112,7 +112,7 @@ async function Connection({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h1 className="min-w-0 display-l sm:display-xl break-words">{c.name}</h1>
             <Link href={`/connections/${c.id}/edit`} className="button-primary">
-              Edit<span className="sr-only"> {c.name}</span>
+              Edit Profile<span className="sr-only"> of {c.name}</span>
             </Link>
           </div>
           <p className="text-muted">
@@ -386,6 +386,15 @@ function VenueDetailsSection({
 
 function formatMonth(day: string, tz: string) {
   return new Date(`${day}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: tz });
+}
+
+// After Add: say if the photo or any links didn't make it, so they can be added here.
+function savedNote(missedPhoto: boolean, missedLinks: number) {
+  const missed = [
+    missedPhoto ? "the photo" : null,
+    missedLinks ? `${missedLinks} ${missedLinks === 1 ? "link" : "links"}` : null,
+  ].filter(Boolean);
+  return missed.length ? `Saved, but couldn't add ${missed.join(" or ")}. Add them again below.` : "Saved.";
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
