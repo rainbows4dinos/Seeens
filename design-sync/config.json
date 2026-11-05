@@ -128,10 +128,10 @@
       "nodeId": "10:15",
       "property": "Status",
       "values": {
-        "synced": "Crush",
-        "fixed-in-figma": "Crush",
-        "pending": "Heard of",
-        "skipped": "Heard of",
+        "synced": "Eyeing",
+        "fixed-in-figma": "Eyeing",
+        "pending": "Known",
+        "skipped": "Known",
         "needs-decision": "Let's play",
         "blocked": "Homie",
         "needs-figma-fix": "Homie"
