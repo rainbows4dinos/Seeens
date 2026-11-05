@@ -43,6 +43,7 @@ export function VenueFields({
       <legend className="mb-3 text-lg leading-6 font-semibold">
         Venue details <span className="text-sm font-normal text-muted">(leave anything you&rsquo;re not sure of)</span>
       </legend>
+      {text("address", "Address", "123 Main St, or Ask a punk")}
       <div className="grid gap-4 sm:grid-cols-3">
         {choice("ages", "Ages", AGES)}
         {choice("capacity", "Capacity", CAPACITY)}
@@ -51,9 +52,13 @@ export function VenueFields({
       <div className="grid gap-4 sm:grid-cols-3">
         {(Object.keys(GEAR) as (keyof typeof GEAR)[]).map((k) => choice(k, GEAR[k], { yes: "Yes", no: "No" }))}
       </div>
-      <div className="grid gap-4 sm:grid-cols-[1fr_2fr]">
-        {choice("book_via", "How to book", BOOK_VIA)}
-        {text("book_at", "Booking contact", "booking@example.com, @handle, or a name")}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="flex flex-col gap-2 sm:col-span-1">
+          {choice("book_via", "How to book", BOOK_VIA)}
+        </div>
+        <p className="text-sm text-muted sm:col-span-2 sm:self-end sm:pb-2">
+          Uses the email and links under More details. Who books it goes under Connections.
+        </p>
       </div>
       {text("accessibility", "Accessibility", "Step-free entry, all-gender restrooms")}
       {text("special_terms", "Special terms", "Pay to play, door split, bring your own sound")}

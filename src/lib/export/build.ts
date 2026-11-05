@@ -75,7 +75,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
       sound_engineer: yesNo(v.sound),
       backline: yesNo(v.backline),
       book_via: v.book_via ? BOOK_VIA[v.book_via] : "",
-      book_at: v.book_at ?? "",
+      address: v.address ?? "",
       accessibility: v.accessibility ?? "",
       special_terms: v.special_terms ?? "",
       details_checked_on: v.checked_on ?? "",

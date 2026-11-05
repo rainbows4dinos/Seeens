@@ -14,6 +14,7 @@ import {
   bookLine,
   gearLine,
   isStale,
+  mapHref,
   readVenueDetails,
   venueLine,
   type VenueDetails,
@@ -158,7 +159,14 @@ async function Connection({
       </header>
 
       {c.kind === "group" && c.group_type === "venue" ? (
-        <VenueDetailsSection details={readVenueDetails(c.attributes)} editHref={`/connections/${c.id}/edit`} today={today} tz={tz} />
+        <VenueDetailsSection
+          details={readVenueDetails(c.attributes)}
+          contact={{ email: c.email, links: c.connection_links }}
+          town={place}
+          editHref={`/connections/${c.id}/edit`}
+          today={today}
+          tz={tz}
+        />
       ) : null}
 
       {/* Status, plans, and outreach are about other people, not us. */}
@@ -302,22 +310,54 @@ async function Connection({
 // Venue details (#48): only what's known. Old details say when they were checked.
 function VenueDetailsSection({
   details: d,
+  contact,
+  town,
   editHref,
   today,
   tz,
 }: {
   details: VenueDetails;
+  contact: { email: string | null; links: { label: string | null; url: string }[] };
+  town: string | null;
   editHref: string;
   today: string;
   tz: string;
 }) {
-  const rows = [
-    ["Room", venueLine(d)],
-    ["Has", gearLine(d)],
-    ["Booking", bookLine(d)],
-    ["Accessibility", d.accessibility ?? null],
-    ["Special terms", d.special_terms ?? null],
-  ].filter((r): r is [string, string] => Boolean(r[1]));
+  const map = mapHref(d.address, town);
+  const book = bookLine(d, contact);
+  const rows: [string, React.ReactNode][] = [];
+  if (d.address)
+    rows.push([
+      "Address",
+      map ? (
+        <a href={map} className="link" target="_blank" rel="noreferrer">
+          {d.address}
+        </a>
+      ) : (
+        d.address
+      ),
+    ]);
+  const room = venueLine(d);
+  if (room) rows.push(["Room", room]);
+  const gear = gearLine(d);
+  if (gear) rows.push(["Has", gear]);
+  if (book)
+    rows.push([
+      "Booking",
+      <>
+        {book.text}
+        {book.contact ? (
+          <>
+            {" · "}
+            <a href={book.href} className="link">
+              {book.contact}
+            </a>
+          </>
+        ) : null}
+      </>,
+    ]);
+  if (d.accessibility) rows.push(["Accessibility", d.accessibility]);
+  if (d.special_terms) rows.push(["Special terms", d.special_terms]);
   return (
     <Section title="Venue details">
       {rows.length ? (
@@ -331,7 +371,7 @@ function VenueDetailsSection({
         </dl>
       ) : (
         <p className="text-sm text-muted">
-          Nothing yet: ages, capacity, the room, how to book.{" "}
+          Nothing yet: address, ages, capacity, the room, how to book.{" "}
           <Link href={editHref} className="link">
             Add them
           </Link>

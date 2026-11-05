@@ -1,4 +1,4 @@
-// Venue details (#48): ages, capacity, the room, and how to book. Stored in
+// Venue details (#48): address, ages, capacity, the room, and how to book. Stored in
 // connections.attributes (jsonb), so other types can add their own later.
 // Every field is optional; a blank one means "not sure" and isn't shown.
 // Pure and import-free, so the tests run it directly.
@@ -29,14 +29,16 @@ export type BookVia = keyof typeof BOOK_VIA;
 export type Gear = keyof typeof GEAR;
 
 export type VenueDetails = {
+  /** A street address, or "Ask a punk" for a house that keeps it quiet. */
+  address?: string;
   ages?: Ages;
   capacity?: Capacity;
   space?: Space;
   pa?: boolean;
   sound?: boolean;
   backline?: boolean;
+  /** How to book. The contact itself is the connection's email or links. */
   book_via?: BookVia;
-  book_at?: string;
   accessibility?: string;
   special_terms?: string;
   /** Set by the database when any detail changes: "2026-11-04". */
@@ -45,6 +47,7 @@ export type VenueDetails = {
 
 /** The keys this module owns. Anything else in attributes (an import's leftovers) is kept as is. */
 export const VENUE_KEYS = [
+  "address",
   "ages",
   "capacity",
   "space",
@@ -52,12 +55,11 @@ export const VENUE_KEYS = [
   "sound",
   "backline",
   "book_via",
-  "book_at",
   "accessibility",
   "special_terms",
 ] as const;
 
-export const TEXT_LIMITS = { book_at: 200, accessibility: 300, special_terms: 300 } as const;
+export const TEXT_LIMITS = { address: 200, accessibility: 300, special_terms: 300 } as const;
 
 const pick = <T extends Record<string, string>>(map: T, v: unknown) =>
   typeof v === "string" && v in map ? (v as keyof T) : undefined;
@@ -68,6 +70,7 @@ const bool = (v: unknown) => (typeof v === "boolean" ? v : undefined);
 export function readVenueDetails(attributes: unknown): VenueDetails {
   const a = (attributes && typeof attributes === "object" ? attributes : {}) as Record<string, unknown>;
   const d: VenueDetails = {
+    address: text(a.address),
     ages: pick(AGES, a.ages),
     capacity: pick(CAPACITY, a.capacity),
     space: pick(SPACE, a.space),
@@ -75,7 +78,6 @@ export function readVenueDetails(attributes: unknown): VenueDetails {
     sound: bool(a.sound),
     backline: bool(a.backline),
     book_via: pick(BOOK_VIA, a.book_via),
-    book_at: text(a.book_at),
     accessibility: text(a.accessibility),
     special_terms: text(a.special_terms),
     checked_on: typeof a.checked_on === "string" && /^\d{4}-\d{2}-\d{2}$/.test(a.checked_on) ? a.checked_on : undefined,
@@ -96,6 +98,7 @@ export function venueDetailsFromForm(raw: Record<(typeof VENUE_KEYS)[number], st
   return {
     ok: true,
     details: readVenueDetails({
+      address: raw.address,
       ages: raw.ages,
       capacity: raw.capacity,
       space: raw.space,
@@ -103,7 +106,6 @@ export function venueDetailsFromForm(raw: Record<(typeof VENUE_KEYS)[number], st
       sound: yesNo(raw.sound),
       backline: yesNo(raw.backline),
       book_via: raw.book_via,
-      book_at: raw.book_at,
       accessibility: raw.accessibility,
       special_terms: raw.special_terms,
     }),
@@ -114,6 +116,7 @@ export function venueDetailsFromForm(raw: Record<(typeof VENUE_KEYS)[number], st
 export function venueDetailsToForm(d: VenueDetails): Record<(typeof VENUE_KEYS)[number], string> {
   const yesNo = (v?: boolean) => (v === true ? "yes" : v === false ? "no" : "");
   return {
+    address: d.address ?? "",
     ages: d.ages ?? "",
     capacity: d.capacity ?? "",
     space: d.space ?? "",
@@ -121,7 +124,6 @@ export function venueDetailsToForm(d: VenueDetails): Record<(typeof VENUE_KEYS)[
     sound: yesNo(d.sound),
     backline: yesNo(d.backline),
     book_via: d.book_via ?? "",
-    book_at: d.book_at ?? "",
     accessibility: d.accessibility ?? "",
     special_terms: d.special_terms ?? "",
   };
@@ -147,10 +149,39 @@ export function gearLine(d: VenueDetails): string | null {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : null;
 }
 
-/** "Instagram: @lanternroom", or just one of the two. */
-export function bookLine(d: VenueDetails): string | null {
-  if (d.book_via && d.book_at) return `${BOOK_VIA[d.book_via]}: ${d.book_at}`;
-  return d.book_at ?? (d.book_via ? BOOK_VIA[d.book_via] : null);
+type Contact = { email: string | null; links: { label: string | null; url: string }[] };
+
+/**
+ * How to book, pointing at the contact the venue already has: "Email",
+ * with its address; "Instagram", with that link. Null when it isn't set.
+ */
+export function bookLine(d: VenueDetails, c: Contact): { text: string; contact?: string; href?: string } | null {
+  if (!d.book_via) return null;
+  const text = BOOK_VIA[d.book_via];
+  if (d.book_via === "email") return c.email ? { text, contact: c.email, href: `mailto:${c.email}` } : { text };
+  const want = d.book_via === "form" ? ["website", "other"] : [d.book_via];
+  const link = c.links.find((l) => want.includes((l.label ?? "").toLowerCase()) || hostIs(l.url, d.book_via!));
+  return link ? { text, contact: shortUrl(link.url), href: link.url } : { text };
+}
+
+function hostIs(url: string, via: BookVia) {
+  if (via !== "instagram" && via !== "facebook") return false;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "").startsWith(via);
+  } catch {
+    return false;
+  }
+}
+
+function shortUrl(url: string) {
+  return url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+}
+
+/** A map search for an address that looks like a street ("123 Main St"), not "Ask a punk". */
+export function mapHref(address: string | undefined, town: string | null): string | null {
+  if (!address || !/^\d/.test(address)) return null;
+  const q = [address, town].filter(Boolean).join(", ");
+  return `https://www.openstreetmap.org/search?query=${encodeURIComponent(q)}`;
 }
 
 /** Details older than this many days get a "checked" date, so stale facts show. */
