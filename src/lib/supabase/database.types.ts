@@ -301,7 +301,9 @@ isOneToOne: false
           Functions: {
             "add_band_members":
 { Args: { "p_locality_id"?: string,"p_played_together"?: boolean,"p_scene_ids"?: (string)[],"p_band_id": string,"p_rows": Json,"p_workspace_id": string }; Returns: Json },
-            "directory_page":
+            "import_connections":
+{ Args: { "p_rows": Json,"p_workspace_id": string }; Returns: Json },
+"directory_page":
 { Args: { "p_ages"?: string,"p_capacity"?: string,"p_instrument"?: string,"p_after"?: Json,"p_archived": boolean,"p_counts"?: boolean,"p_group_type"?: Database["public"]['Enums']["group_type"],"p_hide_avoid"?: boolean,"p_kind"?: Database["public"]['Enums']["connection_kind"],"p_limit"?: number,"p_list_status"?: Database["public"]['Enums']["connection_status"],"p_person_role"?: Database["public"]['Enums']["person_role"],"p_q"?: string,"p_scene_ids"?: (string)[],"p_statuses"?: (Database["public"]['Enums']["connection_status"])[],"p_town"?: string,"p_type"?: string,"p_workspace_id": string }; Returns: Json },
             "create_linked_connection":
 { Args: { "p_locality_id"?: string,"p_played_together"?: boolean,"p_scene_ids"?: (string)[],"p_affiliation_kind": Database["public"]['Enums']["affiliation_kind"],"p_group_type"?: Database["public"]['Enums']["group_type"],"p_is_current": boolean,"p_kind": Database["public"]['Enums']["connection_kind"],"p_name": string,"p_new_is_from": boolean,"p_other_id": string,"p_person_roles": (Database["public"]['Enums']["person_role"])[],"p_role"?: string,"p_workspace_id": string }; Returns: string },

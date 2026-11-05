@@ -122,9 +122,14 @@ async function Directory({
                 Start with a band you&rsquo;ve shared a bill with, a venue
                 you&rsquo;ve played, or someone you&rsquo;d like to meet.
               </p>
-              <Link href="/connections/new" className="button-secondary">
-                Add Your First Connection
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/connections/new" className="button-secondary">
+                  Add Your First Connection
+                </Link>
+                <Link href="/import" className="button-secondary">
+                  Import a Spreadsheet
+                </Link>
+              </div>
               {c.archived ? (
                 <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link text-sm">
                   {c.archived} archived
@@ -206,6 +211,10 @@ async function Directory({
           <p className="rule-top pt-4">
             <Link href="/export" className="action-link text-sm">
               Export the directory as CSV
+            </Link>
+            {" · "}
+            <Link href="/import" className="action-link text-sm">
+              Import a spreadsheet
             </Link>
           </p>
         ) : null}
