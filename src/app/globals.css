@@ -558,6 +558,11 @@
   .choice:has(input:checked) input {
     accent-color: var(--paper-50);
   }
+  /* Upload CSV (#148): a label styled as a button around a hidden file input. */
+  .file-button {
+    cursor: pointer;
+  }
+  .file-button:has(input:focus-visible),
   .choice:has(input:focus-visible) {
     outline: 2px solid var(--color-focus-outline);
     outline-offset: 2px;
