@@ -37,7 +37,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
 - **Shared access:** authorized band members can work with the same private data across devices.
-- **Portability:** export the directory to CSV.
+- **Portability:** export the directory to CSV, and import a spreadsheet of bands, venues, or people. The import guesses each column, matches towns, and shows every row before saving. Rows already in the directory only get their blanks filled. Anything unreadable or marked with a ? goes into notes, not a field, and venue bookers become Booked By links.
 
 Search by name and filter by status, scene (a bigger scene includes the scenes inside it), town, and what people play, or open the archived ones from the count line. Who you're eyeing is picked by hand; automated discovery is deferred.
 
@@ -97,7 +97,7 @@ The MVP launched on November 1, 2026. What it does:
 - What people play, from their band roles, and "via" status for people you've only heard of.
 - Outreach log, next actions, and the Follow-ups page.
 - Connection photos through the copier, shown on cards, list rows, and the connection page.
-- CSV export.
+- CSV export, and spreadsheet import with a review step.
 - Error and not-found pages, and phase 1 design tokens from Figma.
 
 Database schema, Row Level Security, and access tests are in `supabase/`. What's next is in the Roadmap above.
