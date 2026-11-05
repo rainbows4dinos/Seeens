@@ -98,6 +98,8 @@ export async function createConnection(
   }
 
   revalidatePath("/", "layout");
+  // A photo or links are waiting in the form: it adds them, then opens the page.
+  if (formData.get("return_id") === "1") return { values, errors: {}, createdId: id };
   redirect(`/connections/${id}?saved=1`);
 }
 

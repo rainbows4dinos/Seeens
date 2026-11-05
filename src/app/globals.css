@@ -816,9 +816,11 @@
     display: none;
   }
 
+  /* Every page but the directory: one centered column. */
   .page-measure {
     width: 100%;
     max-width: 56rem;
+    margin-inline: auto;
   }
 
   /* Cards fill the row: as many 280px-minimum columns as fit. */

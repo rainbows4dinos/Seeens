@@ -24,7 +24,60 @@ export type PhotoProps = {
   alt: string | null;
   /** Settings for a new photo: the plate follows the status. */
   defaults: CopierSettings;
+  /**
+   * A connection that isn't saved yet (the Add form): Save Photo hands the
+   * encoded files back instead of uploading, and Remove clears them.
+   * connectionId and workspaceId aren't used.
+   */
+  capture?: (photo: CapturedPhoto | null) => void;
 };
+
+/** A photo picked before its connection exists, uploaded once it's saved. */
+export type CapturedPhoto = {
+  original: Blob;
+  originalExt: string;
+  copy: Blob;
+  copyExt: string;
+  settings: CopierSettings;
+  alt: string;
+  /** Object URLs for the thumbnail and for re-copying. */
+  copyUrl: string;
+  originalUrl: string;
+};
+
+/**
+ * Uploads a captured photo for a connection that now exists, and points the
+ * connection at it. Returns an error message, or null.
+ */
+export async function uploadCaptured(workspaceId: string, connectionId: string, photo: CapturedPhoto, name: string) {
+  const folder = `${workspaceId}/${connectionId}/`;
+  const id = crypto.randomUUID();
+  const bucket = createClient().storage.from("connection-photos");
+  const originalPath = `${folder}${id}-original.${photo.originalExt}`;
+  const path = `${folder}${id}.${photo.copyExt}`;
+  const uploaded: string[] = [];
+  try {
+    for (const [p, blob] of [
+      [originalPath, photo.original],
+      [path, photo.copy],
+    ] as const) {
+      const { error } = await bucket.upload(p, blob, { contentType: blob.type, upsert: false });
+      if (error) throw error;
+      uploaded.push(p);
+    }
+    const result = await savePhoto(connectionId, {
+      path,
+      originalPath,
+      settings: photo.settings,
+      alt: photo.alt.trim() || `Photo of ${name}`,
+    });
+    if (result.error) throw new Error(result.error);
+    return null;
+  } catch {
+    if (uploaded.length) await discardUpload(connectionId, uploaded).catch(() => {});
+    return "Couldn't upload the photo.";
+  }
+}
 
 const PLATE_LABELS: Record<Plate, string> = { none: "None", cyan: "C", magenta: "M", yellow: "Y" };
 const PLATE_NAMES: Record<Plate, string> = { none: "No ink plate", cyan: "Cyan", magenta: "Magenta", yellow: "Yellow" };
@@ -66,6 +119,7 @@ function CopierBody({
   settings: saved,
   alt: savedAlt,
   defaults,
+  capture,
   onClose,
 }: PhotoProps & { onClose: () => void }) {
   const ids = useId();
@@ -77,7 +131,8 @@ function CopierBody({
   const [source, setSource] = useState<HTMLCanvasElement | null>(null);
   const [fileChanged, setFileChanged] = useState(false);
   const [settings, setSettings] = useState<CopierSettings>(saved ?? defaults);
-  const [alt, setAlt] = useState(savedAlt ?? `Photo of ${name}`);
+  // Before the connection is saved, a blank alt becomes "Photo of <name>" on upload.
+  const [alt, setAlt] = useState(savedAlt ?? (capture ? "" : `Photo of ${name}`));
   const [showOriginal, setShowOriginal] = useState(false);
   const [loading, setLoading] = useState(Boolean(originalUrl));
   const [message, setMessage] = useState("");
@@ -151,6 +206,34 @@ function CopierBody({
   function save() {
     if (!original || !source || !preview.current) return;
     setError("");
+    if (capture) {
+      startTransition(async () => {
+        try {
+          copy(source, preview.current!, settings);
+          if (isBlank(preview.current!)) {
+            resetCopier();
+            copy(source, preview.current!, settings);
+          }
+          if (isBlank(preview.current!)) throw new Error("Couldn't run the copier. Try again.");
+          const o = await encode(original, 0.85);
+          const c = await encode(preview.current!, 0.9);
+          capture({
+            original: o.blob,
+            originalExt: o.ext,
+            copy: c.blob,
+            copyExt: c.ext,
+            settings,
+            alt,
+            copyUrl: URL.createObjectURL(c.blob),
+            originalUrl: URL.createObjectURL(o.blob),
+          });
+          onClose();
+        } catch (e) {
+          setError(e instanceof Error && e.message.startsWith("Couldn") ? e.message : "Couldn't make the copy. Try again.");
+        }
+      });
+      return;
+    }
     startTransition(async () => {
       const folder = `${workspaceId}/${connectionId}/`;
       const id = crypto.randomUUID();
@@ -201,6 +284,11 @@ function CopierBody({
   }
 
   function remove() {
+    if (capture) {
+      capture(null);
+      onClose();
+      return;
+    }
     startTransition(async () => {
       setError("");
       const result = await removePhoto(connectionId).catch(offline({ error: "Couldn't reach Seeens. Try again." }));

@@ -52,6 +52,8 @@ export type ConnectionFormState = {
   attempt?: number;
   // Set when a bandmate saved this connection while the form was open.
   conflict?: boolean;
+  // Add with a photo or links waiting: the new connection, for the form to finish.
+  createdId?: string;
 };
 
 export type ValidConnection = {

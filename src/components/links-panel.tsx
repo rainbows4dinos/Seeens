@@ -39,6 +39,25 @@ export type LinkRow = {
   notes: string | null;
 };
 
+/**
+ * A link picked on the Add form, before the connection exists: the add
+ * form's fields, replayed through addLink once it's saved.
+ */
+export type PendingLink = {
+  key: number;
+  optionId: string;
+  optionLabel: string;
+  name: string;
+  role: string;
+  former: boolean;
+  entries: [string, string][];
+};
+export type PendingLinks = {
+  items: PendingLink[];
+  add: (link: Omit<PendingLink, "key">) => void;
+  remove: (key: number) => void;
+};
+
 export type Candidate = {
   id: string;
   name: string;
@@ -57,6 +76,7 @@ export function LinksPanel({
   memberIds,
   note,
   carry,
+  pending,
 }: {
   subjectId: string;
   rows: LinkRow[];
@@ -68,10 +88,13 @@ export function LinksPanel({
   note?: string;
   // Set on a band: what a new member can take from it (#124).
   carry?: Carry | null;
+  // The Add form: links wait here until the connection is saved.
+  pending?: PendingLinks;
 }) {
   const [adding, setAdding] = useState<string | null>(null);
-  // Bands can take a pasted lineup.
-  const canPaste = Boolean(memberIds) && options.some((o) => o.id === "member");
+  // Bands can take a pasted lineup (once they exist).
+  const canPaste = !pending && Boolean(memberIds) && options.some((o) => o.id === "member");
+  const waiting = (pending?.items ?? []).filter((p) => options.some((o) => o.id === p.optionId));
   const sections = SECTION_ORDER.map((title) => ({
     title,
     rows: rows.filter((r) => r.section === title),
@@ -84,7 +107,27 @@ export function LinksPanel({
       </h2>
       {note ? <p className="-mt-2 text-sm text-muted">{note}</p> : null}
 
-      {sections.length === 0 ? (
+      {pending ? (
+        waiting.length ? (
+          <ul className="rows flex flex-col">
+            {waiting.map((p) => (
+              <li key={p.key} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2">
+                <span className="min-w-0 break-words">
+                  <span className="text-sm text-muted">{p.optionLabel}: </span>
+                  {p.name}
+                  {p.role ? <span className="text-muted"> · {p.role}</span> : null}
+                  {p.former ? <span className="text-muted"> (former)</span> : null}
+                </span>
+                <button type="button" className="action-link text-sm" onClick={() => pending.remove(p.key)}>
+                  Remove<span className="sr-only"> {p.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted">No links yet. They&rsquo;re added when you save.</p>
+        )
+      ) : sections.length === 0 ? (
         <p className="text-muted">No links yet. Add bandmates, labels, or the places they work.</p>
       ) : (
         sections.map((s) => (
@@ -144,6 +187,7 @@ export function LinksPanel({
             option={o}
             candidates={candidates.filter((c) => fitsTarget(o.target, c))}
             carry={o.id === "member" ? (carry ?? null) : null}
+            onPending={pending?.add}
             onDone={() => setAdding(null)}
           />
         ))}
@@ -260,15 +304,33 @@ function AddLinkForm({
   option,
   candidates,
   carry,
+  onPending,
   onDone,
 }: {
   subjectId: string;
   option: AddOption;
   candidates: Candidate[];
   carry: Carry | null;
+  onPending?: PendingLinks["add"];
   onDone: () => void;
 }) {
   const [state, action, pending] = useActionState<LinkState, FormData>(async (prev, fd) => {
+    // Not saved yet: keep the fields, and add the link with the connection.
+    if (onPending) {
+      const other = String(fd.get("other_id") ?? "");
+      const name = other === "__new__" ? String(fd.get("new_name") ?? "") : (candidates.find((c) => c.id === other)?.name ?? "");
+      if (!other || !name) return { error: "Pick someone, or type a name to add someone new.", attempt: Date.now() };
+      onPending({
+        optionId: option.id,
+        optionLabel: option.label.replace(/^Add /, ""),
+        name,
+        role: String(fd.get("role") ?? "").trim(),
+        former: fd.get("former") === "on",
+        entries: [...fd.entries()].map(([k, v]) => [k, String(v)]),
+      });
+      onDone();
+      return { ok: true, attempt: Date.now() };
+    }
     const result = await addLink(subjectId, option.id, prev, fd).catch(offline({ error: "Couldn't reach Seeens. Try again.", attempt: Date.now() } as LinkState));
     if (result.ok) onDone();
     return result;
@@ -386,7 +448,7 @@ function AddLinkForm({
 
       <div className="flex flex-wrap gap-3">
         <button type="submit" form={id} className="button-primary" disabled={pending || !picked}>
-          {pending ? "Saving…" : "Save Link"}
+          {pending ? "Saving…" : onPending ? "Add Link" : "Save Link"}
         </button>
         <button type="button" className="button-secondary" onClick={onDone}>
           Cancel
