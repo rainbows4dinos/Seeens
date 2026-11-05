@@ -9,7 +9,7 @@ import { linksPanelProps } from "@/lib/affiliations/rows";
 import { NoWorkspace } from "@/components/no-workspace";
 import { listSceneOptions } from "@/lib/scenes/queries";
 import { PhotoPanel } from "@/components/photo-panel";
-import { signPhotos } from "@/lib/photos/urls";
+import { photoUrl } from "@/lib/photos/urls";
 import { defaultSettings, readSettings } from "@/lib/photos/settings";
 
 export const metadata: Metadata = { title: "Edit connection · Seeens" };
@@ -29,7 +29,6 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
   const { id } = await params;
   const [detail, scenes] = await Promise.all([getConnection(id), listSceneOptions()]);
   const { connection } = detail;
-  const photos = await signPhotos([connection.photo_path, connection.photo_original_path]);
 
   return (
     <div className="page-measure flex flex-col gap-6">
@@ -46,8 +45,8 @@ async function EditConnection({ params }: { params: PageProps<"/connections/[id]
               connectionId={connection.id}
               workspaceId={membership.workspaceId}
               name={connection.name}
-              photoUrl={connection.photo_path ? (photos.get(connection.photo_path) ?? null) : null}
-              originalUrl={connection.photo_original_path ? (photos.get(connection.photo_original_path) ?? null) : null}
+              photoUrl={photoUrl(connection.photo_path, 320)}
+              originalUrl={photoUrl(connection.photo_original_path)}
               photoPath={connection.photo_path}
               originalPath={connection.photo_original_path}
               settings={readSettings(connection.photo_settings)}

@@ -32,7 +32,7 @@ import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { QuickStatus } from "@/components/quick-status";
 import { PhotoPanel } from "@/components/photo-panel";
-import { signPhotos } from "@/lib/photos/urls";
+import { photoUrl } from "@/lib/photos/urls";
 import { defaultSettings, readSettings } from "@/lib/photos/settings";
 
 export default function ConnectionPage({ params, searchParams }: PageProps<"/connections/[id]">) {
@@ -62,7 +62,6 @@ async function Connection({
   const ourLabel = detail.affiliations.incoming.some((a) => a.kind === "on_label" && a.other?.is_us && a.is_current);
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
-  const photos = await signPhotos([c.photo_path, c.photo_original_path]);
   // What they play, from their band roles, current and former (#140).
   const plays =
     c.kind === "person"
@@ -99,8 +98,8 @@ async function Connection({
           connectionId={c.id}
           workspaceId={membership.workspaceId}
           name={c.name}
-          photoUrl={c.photo_path ? (photos.get(c.photo_path) ?? null) : null}
-          originalUrl={c.photo_original_path ? (photos.get(c.photo_original_path) ?? null) : null}
+          photoUrl={photoUrl(c.photo_path, 320)}
+          originalUrl={photoUrl(c.photo_original_path)}
           photoPath={c.photo_path}
           originalPath={c.photo_original_path}
           settings={readSettings(c.photo_settings)}
