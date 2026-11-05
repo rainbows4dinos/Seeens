@@ -12,6 +12,7 @@ import { PinWatch } from "@/components/pin-watch";
 import { SearchClear } from "@/components/search-clear";
 import { TypeMenu } from "@/components/type-menu";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
+import { wordSetForTab } from "@/lib/connections/tabs";
 import { getMembership } from "@/lib/auth/dal";
 import {
   DEFAULT_TAB,
@@ -22,7 +23,7 @@ import {
   type Tab,
   type TabCounts,
 } from "@/lib/connections/directory";
-import { STATUSES, STATUS_LABELS, formatLocality } from "@/lib/connections/labels";
+import { STATUSES, STATUS_WORDS, formatLocality } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
@@ -382,7 +383,7 @@ function FilterForm({
             <option value="">{f.archived ? "Everyone" : "Everyone but Avoid"}</option>
             {STATUSES.map((st) => (
               <option key={st} value={st}>
-                {STATUS_LABELS[st]}
+                {STATUS_WORDS[wordSetForTab(tab)][st]}
               </option>
             ))}
           </select>

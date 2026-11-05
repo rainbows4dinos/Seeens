@@ -5,7 +5,7 @@ import { useRef, useState, useTransition } from "react";
 import { quickUpdate, type QuickState } from "@/lib/connections/actions";
 import type { PlayedOffer as Offer } from "@/lib/connections/played-together";
 import { PlayedOffer } from "@/components/played-offer";
-import { STATUSES, STATUS_HINTS, STATUS_LABELS, type ConnectionStatus } from "@/lib/connections/labels";
+import { STATUSES, playedWords, statusHint, statusLabel, type ConnectionStatus, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
 
 type Change = { status: ConnectionStatus } | { playedTogether: boolean };
 
@@ -19,9 +19,12 @@ export function QuickStatus({
   id,
   initial,
   initialOffer = null,
+  type,
 }: {
   id: string;
   initial: QuickState;
+  /** The connection's type, for its status words (#139). */
+  type: { kind: ConnectionKind; group_type: GroupType | null; person_roles: PersonRole[] };
   initialOffer?: Offer | null;
 }) {
   const [offer, setOffer] = useState(initialOffer);
@@ -96,7 +99,7 @@ export function QuickStatus({
           Status
         </label>
         <p id="quick-status-hint" className="-mt-1 text-sm text-muted">
-          {STATUS_HINTS[shown.status]}
+          {statusHint(shown.status, type)}
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <select
@@ -108,7 +111,7 @@ export function QuickStatus({
           >
             {STATUSES.map((st) => (
               <option key={st} value={st}>
-                {STATUS_LABELS[st]}
+                {statusLabel(st, type)}
               </option>
             ))}
           </select>
@@ -120,7 +123,7 @@ export function QuickStatus({
               checked={shown.playedTogether}
               onChange={(e) => save({ playedTogether: e.target.checked })}
             />
-            <span>We&rsquo;ve played together</span>
+            <span>{playedWords(type).label}</span>
           </label>
         </div>
       </div>
@@ -131,8 +134,8 @@ export function QuickStatus({
       {failed ? (
         <div role="alert" className="flex flex-wrap items-center gap-3 border-2 border-error bg-surface p-3 text-sm">
           <p className="font-medium text-error">
-            Couldn&rsquo;t save. It&rsquo;s still {STATUS_LABELS[saved.status]}
-            {saved.playedTogether ? ", played together" : ""}.
+            Couldn&rsquo;t save. It&rsquo;s still {statusLabel(saved.status, type)}
+            {saved.playedTogether ? `, ${playedWords(type).tag.toLowerCase()}` : ""}.
           </p>
           <button type="button" className="button-secondary" onClick={() => save(failed)}>
             Try Again

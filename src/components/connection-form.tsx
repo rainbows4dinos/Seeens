@@ -16,7 +16,10 @@ import {
   PERSON_ROLES,
   PERSON_ROLE_LABELS,
   STATUSES,
-  STATUS_LABELS,
+  playedWords,
+  statusLabel,
+  type GroupType,
+  type PersonRole,
 } from "@/lib/connections/labels";
 
 type SceneOption = { id: string; name: string; parent_id: string | null };
@@ -102,6 +105,14 @@ function FormBody({
   const [nextKey, setNextKey] = useState(links.length);
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
   const [isUs, setIsUs] = useState(v.isUs);
+  // Status words follow the type as it's picked (#139). Roles only change
+  // the played label, so the saved roles are enough for that.
+  const [groupType, setGroupType] = useState(v.groupType);
+  const typed = {
+    kind: kind as "person" | "group",
+    group_type: (GROUP_TYPES.includes(groupType as GroupType) ? groupType : null) as GroupType | null,
+    person_roles: v.personRoles.filter((r): r is PersonRole => PERSON_ROLES.includes(r as PersonRole)),
+  };
   const us = kind === "group" && isUs;
   const errorCount =
     Object.keys(errors).filter((k) => k !== "form" && k !== "linkUrls").length +
@@ -171,6 +182,7 @@ function FormBody({
                 id="c-group_type"
                 name="group_type"
                 defaultValue={v.groupType}
+                onChange={(e) => setGroupType(e.target.value)}
                 className="field"
                 {...invalid("c-group_type", errors.groupType)}
               >
@@ -260,7 +272,7 @@ function FormBody({
             >
               {STATUSES.map((st) => (
                 <option key={st} value={st}>
-                  {STATUS_LABELS[st]}
+                  {statusLabel(st, typed)}
                 </option>
               ))}
             </select>
@@ -268,7 +280,7 @@ function FormBody({
               type="checkbox"
               name="played_together"
               value="on"
-              label="We've played together"
+              label={playedWords(typed).label}
               defaultChecked={v.playedTogether}
             />
           </div>

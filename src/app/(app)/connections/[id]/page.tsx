@@ -12,7 +12,7 @@ import { loadPlayedOffer } from "@/lib/connections/played-together";
 import { INSTRUMENTS, playsAll } from "@/lib/affiliations/instruments";
 import { createClient } from "@/lib/supabase/server";
 import {
-  STATUS_LABELS,
+  statusLabel,
   formatDate,
   formatLocality,
   formatType,
@@ -153,6 +153,7 @@ async function Connection({
         <QuickStatus
           id={c.id}
           initial={{ status: c.status, playedTogether: c.played_together }}
+          type={{ kind: c.kind, group_type: c.group_type, person_roles: c.person_roles }}
           initialOffer={playedOffer}
         />
         {statusHistory.length > 1 ? (
@@ -161,7 +162,7 @@ async function Connection({
             <ol className="flex flex-col gap-1 pt-2">
               {statusHistory.map((h) => (
                 <li key={h.id}>
-                  {h.from_status ? `${STATUS_LABELS[h.from_status]} to ${STATUS_LABELS[h.to_status]}` : `Added as ${STATUS_LABELS[h.to_status]}`}
+                  {h.from_status ? `${statusLabel(h.from_status, c)} to ${statusLabel(h.to_status, c)}` : `Added as ${statusLabel(h.to_status, c)}`}
                   <span className="text-muted">
                     {" · "}
                     {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}

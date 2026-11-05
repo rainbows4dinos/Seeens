@@ -1,6 +1,7 @@
 import type { Database } from "@/lib/supabase/database.types";
 import { formatShortPlace } from "@/lib/places";
 import { DEFAULT_TIME_ZONE, safeTimeZone } from "@/lib/outreach/labels";
+import { STATUS_LABELS } from "./status-words";
 
 type Enums = Database["public"]["Enums"];
 export type ConnectionKind = Enums["connection_kind"];
@@ -43,23 +44,18 @@ export const GROUP_TYPE_LABELS: Record<GroupType, string> = {
   other: "Other",
 };
 
-// Order matters: this is also the directory's grouping order.
-export const STATUS_LABELS: Record<ConnectionStatus, string> = {
-  homies: "Homies",
-  lets_play: "Let's play",
-  prospect: "Crush",
-  neutral: "Heard of",
-  avoid: "Avoid",
-};
-
-export const STATUS_HINTS: Record<ConnectionStatus, string> = {
-  homies: "Love playing together, love hanging out, top tour-mate pick.",
-  lets_play: "We both want to play together. Just haven't booked it.",
-  prospect: "We'd like to. Not mutual yet.",
-  neutral: "We know of them. No plans.",
-  avoid: "Nope.",
-};
-
+// Status words by type (#139) live in status-words.ts (no imports, so tests run it).
+export {
+  STATUS_WORDS,
+  STATUS_HINT_WORDS,
+  STATUS_LABELS,
+  STATUS_HINTS,
+  wordSetFor,
+  statusLabel,
+  statusHint,
+  playedWords,
+  type WordSet,
+} from "./status-words";
 export const KINDS = Object.keys(KIND_LABELS) as ConnectionKind[];
 export const PERSON_ROLES = Object.keys(PERSON_ROLE_LABELS) as PersonRole[];
 export const GROUP_TYPES = Object.keys(GROUP_TYPE_LABELS) as GroupType[];
