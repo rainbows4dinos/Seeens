@@ -167,6 +167,8 @@ insert into public.affiliations (workspace_id, from_connection_id, to_connection
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000013', 'member', 'vocals', true, 'Cover band, weddings and dive bars'),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000006', 'works_with', 'DJ', true, 'Thursday darkwave night'),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000008', 'c0000000-0000-0000-0000-000000000003', 'member', 'bass', false, 'Left in 2025'),
+  -- Morgan: Heard of, but drums in The Tin Hollows now, so close to us (#140)
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000008', 'c0000000-0000-0000-0000-000000000001', 'member', 'drums', true, null),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000004', 'works_with', 'books shows', true, null),
   -- Us, our label, a label mate, and a shared member
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000010', 'c0000000-0000-0000-0000-000000000011', 'on_label', null, true, null),

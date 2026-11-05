@@ -75,20 +75,20 @@ insert into pages values
     p_after => (select r -> 'next' from pages where k = 'p2'), p_counts => false));
 
 -- Order and paging
-select is(pg_temp.names(r), array['Ants', 'bees', 'Cats', 'Dogs', '100% Noise', 'Grey Static', 'Jo Example'],
-  'status groups in order, names case-insensitive; Us, Avoid and archived left out')
+select is(pg_temp.names(r), array['Ants', 'bees', 'Cats', 'Dogs', 'Jo Example', '100% Noise', 'Grey Static'],
+  'status groups in order, names case-insensitive; Us, Avoid and archived left out; Jo (Heard of) shows as Let''s play via Dogs (#140)')
   from pages where k = 'all';
 select is(pg_temp.names(r), array['Ants', 'bees', 'Cats'], 'first page of three') from pages where k = 'p1';
-select is(pg_temp.names(r), array['Dogs', '100% Noise', 'Grey Static'], 'second page picks up after the first') from pages where k = 'p2';
-select is(pg_temp.names(r), array['Jo Example'], 'last page') from pages where k = 'p3';
+select is(pg_temp.names(r), array['Dogs', 'Jo Example', '100% Noise'], 'second page picks up after the first') from pages where k = 'p2';
+select is(pg_temp.names(r), array['Grey Static'], 'last page') from pages where k = 'p3';
 select ok((select r -> 'next' from pages where k = 'p1') is not null, 'a full page with more after it has a next cursor');
 select ok((select r -> 'next' from pages where k = 'p3') = 'null'::jsonb, 'the last page has no next cursor');
 select ok((select r -> 'counts' from pages where k = 'p2') = 'null'::jsonb, 'counts are skipped when not asked for');
 
 -- Counts
-select is((select r -> 'counts' from pages where k = 'all') - 'towns' - 'types',
+select is((select r -> 'counts' from pages where k = 'all') - 'towns' - 'types' - 'instruments',
   '{"view": 8, "total": 8, "matched": 7, "hidden_avoid": 1,
-    "groups": {"homies": 3, "lets_play": 1, "prospect": 0, "neutral": 3, "avoid": 0}}'::jsonb,
+    "groups": {"homies": 3, "lets_play": 2, "prospect": 0, "neutral": 2, "avoid": 0}}'::jsonb,
   'view, total, matched, per-group counts, and the hidden Avoid count; Us counted nowhere');
 select is((select jsonb_array_length(r -> 'counts' -> 'towns') from pages where k = 'all'), 2, 'towns in this half');
 
@@ -103,7 +103,7 @@ select is(
 
 -- Filters
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => 'E')),
-  array['bees', '100% Noise', 'Grey Static', 'Jo Example'], 'name search is a case-insensitive substring');
+  array['bees', 'Jo Example', '100% Noise', 'Grey Static'], 'name search is a case-insensitive substring');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => 'merwulf')),
   '{}'::text[], 'searching for Us finds nothing');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => '0%')),
@@ -113,7 +113,7 @@ select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-000000000
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_statuses => '{homies,avoid}')),
   array['Ants', 'bees', 'Cats', 'Eels'], 'asked-for statuses, Avoid included');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_statuses => '{neutral}')),
-  array['100% Noise', 'Grey Static', 'Jo Example'], 'Us stays out even when its status is asked for');
+  array['100% Noise', 'Grey Static'], 'Us stays out even when its status is asked for');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_kind => 'group', p_group_type => 'venue')),
   array['Cats'], 'group type');
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_kind => 'person', p_person_role => 'dj')),
@@ -125,7 +125,7 @@ select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-000000000
 select is(
   (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false,
     p_statuses => '{lets_play}', p_list_status => 'lets_play') -> 'counts') ->> 'total',
-  '1', 'a list view totals its own status');
+  '2', 'a list view totals its own status (Jo counts via Dogs)');
 
 -- Type tabs (#122)
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'bands')),
@@ -139,9 +139,9 @@ select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-000000000
 select is((select r -> 'counts' -> 'types' from pages where k = 'all'),
   '{"bands": 4, "people": 1, "venues": 1, "more": 1, "all": 7}'::jsonb, 'tab counts follow the other filters');
 select is(
-  (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'people') -> 'counts') - 'towns' - 'types',
+  (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'people') -> 'counts') - 'towns' - 'types' - 'instruments',
   '{"view": 8, "total": 1, "matched": 1, "hidden_avoid": 0,
-    "groups": {"homies": 0, "lets_play": 0, "prospect": 0, "neutral": 1, "avoid": 0}}'::jsonb,
+    "groups": {"homies": 0, "lets_play": 1, "prospect": 0, "neutral": 0, "avoid": 0}}'::jsonb,
   'a tab counts only its own rows (the empty workspace check still sees everyone)');
 
 -- Archived half

@@ -27,6 +27,7 @@ import { NoWorkspace } from "@/components/no-workspace";
 import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
 import { hasFilters, type DirectoryFilters } from "@/lib/connections/filters";
+import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
 
 export default function DirectoryPage({ searchParams }: PageProps<"/">) {
   return (
@@ -72,7 +73,7 @@ async function Directory({
     .sort((x, y) => x[1].localeCompare(y[1]));
   // The results' state resets whenever the filters change.
   const query = resultsQuery(params);
-  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || archived);
+  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || filters.instrument || archived);
 
   return (
     // key: a server render with a different layout (a shared link) resets it.
@@ -94,6 +95,7 @@ async function Directory({
               filters={filters}
               scenes={nestScenes(scenes)}
               towns={towns}
+              instruments={c.instruments}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
               add={<AddConnection tab={tab} className="button-icon md:hidden" iconOnly />}
@@ -188,7 +190,7 @@ async function Directory({
   );
 }
 
-const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", archived: false };
+const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", archived: false };
 
 // One tab per kind of connection (#122), each with its count under the
 // other filters. Phones show Bands, People, and a third tab (Venues, or the
@@ -233,6 +235,8 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   f.statuses.forEach((st) => p.append("status", st));
   if (f.scene) p.set("scene", f.scene);
   if (f.town) p.set("town", f.town);
+  // Plays only means something where there are people.
+  if (f.instrument && (tab === "people" || tab === "all")) p.set("plays", f.instrument);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
   return qs ? `/?${qs}` : "/";
@@ -273,6 +277,7 @@ function FilterForm({
   filters: f,
   scenes,
   towns,
+  instruments,
   open,
   layoutToggle,
   add,
@@ -284,11 +289,14 @@ function FilterForm({
     children: { id: string; name: string }[];
   }[];
   towns: (readonly [string, string])[];
+  instruments: Instrument[];
   open: boolean;
   layoutToggle: React.ReactNode;
   add: React.ReactNode;
 }) {
-  const active = [f.statuses.length, f.scene, f.town, f.archived].filter(Boolean).length;
+  // Plays (#140) is for people: on People and All, and only if anyone plays something.
+  const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
+  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument, f.archived].filter(Boolean).length;
   return (
     <AutoFilterForm
       role="search"
@@ -380,6 +388,18 @@ function FilterForm({
             defaultValue={f.town ? [f.town] : []}
             autoSubmit
           />
+          {showPlays ? (
+            <Combobox
+              label="Plays"
+              labelClassName="sr-only"
+              name="plays"
+              multiple={false}
+              placeholder="Plays"
+              options={instruments.map((i) => ({ value: i, label: INSTRUMENTS[i] }))}
+              defaultValue={f.instrument ? [f.instrument] : []}
+              autoSubmit
+            />
+          ) : null}
           <label className="choice">
             <input type="checkbox" name="archived" value="1" defaultChecked={f.archived} />
             Archived

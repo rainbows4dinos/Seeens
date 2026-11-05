@@ -6,6 +6,7 @@ import { signPhotos } from "@/lib/photos/urls";
 import { readFilters, type DirectoryFilters } from "./filters";
 import type { ConnectionKind, ConnectionStatus, GroupType, PersonRole } from "./labels";
 import { readTab, type Tab } from "./tabs";
+import { INSTRUMENTS, playsLine, type Instrument } from "@/lib/affiliations/instruments";
 
 export { DEFAULT_TAB, TABS, detailFor, directoryHrefFor, readTab, tabFor, type Tab } from "./tabs";
 
@@ -56,8 +57,10 @@ export type DirectoryItem = {
   scenes: string[];
   /** A band's current members, by name (#122). */
   members: string[];
-  /** The bands a person plays in now, by name (#122). */
-  plays_in: string[];
+  /** What a person plays, from their band roles (#140): "Drums in The Tin Hollows · also plays bass". */
+  plays: string | null;
+  /** The band a Heard-of person takes their status from ("close to us", #140). */
+  via: string | null;
   /** The first line of the notes, for Labels & more (#122). */
   note: string | null;
 };
@@ -77,6 +80,8 @@ export type DirectoryCounts = {
   hiddenAvoid: number;
   /** Each tab's count under the other filters. */
   types: TabCounts;
+  /** Instruments people in this half play, for the Plays filter (#140). */
+  instruments: Instrument[];
   towns: { id: string; name: string; region: string | null; region_code: string | null; country: string | null; country_code: string | null }[];
 };
 
@@ -86,7 +91,14 @@ export function readDirectoryQuery(params: Params): DirectoryQuery {
   return { tab: readTab(params.type), filters: readFilters(params) };
 }
 
-type RpcRow = { id: string; label_mate: boolean; shares_member: boolean };
+type RpcRow = {
+  id: string;
+  /** For people who are Heard of, the closest status of their current bands (#140). */
+  status: ConnectionStatus;
+  via: string | null;
+  label_mate: boolean;
+  shares_member: boolean;
+};
 type RpcResult = {
   rows: RpcRow[];
   next: Cursor | null;
@@ -97,6 +109,7 @@ type RpcResult = {
     groups: GroupCounts;
     hidden_avoid: number;
     types: TabCounts;
+    instruments: string[];
     towns: DirectoryCounts["towns"];
   } | null;
 };
@@ -114,6 +127,7 @@ export async function loadDirectoryPage(
     p_q: filters.q,
     p_statuses: filters.statuses,
     p_type: tab,
+    p_instrument: filters.instrument || undefined,
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
     p_hide_avoid: !archived,
@@ -130,7 +144,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, notes, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, archived_at ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, archived_at ) )",
+          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, notes, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, archived_at ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, archived_at ) )",
         )
         .eq("workspace_id", ws)
         .in("id", ids)
@@ -163,8 +177,18 @@ export async function loadDirectoryPage(
           (t): t is string => Boolean(t),
         ),
         scenes: connection_scenes.map((cs) => sceneNames.get(cs.scene_id)).filter((n): n is string => Boolean(n)),
+        // The status that groups the row: their own, or via a band (#140).
+        status: r.status ?? rest.status,
+        via: r.via ?? null,
         members: names(incoming),
-        plays_in: names(outgoing),
+        plays:
+          rest.kind === "person"
+            ? playsLine(
+                outgoing
+                  .filter((a) => a.kind === "member" && a.other && !a.other.archived_at)
+                  .map((a) => ({ band: a.other!.name, role: a.role, current: a.is_current })),
+              )
+            : null,
         note: notes?.split("\n").find((line) => line.trim())?.trim() ?? null,
       },
     ];
@@ -182,6 +206,7 @@ export async function loadDirectoryPage(
           groups: c.groups,
           hiddenAvoid: c.hidden_avoid,
           types: c.types,
+          instruments: c.instruments.filter((i): i is Instrument => i in INSTRUMENTS),
           towns: c.towns,
         } satisfies DirectoryCounts)
       : null,

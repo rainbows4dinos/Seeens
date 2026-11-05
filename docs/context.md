@@ -24,7 +24,7 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
   - **Crush:** we'd like to connect; not mutual yet. Stored as `prospect`.
   - **Heard of:** we know of them, no particular plans. The default. Stored as `neutral`.
   - **Avoid:** the honest "nope" (cold shoulder, or played once and that was enough). Kept, not archived, and can change.
-  Status is not inherited through affiliations. Changes are logged.
+  A stored status is never changed through affiliations. A person left at Heard of is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Crush), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
 - **Played together:** a separate fact, what has already happened, versus how the band feels and what's next. Distinguishes warm leads from cold ones when planning a town.
 - **Outreach entry:** dated history with channel, notes, and author, linked to a connection.
 - **Next action:** current planned step, optional follow-up date, and responsible member. No priority; the date is enough.

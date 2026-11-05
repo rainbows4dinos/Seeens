@@ -131,7 +131,15 @@ export function DirectoryResults({
 // Tags: played together, the network tags, then scenes (not on All, which
 // keeps to type, town, and latest).
 function tagsFor(c: DirectoryItem, tab: Tab) {
-  return [...new Set([c.played_together ? "Played together" : null, ...c.tags, ...(tab === "all" ? [] : c.scenes)])].filter(
+  return [
+    ...new Set([
+      // "Close to us" (#140): which band a person's status comes from.
+      c.via ? `Via ${c.via}` : null,
+      c.played_together ? "Played together" : null,
+      ...c.tags,
+      ...(tab === "all" ? [] : c.scenes),
+    ]),
+  ].filter(
     (t): t is string => Boolean(t),
   );
 }
