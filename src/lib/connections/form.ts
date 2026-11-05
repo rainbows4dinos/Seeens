@@ -171,6 +171,9 @@ export function validate(values: ConnectionFormValues):
     : null;
   if (kind === "person" && personRoles.length === 0) errors.personRoles = "Pick at least one.";
   if (kind === "group" && !groupType) errors.groupType = "Pick one.";
+  if (kind === "group" && values.isUs && groupType && groupType !== "band") {
+    errors.isUs = "Only a band can be ours. Change the type back to Band, or untick this.";
+  }
 
   if (!STATUSES.includes(values.status as ConnectionStatus)) errors.status = "Choose a status.";
 

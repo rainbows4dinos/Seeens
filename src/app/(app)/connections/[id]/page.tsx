@@ -57,6 +57,8 @@ async function Connection({
   const tz = membership.timeZone;
   const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
+  // A label we're on is "our label": from our band's label link, not a checkbox.
+  const ourLabel = detail.affiliations.incoming.some((a) => a.kind === "on_label" && a.other?.is_us && a.is_current);
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
   const photos = await signPhotos([c.photo_path, c.photo_original_path]);
@@ -121,6 +123,7 @@ async function Connection({
           <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
             {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
             {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}
+            {ourLabel ? <span className="tag font-semibold">Our label</span> : null}
             {sharedWithUs.length ? (
               <span className="tag">Shares a member with us: {sharedWithUs.join(", ")}</span>
             ) : null}
