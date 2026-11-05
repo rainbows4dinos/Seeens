@@ -114,7 +114,7 @@ function FormBody({
     group_type: (GROUP_TYPES.includes(groupType as GroupType) ? groupType : null) as GroupType | null,
     person_roles: v.personRoles.filter((r): r is PersonRole => PERSON_ROLES.includes(r as PersonRole)),
   };
-  const us = kind === "group" && isUs;
+  const us = kind === "group" && groupType === "band" && isUs;
   const errorCount =
     Object.keys(errors).filter((k) => k !== "form" && k !== "linkUrls").length +
     Object.keys(errors.linkUrls ?? {}).length;
@@ -211,7 +211,9 @@ function FormBody({
           />
         ) : null}
 
-        {kind === "group" ? (
+        {/* Only a band can be us. Our own band keeps the box even if its type
+            changes, so the save can say why instead of quietly dropping it. */}
+        {kind === "group" && (groupType === "band" || v.isUs) ? (
           <div className="flex flex-col gap-1">
             <label className="choice self-start">
               <input
