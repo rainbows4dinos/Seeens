@@ -7,7 +7,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 // The directory's search and filter form. A plain GET form (the URL stays
 // shareable), navigated client-side by next/form. Menus apply as soon as
-// they change, and so does the Archived checkbox; the name search still waits
+// they change (and so would any checkbox); the name search still waits
 // for Enter or the button.
 export function AutoFilterForm({
   children,

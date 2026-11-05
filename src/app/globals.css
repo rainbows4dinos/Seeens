@@ -647,8 +647,10 @@
       grid-area: 1 / 1 / 2 / 4;
       justify-self: start;
     }
+    /* Spans the 1fr column too, so a long "Add Connection" doesn't widen
+       the Cards/List column and leave a gap after the filters. */
     .bar-add {
-      grid-area: 1 / 4;
+      grid-area: 1 / 3 / 2 / 5;
     }
     /* The search form and its row step aside so their parts sit in the
        bar's grid: search, the filter fields, then Cards/List on the right. */
@@ -682,6 +684,17 @@
   .bar-panel-closed {
     display: none;
   }
+  /* A tag that's a toggle (quick instruments on Add Member, #140): ink when on. */
+  .tag-button {
+    cursor: pointer;
+  }
+  .tag-button:hover {
+    background: var(--color-bg-hover);
+  }
+  .tag-button[aria-pressed="true"] {
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
   /* The "Also mark their members?" offer (#124): ink checkboxes, like Choice. */
   .offer-list input {
     width: 1.125rem;
@@ -701,7 +714,7 @@
     overflow: hidden;
   }
   /* The filter fields: one to a row on phones (Figma), four from tablet, and in the
-     search row from 1280 (status 220px; scene and town split the rest). */
+     search row from 1280 (status 220px; scene, town, and plays split the rest). */
   .filter-fields {
     display: grid;
     gap: 12px;
@@ -717,10 +730,10 @@
       & > .filter-status {
         width: 13.75rem;
       }
-      /* Scene and town share what's left of the row, 160px at least. */
+      /* Scene, town, and plays share what's left of the row, 128px at least. */
       & > :not(.filter-status, .choice, .sr-only) {
-        flex: 1 1 10rem;
-        min-width: 10rem;
+        flex: 1 1 8rem;
+        min-width: 8rem;
       }
     }
   }

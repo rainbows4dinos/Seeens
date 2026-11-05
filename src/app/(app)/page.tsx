@@ -27,6 +27,7 @@ import { NoWorkspace } from "@/components/no-workspace";
 import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
 import { hasFilters, type DirectoryFilters } from "@/lib/connections/filters";
+import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
 
 export default function DirectoryPage({ searchParams }: PageProps<"/">) {
   return (
@@ -72,7 +73,7 @@ async function Directory({
     .sort((x, y) => x[1].localeCompare(y[1]));
   // The results' state resets whenever the filters change.
   const query = resultsQuery(params);
-  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || archived);
+  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || filters.instrument);
 
   return (
     // key: a server render with a different layout (a shared link) resets it.
@@ -94,6 +95,7 @@ async function Directory({
               filters={filters}
               scenes={nestScenes(scenes)}
               towns={towns}
+              instruments={c.instruments}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
               add={<AddConnection tab={tab} className="button-icon md:hidden" iconOnly />}
@@ -105,7 +107,12 @@ async function Directory({
 
         {c.view === 0 ? (
           archived ? (
-            <p className="text-muted">Nothing archived.</p>
+            <p className="text-sm text-muted">
+              Nothing archived.{" "}
+              <Link href={directoryHref(tab, EMPTY)} className="link">
+                Back to the directory
+              </Link>
+            </p>
           ) : (
             <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
               <p className="font-medium">No connections yet.</p>
@@ -116,6 +123,11 @@ async function Directory({
               <Link href="/connections/new" className="button-secondary">
                 Add Your First Connection
               </Link>
+              {c.archived ? (
+                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link text-sm">
+                  {c.archived} archived
+                </Link>
+              ) : null}
             </div>
           )
         ) : (
@@ -124,11 +136,14 @@ async function Directory({
               className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted"
               aria-live="polite"
             >
+              {/* The archived view says so first, with the way back (Archived
+                  lives here, not in the filter bar: it's a different half). */}
+              {archived ? <p className="font-medium text-primary">Archived</p> : null}
               <p>
                 {/* How many match, never how many are loaded (that's under the list). */}
                 {filtering
                   ? `${c.matched} of ${c.total} match`
-                  : `${c.matched} ${c.matched === 1 ? current.one : current.many}${archived ? " archived" : ""}`}
+                  : `${c.matched} ${c.matched === 1 ? current.one : current.many}`}
               </p>
               {c.hiddenAvoid ? (
                 <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
@@ -143,6 +158,15 @@ async function Directory({
               {after ? (
                 <Link href={query ? `/?${query}` : "/"} className="link">
                   Back to the start
+                </Link>
+              ) : null}
+              {archived ? (
+                <Link href={directoryHref(tab, EMPTY)} className="link">
+                  Back to the directory
+                </Link>
+              ) : c.archived ? (
+                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
+                  {c.archived} archived
                 </Link>
               ) : null}
             </div>
@@ -188,7 +212,7 @@ async function Directory({
   );
 }
 
-const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", archived: false };
+const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", archived: false };
 
 // One tab per kind of connection (#122), each with its count under the
 // other filters. Phones show Bands, People, and a third tab (Venues, or the
@@ -233,6 +257,8 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   f.statuses.forEach((st) => p.append("status", st));
   if (f.scene) p.set("scene", f.scene);
   if (f.town) p.set("town", f.town);
+  // Plays only means something where there are people.
+  if (f.instrument && (tab === "people" || tab === "all")) p.set("plays", f.instrument);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
   return qs ? `/?${qs}` : "/";
@@ -273,6 +299,7 @@ function FilterForm({
   filters: f,
   scenes,
   towns,
+  instruments,
   open,
   layoutToggle,
   add,
@@ -284,11 +311,14 @@ function FilterForm({
     children: { id: string; name: string }[];
   }[];
   towns: (readonly [string, string])[];
+  instruments: Instrument[];
   open: boolean;
   layoutToggle: React.ReactNode;
   add: React.ReactNode;
 }) {
-  const active = [f.statuses.length, f.scene, f.town, f.archived].filter(Boolean).length;
+  // Plays (#140) is for people: on People and All, and only if anyone plays something.
+  const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
+  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument].filter(Boolean).length;
   return (
     <AutoFilterForm
       role="search"
@@ -296,6 +326,8 @@ function FilterForm({
       className="bar-search"
     >
       {tab !== DEFAULT_TAB ? <input type="hidden" name="type" value={tab} /> : null}
+      {/* The archived view keeps its half while you search and filter. */}
+      {f.archived ? <input type="hidden" name="archived" value="1" /> : null}
       <FilterDisclosure
         initialOpen={open}
         active={active}
@@ -346,7 +378,8 @@ function FilterForm({
             className="field filter-status"
             defaultValue={f.statuses.length === 1 ? f.statuses[0] : ""}
           >
-            <option value="">Everyone but Avoid</option>
+            {/* Archived ones keep Avoid in view (nothing's hidden there). */}
+            <option value="">{f.archived ? "Everyone" : "Everyone but Avoid"}</option>
             {STATUSES.map((st) => (
               <option key={st} value={st}>
                 {STATUS_LABELS[st]}
@@ -380,10 +413,18 @@ function FilterForm({
             defaultValue={f.town ? [f.town] : []}
             autoSubmit
           />
-          <label className="choice">
-            <input type="checkbox" name="archived" value="1" defaultChecked={f.archived} />
-            Archived
-          </label>
+          {showPlays ? (
+            <Combobox
+              label="Plays"
+              labelClassName="sr-only"
+              name="plays"
+              multiple={false}
+              placeholder="Plays"
+              options={instruments.map((i) => ({ value: i, label: INSTRUMENTS[i] }))}
+              defaultValue={f.instrument ? [f.instrument] : []}
+              autoSubmit
+            />
+          ) : null}
         </div>
       </FilterDisclosure>
     </AutoFilterForm>

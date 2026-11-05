@@ -8,6 +8,9 @@ import { useActionState, useId, useRef, useState, useTransition } from "react";
 import { DetachedForm } from "@/components/detached-form";
 import { PasteLineup } from "@/components/paste-lineup";
 import { CarryFields, hasCarry, pickAll, type Carry } from "@/components/carry-fields";
+import { INSTRUMENTS, instrumentsFromRole, type Instrument } from "@/lib/affiliations/instruments";
+
+const QUICK_INSTRUMENTS: Instrument[] = ["vocals", "guitar", "bass", "drums", "keyboards", "synth"];
 import { addLink, removeLink, updateLink, type LinkState } from "@/lib/affiliations/actions";
 import {
   SECTION_ORDER,
@@ -275,6 +278,8 @@ function AddLinkForm({
   const id = useId();
   const types = newGroupTypes(option.target);
   const [pick, setPick] = useState(() => (hasCarry(carry) ? pickAll(carry) : null));
+  const [role, setRole] = useState("");
+  const roleRef = useRef<HTMLInputElement>(null);
 
   return (
     <div role="group" aria-labelledby={`${id}-title`} className="flex flex-col gap-4 panel p-4">
@@ -334,7 +339,44 @@ function AddLinkForm({
         <label htmlFor={`${id}-role`} className="label">
           Role or Detail <span className="font-normal text-muted">(Optional)</span>
         </label>
-        <input {...noAutofill} id={`${id}-role`} form={id} name="role" placeholder={option.rolePlaceholder} className="field" />
+        <input
+          {...noAutofill}
+          ref={roleRef}
+          id={`${id}-role`}
+          form={id}
+          name="role"
+          placeholder={option.rolePlaceholder}
+          className="field"
+          onChange={(e) => setRole(e.target.value)}
+        />
+        {/* Members: one tap for the usual instruments, so roles come out tidy
+            and "Plays" can read them (#140). Typing still works for anything else. */}
+        {option.kind === "member" ? (
+          <div role="group" aria-label="Common instruments" className="flex flex-wrap gap-2">
+            {QUICK_INSTRUMENTS.map((i) => {
+              const on = instrumentsFromRole(role).includes(i);
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  className="tag tag-button"
+                  aria-pressed={on}
+                  onClick={() => {
+                    const parts = role.split(",").map((p) => p.trim()).filter(Boolean);
+                    const next = on
+                      ? parts.filter((p) => !instrumentsFromRole(p).includes(i))
+                      : [...parts, INSTRUMENTS[i]];
+                    const value = next.join(", ");
+                    setRole(value);
+                    if (roleRef.current) roleRef.current.value = value;
+                  }}
+                >
+                  {INSTRUMENTS[i]}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
 
       <label className="choice self-start">

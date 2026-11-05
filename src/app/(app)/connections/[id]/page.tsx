@@ -9,6 +9,7 @@ import { DateLines } from "@/components/date-line";
 import { getConnection } from "@/lib/connections/queries";
 import { directoryHrefFor } from "@/lib/connections/directory";
 import { loadPlayedOffer } from "@/lib/connections/played-together";
+import { INSTRUMENTS, playsAll } from "@/lib/affiliations/instruments";
 import { createClient } from "@/lib/supabase/server";
 import {
   STATUS_LABELS,
@@ -51,6 +52,15 @@ async function Connection({
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
   const photos = await signPhotos([c.photo_path, c.photo_original_path]);
+  // What they play, from their band roles, current and former (#140).
+  const plays =
+    c.kind === "person"
+      ? playsAll(
+          detail.affiliations.outgoing
+            .filter((a) => a.kind === "member" && a.other)
+            .map((a) => ({ band: a.other!.name, role: a.role, current: a.is_current })),
+        )
+      : [];
   // Just saved from the edit form with "played together" newly on (#124).
   const playedOffer =
     offer === "played" && c.played_together && !c.is_us
@@ -107,6 +117,19 @@ async function Connection({
               <span className="tag">Shares a member with us: {sharedWithUs.join(", ")}</span>
             ) : null}
           </div>
+          {plays.length ? (
+            <p className="text-sm">
+              <span className="text-muted">Plays: </span>
+              {plays.map((i, n) => (
+                <span key={i}>
+                  {n ? ", " : null}
+                  <Link href={`/?type=people&plays=${i}`} className="link">
+                    {INSTRUMENTS[i]}
+                  </Link>
+                </span>
+              ))}
+            </p>
+          ) : null}
           {c.scenes.length ? (
             <p className="text-sm">
               <span className="text-muted">Scenes: </span>

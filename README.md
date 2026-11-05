@@ -31,13 +31,14 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Scenes:** organize connections by locality and scene, with multiple memberships when useful.
 - **Status:** one band-wide choice per connection: Homies, Let's play, Crush, Heard of, or Avoid, plus whether you've played together.
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
+- **What people play:** read from their band roles ("vocals, guitar"), current and former, on the person's page and in the People list, with a Plays filter. Someone you've only heard of shows under the closest status of a band they're in, marked "via" that band; their own status wins, and an Avoid band never pulls them into Avoid.
 - **By type:** the directory has a tab for Bands, People, Venues, and Labels & more, plus All, each with its count. Status is a filter: everyone but Avoid, or one status, like Crush (who you'd like to know) or Let's play (the booking backlog).
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
 - **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV.
 
-Search by name and filter by status, scene (a bigger scene includes the scenes inside it), and town, or look at the archived ones. Crushes are picked by hand; automated discovery is deferred.
+Search by name and filter by status, scene (a bigger scene includes the scenes inside it), town, and what people play, or open the archived ones from the count line. Crushes are picked by hand; automated discovery is deferred.
 
 ## Architecture
 
@@ -87,10 +88,11 @@ Priorities live on the issues (`priority: now`, `next`, `later`); this is the or
 The MVP launched on November 1, 2026. What it does:
 
 - Email/password sign-in, with access limited to workspace members.
-- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, and archived filters.
+- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, and plays filters; archived ones are a link under the bar.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
 - Status and "we've played together," saved as soon as you change them. Marking a band offers to mark its current members too (and a person, their bands); new members can take the band's town, scenes, and played together.
-- Affiliations between connections (members, labels, related bands, venues).
+- Affiliations between connections (members, labels, related bands, venues), with quick instrument picks when adding a member.
+- What people play, from their band roles, and "via" status for people you've only heard of.
 - Outreach log, next actions, and the Follow-ups page.
 - Connection photos through the copier, shown on cards, list rows, and the connection page.
 - CSV export.

@@ -6,6 +6,8 @@
 //   Jo Example: vox, keys (former)      -> Jo Example · Vocals, Keyboards · former
 //   Past members                        -> (heading: rows below are former)
 
+import { INSTRUMENTS, INSTRUMENT_ALIASES } from "./instruments.ts";
+
 export type LineupRow = {
   name: string;
   roles: string; // readable, "Vocals, Guitar"; "" when none given
@@ -16,33 +18,17 @@ export const MAX_ROLE_LENGTH = 80;
 export const MAX_NAME_LENGTH = 200;
 export const MAX_ROWS = 40;
 
-// Common shorthand. Anything not listed is kept as typed (title-cased).
+// Common shorthand. Instruments come from instruments.ts (the same list the
+// directory reads "Plays" with, #140), as their labels; a few band roles keep
+// a finer label here. Anything not listed is kept as typed (title-cased).
 const ROLE_ALIASES: Record<string, string> = {
-  vox: "Vocals",
-  vocal: "Vocals",
-  vocals: "Vocals",
-  voice: "Vocals",
-  singer: "Vocals",
+  ...Object.fromEntries(Object.entries(INSTRUMENTS).map(([key, label]) => [key.replace(/_/g, " "), label])),
+  ...Object.fromEntries(Object.entries(INSTRUMENT_ALIASES).map(([alias, key]) => [alias, INSTRUMENTS[key]])),
   "lead vocals": "Lead Vocals",
   "backing vocals": "Backing Vocals",
   bvs: "Backing Vocals",
-  gtr: "Guitar",
-  gtrs: "Guitar",
-  guitars: "Guitar",
   "lead guitar": "Lead Guitar",
   "rhythm guitar": "Rhythm Guitar",
-  bass: "Bass",
-  "bass guitar": "Bass",
-  keys: "Keyboards",
-  key: "Keyboards",
-  keyboard: "Keyboards",
-  keyboards: "Keyboards",
-  synth: "Synth",
-  synths: "Synth",
-  drum: "Drums",
-  drums: "Drums",
-  percussion: "Percussion",
-  perc: "Percussion",
 };
 
 // Small words that stay lowercase inside a title-cased role.
