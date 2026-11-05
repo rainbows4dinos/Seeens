@@ -141,6 +141,14 @@ values
    'Dee Sample', 'person', '{musician}', null, 'homies', true, false,
    '10000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111');
 
+-- An archived band, so the "1 archived" link under the bar has something to open.
+insert into public.connections
+  (id, workspace_id, name, kind, person_roles, group_type, status, locality_id, archived_at, created_by)
+values
+  ('c0000000-0000-0000-0000-000000000015', 'aaaaaaaa-0000-0000-0000-000000000001',
+   'Cassette Funeral', 'group', '{}', 'band', 'neutral',
+   '10000000-0000-0000-0000-000000000001', now(), '11111111-1111-1111-1111-111111111111');
+
 insert into public.connection_links (workspace_id, connection_id, label, url, position) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Bandcamp', 'https://example.com/tin-hollows', 0),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Instagram', 'https://example.com/@tinhollows', 1),

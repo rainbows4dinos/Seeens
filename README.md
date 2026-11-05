@@ -38,7 +38,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV.
 
-Search by name and filter by status, scene (a bigger scene includes the scenes inside it), and town, or look at the archived ones. Crushes are picked by hand; automated discovery is deferred.
+Search by name and filter by status, scene (a bigger scene includes the scenes inside it), town, and what people play, or open the archived ones from the count line. Crushes are picked by hand; automated discovery is deferred.
 
 ## Architecture
 
@@ -88,7 +88,7 @@ Priorities live on the issues (`priority: now`, `next`, `later`); this is the or
 The MVP launched on November 1, 2026. What it does:
 
 - Email/password sign-in, with access limited to workspace members.
-- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, plays, and archived filters.
+- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, and plays filters; archived ones are a link under the bar.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
 - Status and "we've played together," saved as soon as you change them. Marking a band offers to mark its current members too (and a person, their bands); new members can take the band's town, scenes, and played together.
 - Affiliations between connections (members, labels, related bands, venues), with quick instrument picks when adding a member.

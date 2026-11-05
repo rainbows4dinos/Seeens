@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(32);
 
 insert into auth.users (id, email) values
   ('d9111111-1111-1111-1111-111111111111', 'page-alex@example.com'),
@@ -87,9 +87,9 @@ select ok((select r -> 'counts' from pages where k = 'p2') = 'null'::jsonb, 'cou
 
 -- Counts
 select is((select r -> 'counts' from pages where k = 'all') - 'towns' - 'types' - 'instruments',
-  '{"view": 8, "total": 8, "matched": 7, "hidden_avoid": 1,
+  '{"view": 8, "total": 8, "matched": 7, "hidden_avoid": 1, "archived": 1,
     "groups": {"homies": 3, "lets_play": 2, "prospect": 0, "neutral": 2, "avoid": 0}}'::jsonb,
-  'view, total, matched, per-group counts, and the hidden Avoid count; Us counted nowhere');
+  'view, total, matched, per-group counts, the hidden Avoid count, and how many are archived; Us counted nowhere');
 select is((select jsonb_array_length(r -> 'counts' -> 'towns') from pages where k = 'all'), 2, 'towns in this half');
 
 -- Tags
@@ -140,9 +140,13 @@ select is((select r -> 'counts' -> 'types' from pages where k = 'all'),
   '{"bands": 4, "people": 1, "venues": 1, "more": 1, "all": 7}'::jsonb, 'tab counts follow the other filters');
 select is(
   (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'people') -> 'counts') - 'towns' - 'types' - 'instruments',
-  '{"view": 8, "total": 1, "matched": 1, "hidden_avoid": 0,
+  '{"view": 8, "total": 1, "matched": 1, "hidden_avoid": 0, "archived": 0,
     "groups": {"homies": 0, "lets_play": 1, "prospect": 0, "neutral": 0, "avoid": 0}}'::jsonb,
   'a tab counts only its own rows (the empty workspace check still sees everyone)');
+select is((public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => 'zzz', p_type => 'bands') -> 'counts' ->> 'archived')::int,
+  1, 'the archived count is per tab and ignores the other filters');
+select is((public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', true) -> 'counts' ->> 'archived')::int,
+  0, 'no archived count inside the archived view');
 
 -- Archived half
 select is(pg_temp.names(public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', true, p_hide_avoid => false)),

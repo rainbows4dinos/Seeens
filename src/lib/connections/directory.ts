@@ -78,6 +78,8 @@ export type DirectoryCounts = {
   matched: number;
   groups: GroupCounts;
   hiddenAvoid: number;
+  /** How many in this tab are archived (0 inside the archived view). */
+  archived: number;
   /** Each tab's count under the other filters. */
   types: TabCounts;
   /** Instruments people in this half play, for the Plays filter (#140). */
@@ -108,6 +110,7 @@ type RpcResult = {
     matched: number;
     groups: GroupCounts;
     hidden_avoid: number;
+    archived: number;
     types: TabCounts;
     instruments: string[];
     towns: DirectoryCounts["towns"];
@@ -205,6 +208,7 @@ export async function loadDirectoryPage(
           matched: c.matched,
           groups: c.groups,
           hiddenAvoid: c.hidden_avoid,
+          archived: c.archived,
           types: c.types,
           instruments: c.instruments.filter((i): i is Instrument => i in INSTRUMENTS),
           towns: c.towns,

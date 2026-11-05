@@ -253,6 +253,16 @@ as $$
             select count(*) from half h where h.passes and h.status = 'avoid'
               and (p_type is null or p_type = 'all' or h.tab = p_type))
           else 0 end,
+        -- How many in this tab are archived, for the "3 archived" link (no
+        -- other filter applies; it opens the archived view fresh). 0 there.
+        'archived', case when p_archived then 0 else (
+            select count(*) from public.connections a
+            where a.workspace_id = p_workspace_id and not a.is_us and a.archived_at is not null
+              and (p_type is null or p_type = 'all' or case
+                when a.kind = 'person' then 'people'
+                when a.group_type = 'band' then 'bands'
+                when a.group_type = 'venue' then 'venues'
+                else 'more' end = p_type)) end,
         -- Tab counts follow every other filter.
         'types', (
           select jsonb_build_object(
