@@ -177,13 +177,26 @@ insert into public.affiliations (workspace_id, from_connection_id, to_connection
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000008', 'c0000000-0000-0000-0000-000000000003', 'member', 'bass', false, 'Left in 2025'),
   -- Morgan: Known (neutral), but drums in The Tin Hollows now, so close to us (#140)
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000008', 'c0000000-0000-0000-0000-000000000001', 'member', 'drums', true, null),
-  ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000004', 'works_with', 'books shows', true, null),
+  -- Riley books The Lantern Room's weeknights (#48)
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000004', 'books', 'weeknights', true, null),
   -- Us, our label, a label mate, and a shared member
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000010', 'c0000000-0000-0000-0000-000000000011', 'on_label', null, true, null),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000009', 'c0000000-0000-0000-0000-000000000011', 'on_label', null, true, null),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000014', 'c0000000-0000-0000-0000-000000000010', 'member', 'drums', true, null),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000014', 'c0000000-0000-0000-0000-000000000012', 'member', 'drums', false, 'Filled in for a tour'),
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000012', 'c0000000-0000-0000-0000-000000000001', 'related', 'split 7-inch', true, null);
+
+-- Venue details (#48). The basement's were checked a while ago, so they show their age.
+update public.connections set attributes =
+  '{"ages": "21_plus", "capacity": "150_300", "space": "licensed", "pa": true, "sound": true, "backline": false,
+    "book_via": "email", "book_at": "booking@example.com", "accessibility": "Step-free entry; one all-gender restroom"}'::jsonb
+    || jsonb_build_object('checked_on', current_date)
+where id = 'c0000000-0000-0000-0000-000000000004';
+update public.connections set attributes =
+  '{"ages": "all_ages", "capacity": "under_50", "space": "diy", "pa": false, "backline": true,
+    "book_via": "instagram", "book_at": "@staticbasement", "special_terms": "Door split; bring your own PA",
+    "checked_on": "2025-12-01"}'::jsonb
+where id = 'c0000000-0000-0000-0000-000000000006';
 
 -- ---------------------------------------------------------------------------
 -- Outreach and next actions

@@ -1,4 +1,5 @@
 import "server-only";
+import { readVenueDetails, venueLine } from "./venue-details";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
@@ -59,6 +60,8 @@ export type DirectoryItem = {
   members: string[];
   /** What a person plays, from their band roles (#140): "Drums in The Tin Hollows · also plays bass". */
   plays: string | null;
+  /** A venue's ages, capacity, and space (#48): "All ages · 50–150 cap · DIY". */
+  venue: string | null;
   /** The band a Heard-of person takes their status from ("close to us", #140). */
   via: string | null;
   /** The first line of the notes, for Labels & more (#122). */
@@ -90,7 +93,10 @@ export type DirectoryCounts = {
 export type DirectoryQuery = { tab: Tab; filters: DirectoryFilters };
 
 export function readDirectoryQuery(params: Params): DirectoryQuery {
-  return { tab: readTab(params.type), filters: readFilters(params) };
+  const tab = readTab(params.type);
+  const filters = readFilters(params);
+  // Venue details filter only the Venues tab (#48).
+  return { tab, filters: tab === "venues" ? filters : { ...filters, ages: "", capacity: "" } };
 }
 
 type RpcRow = {
@@ -131,6 +137,8 @@ export async function loadDirectoryPage(
     p_statuses: filters.statuses,
     p_type: tab,
     p_instrument: filters.instrument || undefined,
+    p_ages: filters.ages || undefined,
+    p_capacity: filters.capacity || undefined,
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
     p_hide_avoid: !archived,
@@ -147,7 +155,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, notes, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, archived_at ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, archived_at ) )",
+          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, notes, attributes, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, archived_at ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, archived_at ) )",
         )
         .eq("workspace_id", ws)
         .in("id", ids)
@@ -165,7 +173,7 @@ export async function loadDirectoryPage(
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
-    const { connection_scenes, photo_path, notes, incoming, outgoing, ...rest } = d;
+    const { connection_scenes, photo_path, notes, incoming, outgoing, attributes, ...rest } = d;
     // Current, unarchived members only, in name order.
     const names = (links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[]) =>
       links
@@ -192,6 +200,7 @@ export async function loadDirectoryPage(
                   .map((a) => ({ band: a.other!.name, role: a.role, current: a.is_current })),
               )
             : null,
+        venue: rest.group_type === "venue" ? venueLine(readVenueDetails(attributes)) : null,
         note: notes?.split("\n").find((line) => line.trim())?.trim() ?? null,
       },
     ];

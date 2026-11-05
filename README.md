@@ -31,6 +31,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Scenes:** organize connections by locality and scene, with multiple memberships when useful.
 - **Status:** one band-wide choice per connection, in words that fit its type: Homies, Let's play, Eyeing, Known, or Avoid for bands; Favorite and Let's book for venues; Homie and Let's collab for people. Plus whether you've played together (or played here, been booked, been covered, and so on).
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
+- **Venue details:** ages, capacity, DIY or licensed, PA, sound engineer, backline, how to book, accessibility, and special terms. Blank means not sure. Venue rows show "All ages · 50–150 cap · DIY", the Venues tab filters by ages and capacity, and details checked more than six months ago say so.
 - **What people play:** read from their band roles ("vocals, guitar"), current and former, on the person's page and in the People list, with a Plays filter. Someone who's only Known shows under the closest status of a band they're in, marked "via" that band; their own status wins, and an Avoid band never pulls them into Avoid.
 - **By type:** the directory has a tab for Bands, People, Venues, and Labels & more, plus All, each with its count. Status is a filter: everyone but Avoid, or one status, like Eyeing (who you'd like to know) or Let's play (the booking backlog).
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
@@ -88,10 +89,11 @@ Priorities live on the issues (`priority: now`, `next`, `later`); this is the or
 The MVP launched on November 1, 2026. What it does:
 
 - Email/password sign-in, with access limited to workspace members.
-- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, and plays filters; archived ones are a link under the bar.
+- Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, plays, ages, and capacity filters; archived ones are a link under the bar.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
 - Status and "we've played together," saved as soon as you change them. Marking a band offers to mark its current members too (and a person, their bands); new members can take the band's town, scenes, and played together.
-- Affiliations between connections (members, labels, related bands, venues), with quick instrument picks when adding a member.
+- Affiliations between connections (members, bookers, labels, related bands, venues), with quick instrument picks when adding a member.
+- Venue details, and who books each room (a person or a promoter).
 - What people play, from their band roles, and "via" status for people you've only heard of.
 - Outreach log, next actions, and the Follow-ups page.
 - Connection photos through the copier, shown on cards, list rows, and the connection page.

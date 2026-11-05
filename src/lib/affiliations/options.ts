@@ -1,5 +1,9 @@
 import type { Database } from "@/lib/supabase/database.types";
-import type { ConnectionKind, GroupType, PersonRole } from "@/lib/connections/labels";
+import type {
+  ConnectionKind,
+  GroupType,
+  PersonRole,
+} from "@/lib/connections/labels";
 
 export type AffiliationKind = Database["public"]["Enums"]["affiliation_kind"];
 
@@ -34,6 +38,17 @@ const NON_BAND: GroupType[] = [
   "other",
 ];
 
+// Who books a room (#48), from either end. Works like a band member: a role
+// ("weeknights") and Former.
+const BOOKS_A_VENUE: AddOption = {
+  id: "books",
+  label: "Books a Venue",
+  kind: "books",
+  direction: "out",
+  target: { kind: "group", only: ["venue"] },
+  rolePlaceholder: "weeknights, all-ages shows",
+};
+
 export function addOptionsFor(subject: Subject): AddOption[] {
   if (subject.kind === "person") {
     return [
@@ -45,6 +60,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
         target: { kind: "group", only: ["band"] },
         rolePlaceholder: "vocals, guitar",
       },
+      BOOKS_A_VENUE,
       {
         id: "works_with",
         label: "Works With a Venue, Label, Studio…",
@@ -108,26 +124,55 @@ export function addOptionsFor(subject: Subject): AddOption[] {
     ];
   }
 
-  return [
-    {
-      id: "person",
-      label: "Add Person",
-      kind: "works_with",
-      direction: "in",
-      target: { kind: "person" },
-      rolePlaceholder: "books shows, engineer, host",
-      newPersonRoles: ["other"],
-    },
-    {
-      id: "related",
-      label: "Related Place or Org",
-      kind: "related",
-      direction: "out",
-      target: { kind: "group", except: ["band"] },
-      rolePlaceholder: "same owners, sister venue",
-    },
-  ];
+  if (subject.group_type === "venue") {
+    return [
+      {
+        id: "booker",
+        label: "Add Booker",
+        kind: "books",
+        direction: "in",
+        target: { kind: "person" },
+        rolePlaceholder: "weeknights, all-ages shows",
+        newPersonRoles: ["booker"],
+      },
+      {
+        id: "promoter",
+        label: "Add Promoter",
+        kind: "books",
+        direction: "in",
+        target: { kind: "group", only: ["promoter_collective"] },
+        rolePlaceholder: "monthly night, punk shows",
+      },
+      ...OTHER_GROUP_OPTIONS,
+    ];
+  }
+
+  if (subject.group_type === "promoter_collective")
+    return [BOOKS_A_VENUE, ...OTHER_GROUP_OPTIONS];
+
+  return OTHER_GROUP_OPTIONS;
 }
+
+// Venues, studios, radio, press, and the rest.
+const OTHER_GROUP_OPTIONS: AddOption[] = [
+  {
+    id: "person",
+    label: "Add Person",
+    kind: "works_with",
+    direction: "in",
+    target: { kind: "person" },
+    rolePlaceholder: "runs it, engineer, host",
+    newPersonRoles: ["other"],
+  },
+  {
+    id: "related",
+    label: "Related Place or Org",
+    kind: "related",
+    direction: "out",
+    target: { kind: "group", except: ["band"] },
+    rolePlaceholder: "same owners, sister venue",
+  },
+];
 
 export function fitsTarget(target: Target, c: Candidate) {
   if (target.kind === "person") return c.kind === "person";
@@ -152,11 +197,15 @@ export function sectionFor(
   const { kind, direction } = link;
   if (subject.kind === "person") {
     if (direction === "out" && kind === "member") return "Bands";
+    if (direction === "out" && kind === "books") return "Books";
     if (direction === "out" && kind === "works_with") return "Works With";
     return "Other Links";
   }
-  if (kind === "related") return subject.group_type === "band" ? "Related Bands" : "Related";
+  if (kind === "related")
+    return subject.group_type === "band" ? "Related Bands" : "Related";
   if (direction === "in" && kind === "member") return "Members";
+  if (direction === "in" && kind === "books") return "Booked By";
+  if (direction === "out" && kind === "books") return "Books";
   if (direction === "in" && kind === "on_label") return "Bands on This Label";
   if (direction === "out" && kind === "on_label") return "Labels";
   if (direction === "in" && kind === "works_with") return "People";
@@ -165,7 +214,9 @@ export function sectionFor(
 
 export const SECTION_ORDER = [
   "Members",
+  "Booked By",
   "Bands",
+  "Books",
   "Labels",
   "Bands on This Label",
   "People",

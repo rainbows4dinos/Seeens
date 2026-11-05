@@ -4,6 +4,7 @@ import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
 import { formatType, statusLabel } from "@/lib/connections/labels";
+import { AGES, BOOK_VIA, CAPACITY, SPACE, readVenueDetails } from "@/lib/connections/venue-details";
 import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
 
@@ -21,7 +22,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
     const query = supabase
       .from("connections")
       .select(
-        "catalog_no, name, kind, person_roles, group_type, status, played_together, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
+        "catalog_no, name, kind, person_roles, group_type, status, played_together, attributes, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
       )
       .eq("workspace_id", ws)
       // Only the current plan, not every plan the connection ever had.
@@ -33,6 +34,8 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
   });
 
   return data.map((c): ExportRow => {
+    const v = c.group_type === "venue" ? readVenueDetails(c.attributes) : {};
+    const yesNo = (b?: boolean) => (b === true ? "yes" : b === false ? "no" : "");
     const next = c.next_actions.find((a) => a.status === "open");
     return {
       catalog_no: catalogNo(c),
@@ -65,6 +68,17 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
       added_on: day(c.created_at),
       updated_on: day(c.updated_at),
       status_label: statusLabel(c.status, c),
+      ages: v.ages ? AGES[v.ages] : "",
+      capacity: v.capacity ? CAPACITY[v.capacity] : "",
+      space: v.space ? SPACE[v.space] : "",
+      pa: yesNo(v.pa),
+      sound_engineer: yesNo(v.sound),
+      backline: yesNo(v.backline),
+      book_via: v.book_via ? BOOK_VIA[v.book_via] : "",
+      book_at: v.book_at ?? "",
+      accessibility: v.accessibility ?? "",
+      special_terms: v.special_terms ?? "",
+      details_checked_on: v.checked_on ?? "",
     };
   });
 }

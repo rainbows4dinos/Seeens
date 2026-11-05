@@ -13,6 +13,7 @@ import { SearchClear } from "@/components/search-clear";
 import { TypeMenu } from "@/components/type-menu";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { wordSetForTab } from "@/lib/connections/tabs";
+import { AGES, CAPACITY } from "@/lib/connections/venue-details";
 import { getMembership } from "@/lib/auth/dal";
 import {
   DEFAULT_TAB,
@@ -74,7 +75,7 @@ async function Directory({
     .sort((x, y) => x[1].localeCompare(y[1]));
   // The results' state resets whenever the filters change.
   const query = resultsQuery(params);
-  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || filters.instrument);
+  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || filters.instrument || filters.ages || filters.capacity);
 
   return (
     // key: a server render with a different layout (a shared link) resets it.
@@ -213,7 +214,7 @@ async function Directory({
   );
 }
 
-const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", archived: false };
+const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", ages: "", capacity: "", archived: false };
 
 // One tab per kind of connection (#122), each with its count under the
 // other filters. Phones show Bands, People, and a third tab (Venues, or the
@@ -260,6 +261,9 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (f.town) p.set("town", f.town);
   // Plays only means something where there are people.
   if (f.instrument && (tab === "people" || tab === "all")) p.set("plays", f.instrument);
+  // Ages and capacity are venue details (#48).
+  if (tab === "venues" && f.ages) p.set("ages", f.ages);
+  if (tab === "venues" && f.capacity) p.set("cap", f.capacity);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
   return qs ? `/?${qs}` : "/";
@@ -319,7 +323,7 @@ function FilterForm({
 }) {
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
   const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
-  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument].filter(Boolean).length;
+  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument, f.ages, f.capacity].filter(Boolean).length;
   return (
     <AutoFilterForm
       role="search"
@@ -425,6 +429,31 @@ function FilterForm({
               defaultValue={f.instrument ? [f.instrument] : []}
               autoSubmit
             />
+          ) : null}
+          {/* Venue details (#48). */}
+          {tab === "venues" ? (
+            <>
+              <Combobox
+                label="Ages"
+                labelClassName="sr-only"
+                name="ages"
+                multiple={false}
+                placeholder="Ages"
+                options={Object.entries(AGES).map(([value, label]) => ({ value, label }))}
+                defaultValue={f.ages ? [f.ages] : []}
+                autoSubmit
+              />
+              <Combobox
+                label="Capacity"
+                labelClassName="sr-only"
+                name="cap"
+                multiple={false}
+                placeholder="Capacity"
+                options={Object.entries(CAPACITY).map(([value, label]) => ({ value, label }))}
+                defaultValue={f.capacity ? [f.capacity] : []}
+                autoSubmit
+              />
+            </>
           ) : null}
         </div>
       </FilterDisclosure>
