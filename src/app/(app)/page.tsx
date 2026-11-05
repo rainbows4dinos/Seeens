@@ -378,7 +378,8 @@ function FilterForm({
             className="field filter-status"
             defaultValue={f.statuses.length === 1 ? f.statuses[0] : ""}
           >
-            <option value="">Everyone but Avoid</option>
+            {/* Archived ones keep Avoid in view (nothing's hidden there). */}
+            <option value="">{f.archived ? "Everyone" : "Everyone but Avoid"}</option>
             {STATUSES.map((st) => (
               <option key={st} value={st}>
                 {STATUS_LABELS[st]}
