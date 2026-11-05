@@ -682,6 +682,12 @@
   .bar-panel-closed {
     display: none;
   }
+  /* The "Also mark their members?" offer (#124): ink checkboxes, like Choice. */
+  .offer-list input {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--color-accent-primary);
+  }
   /* A row or card's detail line (#122): members, bands, a note. Mono/Small,
      secondary, two lines at most. */
   .detail-line {

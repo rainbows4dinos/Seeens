@@ -5,6 +5,7 @@ import { offline } from "@/lib/offline";
 import { useId, useRef, useState, useTransition } from "react";
 import { DetachedForm } from "@/components/detached-form";
 import { addBandMembers, type AddMembersResult } from "@/lib/affiliations/actions";
+import { CarryFields, hasCarry, pickAll, type Carry } from "@/components/carry-fields";
 import { MAX_NAME_LENGTH, MAX_ROLE_LENGTH, MAX_ROWS, parseLineup } from "@/lib/affiliations/lineup";
 
 type Person = { id: string; name: string; catalog: string };
@@ -28,13 +29,17 @@ export function PasteLineup({
   bandId,
   people,
   memberIds,
+  carry = null,
   onDone,
 }: {
   bandId: string;
   people: Person[];
   memberIds: string[];
+  /** What new people can take from the band (#124). */
+  carry?: Carry | null;
   onDone: () => void;
 }) {
+  const [pick, setPick] = useState(() => (hasCarry(carry) ? pickAll(carry) : null));
   const id = useId();
   const [text, setText] = useState("");
   const [rows, setRows] = useState<Row[] | null>(null);
@@ -87,6 +92,7 @@ export function PasteLineup({
       const result: AddMembersResult = await addBandMembers(
         bandId,
         picked.map((r) => ({ name: r.name, roles: r.roles, former: r.former, personId: r.personId || null })),
+        pick,
       ).catch(offline({ ok: false, error: "Couldn't reach Seeens. Nothing was saved; try again." } as AddMembersResult));
       if (result.ok) onDone();
       else setError(result.error);
@@ -144,6 +150,10 @@ export function PasteLineup({
               <PreviewRow key={r.key} row={r} formId={id} onChange={(patch) => update(r.key, patch)} />
             ))}
           </ul>
+          {/* Only people new to the directory take these; others keep their own. */}
+          {hasCarry(carry) && pick && rows.some((r) => r.include && !r.personId) ? (
+            <CarryFields carry={carry} value={pick} onChange={setPick} who="the new people" />
+          ) : null}
           <div className="flex flex-wrap gap-3">
             <button type="submit" form={id} className="button-primary" disabled={pending || included === 0}>
               {pending ? "Adding…" : included === 1 ? "Add 1 Member" : `Add ${included} Members`}
