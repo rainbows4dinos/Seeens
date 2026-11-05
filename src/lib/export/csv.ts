@@ -36,7 +36,7 @@ export const EXPORT_COLUMNS = [
   "sound_engineer",
   "backline",
   "book_via",
-  "book_at",
+  "address",
   "accessibility",
   "special_terms",
   "details_checked_on",
