@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { photoUrl } from "@/lib/photos/urls";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ConnectionCard } from "@/components/connection-card";
 import { DateLines } from "@/components/date-line";
@@ -161,10 +162,10 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
               {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
               <span className="row-thumb" aria-hidden="true">
                 <span className="row-thumb-initials">{initials(c.name)}</span>
-                {c.photo_url ? (
-                  // Signed storage links change on every load, so next/image's cache wouldn't help.
+                {c.photo_path ? (
+                  // A small copy at a stable, cached address.
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
+                  <img src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
                 ) : null}
               </span>
               <span className="flex min-w-0 flex-col gap-2">

@@ -1,17 +1,23 @@
-import "server-only";
-import { createClient } from "@/lib/supabase/server";
-
 export const PHOTO_BUCKET = "connection-photos";
-/** Signed photo links last an hour; pages re-sign them on every load. */
-const EXPIRES_IN = 60 * 60;
 
-/** Short-lived links for stored photo paths, keyed by path. Missing ones are left out. */
-export async function signPhotos(paths: (string | null | undefined)[]) {
-  const wanted = [...new Set(paths.filter((p): p is string => Boolean(p)))];
-  const urls = new Map<string, string>();
-  if (!wanted.length) return urls;
-  const supabase = await createClient();
-  const { data } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(wanted, EXPIRES_IN);
-  for (const d of data ?? []) if (d.path && d.signedUrl && !d.error) urls.set(d.path, d.signedUrl);
-  return urls;
+/** Widths the photo route serves besides the full copy: list rows, the page header, cards. */
+export const PHOTO_WIDTHS = [160, 320, 640] as const;
+export type PhotoWidth = (typeof PHOTO_WIDTHS)[number];
+
+const PATH = /^[0-9a-f-]{36}\/[0-9a-f-]{36}\/[0-9a-f-]{36}(-original)?\.(webp|jpg)$/;
+export const isPhotoPath = (p: string) => PATH.test(p);
+
+/**
+ * A stored photo's address on this site (/api/photos/…), stable for as long as
+ * the photo is, so the browser caches it. Optionally a smaller copy.
+ */
+export function photoUrl(path: string | null | undefined, width?: PhotoWidth): string | null {
+  if (!path || !isPhotoPath(path)) return null;
+  return `/api/photos/${path}${width ? `?w=${width}` : ""}`;
+}
+
+/** srcset for a photo shown at several sizes (cards). */
+export function photoSrcSet(path: string | null | undefined): string | undefined {
+  const base = photoUrl(path);
+  return base ? `${base}?w=320 320w, ${base}?w=640 640w, ${base} 800w` : undefined;
 }

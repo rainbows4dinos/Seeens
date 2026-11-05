@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { photoSrcSet, photoUrl } from "@/lib/photos/urls";
 import type { ReactNode } from "react";
 import { DateLines } from "@/components/date-line";
 import {
@@ -30,7 +31,7 @@ export type CardConnection = {
   is_us: boolean;
   played_together: boolean;
   catalog_no: number;
-  photo_url?: string | null;
+  photo_path?: string | null;
   photo_alt?: string | null;
   localities: Parameters<typeof formatLocality>[0];
   outreach_entries: { occurred_on: string; summary: string }[];
@@ -73,10 +74,18 @@ export function ConnectionCard({
       <span className="card-print" aria-hidden="true">
         {/* Initials sit under the photo, so a photo that fails to load never leaves a blank print. */}
         <span className="card-print-initials">{initials(c.name)}</span>
-        {c.photo_url ? (
-          // Signed storage links change on every load, so next/image's cache wouldn't help.
+        {c.photo_path ? (
+          // Served at a stable address and cached by the browser; the card takes
+          // the smallest copy that's sharp at its width.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={c.photo_url} alt="" loading="lazy" decoding="async" />
+          <img
+            src={photoUrl(c.photo_path, 640)!}
+            srcSet={photoSrcSet(c.photo_path)}
+            sizes="(min-width: 80rem) 25vw, (min-width: 48rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
         ) : null}
       </span>
       <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />

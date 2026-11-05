@@ -3,7 +3,6 @@ import { readVenueDetails, venueLine } from "./venue-details";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
-import { signPhotos } from "@/lib/photos/urls";
 import { readFilters, type DirectoryFilters } from "./filters";
 import type { ConnectionKind, ConnectionStatus, GroupType, PersonRole } from "./labels";
 import { readTab, type Tab } from "./tabs";
@@ -41,8 +40,8 @@ export type DirectoryItem = {
   is_us: boolean;
   played_together: boolean;
   catalog_no: number;
-  /** A signed link to the copied photo (#37), if there is one. */
-  photo_url: string | null;
+  /** The copied photo's storage path (#37), if there is one; see photoUrl. */
+  photo_path: string | null;
   photo_alt: string | null;
   localities: {
     name: string;
@@ -168,12 +167,11 @@ export async function loadDirectoryPage(
   if (detailError) throw new Error("Couldn't load the directory.");
 
   const byId = new Map((details ?? []).map((d) => [d.id, d]));
-  const photos = await signPhotos((details ?? []).map((d) => d.photo_path));
   const sceneNames = new Map(scenes.map((s) => [s.id, s.name]));
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
-    const { connection_scenes, photo_path, notes, incoming, outgoing, attributes, ...rest } = d;
+    const { connection_scenes, notes, incoming, outgoing, attributes, ...rest } = d;
     // Current, unarchived members only, in name order.
     const names = (links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[]) =>
       links
@@ -183,7 +181,6 @@ export async function loadDirectoryPage(
     return [
       {
         ...rest,
-        photo_url: photo_path ? (photos.get(photo_path) ?? null) : null,
         tags: [r.label_mate ? "Label mate" : null, r.shares_member ? "Shares a member" : null].filter(
           (t): t is string => Boolean(t),
         ),
