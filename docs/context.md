@@ -21,10 +21,16 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
 - **Status:** one band-wide choice per connection, set in a single tap:
   - **Homies:** the ultimate band-to-band relationship. Love playing together, love each other's music, love hanging out, support each other, top tour-mate candidates.
   - **Let's play:** mutual "we should play together," not booked yet. The booking backlog of agreed admiration and opportunity.
-  - **Crush:** we'd like to connect; not mutual yet. Stored as `prospect`.
-  - **Heard of:** we know of them, no particular plans. The default. Stored as `neutral`.
+  - **Eyeing:** we'd like to connect; not mutual yet. Stored as `prospect`. (Was Crush.)
+  - **Known:** we know of them, no particular plans. The default. Stored as `neutral`. (Was Heard of.)
   - **Avoid:** the honest "nope" (cold shoulder, or played once and that was enough). Kept, not archived, and can change.
-  A stored status is never changed through affiliations. A person left at Heard of is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Crush), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
+  Each type has its own words for the same five statuses (#139). Words say how we feel, never what happened; "played together" carries that.
+  - Venues and promoters: Favorite, Let's book, Eyeing, Known, Avoid.
+  - People: Homie, Let's collab, Eyeing, Known, Avoid.
+  - Labels, studios, radio, press: Homies, Let's collab, Eyeing, Known, Avoid.
+  - "Played together" reads as played here (venues), booked us (promoters, bookers), recorded here (studios), been on (radio), covered us (press, writers), or worked together (everyone else). Musicians and DJs keep "played together".
+  The All tab's status menu uses the band words.
+  A stored status is never changed through affiliations. A person left at Known is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Eyeing), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
 - **Played together:** a separate fact, what has already happened, versus how the band feels and what's next. Distinguishes warm leads from cold ones when planning a town.
 - **Outreach entry:** dated history with channel, notes, and author, linked to a connection.
 - **Next action:** current planned step, optional follow-up date, and responsible member. No priority; the date is enough.

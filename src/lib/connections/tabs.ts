@@ -1,4 +1,4 @@
-import type { ConnectionKind, GroupType } from "./labels";
+import type { ConnectionKind, GroupType, WordSet } from "./labels";
 
 // Tabs and per-tab details for the directory (#122). No server imports, so
 // the results (a client component) can use them too.
@@ -14,6 +14,11 @@ export const TABS: { id: Tab; label: string; one: string; many: string; add: str
   { id: "all", label: "All", one: "connection", many: "connections", add: "Add Connection", addType: null },
 ];
 export const DEFAULT_TAB: Tab = "bands";
+
+/** The status words a tab's menu and group headings use (#139). All uses the band words. */
+export function wordSetForTab(tab: Tab): WordSet {
+  return tab === "venues" ? "venue" : tab === "people" ? "people" : tab === "more" ? "collab" : "band";
+}
 
 /** The tab a connection is listed under. */
 export function tabFor(kind: ConnectionKind, groupType: GroupType | null): Tab {

@@ -7,8 +7,8 @@ import { DateLines } from "@/components/date-line";
 import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
-import { detailFor, type Tab } from "@/lib/connections/tabs";
-import { STATUSES, STATUS_LABELS, formatLocality, formatType } from "@/lib/connections/labels";
+import { detailFor, wordSetForTab, type Tab } from "@/lib/connections/tabs";
+import { STATUSES, STATUS_WORDS, formatLocality, formatType, playedWords } from "@/lib/connections/labels";
 import { catalogNo, initials } from "@/lib/connections/card";
 
 // The directory's rows or cards, grouped by status, a page at a time.
@@ -89,7 +89,7 @@ export function DirectoryResults({
   // Our own band isn't in the directory; the header's band chip opens it (#123).
   const sections = STATUSES.map((status) => ({
     id: status,
-    label: STATUS_LABELS[status],
+    label: STATUS_WORDS[wordSetForTab(tab)][status],
     tag: `tag-${status}`,
     count: groups[status],
     rows: items.filter((c) => c.status === status),
@@ -135,7 +135,7 @@ function tagsFor(c: DirectoryItem, tab: Tab) {
     ...new Set([
       // "Close to us" (#140): which band a person's status comes from.
       c.via ? `Via ${c.via}` : null,
-      c.played_together ? "Played together" : null,
+      c.played_together ? playedWords(c).tag : null,
       ...c.tags,
       ...(tab === "all" ? [] : c.scenes),
     ]),

@@ -25,6 +25,9 @@ export const EXPORT_COLUMNS = [
   "archived_on",
   "added_on",
   "updated_on",
+  // #139: "status" is the stored value (homies, lets_play, prospect, neutral,
+  // avoid), which never changes; this is the word the connection's type uses.
+  "status_label",
 ] as const;
 
 export type ExportRow = Record<(typeof EXPORT_COLUMNS)[number], string>;

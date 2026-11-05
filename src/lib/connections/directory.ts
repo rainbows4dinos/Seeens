@@ -95,7 +95,7 @@ export function readDirectoryQuery(params: Params): DirectoryQuery {
 
 type RpcRow = {
   id: string;
-  /** For people who are Heard of, the closest status of their current bands (#140). */
+  /** For people who are Known (neutral), the closest status of their current bands (#140). */
   status: ConnectionStatus;
   via: string | null;
   label_mate: boolean;

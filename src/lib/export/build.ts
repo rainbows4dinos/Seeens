@@ -3,7 +3,7 @@ import { catalogNo } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
-import { STATUS_LABELS, formatType } from "@/lib/connections/labels";
+import { formatType, statusLabel } from "@/lib/connections/labels";
 import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
 
@@ -39,7 +39,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
       name: c.name,
       kind: c.kind === "group" ? "group" : "person",
       types: formatType(c).split(", ").join(LIST_SEPARATOR),
-      status: STATUS_LABELS[c.status],
+      status: c.status,
       played_together: c.played_together ? "yes" : "no",
       our_band: c.is_us ? "yes" : "no",
       town: c.localities?.name ?? "",
@@ -64,6 +64,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
       archived_on: day(c.archived_at),
       added_on: day(c.created_at),
       updated_on: day(c.updated_at),
+      status_label: statusLabel(c.status, c),
     };
   });
 }
