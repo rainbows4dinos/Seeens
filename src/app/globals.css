@@ -1638,6 +1638,29 @@
   .logo > img {
     display: block;
   }
+  /* Figma Nav Chip, Style=Logo, Show Beta: a cyan plate pinned over the
+     chip's top-right corner, its border on the chip's. Figma pads 4 / 6
+     with borders excluded, so 3 / 5 here. */
+  .logo {
+    position: relative;
+  }
+  .logo-beta {
+    position: absolute;
+    top: calc(var(--stroke-hair) * -1);
+    right: calc(var(--stroke-hair) * -1);
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: color-mix(in srgb, var(--plate-cyan) 70%, transparent);
+    backdrop-filter: blur(1px);
+    padding: 3px 5px;
+    font-family: var(--type-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    line-height: normal;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    text-box: trim-both cap alphabetic;
+  }
 
   /* Account menu (#67, Figma Nav Chip Style=Account and the account menu
      proposal): the band's picture, "Band & You", a caret. Opens a window-

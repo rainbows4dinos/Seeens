@@ -155,6 +155,12 @@ try {
   const inviteLink = await linkBox.inputValue();
   await page.goto(`${BASE_URL}/band`);
   await shot(page, "band-settings.png", { fullPage: true });
+
+  // Send Feedback, filled in, from the Scenes page.
+  await page.goto(`${BASE_URL}/feedback?from=%2Fscenes`);
+  await page.getByLabel("Idea").check();
+  await page.getByLabel("What Happened").fill("Could scenes show which venues book which genres? I'd use that to plan a run.");
+  await shot(page, "feedback.png", { fullPage: true });
   await desktop.close();
 
   const invitee = await browser.newContext(DESKTOP);

@@ -2,7 +2,7 @@
 -- never pushed to the hosted project.
 --
 -- Local sign-ins (password: password123)
---   alex@example.com  member (owner) of Merwulf
+--   alex@example.com  member (owner) of Merwulf, and an app admin (#71)
 --   sam@example.com   member of Merwulf
 --   dana@example.com  signed up, not a member: should see nothing
 
@@ -221,3 +221,6 @@ insert into public.next_actions (workspace_id, connection_id, description, due_o
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000005',
    'Ask Velvet Ditch for an intro', null,
    '22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222');
+
+-- Alex runs Seeens locally, so the feedback inbox (#71) has someone to show.
+insert into public.app_admins (user_id) values ('11111111-1111-1111-1111-111111111111');

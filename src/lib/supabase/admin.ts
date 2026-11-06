@@ -3,9 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 import { getSupabaseEnv } from "./env";
 
-// Supabase's admin API, server only. Used for one thing: creating the
-// account of someone accepting an invite, since open sign-up stays off
-// (#68). Needs SUPABASE_SECRET_KEY (a secret key, never NEXT_PUBLIC_), set
+// Supabase's admin API, server only. Used for creating the account of
+// someone accepting an invite, since open sign-up stays off (#68); deleting
+// an account; and looking up email addresses for feedback emails (#71). Needs SUPABASE_SECRET_KEY (a secret key, never NEXT_PUBLIC_), set
 // in Vercel; without it, invitees can join only with an existing account.
 export function createAdminClient() {
   const key = process.env.SUPABASE_SECRET_KEY;

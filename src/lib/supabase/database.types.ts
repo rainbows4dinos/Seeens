@@ -133,6 +133,24 @@ isOneToOne: false
                     "accepted_at"?: string | null,"accepted_by"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name"?: string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash"?: string,"workspace_id"?: string
                   }
                   Relationships: []
+                },"feedback": {
+                  Row: {
+                    "app_version": string | null,"band_name": string | null,"body": string,"created_at": string,"error_digest": string | null,"github_url": string | null,"id": string,"kind": Database["public"]["Enums"]["feedback_kind"],"notified_at": string | null,"path": string | null,"screen": string | null,"screenshot_path": string | null,"sender_name": string,"status": Database["public"]["Enums"]["feedback_status"],"updated_at": string,"user_agent": string | null,"user_id": string | null,"workspace_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "app_version"?: string | null,"band_name"?: string | null,"body": string,"created_at"?: string,"error_digest"?: string | null,"github_url"?: string | null,"id"?: string,"kind": Database["public"]["Enums"]["feedback_kind"],"notified_at"?: string | null,"path"?: string | null,"screen"?: string | null,"screenshot_path"?: string | null,"sender_name": string,"status"?: Database["public"]["Enums"]["feedback_status"],"updated_at"?: string,"user_agent"?: string | null,"user_id"?: string | null,"workspace_id"?: string | null
+                  }
+                  Update: {
+                    "app_version"?: string | null,"band_name"?: string | null,"body"?: string,"created_at"?: string,"error_digest"?: string | null,"github_url"?: string | null,"id"?: string,"kind"?: Database["public"]["Enums"]["feedback_kind"],"notified_at"?: string | null,"path"?: string | null,"screen"?: string | null,"screenshot_path"?: string | null,"sender_name"?: string,"status"?: Database["public"]["Enums"]["feedback_status"],"updated_at"?: string,"user_agent"?: string | null,"user_id"?: string | null,"workspace_id"?: string | null
+                  }
+                  Relationships: []
+                },"app_admins": {
+                  Row: { "created_at": string,"user_id": string }
+                  ComputedFields: never
+                  Insert: { "created_at"?: string,"user_id": string }
+                  Update: { "created_at"?: string,"user_id"?: string }
+                  Relationships: []
                 },"connections": {
                   Row: {
                     "archived_at": string | null,"attributes": Json,"can_help_with": (string)[],"catalog_no": number,"created_at": string,"created_by": string | null,"email": string | null,"group_type": Database["public"]['Enums']["group_type"] | null,"id": string,"is_us": boolean,"kind": Database["public"]['Enums']["connection_kind"],"locality_id": string | null,"merged_at": string | null,"merged_into": string | null,"name": string,"notes": string | null,"person_roles": (Database["public"]['Enums']["person_role"])[],"phone": string | null,"photo_alt": string | null,"photo_original_path": string | null,"photo_path": string | null,"photo_settings": Json | null,"played_together": boolean,"status": Database["public"]['Enums']["connection_status"],"updated_at": string,"workspace_id": string
@@ -363,6 +381,14 @@ isOneToOne: false
 { Args: { "p_workspace_id": string }; Returns: undefined },
             "prepare_account_deletion":
 { Args: never; Returns: (string)[] },
+            "is_app_admin":
+{ Args: never; Returns: boolean },
+            "submit_feedback":
+{ Args: { "p_workspace_id": string,"p_kind": Database["public"]["Enums"]["feedback_kind"],"p_body": string,"p_path"?: string | null,"p_app_version"?: string | null,"p_user_agent"?: string | null,"p_screen"?: string | null,"p_error_digest"?: string | null,"p_screenshot_path"?: string | null }; Returns: string },
+            "update_feedback":
+{ Args: { "p_id": string,"p_status": Database["public"]["Enums"]["feedback_status"],"p_github_url"?: string | null }; Returns: undefined },
+            "mark_feedback_notified":
+{ Args: { "p_id": string }; Returns: undefined },
             "merge_connections":
 { Args: { "p_keep": string,"p_merge": (string)[],"p_photo"?: Json }; Returns: string },
             "merged_photos_due":
@@ -424,7 +450,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "action_status": "open"|"done"|"dropped"|"replaced","affiliation_kind": "member"|"works_with"|"books"|"on_label"|"related"|"other","connection_kind": "person"|"group","connection_status": "homies"|"lets_play"|"prospect"|"neutral"|"avoid","group_type": "band"|"venue"|"label"|"recording_studio"|"production_studio"|"radio_station"|"press"|"promoter_collective"|"other","member_role": "owner"|"member","outreach_channel": "in_person"|"email"|"text"|"call"|"instagram"|"other_social"|"other","person_role": "musician"|"dj"|"promoter"|"booker"|"manager"|"label_owner"|"producer"|"recording_engineer"|"live_sound_engineer"|"photographer"|"videographer"|"artist_designer"|"writer"|"radio_host"|"other"
+            "action_status": "open"|"done"|"dropped"|"replaced","affiliation_kind": "member"|"works_with"|"books"|"on_label"|"related"|"other","connection_kind": "person"|"group","connection_status": "homies"|"lets_play"|"prospect"|"neutral"|"avoid","group_type": "band"|"venue"|"label"|"recording_studio"|"production_studio"|"radio_station"|"press"|"promoter_collective"|"other","feedback_kind": "bug"|"idea"|"confusing"|"other","feedback_status": "new"|"looking"|"planned"|"done"|"wont_do","member_role": "owner"|"member","outreach_channel": "in_person"|"email"|"text"|"call"|"instagram"|"other_social"|"other","person_role": "musician"|"dj"|"promoter"|"booker"|"manager"|"label_owner"|"producer"|"recording_engineer"|"live_sound_engineer"|"photographer"|"videographer"|"artist_designer"|"writer"|"radio_host"|"other"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -540,7 +566,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "action_status": ["open", "done", "dropped", "replaced"],"affiliation_kind": ["member", "works_with", "books", "on_label", "related", "other"],"connection_kind": ["person", "group"],"connection_status": ["homies", "lets_play", "prospect", "neutral", "avoid"],"group_type": ["band", "venue", "label", "recording_studio", "production_studio", "radio_station", "press", "promoter_collective", "other"],"member_role": ["owner", "member"],"outreach_channel": ["in_person", "email", "text", "call", "instagram", "other_social", "other"],"person_role": ["musician", "dj", "promoter", "booker", "manager", "label_owner", "producer", "recording_engineer", "live_sound_engineer", "photographer", "videographer", "artist_designer", "writer", "radio_host", "other"]
+            "action_status": ["open", "done", "dropped", "replaced"],"affiliation_kind": ["member", "works_with", "books", "on_label", "related", "other"],"connection_kind": ["person", "group"],"connection_status": ["homies", "lets_play", "prospect", "neutral", "avoid"],"group_type": ["band", "venue", "label", "recording_studio", "production_studio", "radio_station", "press", "promoter_collective", "other"],"feedback_kind": ["bug", "idea", "confusing", "other"],"feedback_status": ["new", "looking", "planned", "done", "wont_do"],"member_role": ["owner", "member"],"outreach_channel": ["in_person", "email", "text", "call", "instagram", "other_social", "other"],"person_role": ["musician", "dj", "promoter", "booker", "manager", "label_owner", "producer", "recording_engineer", "live_sound_engineer", "photographer", "videographer", "artist_designer", "writer", "radio_host", "other"]
           }
         }
 } as const

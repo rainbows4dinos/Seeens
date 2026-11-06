@@ -28,6 +28,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | **Quick view.** Click a row and the connection opens beside the list: change status, handle the next step, log outreach. | **Quick view on a phone.** The same panel as a sheet under the header. |
 | ![Band Settings: band name, members with roles, the invite form, and a pending invite](docs/screenshots/band-settings.png) | ![An invite: "Alex invited you to Merwulf on Seeens" with a form to make an account and join](docs/screenshots/invite.png) |
 | **Band Settings.** Everyone in the band, and invites by email or link. Owners manage roles. | **An invite.** Who invited you, to which band, and that Seeens is in beta. Make an account or sign in, and you're in. |
+| ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png) | |
+| **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue. | |
 
 ## MVP
 
@@ -131,7 +133,7 @@ npm run dev                  # http://localhost:3000
 | `npm run db:test` | Run database access tests (`supabase/tests/`) |
 | `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` |
 
-Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `alex@example.com` or `sam@example.com` (members) or `dana@example.com` (not a member), all with password `password123`.
+Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `alex@example.com` or `sam@example.com` (members; Alex is also an app admin, for the feedback inbox) or `dana@example.com` (not a member), all with password `password123`.
 
 ## Database
 
@@ -176,7 +178,19 @@ Invites and account deletion need server-only env vars in Vercel (never `NEXT_PU
 | Variable | Needed for |
 | --- | --- |
 | `SUPABASE_SECRET_KEY` | Making an account from an invite, and deleting one (Account Settings > Delete Account). Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join, and accounts can't be deleted. |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite and feedback emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself, and feedback still lands in the inbox. |
+
+### Beta feedback
+
+Everyone in a band is a beta tester. **Send Feedback** in the header sends it to a private inbox at `/admin/feedback`, which only app admins can open. App admins run Seeens itself and are separate from band owners. Make yourself one in the SQL editor:
+
+```sql
+insert into public.app_admins (user_id)
+select id from auth.users where email = 'you@example.com'
+returning user_id;
+```
+
+With email set up, each app admin gets an email for every new item (reply to answer the tester), and testers can be told when something they sent is done. "Draft an Issue" opens a new GitHub issue with the text filled in; nothing is posted until you post it, so check it for real names first.
 
 Password reset and email change links land on `/auth/callback`. Its URLs (`https://seeens.com/auth/callback`, `https://www.seeens.com/auth/callback`, and the preview and localhost ones) need to be allowed under Authentication > URL Configuration > Redirect URLs, or covered by a wildcard there.
 
