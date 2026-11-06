@@ -1724,9 +1724,12 @@
   /* Profile panels (Figma Window, #126): a box with a hard shadow and an
      ink title bar that folds the panel. Folded, the bar shows a summary. */
   .profile-panel {
-    border: var(--stroke-strong) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    box-shadow: var(--shadow-hard);
+    /* The 1.5px edge is an inset shadow, not a border, so padding is
+       measured from the outer edge like Figma (borders take no space). */
+    box-shadow:
+      inset 0 0 0 var(--stroke-strong) var(--color-border-strong),
+      var(--shadow-hard);
   }
   .profile-panel-title {
     display: flex;

@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)
-- Code baseline: 9b03961 (2026-11-05)
+- Code baseline: bb9d323 (2026-11-05)
 - Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -14,10 +14,10 @@
 | Text styles | 13 | 13 | 13 | 0 |
 | Effect styles | 6 | 6 | 4 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 34 | 34 | 16 | 13 |
+| Components | 34 | 34 | 18 | 11 |
 | Figma hygiene | - | 6 | 0 | 0 |
 
-Status totals: fixed-in-figma 7, needs-figma-fix 1, pending 12, skipped 8, synced 40
+Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 
 ## Log
 
@@ -64,7 +64,7 @@ Status totals: fixed-in-figma 7, needs-figma-fix 1, pending 12, skipped 8, synce
 | C-05 | Components | Segmented Control | 11:2 | `.segmented` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-06 | Components | Tag | 10:15 | `.tag` | structure-drift | synced | Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches. |
 | C-07 | Components | Date Line | 10:34 | `.date-line` | structure-drift | synced | Re-audited Nov 5: gap 6, arrow + label Mono/Small Strong (future) / Mono/Small (past). Matches .date-line. |
-| C-08 | Components | Window | 11:9 | `.window, .dialog-title` | structure-drift | needs-figma-fix | Nov 5 (borders excluded): title bar 44 (pad 12/12/12/16, 20px fold box, Mono/Small Strong) and content bottom 32 now match code. Still open: the outer strokes (left 1 only on Open; a workaround for separating window and shadow, which Shadow/Hard's paper drop now does). |
+| C-08 | Components | Window | 11:9 | `.window, .dialog-title` | structure-drift | synced | Nov 5: Shadow/Hard back to two drops (ink 5,5 under paper 1,1); 1.5px stroke on all sides; title bar 44, 20px fold box, Mono/Small Strong; content pad 24/16/32. Code edge is an inset shadow. |
 | C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-10 | Components | Tape | 10:41 | `.tape` | structure-drift | skipped | Synced in #114 (CSS strips stand in for the Figma shader). No text; not re-audited. |
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
@@ -98,8 +98,8 @@ Status totals: fixed-in-figma 7, needs-figma-fix 1, pending 12, skipped 8, synce
 | V-08 | Variables | color/bg/raised (1) | Color | `src/app/globals.css --color-bg-raised` | missing-in-code | synced | New Nov 5 (#157): rows and cards lifted on hover or when open. Aliases paper/photo. Controls keep color/bg/hover. |
 | E-06 | Effect styles | Shadow/Soft | effect style | `src/app/globals.css --shadow-soft` | missing-in-code | synced | New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place. |
 | V-09 | Variables | color/border/inverse (1) | Color | `src/app/globals.css (missing)` | missing-in-code | synced | Added --color-border-inverse (paper/50); used by .profile-panel-icon and .quick-view-close borders. |
-| C-32 | Components | Profile Pic | 161:3824 | `src/components/photo-panel.tsx, .quick-view-thumb` | changed | pending | Moved to Components Nov 5. 108px, photo-paper fill, 1px ink border, initials Display/L in border/subtle, Photo Action bar (20px, ink, Mono/Hint + Add 12px). Not compared with PhotoPanel yet. |
-| C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | pending | Moved to Components Nov 5. Default/Hover; pad 4/12, gap 2, Add 12px + Mono/Hint label. Not compared yet. |
+| C-32 | Components | Profile Pic | 161:3824 | `src/components/photo-panel.tsx, .quick-view-thumb` | changed | pending | Nov 5: resized 108 -> 112 to match .photo-thumb (80 on mobile). Initials size and color not compared yet. |
+| C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | synced | Nov 5: Figma matched to code: 110 x 24 inside the edge, '+ Photo' 11/20 mono, ink fill, yellow hover. 11px isn't a text style. |
 | C-34 | Components | Favicon | 161:3876 | `src/app/icon.*` | changed | pending | 16/32/48 variants. Check the app's icon files match. |
 
 ## Component checklists
@@ -258,6 +258,11 @@ Evidence: -
 Evidence: design-sync/evidence/logo-header-login.png
 
 ### C-31 Keyboard Hint
+
+
+Evidence: design-sync/evidence/audit-2026-11-05.md
+
+### C-33 Photo Action
 
 
 Evidence: design-sync/evidence/audit-2026-11-05.md

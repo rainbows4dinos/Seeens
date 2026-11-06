@@ -342,8 +342,8 @@
   "fref": "11:9",
   "cref": ".window, .dialog-title",
   "cls": "structure-drift",
-  "status": "needs-figma-fix",
-  "notes": "Nov 5 (borders excluded): title bar 44 (pad 12/12/12/16, 20px fold box, Mono/Small Strong) and content bottom 32 now match code. Still open: the outer strokes (left 1 only on Open; a workaround for separating window and shadow, which Shadow/Hard's paper drop now does).",
+  "status": "synced",
+  "notes": "Nov 5: Shadow/Hard back to two drops (ink 5,5 under paper 1,1); 1.5px stroke on all sides; title bar 44, 20px fold box, Mono/Small Strong; content pad 24/16/32. Code edge is an inset shadow.",
   "checklist": [
    "[x] Typography: Window title (copier dialog) 13px -> Mono/Small 12/16"
   ],
@@ -755,7 +755,7 @@
   "cref": "src/components/photo-panel.tsx, .quick-view-thumb",
   "cls": "changed",
   "status": "pending",
-  "notes": "Moved to Components Nov 5. 108px, photo-paper fill, 1px ink border, initials Display/L in border/subtle, Photo Action bar (20px, ink, Mono/Hint + Add 12px). Not compared with PhotoPanel yet."
+  "notes": "Nov 5: resized 108 -> 112 to match .photo-thumb (80 on mobile). Initials size and color not compared yet."
  },
  {
   "id": "C-33",
@@ -764,8 +764,9 @@
   "fref": "161:3817",
   "cref": "src/components/photo-panel.tsx",
   "cls": "changed",
-  "status": "pending",
-  "notes": "Moved to Components Nov 5. Default/Hover; pad 4/12, gap 2, Add 12px + Mono/Hint label. Not compared yet."
+  "status": "synced",
+  "notes": "Nov 5: Figma matched to code: 110 x 24 inside the edge, '+ Photo' 11/20 mono, ink fill, yellow hover. 11px isn't a text style.",
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-34",
