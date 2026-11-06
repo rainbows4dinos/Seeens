@@ -1,12 +1,16 @@
 import type { NextRequest } from "next/server";
 import { redirectWithCookies, updateSession } from "@/lib/supabase/proxy";
 
-const PUBLIC_PATHS = ["/login"];
+// Signed out only: signed-in visitors go to the directory.
+const PUBLIC_PATHS = ["/login", "/forgot-password"];
+// Open either way: email links land here signed in or not (#67).
+const OPEN_PATHS = ["/auth/callback"];
 
 export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);
   const { pathname, search } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.includes(pathname);
+  if (OPEN_PATHS.includes(pathname)) return response;
 
   if (!userId && !isPublic) {
     const login = new URL("/login", request.url);
