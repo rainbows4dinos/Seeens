@@ -119,7 +119,8 @@ export function BasicInfoFields({
         </div>
       ) : null}
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      {/* Town and Scenes line up label, hint, and box (.field-pair). */}
+      <div className="field-pair grid gap-5">
         <PlaceField
           initialId={v.placeId ? Number(v.placeId) : null}
           initialLabel={v.placeText}
