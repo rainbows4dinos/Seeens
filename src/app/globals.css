@@ -368,6 +368,40 @@
     outline-offset: 2px;
     box-shadow: 0 0 0 5px var(--color-focus-glow);
   }
+  /* A filter's icon, first in the box (Figma Field, Show Icon L): 12px in
+     from the outer edge like the search field's. */
+  .combo-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    padding-left: 7px;
+    color: var(--color-text-secondary);
+  }
+  .combo-icon + * {
+    margin-left: -3px;
+  }
+  /* The one-row bar's filters are narrow: let the text shrink, not wrap
+     under the icon. */
+  .combo:has(> .combo-icon) input {
+    min-width: 3rem;
+  }
+  /* The same for a select: the icon over the box, the text after it. */
+  .field-icon {
+    position: relative;
+    display: block;
+  }
+  .field-icon > svg {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    translate: 0 -50%;
+    color: var(--color-text-secondary);
+    pointer-events: none;
+  }
+  .field-icon > .field {
+    width: 100%;
+    padding-left: 35px;
+  }
   .combo input {
     flex: 1;
     min-width: 8rem;
@@ -891,6 +925,15 @@
      Segment, Icon Only), a menu of links with their counts. */
   .type-tabs > a {
     gap: 1ch;
+  }
+  /* Figma: the icon sits a little closer to its label than the count. */
+  .type-tab-icon {
+    flex: none;
+    margin-right: -0.25ch;
+    /* The narrowest phones: words only, so the tabs and ⋮ stay on one row. */
+    @media (width < 23.5rem) {
+      display: none;
+    }
   }
   /* Under 360px "Labels & more" says "Labels", so four tabs still fit. */
   .tab-long {

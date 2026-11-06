@@ -30,6 +30,7 @@ export function Combobox({
   autoFocus,
   labelClassName = "label",
   placeholder,
+  icon,
   form,
 }: {
   label: string;
@@ -46,6 +47,8 @@ export function Combobox({
   autoFocus?: boolean;
   labelClassName?: string;
   placeholder?: string;
+  /** A 16px icon at the start of the box (the directory's filters). Decorative. */
+  icon?: React.ReactNode;
   /** Id of the form this belongs to, when it isn't the surrounding one. */
   form?: string;
 }) {
@@ -206,6 +209,11 @@ export function Combobox({
 
       <div className="relative">
       <div className="combo field" data-invalid={error ? true : undefined}>
+        {icon ? (
+          <span className="combo-icon" aria-hidden="true">
+            {icon}
+          </span>
+        ) : null}
         {hasTags ? (
           <ul className="contents" aria-label={`${label}: picked`}>
             {selected.map((v) => (
