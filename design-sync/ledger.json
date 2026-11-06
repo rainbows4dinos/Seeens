@@ -343,10 +343,11 @@
   "cref": ".window, .dialog-title",
   "cls": "structure-drift",
   "status": "needs-figma-fix",
-  "notes": "Nov 5: the strokes were a workaround for separating the window from its shadow; Shadow/Hard's paper drop does that now (and is in code). Figma: restore the Window's stroke on all sides in both states. Still open vs code: title 12px SemiBold vs 14px, collapse box 20 vs 24, content bottom padding 32 vs 24.",
+  "notes": "Nov 5 (borders excluded): title bar 44 (pad 12/12/12/16, 20px fold box, Mono/Small Strong) and content bottom 32 now match code. Still open: the outer strokes (left 1 only on Open; a workaround for separating window and shadow, which Shadow/Hard's paper drop now does).",
   "checklist": [
    "[x] Typography: Window title (copier dialog) 13px -> Mono/Small 12/16"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-09",
@@ -415,11 +416,12 @@
   "fref": "47:187",
   "cref": ".choice",
   "cls": "structure-drift",
-  "status": "needs-figma-fix",
-  "notes": "Decided Nov 5: the checkbox stays square. Figma's Choice checkbox has a 2px radius to remove. Code already matches (square); rest of Choice matches.",
+  "status": "synced",
+  "notes": "Nov 5: square box both sides. Figma's box is radius 0; code now draws the checkbox (paper, ink edge, ink check) instead of the rounded native one. Pad 8 from the outer edge (1 + 7).",
   "checklist": [
    "[x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-15",
@@ -452,11 +454,12 @@
   "fref": "48:197",
   "cref": "src/app/(app)/layout.tsx footer",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Nov 5 (borders excluded): pad 16/32, 48 tall, top rule. Matches the footer (py-4, overlay rule).",
   "checklist": [
    "[x] Typography: .caption normal-case -> text-xs text-muted (Mono/Small 12/16, no tracking)"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-18",
@@ -532,11 +535,12 @@
   "fref": "50:225",
   "cref": "src/components/outreach-panel.tsx",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Nov 5 (borders excluded): pad 12, gap 4, 92 tall. Matches EntryRow (px-3 py-3 gap-1, overlay border).",
   "checklist": [
    "[x] Typography: Mono/Body. Date is unstyled in Figma (see hygiene)."
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-24",
@@ -545,11 +549,12 @@
   "fref": "50:232",
   "cref": "src/components/next-action-panel.tsx",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Nov 5 (borders excluded): pad 16, gap 8, 124 tall. Code gap 12 -> 8.",
   "checklist": [
    "[x] Typography: Mono/Body, already matched"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-25",
@@ -707,7 +712,7 @@
   "cref": "kbd.search-hint",
   "cls": "match",
   "status": "synced",
-  "notes": "Decided Nov 5: the keycap keeps Figma's 2px radius (border-radius: 2px on .search-hint), the one rounded element.",
+  "notes": "Nov 5: 2px radius kept (the one rounded element). Borders excluded: 40 x 15, pad 4, text trimmed to cap height. Code padding 3 + text-box trim.",
   "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
