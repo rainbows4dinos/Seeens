@@ -1682,6 +1682,31 @@
       width: var(--quick-view-w);
       border-left: 2px solid var(--color-border-strong);
     }
+    /* Slides in from the right (phones: up from the bottom), 150ms with
+       ease-out-back's small overshoot, and out with ease-in-back. The
+       shadows paint surface past the far edges, so the overshoot never
+       shows a gap at the side or bottom of the window. */
+    --qv-away: 0 100%;
+    @media (width >= 48rem) {
+      --qv-away: 100% 0;
+    }
+    translate: 0 0;
+    box-shadow:
+      4rem 0 0 0 var(--color-bg-surface),
+      0 4rem 0 0 var(--color-bg-surface);
+    transition: translate 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    &[data-closing] {
+      translate: var(--qv-away);
+      transition-timing-function: cubic-bezier(0.36, 0, 0.66, -0.56);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+  @starting-style {
+    .quick-view {
+      translate: var(--qv-away);
+    }
   }
   .quick-view-title {
     display: flex;

@@ -105,7 +105,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
         <Link href={`/connections/${c.id}/edit`} className="button-primary">
           Edit Profile<span className="sr-only"> of {c.name}</span>
         </Link>
-        {c.is_us ? null : <LogOutreachButton />}
+        {c.is_us ? null : <LogOutreachButton connectionId={c.id} />}
         {/* A plain link: the full page loads fresh instead of reopening this panel. */}
         <a href={`/connections/${c.id}`} className="link ml-auto text-sm">
           Full page
