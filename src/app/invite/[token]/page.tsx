@@ -77,14 +77,14 @@ async function Invite({
           {signedIn && inv.email && signedInEmail !== inv.email ? (
             <div className="flex flex-col gap-3">
               <p>
-                This invite is for <strong>{inv.email}</strong>, but you&rsquo;re signed in as {signedInEmail}.
+                This invite is for <strong>{inv.email}</strong>, but you&rsquo;re signed in as {signedInEmail}. Sign out, and you&rsquo;ll come back here to join as {inv.email}.
               </p>
               <form action="/auth/signout" method="post">
+                <input type="hidden" name="next" value={`/invite/${token}`} />
                 <button type="submit" className="button-secondary">
                   Sign Out
                 </button>
               </form>
-              <p className="text-sm text-muted">Then open the link again.</p>
             </div>
           ) : signedIn ? (
             <AcceptForm token={token} band={inv.band} email={signedInEmail} />

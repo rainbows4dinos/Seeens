@@ -47,6 +47,7 @@ function LinkBox({ link }: { link: string }) {
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-3">
         <input
+          {...noAutofill}
           readOnly
           value={link}
           aria-label="Invite link"
@@ -186,7 +187,7 @@ export function InviteForm({ canInviteOwners, bandName }: { canInviteOwners: boo
           <label htmlFor="invite-email" className="label">
             Email
           </label>
-          <input id="invite-email" name="email" type="email" autoComplete="off" className="field" placeholder="sam@example.com" />
+          <input {...noAutofill} id="invite-email" name="email" type="email" className="field" placeholder="sam@example.com" />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="invite-name" className="label">
@@ -198,7 +199,7 @@ export function InviteForm({ canInviteOwners, bandName }: { canInviteOwners: boo
           <label htmlFor="invite-role" className="label">
             Role
           </label>
-          <select id="invite-role" name="role" className="field" defaultValue="member">
+          <select {...noAutofill} id="invite-role" name="role" className="field" defaultValue="member">
             <option value="member">Member</option>
             {canInviteOwners ? <option value="owner">Owner</option> : null}
           </select>
