@@ -10,7 +10,8 @@ export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);
   const { pathname, search } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.includes(pathname);
-  if (OPEN_PATHS.includes(pathname)) return response;
+  // Invite links (#69) work signed in or out.
+  if (OPEN_PATHS.includes(pathname) || pathname.startsWith("/invite/")) return response;
 
   if (!userId && !isPublic) {
     const login = new URL("/login", request.url);

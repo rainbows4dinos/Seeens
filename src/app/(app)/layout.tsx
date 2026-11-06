@@ -92,6 +92,9 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
             <Checkmark size={16} aria-hidden="true" />
             <span className="sr-only"> (current band)</span>
           </Link>
+          <Link href="/band" className="nav-chip menu-item">
+            Band Settings
+          </Link>
         </div>
       ) : null}
       <div className="menu-group">

@@ -26,6 +26,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | **Follow-ups.** Every next step, with dates as plain facts and no overdue alarms. | **On a phone.** The same app, built for the merch table. |
 | ![The directory with The Tin Hollows open in the quick view panel beside it](docs/screenshots/quick-view.png) | ![The Lantern Room's quick view as a sheet on a phone](docs/screenshots/mobile-quick-view.png) |
 | **Quick view.** Click a row and the connection opens beside the list: change status, handle the next step, log outreach. | **Quick view on a phone.** The same panel as a sheet under the header. |
+| ![Band Settings: band name, members with roles, the invite form, and a pending invite](docs/screenshots/band-settings.png) | ![An invite: "Alex invited you to Merwulf on Seeens" with a form to make an account and join](docs/screenshots/invite.png) |
+| **Band Settings.** Everyone in the band, and invites by email or link. Owners manage roles. | **An invite.** Who invited you, to which band, and that Seeens is in beta. Make an account or sign in, and you're in. |
 
 ## MVP
 
@@ -133,7 +135,7 @@ Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `a
 
 ## Database
 
-The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. Signing up does not grant access; a member has to be added.
+The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. Signing in does not grant access; a member has to invite you.
 
 History is kept, not overwritten: connections are archived instead of deleted (merged duplicates are hidden for 30 days, then deleted, with everything they held moved to the one kept), status changes are logged, replacing a next action closes the old one (`set_next_action`), and outreach entries can only be changed by their author.
 
@@ -152,24 +154,31 @@ npx supabase link --project-ref <project-id>
 npx supabase db push --linked
 ```
 
-### Creating the workspace and adding members
+### Creating the workspace and inviting members
 
-Until the invite flow exists, add members in Supabase. Create their account under Authentication > Users > Add user (email, password, auto-confirm), share the password with them privately, then add the membership in the SQL editor. They can change the password themselves under Account Settings. Public sign-ups should stay turned off in the Supabase auth settings.
-
-Password reset and email change links land on `/auth/callback`. Its URLs (`https://seeens.com/auth/callback`, `https://www.seeens.com/auth/callback`, and the preview and localhost ones) need to be allowed under Authentication > URL Configuration > Redirect URLs, or covered by a wildcard there.
+Create the band once in the SQL editor, then add its first owner (their account comes from Authentication > Users > Add user, with auto-confirm on):
 
 ```sql
--- once
 insert into public.workspaces (name) values ('Merwulf') returning id;
 
--- per member
 insert into public.workspace_members (workspace_id, user_id, role, display_name)
-select '<workspace-id>', id, 'member', 'Display Name'
-from auth.users where email = 'member@example.com'
+select '<workspace-id>', id, 'owner', 'Display Name'
+from auth.users where email = 'owner@example.com'
 returning display_name, role;
 ```
 
 Without `returning`, the Supabase SQL editor reports 0 rows even when the insert worked.
+
+Everyone else joins from **Band Settings** (account menu > Band Settings). Any member can invite by email or copy a link; only owners can invite owners. Links work once, for 7 days. Someone new makes their account on the invite page, so public sign-ups stay turned off in the Supabase auth settings. Owners change roles, remove members, and rename the band there too, and a band always keeps an owner. Members leave from Account Settings.
+
+Invites need two server-only env vars in Vercel (never `NEXT_PUBLIC_`, never in the repo):
+
+| Variable | Needed for |
+| --- | --- |
+| `SUPABASE_SECRET_KEY` | Making an account from an invite. Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself. |
+
+Password reset and email change links land on `/auth/callback`. Its URLs (`https://seeens.com/auth/callback`, `https://www.seeens.com/auth/callback`, and the preview and localhost ones) need to be allowed under Authentication > URL Configuration > Redirect URLs, or covered by a wildcard there.
 
 Dates ("today" for outreach and follow-ups, and the dates in the CSV export) use the band's time zone, Pacific by default. To change it:
 
@@ -177,14 +186,7 @@ Dates ("today" for outreach and follow-ups, and the dates in the CSV export) use
 update public.workspaces set time_zone = 'America/New_York' where name = 'Merwulf';
 ```
 
-To remove a member, delete their membership. They can still sign in, but they see "No workspace yet," and the database returns none of the band's data.
-
-```sql
-delete from public.workspace_members
-where user_id = (select id from auth.users where email = 'member@example.com');
-```
-
-Supabase code lives in `src/lib/supabase/`: `client.ts` for Client Components, `server.ts` for server code, and `proxy.ts` for session refresh (wired up in `src/proxy.ts`). Only the project URL and publishable key belong in env vars the app reads. Never add the secret key.
+Supabase code lives in `src/lib/supabase/`: `client.ts` for Client Components, `server.ts` for server code, and `proxy.ts` for session refresh (wired up in `src/proxy.ts`). The browser only gets the project URL and publishable key. The secret key is read only by server code in `admin.ts`, from a server-only env var.
 
 ## Place data
 

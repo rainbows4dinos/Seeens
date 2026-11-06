@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
@@ -92,7 +93,14 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
                       {n === 1 ? "member" : "members"}
                     </p>
                   </div>
-                  <LeaveBand workspaceId={b.workspace_id} name={band} />
+                  <div className="flex flex-wrap gap-3">
+                    {b.workspace_id === membership?.workspaceId ? (
+                      <Link href="/band" className="button-secondary">
+                        Band Settings<span className="sr-only"> for {band}</span>
+                      </Link>
+                    ) : null}
+                    <LeaveBand workspaceId={b.workspace_id} name={band} />
+                  </div>
                 </li>
               );
             })}

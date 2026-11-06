@@ -121,6 +121,18 @@ isOneToOne: false
                     "connection_a"?: string,"connection_b"?: string,"created_at"?: string,"created_by"?: string | null,"workspace_id"?: string
                   }
                   Relationships: []
+                },"invites": {
+                  Row: {
+                    "accepted_at": string | null,"accepted_by": string | null,"created_at": string,"email": string | null,"expires_at": string,"id": string,"invited_by": string | null,"invited_by_name": string,"name": string | null,"revoked_at": string | null,"revoked_by": string | null,"role": Database["public"]["Enums"]["member_role"],"sent_at": string | null,"token_hash": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accepted_at"?: string | null,"accepted_by"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name": string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash": string,"workspace_id": string
+                  }
+                  Update: {
+                    "accepted_at"?: string | null,"accepted_by"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name"?: string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash"?: string,"workspace_id"?: string
+                  }
+                  Relationships: []
                 },"connections": {
                   Row: {
                     "archived_at": string | null,"attributes": Json,"can_help_with": (string)[],"catalog_no": number,"created_at": string,"created_by": string | null,"email": string | null,"group_type": Database["public"]['Enums']["group_type"] | null,"id": string,"is_us": boolean,"kind": Database["public"]['Enums']["connection_kind"],"locality_id": string | null,"merged_at": string | null,"merged_into": string | null,"name": string,"notes": string | null,"person_roles": (Database["public"]['Enums']["person_role"])[],"phone": string | null,"photo_alt": string | null,"photo_original_path": string | null,"photo_path": string | null,"photo_settings": Json | null,"played_together": boolean,"status": Database["public"]['Enums']["connection_status"],"updated_at": string,"workspace_id": string
@@ -323,6 +335,28 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            "create_invite":
+{ Args: { "p_workspace_id": string,"p_email": string | null,"p_name": string | null,"p_role": Database["public"]["Enums"]["member_role"] }; Returns: { "invite_id": string,"token": string,"existing": boolean,"first_sent_by": string | null }[] },
+            "renew_invite_link":
+{ Args: { "p_invite_id": string }; Returns: string },
+            "mark_invite_sent":
+{ Args: { "p_invite_id": string }; Returns: undefined },
+            "revoke_invite":
+{ Args: { "p_invite_id": string }; Returns: undefined },
+            "invite_preview":
+{ Args: { "p_token": string }; Returns: { "band": string,"invited_by": string,"email": string | null,"name": string | null,"role": Database["public"]["Enums"]["member_role"],"status": string }[] },
+            "accept_invite":
+{ Args: { "p_token": string,"p_display_name": string | null }; Returns: string },
+            "opt_out_of_invites":
+{ Args: { "p_token": string }; Returns: undefined },
+            "band_members":
+{ Args: { "p_workspace_id": string }; Returns: { "user_id": string,"display_name": string,"role": Database["public"]["Enums"]["member_role"],"email": string,"joined_at": string }[] },
+            "set_member_role":
+{ Args: { "p_workspace_id": string,"p_user_id": string,"p_role": Database["public"]["Enums"]["member_role"] }; Returns: undefined },
+            "remove_member":
+{ Args: { "p_workspace_id": string,"p_user_id": string }; Returns: undefined },
+            "rename_band":
+{ Args: { "p_workspace_id": string,"p_name": string }; Returns: undefined },
             "update_my_display_name":
 { Args: { "p_name": string }; Returns: undefined },
             "leave_workspace":
