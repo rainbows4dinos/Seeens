@@ -91,7 +91,10 @@ async function Connection({
   return (
     <AutosaveProvider>
     <article className="page-measure flex flex-col gap-8">
-      <BackButton href={directoryHrefFor(c.kind, c.group_type, archived)} />
+      <BackButton
+        href={directoryHrefFor(c.kind, c.group_type, archived)}
+        name={{ text: c.name, headingId: "profile-name" }}
+      />
 
       <p role="status" className="text-sm font-medium empty:hidden">
         {saved ? savedNote(missed_photo === "1", Number(missed_links) || 0) : ""}
@@ -119,7 +122,9 @@ async function Connection({
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {/* The name, and how saving is going where Edit Profile used to be. */}
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h1 className="min-w-0 display-l sm:display-xl break-words">{c.name}</h1>
+            <h1 id="profile-name" className="min-w-0 display-l sm:display-xl break-words">
+              {c.name}
+            </h1>
             <SaveStatus />
           </div>
           <p className="text-muted">
