@@ -1739,11 +1739,48 @@
     position: sticky;
     top: calc(var(--header-h) + var(--space-md));
     z-index: 20;
+    display: flex;
     align-self: flex-start;
+    max-width: 100%;
   }
   /* Floating over the panels, it lifts off them (Shadow/Soft). */
-  .back-pin[data-pinned] > * {
+  .back-pin[data-pinned] {
     box-shadow: var(--shadow-soft);
+  }
+  /* On a profile, the name joins the button once the big one is gone, like
+     a second segment. Long names end in an ellipsis. */
+  .back-pin-name {
+    display: none;
+    align-items: center;
+    min-width: 0;
+    max-width: 28rem;
+    padding-inline: var(--space-md);
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    border-left: 0;
+    background: var(--color-bg-surface);
+    font-family: var(--type-display);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .back-pin-name[data-shown] {
+    display: block;
+    align-content: center;
+  }
+  /* Phones: with the name showing, the button is just its arrow (the label
+     is still read). */
+  @media (width < 48rem) {
+    .back-pin:has(.back-pin-name[data-shown]) .back-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
 
   /* App Header (Figma): surface with an ink rule under it, pinned. */
