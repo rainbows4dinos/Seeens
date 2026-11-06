@@ -226,7 +226,9 @@ export function Combobox({
             ))}
             {created.map((n) => (
               <li key={`new:${n}`} className="combo-tag">
-                {n} <span className="font-normal opacity-70">(new)</span>
+                <span>
+                  {n} <span className="font-normal opacity-70">(new)</span>
+                </span>
                 <button type="button" onClick={() => removeCreated(n)} aria-label={`Remove ${n}`}>
                   ×
                 </button>

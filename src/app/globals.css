@@ -2000,3 +2000,34 @@
     overflow: hidden;
   }
 }
+
+/* Two fields side by side whose labels and hints differ in length (Town and
+   Scenes): a subgrid lines up label, hint, and box across both columns, so
+   the boxes start level and grow downward. Unlayered so it beats the
+   components' flex utilities; margins stand in for their gap-2 and -mt-1. */
+@media (width >= 40rem) {
+  .field-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, auto);
+    column-gap: 1.25rem;
+    row-gap: 0;
+    align-items: start;
+  }
+  .field-pair > * {
+    grid-row: span 5;
+    display: grid;
+    grid-template-rows: subgrid;
+    gap: 0;
+    align-content: start;
+    /* Each piece keeps its own height; a short box doesn't stretch to
+       match a tall one beside it. */
+    align-items: start;
+  }
+  .field-pair > * > :not(:first-child, ul, .sr-only, input[type="hidden"]) {
+    margin-top: 8px;
+  }
+  .field-pair > * > [id$="-hint"] {
+    margin-top: 4px;
+  }
+}

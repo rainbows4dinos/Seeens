@@ -13,7 +13,8 @@ export function PlaceField({
   keepLocalityId,
   error,
   label = "Where they\u2019re based",
-  hint = "Their home town, not where you met them. Type a town, like \u201cWalla Walla\u201d or \u201cPortland, ME.\u201d",
+  hint = "Their home town, not where you met them.",
+  placeholder = "Try \u201cWalla Walla\u201d or \u201cPortland, ME.\u201d",
 }: {
   initialId: number | null;
   initialLabel: string;
@@ -21,6 +22,7 @@ export function PlaceField({
   error?: string;
   label?: string;
   hint?: string;
+  placeholder?: string;
 }) {
   const id = useId();
   const [text, setText] = useState(initialLabel);
@@ -84,6 +86,7 @@ export function PlaceField({
         aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
+        placeholder={placeholder}
         value={text}
         onChange={(e) => {
           setText(e.target.value);
