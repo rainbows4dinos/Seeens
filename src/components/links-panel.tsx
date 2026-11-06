@@ -77,6 +77,7 @@ export function LinksPanel({
   note,
   carry,
   pending,
+  heading = true,
 }: {
   subjectId: string;
   rows: LinkRow[];
@@ -90,6 +91,8 @@ export function LinksPanel({
   carry?: Carry | null;
   // The Add form: links wait here until the connection is saved.
   pending?: PendingLinks;
+  /** Off on the profile page, where the panel's title bar says it (#126). */
+  heading?: boolean;
 }) {
   const [adding, setAdding] = useState<string | null>(null);
   // Bands can take a pasted lineup (once they exist).
@@ -102,7 +105,7 @@ export function LinksPanel({
 
   return (
     <section aria-labelledby="links-heading" className="flex flex-col gap-4">
-      <h2 id="links-heading" className="display-s">
+      <h2 id="links-heading" className={heading ? "display-s" : "sr-only"}>
         Connections
       </h2>
       {note ? <p className="-mt-2 text-sm text-muted">{note}</p> : null}

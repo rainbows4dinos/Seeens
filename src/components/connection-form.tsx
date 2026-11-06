@@ -12,7 +12,8 @@ import type { CopierSettings } from "@/lib/photos/settings";
 import Link from "next/link";
 import { PlaceField } from "@/components/place-field";
 import { Combobox } from "@/components/combobox";
-import { LINK_TYPES, detectLinkType, splitLinkLabel, type LinkType } from "@/lib/connections/link-types";
+import { LinksEditor } from "@/components/links-editor";
+import { Field, invalid } from "@/components/form-field";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import {
@@ -158,16 +159,6 @@ function FormBody({
   returnId?: boolean;
 }) {
   const { values: v, errors } = state;
-  const [links, setLinks] = useState(() =>
-    (v.links.length ? v.links : [{ label: "", url: "" }]).map((l, i) => {
-      const { type, custom } = splitLinkLabel(l.label);
-      // Untyped links pick up a type from their URL until someone chooses one.
-      return { key: i, url: l.url, type: type || detectLinkType(l.url) || "", custom, auto: !type };
-    }),
-  );
-  const updateLink = (key: number, patch: Partial<(typeof links)[number]>) =>
-    setLinks((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
-  const [nextKey, setNextKey] = useState(links.length);
   const [kind, setKind] = useState(v.kind === "person" ? "person" : "group");
   const [isUs, setIsUs] = useState(v.isUs);
   // Status words follow the type as it's picked (#139). Roles only change
@@ -385,85 +376,7 @@ function FormBody({
           </Field>
         </div>
 
-        <fieldset className="flex flex-col gap-3">
-          <legend className="label">Links</legend>
-          {links.map((link, i) => {
-            const err = errors.linkUrls?.[i];
-            const other = link.type === "Other";
-            const n = <span className="sr-only"> for link {i + 1}</span>;
-            return (
-              <div
-                key={link.key}
-                className={`panel grid gap-2 p-3 sm:items-end ${other ? "sm:grid-cols-[2fr_1fr_1fr_auto]" : "sm:grid-cols-[2fr_1fr_auto]"}`}
-              >
-                <Field id={`c-link_url_${link.key}`} label={<>URL{n}</>} error={err}>
-                  <input {...noAutofill}
-                    id={`c-link_url_${link.key}`}
-                    name="link_url"
-                    type="url"
-                    inputMode="url"
-                    value={link.url}
-                    onChange={(e) => {
-                      const url = e.target.value;
-                      updateLink(link.key, link.auto ? { url, type: detectLinkType(url) ?? "" } : { url });
-                    }}
-                    placeholder="yourband.bandcamp.com"
-                    className="field"
-                    {...invalid(`c-link_url_${link.key}`, err)}
-                  />
-                </Field>
-                <Field id={`c-link_type_${link.key}`} label={<>Link Type{n}</>}>
-                  <select
-                    id={`c-link_type_${link.key}`}
-                    name="link_type"
-                    value={link.type}
-                    onChange={(e) => updateLink(link.key, { type: e.target.value as LinkType | "", auto: false })}
-                    className="field"
-                  >
-                    <option value="">Choose one</option>
-                    {LINK_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                {other ? (
-                  <Field id={`c-link_label_${link.key}`} label={<>Label{n}</>}>
-                    <input {...noAutofill}
-                      id={`c-link_label_${link.key}`}
-                      name="link_label"
-                      value={link.custom}
-                      onChange={(e) => updateLink(link.key, { custom: e.target.value })}
-                      placeholder="Merch store"
-                      className="field"
-                    />
-                  </Field>
-                ) : (
-                  <input type="hidden" name="link_label" value="" />
-                )}
-                <button
-                  type="button"
-                  className="button-secondary"
-                  onClick={() => setLinks((ls) => ls.filter((l) => l.key !== link.key))}
-                  aria-label={`Remove link ${i + 1}`}
-                >
-                  Remove
-                </button>
-              </div>
-            );
-          })}
-          <button
-            type="button"
-            className="button-secondary self-start"
-            onClick={() => {
-              setLinks((ls) => [...ls, { key: nextKey, url: "", type: "", custom: "", auto: true }]);
-              setNextKey((k) => k + 1);
-            }}
-          >
-            Add a Link
-          </button>
-        </fieldset>
+        <LinksEditor initial={v.links} errors={errors.linkUrls} />
 
         {linksSlot}
         {/* Add: links wait until the connection is saved. Their choices follow the type. */}
@@ -517,47 +430,6 @@ function splitNames(list: string) {
     .split(",")
     .map((n) => n.trim())
     .filter(Boolean);
-}
-
-function invalid(id: string, error?: string, extraDescribedBy?: string) {
-  const describedBy = [error ? `${id}-error` : null, extraDescribedBy].filter(Boolean).join(" ");
-  return {
-    "aria-invalid": error ? true : undefined,
-    "aria-describedby": describedBy || undefined,
-  } as const;
-}
-
-function Field({
-  id,
-  label,
-  hint,
-  error,
-  children,
-}: {
-  id: string;
-  label: React.ReactNode;
-  hint?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="label">
-        {label}
-      </label>
-      {hint ? (
-        <p id={`${id}-hint`} className="-mt-1 text-sm text-muted">
-          {hint}
-        </p>
-      ) : null}
-      {children}
-      {error ? (
-        <p id={`${id}-error`} className="text-sm font-medium text-error">
-          Error: {error}
-        </p>
-      ) : null}
-    </div>
-  );
 }
 
 function Choice({

@@ -155,7 +155,73 @@ export function splitList(raw: string) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function validate(values: ConnectionFormValues):
+// The zoned profile page (#126) saves a field (or a few that belong
+// together) at a time. Each group names the form values it owns and the
+// form fields that post them.
+export const AUTOSAVE_GROUPS = {
+  name: { values: ["name"], fields: ["name"] },
+  type: { values: ["kind", "personRoles", "groupType"], fields: ["kind", "group_type", "person_roles"] },
+  isUs: { values: ["isUs"], fields: ["is_us"] },
+  place: { values: ["placeId", "placeText", "keepLocalityId"], fields: ["place_id", "place_text", "keep_locality_id"] },
+  scenes: { values: ["sceneIds", "newScenes"], fields: ["scene_ids", "new_scenes"] },
+  email: { values: ["email"], fields: ["email"] },
+  phone: { values: ["phone"], fields: ["phone"] },
+  links: { values: ["links"], fields: ["link_url", "link_type", "link_label"] },
+  canHelpWith: { values: ["canHelpWith"], fields: ["can_help_with"] },
+  notes: { values: ["notes"], fields: ["notes"] },
+  venue: { values: ["venue"], fields: VENUE_KEYS.map((k) => `venue_${k}`) },
+} as const satisfies Record<string, { values: readonly (keyof ConnectionFormValues)[]; fields: readonly string[] }>;
+
+export type AutosaveGroup = keyof typeof AUTOSAVE_GROUPS;
+
+/** The group a posted field belongs to, or null for fields autosave ignores. */
+export function groupForField(field: string): AutosaveGroup | null {
+  for (const [group, g] of Object.entries(AUTOSAVE_GROUPS)) {
+    if ((g.fields as readonly string[]).includes(field)) return group as AutosaveGroup;
+  }
+  return null;
+}
+
+// Which groups an error blocks. "Only a band can be ours" comes from either
+// the type or the checkbox, so it blocks both.
+const ERROR_GROUPS: Record<string, AutosaveGroup[]> = {
+  name: ["name"],
+  kind: ["type"],
+  personRoles: ["type"],
+  groupType: ["type"],
+  isUs: ["type", "isUs"],
+  email: ["email"],
+  placeText: ["place"],
+  newScenes: ["scenes"],
+  linkUrls: ["links"],
+  venue: ["venue", "type"],
+};
+
+/**
+ * The stored values with the changed groups laid over them, validated for
+ * just those groups: a problem elsewhere (an imported person with no roles,
+ * say) doesn't block saving a new email.
+ */
+export function mergeForAutosave(
+  stored: ConnectionFormValues,
+  incoming: ConnectionFormValues,
+  groups: AutosaveGroup[],
+): { ok: true; data: ValidConnection } | { ok: false; errors: ConnectionFormErrors } {
+  const merged: ConnectionFormValues = { ...stored };
+  for (const group of groups) {
+    for (const key of AUTOSAVE_GROUPS[group].values) {
+      (merged as Record<string, unknown>)[key] = incoming[key];
+    }
+  }
+  const touched = new Set(groups);
+  return validate(merged, (key) => (ERROR_GROUPS[key] ?? []).some((g) => touched.has(g)));
+}
+
+export function validate(
+  values: ConnectionFormValues,
+  // Autosave: only these errors count; the rest are left as stored.
+  counts: (key: string) => boolean = () => true,
+):
   | { ok: true; data: ValidConnection }
   | { ok: false; errors: ConnectionFormErrors } {
   const errors: ConnectionFormErrors = {};
@@ -206,6 +272,9 @@ export function validate(values: ConnectionFormValues):
   const venue = isVenue ? venueDetailsFromForm(values.venue) : null;
   if (venue && !venue.ok) errors.venue = venue.errors;
 
+  for (const key of Object.keys(errors)) {
+    if (!counts(key)) delete errors[key as keyof ConnectionFormErrors];
+  }
   if (Object.keys(errors).length) return { ok: false, errors };
 
   return {

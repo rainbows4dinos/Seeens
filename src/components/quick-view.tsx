@@ -18,7 +18,7 @@ import type { ReactNode } from "react";
 
 // The quick view's body and footer (#126): who this is, where things stand,
 // the next plan, a few facts, and the last outreach. Status and plans change
-// right here; anything else is a click away on Edit Profile.
+// right here; anything else is on the profile, a click away on Edit Profile.
 export async function QuickView({ params }: { params: Promise<{ id: string }> }) {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
@@ -102,14 +102,11 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
       </div>
 
       <div className="quick-view-footer">
-        <Link href={`/connections/${c.id}/edit`} className="button-primary">
+        {/* A plain link: the profile loads as its own page, not in this panel. */}
+        <a href={`/connections/${c.id}`} className="button-primary">
           Edit Profile<span className="sr-only"> of {c.name}</span>
-        </Link>
-        {c.is_us ? null : <LogOutreachButton connectionId={c.id} />}
-        {/* A plain link: the full page loads fresh instead of reopening this panel. */}
-        <a href={`/connections/${c.id}`} className="link ml-auto text-sm">
-          Full page
         </a>
+        {c.is_us ? null : <LogOutreachButton connectionId={c.id} />}
       </div>
     </>
   );

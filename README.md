@@ -18,8 +18,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 
 | | |
 | --- | --- |
-| ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png) | ![A band's page with status, next action, outreach log, and connections](docs/screenshots/connection.png) |
-| **Sign in.** Invite-only. | **A connection.** Where things stand, the next step, what's happened, and who's connected. |
+| ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png) | ![A band's profile: Basic Info, Activity, Members & Connections, Contact & Links, and Notes panels](docs/screenshots/connection.png) |
+| **Sign in.** Invite-only. | **A connection.** One page in panels that saves as you go: who they are, the next step and what's happened, who's connected, how to reach them. |
 | ![Everyone marked Let's play](docs/screenshots/lets-play.png) | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png) |
 | **Let's play.** The booking backlog: All, filtered to Let's play, and by town or scene if you like. | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest. |
 | ![Follow-ups grouped by date](docs/screenshots/follow-ups.png) | ![The directory on a phone](docs/screenshots/mobile-directory.png) |

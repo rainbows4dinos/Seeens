@@ -25,6 +25,32 @@ function fetchEdges(supabase: Supabase, ws: string) {
   );
 }
 
+const CONNECTION_SELECT =
+  "*, localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
+
+// Links in order and scenes by name, the way the pages show them.
+function shapeConnection<T extends {
+  connection_links: { position: number }[];
+  connection_scenes: { scenes: { id: string; name: string } | null }[];
+}>(row: T) {
+  const links = [...row.connection_links].sort((a, b) => a.position - b.position);
+  const scenes = row.connection_scenes
+    .map((cs) => cs.scenes)
+    .filter((s): s is NonNullable<typeof s> => Boolean(s))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  return { ...row, connection_links: links, scenes };
+}
+
+/** Just the connection's own fields, for an autosave to merge into (#126). */
+export async function getConnectionValues(id: string) {
+  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
+  const { data, error } = await supabase.from("connections").select(CONNECTION_SELECT).eq("id", id).eq("workspace_id", ws).maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const c = shapeConnection(data);
+  return { values: toFormValues(c), updatedAt: c.updated_at, attributes: c.attributes };
+}
+
 export async function getConnection(id: string) {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
 
@@ -33,7 +59,7 @@ export async function getConnection(id: string) {
   const [connection, outgoing, incoming, nextAction, history, members, outreach, pastPlans, network] = await Promise.all([
     supabase
       .from("connections")
-      .select("*, localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )")
+      .select(CONNECTION_SELECT)
       .eq("id", id)
       .eq("workspace_id", ws)
       .maybeSingle(),
@@ -105,14 +131,8 @@ export async function getConnection(id: string) {
     throw new Error("Couldn't load this connection's details.");
   }
 
-  const links = [...connection.data.connection_links].sort((a, b) => a.position - b.position);
-  const scenes = connection.data.connection_scenes
-    .map((cs) => cs.scenes)
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-
   return {
-    connection: { ...connection.data, connection_links: links, scenes },
+    connection: shapeConnection(connection.data),
     affiliations: { outgoing: outgoing.data, incoming: incoming.data },
     nextAction: nextAction.data,
     outreach: outreach.data,
