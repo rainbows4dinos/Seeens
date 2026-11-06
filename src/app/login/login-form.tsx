@@ -9,6 +9,7 @@ export function LoginForm() {
   const params = useSearchParams();
   const next = params.get("next") ?? "/";
   const expired = params.get("link") === "expired";
+  const deleted = params.get("deleted") === "1";
   const [state, action, pending] = useActionState<SignInState | undefined, FormData>(
     signIn,
     undefined,
@@ -20,6 +21,11 @@ export function LoginForm() {
       {expired ? (
         <p role="status" className="text-sm font-medium">
           That link has run out or was already used. Sign in, or ask for a new reset link.
+        </p>
+      ) : null}
+      {deleted ? (
+        <p role="status" className="text-sm font-medium">
+          Your account is deleted. Thanks for trying Seeens.
         </p>
       ) : null}
 

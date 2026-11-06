@@ -361,6 +361,8 @@ isOneToOne: false
 { Args: { "p_name": string }; Returns: undefined },
             "leave_workspace":
 { Args: { "p_workspace_id": string }; Returns: undefined },
+            "prepare_account_deletion":
+{ Args: never; Returns: (string)[] },
             "merge_connections":
 { Args: { "p_keep": string,"p_merge": (string)[],"p_photo"?: Json }; Returns: string },
             "merged_photos_due":

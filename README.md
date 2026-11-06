@@ -171,11 +171,11 @@ Without `returning`, the Supabase SQL editor reports 0 rows even when the insert
 
 Everyone else joins from **Band Settings** (account menu > Band Settings). Any member can invite by email or copy a link; only owners can invite owners. Links work once, for 7 days. Someone new makes their account on the invite page, so public sign-ups stay turned off in the Supabase auth settings. Owners change roles, remove members, and rename the band there too, and a band always keeps an owner. Members leave from Account Settings.
 
-Invites need two server-only env vars in Vercel (never `NEXT_PUBLIC_`, never in the repo):
+Invites and account deletion need server-only env vars in Vercel (never `NEXT_PUBLIC_`, never in the repo):
 
 | Variable | Needed for |
 | --- | --- |
-| `SUPABASE_SECRET_KEY` | Making an account from an invite. Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join. |
+| `SUPABASE_SECRET_KEY` | Making an account from an invite, and deleting one (Account Settings > Delete Account). Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join, and accounts can't be deleted. |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself. |
 
 Password reset and email change links land on `/auth/callback`. Its URLs (`https://seeens.com/auth/callback`, `https://www.seeens.com/auth/callback`, and the preview and localhost ones) need to be allowed under Authentication > URL Configuration > Redirect URLs, or covered by a wildcard there.
