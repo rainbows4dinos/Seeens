@@ -1,7 +1,7 @@
 // Possible duplicates. Run with: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { duplicateGroups, nameKeys, pairKey, pairsOf } from "./duplicates.ts";
+import { duplicateGroups, nameKeys, namesMatch, pairKey, pairsOf } from "./duplicates.ts";
 
 const band = (id: string, name: string) => ({ id, name, kind: "group", group_type: "band" });
 
@@ -71,4 +71,27 @@ test("an unset group type can match any group, but a band isn't a venue", () => 
     duplicateGroups(rows, []).map((g) => g.map((r) => r.id)),
     [["a", "b"]],
   );
+});
+
+test("spelled-out names don't meet on initials alone", () => {
+  const rows = [
+    band("a", "Backseat Plastic"),
+    band("b", "The Birthday Party"),
+    band("c", "Bad Channels"),
+    band("d", "Brassless Chaps"),
+    band("e", "Big Bad Wolf"),
+    band("f", "Black Bear Wake"),
+  ];
+  assert.deepEqual(duplicateGroups(rows, []), []);
+});
+
+test("two-letter initials don't match", () => {
+  assert.deepEqual(duplicateGroups([band("a", "Night Gleaners"), band("b", "NG")], []), []);
+});
+
+test("namesMatch follows the same rules", () => {
+  assert.ok(namesMatch("GAB", "Grown Ass Bitch (G.A.B.)"));
+  assert.ok(namesMatch("Grown Ass Bitch", "G.A.B."));
+  assert.ok(!namesMatch("Backseat Plastic", "The Birthday Party"));
+  assert.ok(!namesMatch("Grown Ass Bitch", "Gab"));
 });

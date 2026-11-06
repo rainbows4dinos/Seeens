@@ -25,10 +25,14 @@ export function pairsOf(ids: string[]): [string, string][] {
 }
 
 // The ways a name can match another. Beyond the whole name (the import's
-// matcher): the name without anything in parentheses, what's in them
-// ("Grown Ass Bitch (G.A.B.)" also answers to "GAB"), and initials, but only
-// against a name written as initials (GAB, G.A.B.), so "Night Gleaners"
-// doesn't meet some band called "NG" by accident.
+// matcher): the name without anything in parentheses, and what's in them
+// ("Grown Ass Bitch (G.A.B.)" also answers to "GAB").
+//
+// Initials work one way only: a name written as initials ("initials:gab",
+// from GAB or G.A.B.) meets a spelled-out name with those initials
+// ("spells:gab", from Grown Ass Bitch). Two spelled-out names never meet on
+// initials alone (Backseat Plastic isn't The Birthday Party), and it takes
+// three letters, so "Night Gleaners" doesn't meet a band called "NG".
 export function nameKeys(name: string): string[] {
   const keys = new Set<string>();
   const add = (k: string) => {
@@ -47,14 +51,23 @@ export function nameKeys(name: string): string[] {
     .split(/[\s-]+/)
     .map((w) => w.replace(/[^\p{L}\p{N}]/gu, ""))
     .filter(Boolean);
-  if (words.length >= 2) add(`initials:${words.map((w) => w[0]).join("").toLowerCase()}`);
+  if (words.length >= 3) add(`spells:${words.map((w) => w[0]).join("").toLowerCase()}`);
   return [...keys];
 }
 
-// "GAB", "G.A.B.", "K.X.X.X": two to six letters, all capitals or dotted.
+/** Whether two names match by the rules above (types aside). */
+export function namesMatch(a: string, b: string) {
+  const ka = nameKeys(a);
+  const kb = new Set(nameKeys(b));
+  const flip = (k: string) =>
+    k.startsWith("initials:") ? `spells:${k.slice(9)}` : k.startsWith("spells:") ? `initials:${k.slice(7)}` : null;
+  return ka.some((k) => (!k.startsWith("spells:") && kb.has(k)) || (flip(k) !== null && kb.has(flip(k)!)));
+}
+
+// "GAB", "G.A.B.", "K.X.X.X": three to six letters, all capitals or dotted.
 function isInitials(s: string) {
   const t = s.trim();
-  return /^(?:\p{Lu}\.?){2,6}$/u.test(t.replace(/\s+/g, "")) && (/\./.test(t) || t === t.toUpperCase());
+  return /^(?:\p{Lu}\.?){3,6}$/u.test(t.replace(/\s+/g, "")) && (/\./.test(t) || t === t.toUpperCase());
 }
 
 // Same kind, and the same group type unless one isn't set (an import that
@@ -74,10 +87,19 @@ export function duplicateGroups<T extends DupCandidate>(rows: T[], notSame: Iter
   rows.forEach((r, i) => {
     for (const k of nameKeys(r.name)) byKey.set(k, [...(byKey.get(k) ?? []), i]);
   });
-  for (const ids of byKey.values())
-    for (let a = 0; a < ids.length; a++)
-      for (let b = a + 1; b < ids.length; b++)
-        if (sameType(rows[ids[a]], rows[ids[b]])) parent[find(ids[a])] = find(ids[b]);
+  const join = (a: number, b: number) => {
+    if (a !== b && sameType(rows[a], rows[b])) parent[find(a)] = find(b);
+  };
+  for (const [key, ids] of byKey) {
+    if (key.startsWith("spells:")) continue;
+    if (key.startsWith("initials:")) {
+      // Written initials meet spelled-out names, and each other.
+      const spelled = byKey.get(`spells:${key.slice("initials:".length)}`) ?? [];
+      for (const a of ids) for (const b of [...ids, ...spelled]) join(a, b);
+      continue;
+    }
+    for (const a of ids) for (const b of ids) join(a, b);
+  }
   const byRoot = new Map<number, T[]>();
   rows.forEach((r, i) => byRoot.set(find(i), [...(byRoot.get(find(i)) ?? []), r]));
 
