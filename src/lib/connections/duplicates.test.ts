@@ -1,7 +1,7 @@
 // Possible duplicates. Run with: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { duplicateGroups, pairKey, pairsOf } from "./duplicates.ts";
+import { duplicateGroups, nameKeys, pairKey, pairsOf } from "./duplicates.ts";
 
 const band = (id: string, name: string) => ({ id, name, kind: "group", group_type: "band" });
 
@@ -42,4 +42,33 @@ test("pairsOf lists each pair once, in stored order", () => {
     ["a", "c"],
     ["b", "c"],
   ]);
+});
+
+test("a name in parentheses matches on its own", () => {
+  const rows = [band("a", "GAB"), band("b", "Grown Ass Bitch (G.A.B.)"), band("c", "Grown Ass Bitch")];
+  const groups = duplicateGroups(rows, []).map((g) => g.map((r) => r.id));
+  assert.deepEqual(groups, [["a", "b", "c"]]);
+});
+
+test("initials match only a name written as initials", () => {
+  assert.deepEqual(
+    duplicateGroups([band("a", "Grown Ass Bitch"), band("b", "G.A.B.")], []).map((g) => g.map((r) => r.id)),
+    [["a", "b"]],
+  );
+  // "Gab" isn't written as initials, so it doesn't meet "Grown Ass Bitch".
+  assert.deepEqual(duplicateGroups([band("a", "Grown Ass Bitch"), band("b", "Gab")], []), []);
+  assert.ok(!nameKeys("Night Gleaners").includes("ng"));
+});
+
+test("an unset group type can match any group, but a band isn't a venue", () => {
+  const rows = [
+    band("a", "Merwulf"),
+    { id: "b", name: "Merwulf", kind: "group", group_type: null },
+    { id: "c", name: "The Lantern Room", kind: "group", group_type: "venue" },
+    band("d", "Lantern Room"),
+  ];
+  assert.deepEqual(
+    duplicateGroups(rows, []).map((g) => g.map((r) => r.id)),
+    [["a", "b"]],
+  );
 });
