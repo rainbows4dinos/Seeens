@@ -197,8 +197,8 @@
   "fref": "effect style",
   "cref": "src/app/globals.css --shadow-hard",
   "cls": "match",
-  "status": "synced",
-  "notes": "Matches: 5 5 0 0 ink/900"
+  "status": "pending",
+  "notes": "Re-read Nov 5 evening: Figma Shadow/Hard is now two drops, 5 5 0 0 ink/900 plus 1 1 0 0 paper/photo (#fbfaf5). Code --shadow-hard has only the first. Value drift."
  },
  {
   "id": "E-02",
@@ -258,7 +258,7 @@
   "cref": ".button-primary, .button-secondary",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Re-audited Nov 5: Figma pad 8 + Label Frame pad 2, so text sits 10px in; code is 12px (0.75rem) + 1px border. Icon L at 8 and the 6px icon gap (4 + 2) match. Small drift.",
   "checklist": [
    "[x] Typography: Mono/Label = 14/20 Medium, already matched"
   ]
@@ -270,12 +270,13 @@
   "fref": "10:8",
   "cref": ".nav-chip, .logo",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Re-audited Nov 5: pad 4/12, 1px ink border, UI/Nav (Hanken SemiBold 16/20). Matches .nav-chip.",
   "checklist": [
    "[x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).",
    "[x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-04",
@@ -285,7 +286,7 @@
   "cref": ".segmented > *",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass. Phones keep 12px under 480px so four tabs fit (code-owned responsive rule).",
+  "notes": "Re-audited Nov 5: pad 12, Mono/Body, Icon swap prop. Icon-to-label gap is 4 in Figma; the type tabs use 1ch - 0.25ch (about 6px). Small drift. Phones keep 12px under 480px (code-owned).",
   "checklist": [
    "[x] Typography: Mono/Body 13px -> 14/20; current segment no longer bold (Figma On variants are Regular)"
   ]
@@ -310,12 +311,13 @@
   "fref": "10:15",
   "cref": ".tag",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches.",
   "checklist": [
    "[x] Typography: Mono/Caption 11px -> 12px",
    "[x] Typography: Mono/Caption 11px -> 12px, weight pinned to 400 (it inherited 500 inside .label headings)"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-07",
@@ -324,11 +326,12 @@
   "fref": "10:34",
   "cref": ".date-line",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Re-audited Nov 5: gap 6, arrow + label Mono/Small Strong (future) / Mono/Small (past). Matches .date-line.",
   "checklist": [
    "[x] Typography: Mono/Small and Mono/Small Strong, already matched"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-08",
@@ -337,8 +340,8 @@
   "fref": "11:9",
   "cref": ".window, .dialog-title",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "needs-figma-fix",
+  "notes": "Re-audited Nov 5. Figma Window strokes are inconsistent: Open has only a 1px left stroke, Collapsed has top/bottom/left (no right); code draws 1.5px all round. Which is intended? Also drift vs code: title 12px SemiBold (Mono/Small Strong) vs code 14px; collapse box 20px vs 24; content padding bottom 32 vs 24. Summary/Show summary props are in code (.profile-panel-summary).",
   "checklist": [
    "[x] Typography: Window title (copier dialog) 13px -> Mono/Small 12/16"
   ]
@@ -384,7 +387,7 @@
   "cref": ".field",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Decided Nov 4: 14px (Mono/Body) like Figma; 16px on touch screens (pointer: coarse) so iOS doesn't zoom on focus. Side padding now space/md (12): code 1px border + 11px, select chevron and combobox text too. Field gained Show Icon L, Show Key Hint, Show Clear booleans (used by Search Field). Layout, anatomy, and variants not re-audited.",
+  "notes": "Re-audited Nov 5: Field's icon-to-text gap is now 4 (space/xs). Code uses 8: .search-field (35px text inset), .field-icon (35px), .combo-icon. Text should start at 1 + 12 + 16 + 4 = 33px. Font size decision (14, 16 on touch) stands.",
   "checklist": [
    "[x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)"
   ]
@@ -409,8 +412,8 @@
   "fref": "47:187",
   "cref": ".choice",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "needs-decision",
+  "notes": "Re-audited Nov 5: pad 8, gap 8, Mono/Label, 18px box match. Figma checkbox has a 2px corner radius; code is square (radius/none). Same call as Keyboard Hint (C-31).",
   "checklist": [
    "[x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)"
   ]
@@ -432,8 +435,8 @@
   "fref": "48:191",
   "cref": "src/app/(app)/layout.tsx",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Nov 5 (#126): Figma App Header now has a surface fill, 16px padding and a 2px ink bottom rule, and is pinned. Code: .app-header (sticky, inset 2px rule, --header-h 68px); the directory bar pins under it. Rest not re-audited.",
+  "status": "needs-decision",
+  "notes": "Re-audited Nov 5: surface fill, 2px ink rule, 16px top/bottom match. Side padding: Figma 16px; code uses the page gutter (16 phones, 24 tablet, 32 at 1280) so the header lines up with the page content. Keep the gutter or go to 16?",
   "checklist": [
    "[x] Typography: member name Mono/Body via body text, already matched"
   ]
@@ -458,11 +461,12 @@
   "fref": "48:209",
   "cref": ".save-bar",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "status": "synced",
+  "notes": "Re-audited Nov 5: ground fill, pad 12/16, 1px ink top rule, gap 12. Matches .save-bar (inset rule).",
   "checklist": [
    "[x] Typography: none (button only)"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-19",
@@ -471,11 +475,12 @@
   "fref": "50:189",
   "cref": "src/components/directory-results.tsx",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Nov 5 (#157): State variant added (Default, Hover, Selected). Hover = color/bg/raised + Shadow/Soft + hairline; Selected adds a 6px ink bar. Code: .row-link :hover/:focus-visible/[aria-current]. Rest of layout not re-audited.",
+  "status": "synced",
+  "notes": "Re-audited Nov 5: content pad 12, Default/Hover/Selected states (raised fill, Shadow/Soft, hairline; Selected 6px left bar) match .row-link incl. :hover/:focus-visible/[aria-current]. The 2px nudge is code-only motion.",
   "checklist": [
    "[x] Typography: name font-semibold 20/24 -> display-s (Bold); caption .caption now 12px; place Mono/Body. Thumb initials decorative, unstyled in Figma."
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-20",
@@ -549,8 +554,8 @@
   "fref": "134:4549",
   "cref": ".search-field, .search-hint, src/components/search-clear.tsx",
   "cls": "structure-drift",
-  "status": "synced",
-  "notes": "Rebuilt in Figma Nov 4 (Placeholder/Value variants). Padding moved to space/md (12) the same day. Code: icon and keycap 12px from the edges, 8px gaps; Clear button (Close--filled) shows when there's a value, clears and re-searches. Width is set by the Directory Bar (C-28).",
+  "status": "pending",
+  "notes": "Was synced Nov 4 with 8px gaps. Its Field now has a 4px icon gap (see C-12); keycap and clear-button gaps to re-check with it.",
   "checklist": [
    "[ ] Typography: both text layers unstyled in Figma (see hygiene); depends on the Field decision"
   ],
@@ -697,8 +702,8 @@
   "fref": "133:4158",
   "cref": "kbd.search-hint",
   "cls": "match",
-  "status": "pending",
-  "notes": "New in Figma Nov 4. Figma has a 2px corner radius; code corners are square everywhere (radius/none). Needs a call."
+  "status": "needs-decision",
+  "notes": "Figma Keyboard Hint has a 2px corner radius (still, re-read Nov 5); code corners are square everywhere (radius/none). Same call as the Choice checkbox (C-14)."
  },
  {
   "id": "V-08",
@@ -720,5 +725,46 @@
   "cls": "missing-in-code",
   "status": "synced",
   "notes": "New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place."
+ },
+ {
+  "id": "V-09",
+  "cat": "Variables",
+  "item": "color/border/inverse (1)",
+  "fref": "Color",
+  "cref": "src/app/globals.css (missing)",
+  "cls": "missing-in-code",
+  "status": "pending",
+  "notes": "New in Figma (Window collapse icon border). Aliases paper/50. Add --color-border-inverse.",
+  "count": 1
+ },
+ {
+  "id": "C-32",
+  "cat": "Components",
+  "item": "Profile Pic",
+  "fref": "161:3824",
+  "cref": "src/components/photo-panel.tsx, .quick-view-thumb",
+  "cls": "changed",
+  "status": "pending",
+  "notes": "Moved to Components Nov 5. 108px, photo-paper fill, 1px ink border, initials Display/L in border/subtle, Photo Action bar (20px, ink, Mono/Hint + Add 12px). Not compared with PhotoPanel yet."
+ },
+ {
+  "id": "C-33",
+  "cat": "Components",
+  "item": "Photo Action",
+  "fref": "161:3817",
+  "cref": "src/components/photo-panel.tsx",
+  "cls": "changed",
+  "status": "pending",
+  "notes": "Moved to Components Nov 5. Default/Hover; pad 4/12, gap 2, Add 12px + Mono/Hint label. Not compared yet."
+ },
+ {
+  "id": "C-34",
+  "cat": "Components",
+  "item": "Favicon",
+  "fref": "161:3876",
+  "cref": "src/app/icon.*",
+  "cls": "changed",
+  "status": "pending",
+  "notes": "16/32/48 variants. Check the app's icon files match."
  }
 ]

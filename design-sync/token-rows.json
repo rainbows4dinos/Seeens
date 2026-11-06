@@ -294,6 +294,20 @@
   "detail": ""
  },
  {
+  "collection": "Color",
+  "name": "color/bg/raised",
+  "css": "--color-bg-raised",
+  "cls": "match",
+  "detail": ""
+ },
+ {
+  "collection": "Color",
+  "name": "color/border/inverse",
+  "css": "--color-border-inverse",
+  "cls": "missing-in-code",
+  "detail": "Paper: missing (Figma @--paper-50)"
+ },
+ {
   "collection": "Spacing",
   "name": "space/2xs",
   "css": "--space-2xs",

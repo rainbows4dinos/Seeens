@@ -1,6 +1,6 @@
 {
  "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
- "readAt": "2026-11-05 (color/bg/raised, Shadow/Soft, Directory Row State variants)",
+ "readAt": "2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)",
  "variables": {
   "Primitives": {
    "modes": [
@@ -56,7 +56,8 @@
     "color/focus/glow": "@plate/magenta",
     "color/accent/primary": "@ink/900",
     "color/bg/hover": "@ground/200",
-    "color/bg/raised": "@paper/photo"
+    "color/bg/raised": "@paper/photo",
+    "color/border/inverse": "@paper/50"
    }
   },
   "Spacing": {
@@ -186,7 +187,7 @@
   }
  },
  "effectStyles": {
-  "Shadow/Hard": "drop 5 5 0 0 #141414",
+  "Shadow/Hard": "drop 5 5 0 0 #141414 | drop 1 1 0 0 #fbfaf5",
   "Shadow/Photo": "drop 0 3 6 0 #00000038",
   "Misregister/Cyan": "drop 2 1 0 0 #00b4e6",
   "Texture/Rub-down": "texture 1.5 | noise",
@@ -201,7 +202,9 @@
    "textStyles": [
     "Mono/Body"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {},
+   "props": {}
   },
   "Button": {
    "nodeId": "10:22",
@@ -212,7 +215,27 @@
    "nested": [
     "Arrow--right",
     "Favorite"
-   ]
+   ],
+   "axes": {
+    "Tone": [
+     "Secondary",
+     "Primary"
+    ],
+    "State": [
+     "Default",
+     "Hover",
+     "Focus"
+    ],
+    "Icon Only": [
+     "False",
+     "True"
+    ]
+   },
+   "props": {
+    "Label": "TEXT",
+    "Icon L": "BOOLEAN",
+    "Icon R": "BOOLEAN"
+   }
   },
   "Nav Chip": {
    "nodeId": "10:8",
@@ -222,7 +245,17 @@
    ],
    "nested": [
     "Logo"
-   ]
+   ],
+   "axes": {
+    "Style": [
+     "Default",
+     "Inverse",
+     "Logo"
+    ]
+   },
+   "props": {
+    "Label": "TEXT"
+   }
   },
   "Segment": {
    "nodeId": "10:27",
@@ -232,7 +265,26 @@
    ],
    "nested": [
     "List"
-   ]
+   ],
+   "axes": {
+    "Tone": [
+     "Primary",
+     "Secondary"
+    ],
+    "State": [
+     "Off",
+     "On"
+    ],
+    "Icon Only": [
+     "False",
+     "True"
+    ]
+   },
+   "props": {
+    "Label": "TEXT",
+    "Show Icon": "BOOLEAN",
+    "Icon": "INSTANCE_SWAP"
+   }
   },
   "Segmented Control": {
    "nodeId": "11:2",
@@ -240,7 +292,9 @@
    "textStyles": [],
    "nested": [
     "Segment"
-   ]
+   ],
+   "axes": {},
+   "props": {}
   },
   "Tag": {
    "nodeId": "10:15",
@@ -248,7 +302,19 @@
    "textStyles": [
     "Mono/Caption"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "Status": [
+     "Homie",
+     "Let's play",
+     "Avoid",
+     "Known",
+     "Eyeing"
+    ]
+   },
+   "props": {
+    "Label": "TEXT"
+   }
   },
   "Date Line": {
    "nodeId": "10:34",
@@ -257,15 +323,42 @@
     "Mono/Small",
     "Mono/Small Strong"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "Kind": [
+     "Past",
+     "Future"
+    ]
+   },
+   "props": {
+    "Label": "TEXT"
+   }
   },
   "Window": {
-   "nodeId": "11:9",
+   "nodeId": "166:11511",
    "page": "Components",
    "textStyles": [
     "Mono/Small"
    ],
-   "nested": []
+   "nested": [
+    "Add",
+    "Arrow--right",
+    "Field",
+    "Form Field",
+    "Subtract--large"
+   ],
+   "axes": {
+    "State": [
+     "Open",
+     "Collapsed"
+    ]
+   },
+   "props": {
+    "Title": "TEXT",
+    "Content Slot": "SLOT",
+    "Summary": "TEXT",
+    "Show summary": "BOOLEAN"
+   }
   },
   "Connection Card": {
    "nodeId": "11:17",
@@ -278,19 +371,48 @@
     "Date Line",
     "Tag",
     "Tape"
-   ]
+   ],
+   "axes": {},
+   "props": {
+    "Name": "TEXT",
+    "Type": "TEXT",
+    "Catalog No": "TEXT",
+    "Show follow-up": "BOOLEAN",
+    "Show past": "BOOLEAN",
+    "Show Photo": "BOOLEAN",
+    "Initials": "TEXT",
+    "Place": "TEXT",
+    "Show place": "BOOLEAN",
+    "Detail": "TEXT",
+    "Show detail": "BOOLEAN",
+    "Show tag 1": "BOOLEAN",
+    "Show tag 2": "BOOLEAN",
+    "Show tag 3": "BOOLEAN",
+    "Show dates": "BOOLEAN"
+   }
   },
   "Tape": {
    "nodeId": "10:41",
    "page": "Components",
    "textStyles": [],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "Color": [
+     "Yellow",
+     "Clear",
+     "Magenta",
+     "Cyan"
+    ]
+   },
+   "props": {}
   },
   "Pattern/Dot Grid": {
    "nodeId": "33:103",
    "page": "Components",
    "textStyles": [],
-   "nested": []
+   "nested": [],
+   "axes": {},
+   "props": {}
   },
   "Field": {
    "nodeId": "47:170",
@@ -298,7 +420,28 @@
    "textStyles": [
     "Mono/Body"
    ],
-   "nested": []
+   "nested": [
+    "Close--filled",
+    "Keyboard Hint",
+    "Search"
+   ],
+   "axes": {
+    "Type": [
+     "Input",
+     "Select",
+     "Textarea"
+    ],
+    "Content": [
+     "Value",
+     "Placeholder"
+    ]
+   },
+   "props": {
+    "Value": "TEXT",
+    "Show Clear": "BOOLEAN",
+    "Show Key Hint": "BOOLEAN",
+    "Show Icon L": "BOOLEAN"
+   }
   },
   "Form Field": {
    "nodeId": "47:172",
@@ -309,7 +452,16 @@
    ],
    "nested": [
     "Field"
-   ]
+   ],
+   "axes": {},
+   "props": {
+    "Label": "TEXT",
+    "Hint": "TEXT",
+    "Show hint": "BOOLEAN",
+    "Error": "TEXT",
+    "Show error": "BOOLEAN",
+    "Show Label": "BOOLEAN"
+   }
   },
   "Choice": {
    "nodeId": "47:187",
@@ -318,7 +470,16 @@
     "Mono/Body",
     "Mono/Label"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "State": [
+     "Off",
+     "On"
+    ]
+   },
+   "props": {
+    "Label": "TEXT"
+   }
   },
   "Disclosure": {
    "nodeId": "47:197",
@@ -326,7 +487,16 @@
    "textStyles": [
     "Mono/Label"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "Open": [
+     "No",
+     "Yes"
+    ]
+   },
+   "props": {
+    "Label": "TEXT"
+   }
   },
   "App Header": {
    "nodeId": "48:191",
@@ -337,9 +507,24 @@
    "nested": [
     "Button",
     "Close",
+    "Logo",
     "Menu",
     "Nav Chip"
-   ]
+   ],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ],
+    "Show Menu": [
+     "False",
+     "True"
+    ]
+   },
+   "props": {
+    "Member": "TEXT",
+    "Account Zone": "SLOT"
+   }
   },
   "App Footer": {
    "nodeId": "48:197",
@@ -347,7 +532,14 @@
    "textStyles": [
     "Mono/Small"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ]
+   },
+   "props": {}
   },
   "Save Bar": {
    "nodeId": "48:209",
@@ -355,7 +547,14 @@
    "textStyles": [],
    "nested": [
     "Button"
-   ]
+   ],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ]
+   },
+   "props": {}
   },
   "Directory Row": {
    "nodeId": "50:189",
@@ -368,7 +567,34 @@
    "nested": [
     "Date Line",
     "Tag"
-   ]
+   ],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ],
+    "State": [
+     "Default",
+     "Hover",
+     "Selected"
+    ]
+   },
+   "props": {
+    "Caption": "TEXT",
+    "Name": "TEXT",
+    "Place": "TEXT",
+    "Show place": "BOOLEAN",
+    "Show tag": "BOOLEAN",
+    "Divider": "BOOLEAN",
+    "Show Photo": "BOOLEAN",
+    "Show past": "BOOLEAN",
+    "Show next": "BOOLEAN",
+    "Initials": "TEXT",
+    "Detail": "TEXT",
+    "Show detail": "BOOLEAN",
+    "Show tag 2": "BOOLEAN",
+    "Show tag 3": "BOOLEAN"
+   }
   },
   "Follow-up Row": {
    "nodeId": "50:207",
@@ -378,7 +604,23 @@
     "Display/S",
     "Mono/Body"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ]
+   },
+   "props": {
+    "Name": "TEXT",
+    "Action": "TEXT",
+    "Who": "TEXT",
+    "Date": "TEXT",
+    "Show date": "BOOLEAN",
+    "Divider": "BOOLEAN",
+    "Show Img": "BOOLEAN",
+    "Caption": "TEXT"
+   }
   },
   "Scene Row": {
    "nodeId": "50:209",
@@ -387,7 +629,14 @@
     "Mono/Label",
     "Mono/Body"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {},
+   "props": {
+    "Name": "TEXT",
+    "Meta": "TEXT",
+    "Description": "TEXT",
+    "Show description": "BOOLEAN"
+   }
   },
   "Affiliation Row": {
    "nodeId": "50:217",
@@ -396,7 +645,13 @@
     "Mono/Body",
     "Mono/Small"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {},
+   "props": {
+    "Name": "TEXT",
+    "Detail": "TEXT",
+    "Catalog": "TEXT"
+   }
   },
   "Outreach Entry": {
    "nodeId": "50:225",
@@ -404,7 +659,13 @@
    "textStyles": [
     "Mono/Body"
    ],
-   "nested": []
+   "nested": [],
+   "axes": {},
+   "props": {
+    "Date": "TEXT",
+    "Channel and author": "TEXT",
+    "Note": "TEXT"
+   }
   },
   "Next Action Card": {
    "nodeId": "50:232",
@@ -414,7 +675,12 @@
    ],
    "nested": [
     "Button"
-   ]
+   ],
+   "axes": {},
+   "props": {
+    "Action": "TEXT",
+    "Who and when": "TEXT"
+   }
   },
   "Search Field": {
    "nodeId": "134:4549",
@@ -423,12 +689,19 @@
     "Mono/Body"
    ],
    "nested": [
-    "Form Field",
+    "Close--filled",
     "Field",
-    "Search",
+    "Form Field",
     "Keyboard Hint",
-    "Close--filled"
-   ]
+    "Search"
+   ],
+   "axes": {
+    "Property 1": [
+     "Placeholder",
+     "Value"
+    ]
+   },
+   "props": {}
   },
   "Layout Toggle": {
    "nodeId": "88:352",
@@ -439,7 +712,18 @@
     "Grid",
     "List",
     "Segment"
-   ]
+   ],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ],
+    "Selected": [
+     "List",
+     "Cards"
+    ]
+   },
+   "props": {}
   },
   "Show More": {
    "nodeId": "88:354",
@@ -449,7 +733,11 @@
    ],
    "nested": [
     "Button"
-   ]
+   ],
+   "axes": {},
+   "props": {
+    "Loaded": "TEXT"
+   }
   },
   "Directory Bar": {
    "nodeId": "89:634",
@@ -459,14 +747,36 @@
     "Add",
     "Button",
     "Field",
+    "Form Field",
     "Grid",
+    "Keyboard Hint",
     "Layout Toggle",
     "List",
+    "Overflow-menu--vertical",
     "Search",
     "Search Field",
     "Segment",
     "Settings--adjust"
-   ]
+   ],
+   "axes": {
+    "Viewport": [
+     "Desktop",
+     "Mobile"
+    ],
+    "Filters": [
+     "Hidden",
+     "Shown"
+    ],
+    "Pinned": [
+     "No",
+     "Yes"
+    ]
+   },
+   "props": {
+    "Plays": "BOOLEAN",
+    "Ages": "BOOLEAN",
+    "Capacity": "BOOLEAN"
+   }
   },
   "Account Nav Item": {
    "nodeId": "82:2255",
@@ -477,13 +787,17 @@
    "nested": [
     "Avatar",
     "Caret--down"
-   ]
+   ],
+   "axes": {},
+   "props": {}
   },
   "Logo": {
    "nodeId": "128:3618",
    "page": "Components",
    "textStyles": [],
-   "nested": []
+   "nested": [],
+   "axes": {},
+   "props": {}
   },
   "Keyboard Hint": {
    "nodeId": "133:4158",
@@ -491,7 +805,50 @@
    "textStyles": [
     "Mono/Hint"
    ],
+   "nested": [],
+   "axes": {},
+   "props": {}
+  },
+  "Favicon": {
+   "nodeId": "161:3876",
+   "page": "Components",
+   "axes": {
+    "Property 1": [
+     "32x32",
+     "16x16",
+     "48x48"
+    ]
+   },
+   "props": {},
    "nested": []
+  },
+  "Photo Action": {
+   "nodeId": "161:3817",
+   "page": "Components",
+   "axes": {
+    "State": [
+     "Default",
+     "Hover"
+    ]
+   },
+   "props": {},
+   "nested": [
+    "Add"
+   ]
+  },
+  "Profile Pic": {
+   "nodeId": "161:3824",
+   "page": "Components",
+   "axes": {},
+   "props": {
+    "Show Img": "BOOLEAN",
+    "Show Initials": "BOOLEAN",
+    "Initials": "TEXT"
+   },
+   "nested": [
+    "Add",
+    "Photo Action"
+   ]
   }
  }
 }

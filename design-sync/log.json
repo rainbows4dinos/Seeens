@@ -18,5 +18,9 @@
  {
   "date": "2026-11-04",
   "entry": "Off-token paddings fixed in Figma: Field 12 (md), Choice 8 (sm), Tag 8 (sm). Code follows (border + padding = token)."
+ },
+ {
+  "date": "2026-11-05",
+  "entry": "Audit Nov 5 evening: full Figma re-read (60 variables, 13 text styles, 6 effect styles, 34 components with axes and props). New: color/border/inverse, Profile Pic, Photo Action, Favicon. Changed: Shadow/Hard (second drop), Field icon gap 4. Evidence: design-sync/evidence/audit-2026-11-05.md"
  }
 ]
