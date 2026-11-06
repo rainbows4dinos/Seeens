@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)
-- Code baseline: bb9d323 (2026-11-05)
+- Code baseline: bed2739 (2026-11-05)
 - Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -99,7 +99,7 @@ Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 | E-06 | Effect styles | Shadow/Soft | effect style | `src/app/globals.css --shadow-soft` | missing-in-code | synced | New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place. |
 | V-09 | Variables | color/border/inverse (1) | Color | `src/app/globals.css (missing)` | missing-in-code | synced | Added --color-border-inverse (paper/50); used by .profile-panel-icon and .quick-view-close borders. |
 | C-32 | Components | Profile Pic | 161:3824 | `src/components/photo-panel.tsx, .quick-view-thumb` | changed | pending | Nov 5: resized 108 -> 112 to match .photo-thumb (80 on mobile). Initials size and color not compared yet. |
-| C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | synced | Nov 5: Figma matched to code: 110 x 24 inside the edge, '+ Photo' 11/20 mono, ink fill, yellow hover. 11px isn't a text style. |
+| C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | synced | Nov 5: Add icon 12 + Mono/Hint label, pad 4/12, gap 2, 110 x 20 inside the Profile Pic edge, ink fill, yellow hover. Code and Figma both on existing styles. |
 | C-34 | Components | Favicon | 161:3876 | `src/app/icon.*` | changed | pending | 16/32/48 variants. Check the app's icon files match. |
 
 ## Component checklists

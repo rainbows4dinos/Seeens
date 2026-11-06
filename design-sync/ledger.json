@@ -765,7 +765,7 @@
   "cref": "src/components/photo-panel.tsx",
   "cls": "changed",
   "status": "synced",
-  "notes": "Nov 5: Figma matched to code: 110 x 24 inside the edge, '+ Photo' 11/20 mono, ink fill, yellow hover. 11px isn't a text style.",
+  "notes": "Nov 5: Add icon 12 + Mono/Hint label, pad 4/12, gap 2, 110 x 20 inside the Profile Pic edge, ink fill, yellow hover. Code and Figma both on existing styles.",
   "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
