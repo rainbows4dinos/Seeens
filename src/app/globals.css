@@ -1641,6 +1641,55 @@
     z-index: 30;
   }
 
+  /* Profile panels (Figma Window, #126): a box with a hard shadow and an
+     ink title bar that folds the panel. Folded, the bar shows a summary. */
+  .profile-panel {
+    border: var(--stroke-strong) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-hard);
+  }
+  .profile-panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    font-size: 14px;
+    line-height: 20px;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+  }
+  .profile-panel-title::-webkit-details-marker {
+    display: none;
+  }
+  .profile-panel-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: var(--stroke-hair) solid currentColor;
+  }
+  .profile-panel[open] .icon-closed,
+  .profile-panel:not([open]) .icon-open,
+  .profile-panel[open] .profile-panel-summary {
+    display: none;
+  }
+  .profile-panel-summary {
+    color: color-mix(in srgb, var(--color-text-inverse) 75%, transparent);
+  }
+  .profile-panel-body {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-xl) var(--space-lg);
+    @media (width >= 48rem) {
+      padding-inline: var(--space-xl);
+    }
+  }
+
   /* App Header (Figma): surface with an ink rule under it, pinned. */
   .app-header {
     position: sticky;

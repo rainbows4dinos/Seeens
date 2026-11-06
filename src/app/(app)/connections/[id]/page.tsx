@@ -4,21 +4,20 @@ import { Suspense } from "react";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
+import { AutosaveForm, AutosaveProvider, SaveStatus } from "@/components/profile/autosave";
+import { ProfilePanel } from "@/components/profile/panel";
+import { BasicInfoFields } from "@/components/profile/basic-info";
+import { ContactFields, FormError, VenueDetailFields } from "@/components/profile/fields";
+import { Field } from "@/components/form-field";
+import { noAutofill } from "@/lib/no-autofill";
+import { listSceneOptions } from "@/lib/scenes/queries";
 import { OutreachPanel } from "@/components/outreach-panel";
 import { DateLines } from "@/components/date-line";
-import { getConnection } from "@/lib/connections/queries";
+import { getConnection, toFormValues } from "@/lib/connections/queries";
 import { directoryHrefFor } from "@/lib/connections/directory";
 import { loadPlayedOffer } from "@/lib/connections/played-together";
 import { INSTRUMENTS, playsAll } from "@/lib/affiliations/instruments";
-import {
-  bookLine,
-  gearLine,
-  isStale,
-  mapHref,
-  readVenueDetails,
-  venueLine,
-  type VenueDetails,
-} from "@/lib/connections/venue-details";
+import { isStale, readVenueDetails, venueLine } from "@/lib/connections/venue-details";
 import { createClient } from "@/lib/supabase/server";
 import {
   statusLabel,
@@ -27,6 +26,7 @@ import {
   formatType,
 } from "@/lib/connections/labels";
 import { linksPanelProps } from "@/lib/affiliations/rows";
+import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
 import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
@@ -54,7 +54,7 @@ async function Connection({
   if (!membership) return <NoWorkspace />;
 
   const [{ id }, { saved, offer, missed_photo, missed_links }] = await Promise.all([params, searchParams]);
-  const [detail, user] = await Promise.all([getConnection(id), getCurrentUser()]);
+  const [detail, user, sceneOptions] = await Promise.all([getConnection(id), getCurrentUser(), listSceneOptions()]);
   const tz = membership.timeZone;
   const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
@@ -77,7 +77,18 @@ async function Connection({
       ? await loadPlayedOffer(await createClient(), membership.workspaceId, c.id)
       : null;
 
+  const values = toFormValues(c);
+  const venue = c.kind === "group" && c.group_type === "venue";
+  const band = c.kind === "group" && c.group_type === "band";
+  const links = linksPanelProps(detail);
+  const venueDetails = readVenueDetails(c.attributes);
+
+  // One profile page that saves as you go (#126): who they are and where
+  // things stand up top, then panels, each folding away to a one-line
+  // summary. Status, plans, outreach, connections, and the photo save on
+  // their own as before; the rest saves through AutosaveForm.
   return (
+    <AutosaveProvider>
     <article className="page-measure flex flex-col gap-8">
       <Link href={directoryHrefFor(c.kind, c.group_type, archived)} className="link text-sm text-muted">
         Back to directory
@@ -107,18 +118,15 @@ async function Connection({
           defaults={defaultSettings(c.status, c.is_us)}
         />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          {/* Same layout as the Directory and Scenes headers: action on the right. */}
-          <div className="flex flex-wrap items-end justify-between gap-3">
+          {/* The name, and how saving is going where Edit Profile used to be. */}
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h1 className="min-w-0 display-l sm:display-xl break-words">{c.name}</h1>
-            <Link href={`/connections/${c.id}/edit`} className="button-primary">
-              Edit Profile<span className="sr-only"> of {c.name}</span>
-            </Link>
+            <SaveStatus />
           </div>
           <p className="text-muted">
             {[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}
           </p>
-          {/* Where things stand in time: the latest outreach and the next plan.
-              Details are in Next action and Outreach log below. */}
+          {/* Where things stand in time: the latest outreach and the next plan. */}
           <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
           <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
             {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
@@ -157,144 +165,153 @@ async function Connection({
         </div>
       </header>
 
-      {c.kind === "group" && c.group_type === "venue" ? (
-        <VenueDetailsSection
-          details={readVenueDetails(c.attributes)}
-          contact={{ email: c.email, links: c.connection_links }}
-          town={place}
-          editHref={`/connections/${c.id}/edit`}
-          today={today}
-          tz={tz}
-        />
+      <ProfilePanel
+        id="basic"
+        title="Basic Info"
+        summary={[formatType(c), place, c.is_us ? null : statusLabel(c.status, c)].filter(Boolean).join(" · ")}
+      >
+        <AutosaveForm connectionId={c.id}>
+          <BasicInfoFields values={values} scenes={sceneOptions} />
+          <FormError />
+        </AutosaveForm>
+        {/* Status is how we relate to others; it doesn't apply to us. */}
+        {c.is_us ? null : (
+          <div className="flex flex-col gap-2 pt-5">
+            <QuickStatus
+              id={c.id}
+              initial={{ status: c.status, playedTogether: c.played_together }}
+              type={{ kind: c.kind, group_type: c.group_type, person_roles: c.person_roles }}
+              initialOffer={playedOffer}
+            />
+            {statusHistory.length > 1 ? (
+              <details className="text-sm">
+                <summary className="cursor-pointer text-muted">Status history</summary>
+                <ol className="flex flex-col gap-1 pt-2">
+                  {statusHistory.map((h) => (
+                    <li key={h.id}>
+                      {h.from_status ? `${statusLabel(h.from_status, c)} to ${statusLabel(h.to_status, c)}` : `Added as ${statusLabel(h.to_status, c)}`}
+                      <span className="text-muted">
+                        {" · "}
+                        {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            ) : null}
+          </div>
+        )}
+      </ProfilePanel>
+
+      {venue ? (
+        <ProfilePanel id="venue" title="Venue Details" summary={venueLine(venueDetails)}>
+          <AutosaveForm connectionId={c.id}>
+            <VenueDetailFields values={values.venue} />
+            <FormError />
+          </AutosaveForm>
+          {isStale(venueDetails.checked_on, today) ? (
+            <p className="pt-4 text-sm text-muted">
+              Details checked {formatMonth(venueDetails.checked_on!, tz)}. Worth a look.
+            </p>
+          ) : null}
+        </ProfilePanel>
       ) : null}
 
-      {/* Status, plans, and outreach are about other people, not us. */}
+      {/* Plans and outreach are about other people, not us. */}
       {c.is_us ? null : (
-      <>
-      <Section title="Where things stand">
-        <QuickStatus
-          id={c.id}
-          initial={{ status: c.status, playedTogether: c.played_together }}
-          type={{ kind: c.kind, group_type: c.group_type, person_roles: c.person_roles }}
-          initialOffer={playedOffer}
-        />
-        {statusHistory.length > 1 ? (
-          <details className="text-sm">
-            <summary className="cursor-pointer text-muted">Status history</summary>
-            <ol className="flex flex-col gap-1 pt-2">
-              {statusHistory.map((h) => (
-                <li key={h.id}>
-                  {h.from_status ? `${statusLabel(h.from_status, c)} to ${statusLabel(h.to_status, c)}` : `Added as ${statusLabel(h.to_status, c)}`}
-                  <span className="text-muted">
-                    {" · "}
-                    {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </details>
-        ) : null}
-      </Section>
-
-      <Section title="Next action">
-        <NextActionPanel
-          connectionId={c.id}
-          current={nextAction}
-          members={detail.members}
-          me={user.id}
-          today={today}
-        />
-        {detail.pastPlans.length ? (
-          <details className="text-sm">
-            <summary className="cursor-pointer text-muted">Earlier plans</summary>
-            <ul className="flex flex-col gap-1 pt-2">
-              {detail.pastPlans.map((p) => (
-                <li key={p.id}>
-                  {p.description}
-                  <span className="text-muted">
-                    {" · "}
-                    {p.status === "done" ? "done" : "dropped"}
-                    {p.closed_at ? ` ${formatDate(p.closed_at, tz)}` : ""}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </details>
-        ) : null}
-      </Section>
-
-      <Section title="Outreach log">
-        <OutreachPanel connectionId={c.id} entries={detail.outreach} me={user.id} today={today} />
-      </Section>
-      </>
+        <ProfilePanel id="activity" title="Activity" summary={nextAction ? nextAction.description : "Nothing planned"}>
+          <div className="flex flex-col gap-6">
+            <section aria-labelledby="next-heading" className="flex flex-col gap-2">
+              <h2 id="next-heading" className="label text-muted">
+                Next action
+              </h2>
+              <NextActionPanel
+                connectionId={c.id}
+                current={nextAction}
+                members={detail.members}
+                me={user.id}
+                today={today}
+              />
+              {detail.pastPlans.length ? (
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-muted">Earlier plans</summary>
+                  <ul className="flex flex-col gap-1 pt-2">
+                    {detail.pastPlans.map((p) => (
+                      <li key={p.id}>
+                        {p.description}
+                        <span className="text-muted">
+                          {" · "}
+                          {p.status === "done" ? "done" : "dropped"}
+                          {p.closed_at ? ` ${formatDate(p.closed_at, tz)}` : ""}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : null}
+            </section>
+            <section aria-labelledby="log-heading" className="flex flex-col gap-2">
+              <h2 id="log-heading" className="label text-muted">
+                Outreach log
+              </h2>
+              <OutreachPanel connectionId={c.id} entries={detail.outreach} me={user.id} today={today} />
+            </section>
+          </div>
+        </ProfilePanel>
       )}
 
-      <LinksPanel {...linksPanelProps(detail)} />
+      <ProfilePanel
+        id="connections"
+        title={band ? "Members & Connections" : "Connections"}
+        summary={connectionsSummary(links.rows) || "None yet"}
+      >
+        <div className="flex flex-col gap-6">
+          <LinksPanel {...links} heading={false} />
+          {band && labelMates.length ? (
+            <section aria-labelledby="mates-heading" className="flex flex-col gap-1">
+              <h2 id="mates-heading" className="label text-muted">
+                Label mates
+              </h2>
+              <ul className="flex flex-col gap-1">
+                {labelMates.map((m) => (
+                  <li key={m.id}>
+                    <Link href={`/connections/${m.id}`} className="link">
+                      {m.name}
+                    </Link>
+                    {m.is_us ? <span className="text-muted"> (us)</span> : null}
+                    {m.catalog ? <span className="text-xs text-muted whitespace-nowrap"> {m.catalog}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </div>
+      </ProfilePanel>
 
-      {c.group_type === "band" && labelMates.length ? (
-        <Section title="Label mates">
-          <ul className="flex flex-col gap-1">
-            {labelMates.map((m) => (
-              <li key={m.id}>
-                <Link href={`/connections/${m.id}`} className="link">
-                  {m.name}
-                </Link>
-                {m.is_us ? <span className="text-muted"> (us)</span> : null}
-                {m.catalog ? <span className="text-xs text-muted whitespace-nowrap"> {m.catalog}</span> : null}
-              </li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
+      <ProfilePanel
+        id="contact"
+        title="Contact & Links"
+        summary={[c.email ?? "No email", c.connection_links.map((l) => l.label || "Link").join(", ") || null]
+          .filter(Boolean)
+          .join(" · ")}
+      >
+        <AutosaveForm connectionId={c.id} className="flex flex-col gap-5">
+          <ContactFields values={values} />
+          <FormError />
+        </AutosaveForm>
+      </ProfilePanel>
 
-      {c.can_help_with.length ? (
-        <Section title="Can help with">
-          <ul className="flex flex-wrap gap-2">
-            {c.can_help_with.map((s) => (
-              <li key={s} className="tag">
-                {s}
-              </li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      <Section title="Contact and links">
-        {c.email || c.phone || c.connection_links.length ? (
-          <ul className="flex flex-col gap-2">
-            {c.email ? (
-              <li>
-                <a href={`mailto:${c.email}`} className="link break-all">
-                  {c.email}
-                </a>
-              </li>
-            ) : null}
-            {c.phone ? (
-              <li>
-                <a href={`tel:${c.phone}`} className="link">
-                  {c.phone}
-                </a>
-              </li>
-            ) : null}
-            {c.connection_links.map((l) => (
-              <li key={l.id}>
-                <a href={l.url} className="link break-all" target="_blank" rel="noopener noreferrer">
-                  {l.label || l.url}
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-muted">No contact info or links yet.</p>
-        )}
-      </Section>
-
-      {c.notes ? (
-        <Section title="Notes">
-          <p className="whitespace-pre-wrap">{c.notes}</p>
-        </Section>
-      ) : null}
+      <ProfilePanel id="notes" title="Notes" summary={c.notes ? c.notes.split("\n")[0] : null}>
+        <AutosaveForm connectionId={c.id} className="flex flex-col gap-5">
+              <Field id="p-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
+                <input {...noAutofill} id="p-can_help_with" name="can_help_with" defaultValue={values.canHelpWith} className="field" aria-describedby="p-can_help_with-hint" />
+              </Field>
+              <Field id="p-notes" label="Notes">
+                <textarea {...noAutofill} id="p-notes" name="notes" rows={5} defaultValue={values.notes} className="field" />
+              </Field>
+              <FormError />
+        </AutosaveForm>
+      </ProfilePanel>
 
       <footer className="flex flex-col gap-4 rule-top pt-6">
         <p className="text-sm text-muted">
@@ -303,84 +320,17 @@ async function Connection({
         <ArchiveControl id={c.id} name={c.name} archived={archived} />
       </footer>
     </article>
+    </AutosaveProvider>
   );
 }
 
-// Venue details (#48): only what's known. Old details say when they were checked.
-function VenueDetailsSection({
-  details: d,
-  contact,
-  town,
-  editHref,
-  today,
-  tz,
-}: {
-  details: VenueDetails;
-  contact: { email: string | null; links: { label: string | null; url: string }[] };
-  town: string | null;
-  editHref: string;
-  today: string;
-  tz: string;
-}) {
-  const map = mapHref(d.address, town);
-  const book = bookLine(d, contact);
-  const rows: [string, React.ReactNode][] = [];
-  if (d.address)
-    rows.push([
-      "Address",
-      map ? (
-        <a href={map} className="link" target="_blank" rel="noreferrer">
-          {d.address}
-        </a>
-      ) : (
-        d.address
-      ),
-    ]);
-  const room = venueLine(d);
-  if (room) rows.push(["Room", room]);
-  const gear = gearLine(d);
-  if (gear) rows.push(["Has", gear]);
-  if (book)
-    rows.push([
-      "Booking",
-      <>
-        {book.text}
-        {book.contact ? (
-          <>
-            {" · "}
-            <a href={book.href} className="link">
-              {book.contact}
-            </a>
-          </>
-        ) : null}
-      </>,
-    ]);
-  if (d.accessibility) rows.push(["Accessibility", d.accessibility]);
-  if (d.special_terms) rows.push(["Special terms", d.special_terms]);
-  return (
-    <Section title="Venue details">
-      {rows.length ? (
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-          {rows.map(([k, v]) => (
-            <div key={k} className="contents">
-              <dt className="text-muted">{k}</dt>
-              <dd className="break-words">{v}</dd>
-            </div>
-          ))}
-        </dl>
-      ) : (
-        <p className="text-sm text-muted">
-          Nothing yet: address, ages, capacity, the room, how to book.{" "}
-          <Link href={editHref} className="link">
-            Add them
-          </Link>
-        </p>
-      )}
-      {isStale(d.checked_on, today) ? (
-        <p className="text-sm text-muted">Details checked {formatMonth(d.checked_on!, tz)}. Worth a look.</p>
-      ) : null}
-    </Section>
-  );
+// "Members (2) · Labels (1)": what's linked, for a folded Connections panel.
+function connectionsSummary(rows: { section: string; isCurrent: boolean }[]) {
+  const counts = new Map<string, number>();
+  for (const r of rows) if (r.isCurrent) counts.set(r.section, (counts.get(r.section) ?? 0) + 1);
+  return SECTION_ORDER.filter((s) => counts.has(s))
+    .map((s) => `${s} (${counts.get(s)})`)
+    .join(" · ");
 }
 
 function formatMonth(day: string, tz: string) {
@@ -394,13 +344,4 @@ function savedNote(missedPhoto: boolean, missedLinks: number) {
     missedLinks ? `${missedLinks} ${missedLinks === 1 ? "link" : "links"}` : null,
   ].filter(Boolean);
   return missed.length ? `Saved, but couldn't add ${missed.join(" or ")}. Add them again below.` : "Saved.";
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className="display-s">{title}</h2>
-      {children}
-    </section>
-  );
 }

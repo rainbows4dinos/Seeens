@@ -7,11 +7,16 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUSES, type ConnectionStatus } from "./labels";
 import { loadPlayedOffer, type PlayedOffer } from "./played-together";
 import {
+  AUTOSAVE_GROUPS,
+  mergeForAutosave,
   readForm,
   validate,
+  type AutosaveGroup,
+  type ConnectionFormErrors,
   type ConnectionFormState,
   type ValidConnection,
 } from "./form";
+import { getConnectionValues } from "./queries";
 import { VENUE_KEYS } from "./venue-details";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -101,62 +106,6 @@ export async function createConnection(
   // A photo or links are waiting in the form: it adds them, then opens the page.
   if (formData.get("return_id") === "1") return { values, errors: {}, createdId: id };
   redirect(`/connections/${id}?saved=1`);
-}
-
-export async function updateConnection(
-  id: string,
-  _prev: ConnectionFormState,
-  formData: FormData,
-): Promise<ConnectionFormState> {
-  const values = readForm(formData);
-  const result = validate(values);
-  if (!result.ok) return { values, errors: result.errors, attempt: Date.now() };
-
-  const workspaceId = await requireWorkspace();
-  // Was "played together" off before this save? Turning it on offers the
-  // members (or bands) next (#124).
-  const supabase = await createClient();
-  const { data: before } = await supabase
-    .from("connections")
-    .select("played_together, attributes")
-    .eq("id", id)
-    .eq("workspace_id", workspaceId)
-    .maybeSingle();
-  try {
-    await saveConnection(workspaceId, id, result.data, values.updatedAt, before?.attributes);
-  } catch (error) {
-    if ((error as { code?: string } | null)?.code === "PT409") {
-      return conflictState(workspaceId, id, values);
-    }
-    return { values, errors: saveErrors(error), attempt: Date.now() };
-  }
-
-  revalidatePath("/", "layout");
-  const offer = before && !before.played_together && result.data.played_together ? "&offer=played" : "";
-  redirect(`/connections/${id}?saved=1${offer}`);
-}
-
-// A bandmate saved this connection after the form was opened. Nothing was
-// saved. Keep what was typed, and take on their version's timestamp so that
-// saving again (after a look at their changes) goes through.
-async function conflictState(
-  workspaceId: string,
-  id: string,
-  values: ConnectionFormState["values"],
-): Promise<ConnectionFormState> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("connections")
-    .select("updated_at")
-    .eq("id", id)
-    .eq("workspace_id", workspaceId)
-    .maybeSingle();
-  return {
-    values: { ...values, updatedAt: data?.updated_at ?? values.updatedAt },
-    errors: {},
-    conflict: true,
-    attempt: Date.now(),
-  };
 }
 
 export type ArchiveState = { error?: string };
@@ -257,4 +206,33 @@ export async function markPlayedTogether(sourceId: string, ids: string[]): Promi
   if (error) return { ok: false };
   revalidatePath("/", "layout");
   return { ok: true, marked: data.length };
+}
+
+export type AutosaveResult = { ok: true } | { ok: false; errors: ConnectionFormErrors };
+
+// The zoned profile page (#126) saves as you go: just the groups of fields
+// that changed, laid over what's stored now. A bandmate's edit to another
+// field, or a status change from the same page, is kept. If someone saves
+// between the read and the write, it reads again and retries once.
+export async function autosaveConnection(id: string, groups: string[], formData: FormData): Promise<AutosaveResult> {
+  const valid = groups.filter((g): g is AutosaveGroup => g in AUTOSAVE_GROUPS);
+  if (!valid.length) return { ok: true };
+  const workspaceId = await requireWorkspace();
+  const incoming = readForm(formData);
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const stored = await getConnectionValues(id);
+    if (!stored) return { ok: false, errors: { form: "This connection isn't here anymore." } };
+    const result = mergeForAutosave(stored.values, incoming, valid);
+    if (!result.ok) return { ok: false, errors: result.errors };
+    try {
+      await saveConnection(workspaceId, id, result.data, stored.updatedAt, stored.attributes);
+    } catch (error) {
+      if ((error as { code?: string } | null)?.code === "PT409" && attempt === 0) continue;
+      return { ok: false, errors: saveErrors(error) };
+    }
+    revalidatePath("/", "layout");
+    return { ok: true };
+  }
+  return { ok: false, errors: { form: SAVE_FAILED } };
 }
