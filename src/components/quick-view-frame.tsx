@@ -30,14 +30,20 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
     return () => shell?.removeAttribute("data-quick-view");
   }, []);
 
-  // Slides out (150ms, ease-in-back), then goes back to the directory. The
-  // slide is CSS on data-closing; with reduced motion it just goes.
+  // Slides out (150ms, ease-in), then goes back to the directory. The slide
+  // is CSS on data-closing; with reduced motion it just goes. If another
+  // connection opens while it's sliding, Back would undo that, so the panel
+  // slides back in with it instead.
   function close() {
     const el = aside.current;
     if (!el || el.hasAttribute("data-closing")) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return router.back();
+    const from = location.pathname;
     el.setAttribute("data-closing", "");
-    setTimeout(() => router.back(), 150);
+    setTimeout(() => {
+      if (location.pathname === from) router.back();
+      else el.removeAttribute("data-closing");
+    }, 150);
   }
   const closeOnEscape = useEffectEvent(close);
 

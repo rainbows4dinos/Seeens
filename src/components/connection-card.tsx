@@ -56,6 +56,7 @@ export function ConnectionCard({
   detail,
   open = false,
   replace = false,
+  onClick,
 }: {
   connection: CardConnection;
   tags: ReactNode[];
@@ -66,6 +67,7 @@ export function ConnectionCard({
   open?: boolean;
   /** Switching from another open connection replaces it in history. */
   replace?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }) {
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
@@ -80,6 +82,7 @@ export function ConnectionCard({
     <Link
       href={`/connections/${c.id}`}
       replace={replace}
+      onClick={onClick}
       aria-current={open ? "true" : undefined}
       className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
       <span className="card-print" aria-hidden="true">
