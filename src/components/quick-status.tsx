@@ -101,13 +101,15 @@ export function QuickStatus({
         <p id="quick-status-hint" className="-mt-1 text-sm text-muted">
           {statusHint(shown.status, type)}
         </p>
+        {/* One row: the select gives up width so "played together" fits
+            beside it (the quick view is 480px). It wraps only when it can't. */}
         <div className="flex flex-wrap items-center gap-3">
           <select
             id="quick-status"
             value={shown.status}
             onChange={(e) => save({ status: e.target.value as ConnectionStatus })}
             aria-describedby="quick-status-hint"
-            className="field w-full sm:w-80"
+            className="field min-w-28 flex-1 basis-28 sm:max-w-80"
           >
             {STATUSES.map((st) => (
               <option key={st} value={st}>
@@ -115,7 +117,7 @@ export function QuickStatus({
               </option>
             ))}
           </select>
-          <label className="choice">
+          <label className="choice shrink-0">
             <input
               ref={played}
               type="checkbox"
