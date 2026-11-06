@@ -433,7 +433,7 @@
   "cref": "src/app/(app)/layout.tsx",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Nov 5 (#126): Figma App Header now has a surface fill, 16px padding and a 2px ink bottom rule, and is pinned. Code: .app-header (sticky, inset 2px rule, --header-h 68px); the directory bar pins under it. Rest not re-audited.",
   "checklist": [
    "[x] Typography: member name Mono/Body via body text, already matched"
   ]

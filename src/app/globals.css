@@ -86,6 +86,11 @@
   --shadow-photo: 0 3px 6px 0 rgb(0 0 0 / 0.22);
   /* Shadow/Soft: a lighter Shadow/Hard for lifted rows. */
   --shadow-soft: 4px 4px 0 0 rgb(20 20 20 / 0.3);
+  /* The pinned App Header: 16 + 36 (a control) + 16. Sticky things below it
+     pin under it. */
+  --header-h: 68px;
+  /* The quick view panel beside the directory (#126). */
+  --quick-view-w: 30rem;
   /* The same shadow measured from a row nudged 2px up and left. */
   --shadow-soft-nudged: 6px 6px 0 0 rgb(20 20 20 / 0.3);
   --misregister-cyan: 2px 1px 0 var(--plate-cyan);
@@ -612,8 +617,8 @@
     }
     @media (width >= 48rem) {
       position: sticky;
-      /* -1px: once pinned, PinWatch sees a pixel off-screen. */
-      top: -1px;
+      /* Under the pinned header; -1px so PinWatch sees a pixel tucked under it. */
+      top: calc(var(--header-h) - 1px);
       z-index: 10;
       margin-inline: calc(-1 * var(--gutter));
       padding: var(--bar-pad) var(--gutter);
@@ -625,8 +630,8 @@
     gap: 12px;
     @media (width < 48rem) {
       position: sticky;
-      /* -1px: once pinned, PinWatch sees a pixel off-screen. */
-      top: -1px;
+      /* Under the pinned header; -1px so PinWatch sees a pixel tucked under it. */
+      top: calc(var(--header-h) - 1px);
       z-index: 10;
       margin-inline: calc(-1 * var(--gutter));
       /* The bar's padding stands in for part of the page gap above it. */
@@ -649,7 +654,10 @@
   .directory-bar > .bar-search {
     grid-area: 2 / 1 / 3 / -1;
   }
-  @media (width >= 80rem) {
+  /* Measured on the directory, not the window: beside the quick view the
+     list is narrower, so the bar keeps its two-row layout (#126). 76rem is
+     the list at a 1280 window (80rem less two 32px gutters). */
+  @container directory (width >= 76rem) {
     .directory-bar {
       grid-template-columns: auto auto 1fr auto;
       align-items: center;
@@ -735,7 +743,7 @@
     @media (width >= 48rem) {
       grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
     }
-    @media (width >= 80rem) {
+    @container directory (width >= 76rem) {
       display: flex;
       align-items: center;
       & > .filter-status {
@@ -1377,7 +1385,8 @@
       box-shadow 120ms ease-out;
   }
   .connection-card:hover,
-  .connection-card:focus-visible {
+  .connection-card:focus-visible,
+  .connection-card[aria-current="true"] {
     z-index: 1;
     rotate: var(--card-tilt, 0deg);
     box-shadow: var(--shadow-soft);
@@ -1388,7 +1397,8 @@
     }
   }
   .connection-card:hover .card-meta,
-  .connection-card:focus-visible .card-meta {
+  .connection-card:focus-visible .card-meta,
+  .connection-card[aria-current="true"] .card-meta {
     background: var(--color-bg-raised);
   }
   .connection-card:focus-visible {
@@ -1630,11 +1640,144 @@
     position: relative;
     z-index: 30;
   }
+
+  /* App Header (Figma): surface with an ink rule under it, pinned. */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--color-bg-surface);
+    /* A 2px inset rule (Figma's header and panel edges) keeps it at 68px. */
+    box-shadow: inset 0 -2px 0 var(--color-border-strong);
+  }
+
+  /* The directory and its quick view (#126). The shell is the size container
+     the bar and rows measure; with the panel open on tablets and up, the
+     list makes room for it instead of sliding underneath (QuickViewFrame
+     sets data-quick-view while it's showing). */
+  .directory-shell {
+    container: directory / inline-size;
+  }
+  @media (width >= 48rem) {
+    .directory-shell[data-quick-view] {
+      margin-right: var(--quick-view-w);
+    }
+  }
+
+  /* Quick view: fixed under the header. Tablets and up: a 480px panel on the
+     right with an ink edge. Phones: a sheet over the whole page below the
+     header. The title bar and footer stay put; the body scrolls. */
+  .quick-view {
+    position: fixed;
+    top: var(--header-h);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    background: var(--color-bg-surface);
+    @media (width >= 48rem) {
+      left: auto;
+      width: var(--quick-view-w);
+      border-left: 2px solid var(--color-border-strong);
+    }
+  }
+  .quick-view-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
+  .quick-view-close {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: var(--stroke-hair) solid currentColor;
+    cursor: pointer;
+  }
+  .quick-view-close:hover {
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+  }
+  .quick-view-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-xl) var(--space-lg);
+    @media (width >= 48rem) {
+      padding-inline: var(--space-xl);
+    }
+  }
+  .quick-view-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+    box-shadow: inset 0 2px 0 var(--color-border-strong);
+    @media (width >= 48rem) {
+      padding-inline: var(--space-xl);
+    }
+  }
+  /* The photo, or initials on photo paper, like the row thumb but 88px. */
+  .quick-view-thumb {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 5.5rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+    @media (width < 48rem) {
+      width: 4.5rem;
+    }
+  }
+  .quick-view-thumb .row-thumb-initials {
+    font-size: 32px;
+    line-height: 32px;
+  }
+  .quick-view-thumb > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .quick-view-facts {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-xs) var(--space-md);
+    font-size: 14px;
+    line-height: 20px;
+    @media (width >= 48rem) {
+      grid-template-columns: 7.5rem minmax(0, 1fr);
+    }
+  }
+  /* The start of the notes; the full text is on the profile. */
+  .quick-view-notes {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    white-space: pre-wrap;
+  }
 }
 
-/* While the mobile menu is open, the page behind it doesn't scroll. */
+/* While the mobile menu or the quick view sheet is open, the page behind it
+   doesn't scroll. */
 @media (width < 48rem) {
-  html:has(.mobile-menu[open]) {
+  html:has(.mobile-menu[open]),
+  html:has(.directory-shell[data-quick-view]) {
     overflow: hidden;
   }
 }

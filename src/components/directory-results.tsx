@@ -4,6 +4,7 @@ import Link from "next/link";
 import { photoUrl } from "@/lib/photos/urls";
 import { Photo } from "@/components/photo";
 import { useEffect, useRef, useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
 import { ConnectionCard } from "@/components/connection-card";
 import { DateLines } from "@/components/date-line";
 import { useLayout } from "@/components/layout-toggle";
@@ -146,7 +147,14 @@ function tagsFor(c: DirectoryItem, tab: Tab) {
   );
 }
 
+// The connection open in the quick view (#126), from the URL: the panel's
+// route is /connections/[id] while the list stays on screen.
+function useOpenId() {
+  return usePathname().match(/^\/connections\/([^/]+)$/)?.[1] ?? null;
+}
+
 function ConnectionRows({ connections, today, tab }: { connections: DirectoryItem[]; today: string; tab: Tab }) {
+  const openId = useOpenId();
   return (
     <ul className="panel rows flex flex-col">
       {connections.map((c) => {
@@ -155,9 +163,13 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
         const detail = detailFor(c, tab);
         return (
           <li key={c.id}>
+            {/* Opens in the quick view. With one already open, switching
+                replaces it, so Back (and Close) return to the directory. */}
             <Link
               href={`/connections/${c.id}`}
-              className="flex flex-col gap-1 px-3 py-3 row-link sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+              replace={openId !== null}
+              aria-current={c.id === openId ? "true" : undefined}
+              className="flex flex-col gap-1 px-3 py-3 row-link @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:gap-4"
             >
               <span className="flex min-w-0 items-start gap-3">
               {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
@@ -182,11 +194,12 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
                 <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
               </span>
               </span>
-              {/* Phones: town on the left, tags on the right (Figma Directory Row, Mobile). */}
-              <span className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+              {/* Narrow lists (phones, or beside the quick view): town on the
+                  left, tags on the right (Figma Directory Row, Mobile). */}
+              <span className="flex flex-wrap items-center justify-between gap-2 @3xl:justify-end">
                 {place ? <span className="text-sm text-muted">{place}</span> : null}
                 {tags.length ? (
-                  <span className="flex flex-wrap gap-1 max-sm:ml-auto sm:justify-end">
+                  <span className="flex flex-wrap gap-1 @max-3xl:ml-auto @3xl:justify-end">
                     {tags.map((t) => (
                       <span key={t} className="tag">
                         {t}
@@ -204,6 +217,7 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
 }
 
 function ConnectionCards({ connections, today, tab }: { connections: DirectoryItem[]; today: string; tab: Tab }) {
+  const openId = useOpenId();
   return (
     <ul className="card-grid">
       {connections.map((c) => {
@@ -214,6 +228,8 @@ function ConnectionCards({ connections, today, tab }: { connections: DirectoryIt
               connection={c}
               today={today}
               detail={detailFor(c, tab)}
+              open={c.id === openId}
+              replace={openId !== null}
               tags={tags.map((t) => (
                 <span key={t} className="tag">
                   {t}

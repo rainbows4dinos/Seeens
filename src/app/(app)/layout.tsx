@@ -7,10 +7,12 @@ import { MobileMenu } from "@/components/mobile-menu";
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-1 flex-col">
-      <header>
+      {/* Figma App Header: surface, with an ink rule under it, pinned to the
+          top while the page scrolls (#126). */}
+      <header className="app-header">
         {/* Desktop: logo, nav chips, and the account on one row. Phones: logo
             and a Menu button; the nav and account move into the menu. */}
-        <div className="page-gutter relative w-full pt-4 pb-2">
+        <div className="page-gutter relative w-full py-4">
           <div className="header-row flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Link href="/" className="logo">
