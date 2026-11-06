@@ -142,8 +142,9 @@ $$;
 revoke all on function private.connection_weight from public, anon, authenticated;
 
 -- Deletes merged-away connections once their 30 days are up. Their rows
--- were all moved, so nothing else goes with them. Called by each merge and
--- by pg_cron where it's installed.
+-- were all moved, so nothing else goes with them. The app removes their
+-- photo files first (merged_photos_due), then calls this through
+-- purge_merged_connections; it runs before each merge.
 create function private.purge_merged(p_workspace_id uuid default null)
 returns integer
 language plpgsql
@@ -170,7 +171,10 @@ $$;
 
 revoke all on function private.purge_merged from public, anon, authenticated;
 
-create function public.merge_connections(p_keep uuid, p_merge uuid[])
+-- p_photo: when the kept one has no photo, the app copies a merged one's
+-- files into the kept one's folder first and passes them here
+-- ({path, original_path, settings, alt}), since SQL can't copy files.
+create function public.merge_connections(p_keep uuid, p_merge uuid[], p_photo jsonb default null)
 returns uuid
 language plpgsql
 security definer
@@ -219,7 +223,6 @@ begin
     raise exception 'our band can only be merged into a group' using errcode = 'check_violation';
   end if;
 
-  perform private.purge_merged(v_ws);
   perform set_config('seeens.merging', 'on', true);
 
   -- Fill order: the most complete first, so it wins any blank.
@@ -256,6 +259,20 @@ begin
         else c.person_roles end,
       attributes = l.attributes || c.attributes
     where c.id = p_keep;
+
+    -- The photo, copied by the app into the kept one's folder.
+    if p_photo is not null and v_lose = v_ids[1] then
+      update public.connections c set
+        photo_path = p_photo ->> 'path',
+        photo_original_path = p_photo ->> 'original_path',
+        photo_settings = p_photo -> 'settings',
+        photo_alt = nullif(left(p_photo ->> 'alt', 300), '')
+      where c.id = p_keep and c.photo_path is null;
+      if found then
+        v_log := v_log || jsonb_build_object('op', 'photo', 'path', p_photo ->> 'path',
+          'original_path', p_photo ->> 'original_path');
+      end if;
+    end if;
 
     -- Only one connection can be us. The kept one takes it.
     if l.is_us then
@@ -441,6 +458,11 @@ begin
         where id = (s ->> 'id')::uuid and status = 'dropped'
           and not exists (select 1 from public.next_actions n
             where n.connection_id = public.next_actions.connection_id and n.status = 'open');
+      when 'photo' then
+        -- The copied photo comes off unless it's been replaced since. The app
+        -- deletes the copied files after.
+        update public.connections set photo_path = null, photo_original_path = null, photo_settings = null, photo_alt = null
+        where id = m.keep_id and photo_path = s ->> 'path';
       when 'us' then
         update public.connections set is_us = false where id = m.keep_id;
         update public.connections set is_us = true where id = (s ->> 'from')::uuid;
@@ -521,12 +543,61 @@ grant execute on function public.merge_connections to authenticated;
 grant execute on function public.undo_merge to authenticated;
 grant execute on function public.merged_target to authenticated;
 
--- Daily purge where pg_cron is available (Supabase: enable it under
--- Database > Extensions). Merges also purge their own workspace.
-do $$
+-- Photo files of merged-away connections whose 30 days are up, so the app
+-- can delete them before purge_merged_connections removes the rows.
+create function public.merged_photos_due()
+returns text[]
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce(array_agg(p), '{}')
+  from public.connections c,
+    lateral unnest(array[c.photo_path, c.photo_original_path]) p
+  where c.merged_into is not null
+    and c.merged_at < now() - interval '30 days'
+    and c.workspace_id in (select private.my_workspace_ids())
+    and p is not null
+$$;
+
+create function public.purge_merged_connections()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_ws uuid;
+  v_count integer := 0;
 begin
-  if exists (select 1 from pg_extension where extname = 'pg_cron') then
-    perform cron.schedule('purge-merged-connections', '17 4 * * *', 'select private.purge_merged()');
-  end if;
+  for v_ws in select private.my_workspace_ids() loop
+    v_count := v_count + private.purge_merged(v_ws);
+  end loop;
+  return v_count;
 end;
+$$;
+
+revoke all on function public.merged_photos_due from public, anon;
+revoke all on function public.purge_merged_connections from public, anon;
+grant execute on function public.merged_photos_due to authenticated;
+grant execute on function public.purge_merged_connections to authenticated;
+
+-- Photo files of a merged-away connection stay reachable to members (for
+-- copying into the kept one, and deleting at the purge), though the row is
+-- hidden. Still only connections in your own workspaces.
+create or replace function private.can_use_photo_path(object_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.connections c
+    where c.workspace_id::text = (storage.foldername(object_name))[1]
+      and c.id::text = (storage.foldername(object_name))[2]
+      and c.workspace_id in (select private.my_workspace_ids())
+  )
 $$;

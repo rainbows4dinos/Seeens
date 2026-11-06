@@ -9,7 +9,7 @@ type Merged = { id: string; name: string; catalog: string };
 
 // On the kept connection after a merge (#169): what was folded in, and
 // Undo for 30 days. Right after merging it's a notice up top; after that,
-// a quiet line in the footer. After undoing, links to the ones that came back.
+// a quiet line in the footer.
 export function MergedNotice({
   mergeId,
   keepName,
@@ -25,35 +25,15 @@ export function MergedNotice({
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string>();
-  const [undone, setUndone] = useState(false);
   const names = joinNames(merged.map((m) => `${m.name} (${m.catalog})`));
 
   const undo = () =>
     startTransition(async () => {
       setError(undefined);
       const r = await undoMerge(mergeId).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
+      // On success the action reloads the page with ?unmerged=…
       if (r.error) setError(r.error);
-      else setUndone(true);
     });
-
-  if (undone) {
-    return (
-      <div role="status" className={quiet ? "flex flex-col gap-1 text-sm" : "window flex flex-col gap-2 p-4"}>
-        <p className="font-medium">Merge undone.</p>
-        <p className="text-sm">
-          {merged.map((m, i) => (
-            <span key={m.id}>
-              {i ? ", " : null}
-              <Link href={`/connections/${m.id}`} className="link">
-                {m.name}
-              </Link>
-            </span>
-          ))}{" "}
-          {merged.length === 1 ? "is" : "are"} back, with everything that came from {merged.length === 1 ? "it" : "them"}.
-        </p>
-      </div>
-    );
-  }
 
   if (quiet) {
     return (
@@ -96,6 +76,26 @@ export function MergedNotice({
           {error}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+// After an undo: who came back, with links to them.
+export function UnmergedNotice({ merged }: { merged: Merged[] }) {
+  return (
+    <div role="status" className="window flex flex-col gap-2 p-4">
+      <p className="font-medium">Merge undone.</p>
+      <p className="text-sm">
+        {merged.map((m, i) => (
+          <span key={m.id}>
+            {i ? ", " : null}
+            <Link href={`/connections/${m.id}`} className="link">
+              {m.name}
+            </Link>
+          </span>
+        ))}{" "}
+        {merged.length === 1 ? "is" : "are"} back, with everything that came from {merged.length === 1 ? "it" : "them"}.
+      </p>
     </div>
   );
 }

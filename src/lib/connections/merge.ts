@@ -229,6 +229,25 @@ export async function loadUndoableMerge(keepId: string, timeZone: string) {
   };
 }
 
+/** A merge into this connection that was just undone, for the "Merge undone" notice. */
+export async function loadUndoneMerge(keepId: string, mergeId: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(mergeId)) return null;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("connection_merges")
+    .select("merged_summary")
+    .eq("id", mergeId)
+    .eq("keep_id", keepId)
+    .not("undone_at", "is", null)
+    .maybeSingle();
+  if (!data || !Array.isArray(data.merged_summary)) return null;
+  return (data.merged_summary as (Typed & { id: string; name: string })[]).map((m) => ({
+    id: m.id,
+    name: m.name,
+    catalog: catalogNo(m),
+  })) as MergedSummary[];
+}
+
 /** Where a merged-away connection went, if it was merged. */
 export async function mergedTarget(id: string) {
   const supabase = await createClient();

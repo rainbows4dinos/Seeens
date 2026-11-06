@@ -30,8 +30,8 @@ import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
 import { MergeWith } from "@/components/merge-with";
-import { MergedNotice } from "@/components/merged-notice";
-import { loadUndoableMerge } from "@/lib/connections/merge";
+import { MergedNotice, UnmergedNotice } from "@/components/merged-notice";
+import { loadUndoableMerge, loadUndoneMerge } from "@/lib/connections/merge";
 import { matchKey } from "@/lib/import/rows";
 import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
@@ -58,13 +58,14 @@ async function Connection({
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
 
-  const [{ id }, { saved, offer, missed_photo, missed_links, merged }] = await Promise.all([params, searchParams]);
+  const [{ id }, { saved, offer, missed_photo, missed_links, merged, unmerged }] = await Promise.all([params, searchParams]);
   const tz = membership.timeZone;
-  const [detail, user, sceneOptions, lastMerge] = await Promise.all([
+  const [detail, user, sceneOptions, lastMerge, undone] = await Promise.all([
     getConnection(id),
     getCurrentUser(),
     listSceneOptions(),
     loadUndoableMerge(id, tz),
+    typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
   ]);
   const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
@@ -98,7 +99,9 @@ async function Connection({
   // summary. Status, plans, outreach, connections, and the photo save on
   // their own as before; the rest saves through AutosaveForm.
   return (
-    <AutosaveProvider>
+    // A merge or undo changes this one's fields from the server: start the
+    // forms fresh rather than have them notice the change and save it back.
+    <AutosaveProvider key={`${lastMerge?.id ?? ""}:${typeof unmerged === "string" ? unmerged : ""}`}>
     <article className="page-measure flex flex-col gap-8">
       <BackButton
         href={directoryHrefFor(c.kind, c.group_type, archived)}
@@ -110,6 +113,7 @@ async function Connection({
       </p>
 
       {/* Just merged (#169): say what came in, with Undo. Later visits get a quiet line at the bottom. */}
+      {undone ? <UnmergedNotice merged={undone} /> : null}
       {lastMerge && merged === "1" ? (
         <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} />
       ) : null}

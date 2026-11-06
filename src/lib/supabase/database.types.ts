@@ -324,7 +324,11 @@ isOneToOne: false
           }
           Functions: {
             "merge_connections":
-{ Args: { "p_keep": string,"p_merge": (string)[] }; Returns: string },
+{ Args: { "p_keep": string,"p_merge": (string)[],"p_photo"?: Json }; Returns: string },
+            "merged_photos_due":
+{ Args: never; Returns: (string)[] },
+            "purge_merged_connections":
+{ Args: never; Returns: number },
             "undo_merge":
 { Args: { "p_merge": string }; Returns: string },
             "merged_target":

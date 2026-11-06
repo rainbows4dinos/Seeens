@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(38);
+select plan(44);
 
 insert into auth.users (id, email) values
   ('ae111111-1111-1111-1111-111111111111', 'merge-alex@example.com'),
@@ -133,6 +133,20 @@ select is((select count(*)::int from public.connection_not_duplicates), 1, 'a me
 select throws_ok($$ insert into public.connection_not_duplicates (workspace_id, connection_a, connection_b)
   values ('aeaaaaaa-0000-0000-0000-0000000000b2', 'aec00000-0000-0000-0000-0000000000d1', 'aec00000-0000-0000-0000-0000000000d2') $$,
   '42501', null, 'but not in another workspace');
+
+-- The photo: the app copies a merged one's files into the kept one's
+-- folder and passes them in; undo takes it off again.
+insert into made values ('m3', public.merge_connections('aec00000-0000-0000-0000-00000000000a', '{aec00000-0000-0000-0000-0000000000b1}',
+  '{"path":"aeaaaaaa-0000-0000-0000-0000000000a1/aec00000-0000-0000-0000-00000000000a/p.webp","original_path":"aeaaaaaa-0000-0000-0000-0000000000a1/aec00000-0000-0000-0000-00000000000a/p-original.webp","settings":{"contrast":1},"alt":"The band"}'));
+select is((select photo_path || ' ' || photo_alt from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'),
+  'aeaaaaaa-0000-0000-0000-0000000000a1/aec00000-0000-0000-0000-00000000000a/p.webp The band', 'the copied photo goes on the kept one');
+select ok((select log @> '[{"op":"photo"}]' from public.connection_merges where id = (select id from made where k = 'm3')), 'and the merge remembers it');
+select lives_ok(format('select public.undo_merge(%L)', (select id from made where k = 'm3')), 'undo');
+select is((select photo_path from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'), null, 'takes the copied photo off');
+select throws_ok($$ select public.merge_connections('aec00000-0000-0000-0000-00000000000a', '{aec00000-0000-0000-0000-0000000000b1}',
+  '{"path":"aeaaaaaa-0000-0000-0000-0000000000a1/aec00000-0000-0000-0000-0000000000b1/p.webp","original_path":"aeaaaaaa-0000-0000-0000-0000000000a1/aec00000-0000-0000-0000-0000000000b1/p-original.webp","settings":{}}') $$,
+  '23514', null, 'a photo outside the kept one''s folder is refused');
+select is(public.merged_photos_due(), '{}'::text[], 'no photos due yet');
 
 -- After 30 days: no undo, the merged one is deleted, its old id still redirects.
 insert into made values ('m2', public.merge_connections('aec00000-0000-0000-0000-00000000000a', '{aec00000-0000-0000-0000-0000000000b2}'));
