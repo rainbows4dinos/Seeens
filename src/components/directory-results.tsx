@@ -153,8 +153,31 @@ function useOpenId() {
   return usePathname().match(/^\/connections\/([^/]+)$/)?.[1] ?? null;
 }
 
+// Opening a connection takes a moment. A second click on the same row in
+// that time (a double-click) started a second navigation to the same
+// intercepted route, and Next hid the directory behind the panel. So a row
+// ignores clicks while its connection is opening, and once it's open.
+function useOpenGuard(openId: string | null) {
+  const opening = useRef<{ id: string; at: number } | null>(null);
+  // Opened: clicks on it are the open row's now.
+  useEffect(() => {
+    if (openId && opening.current?.id === openId) opening.current = null;
+  }, [openId]);
+  return (id: string) => (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    const now = performance.now();
+    // 3s at most, in case a navigation never lands.
+    if (id === openId || (opening.current?.id === id && now - opening.current.at < 3000)) {
+      e.preventDefault();
+      return;
+    }
+    opening.current = { id, at: now };
+  };
+}
+
 function ConnectionRows({ connections, today, tab }: { connections: DirectoryItem[]; today: string; tab: Tab }) {
   const openId = useOpenId();
+  const guard = useOpenGuard(openId);
   return (
     <ul className="panel rows flex flex-col">
       {connections.map((c) => {
@@ -168,6 +191,7 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
             <Link
               href={`/connections/${c.id}`}
               replace={openId !== null}
+              onClick={guard(c.id)}
               aria-current={c.id === openId ? "true" : undefined}
               className="flex flex-col gap-1 px-3 py-3 row-link @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:gap-4"
             >
@@ -218,6 +242,7 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
 
 function ConnectionCards({ connections, today, tab }: { connections: DirectoryItem[]; today: string; tab: Tab }) {
   const openId = useOpenId();
+  const guard = useOpenGuard(openId);
   return (
     <ul className="card-grid">
       {connections.map((c) => {
@@ -230,6 +255,7 @@ function ConnectionCards({ connections, today, tab }: { connections: DirectoryIt
               detail={detailFor(c, tab)}
               open={c.id === openId}
               replace={openId !== null}
+              onClick={guard(c.id)}
               tags={tags.map((t) => (
                 <span key={t} className="tag">
                   {t}

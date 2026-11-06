@@ -17,6 +17,9 @@ const LayoutContext = createContext<{
 
 function remember(layout: DirectoryLayout) {
   document.cookie = `${LAYOUT_COOKIE}=${layout}; path=/; max-age=31536000; samesite=lax`;
+  // With the quick view open the address is the connection's (#126); adding
+  // ?layout there would make a stray history entry for Close to land on.
+  if (window.location.pathname !== "/") return;
   const url = new URL(window.location.href);
   url.searchParams.set("layout", layout);
   // Next keeps its router in sync with replaceState; no navigation, no fetch.
