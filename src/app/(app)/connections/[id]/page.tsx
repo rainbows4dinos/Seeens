@@ -32,7 +32,7 @@ import { ArchiveControl } from "@/components/archive-control";
 import { MergeWith } from "@/components/merge-with";
 import { MergedNotice, UnmergedNotice } from "@/components/merged-notice";
 import { loadUndoableMerge, loadUndoneMerge } from "@/lib/connections/merge";
-import { matchKey } from "@/lib/import/rows";
+import { nameKeys } from "@/lib/connections/duplicates";
 import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { QuickStatus } from "@/components/quick-status";
@@ -357,9 +357,10 @@ function mergeOptions(
   c: { name: string },
   candidates: { id: string; name: string; kind: string; group_type: string | null; person_roles: string[]; catalog: string }[],
 ) {
-  const key = matchKey(c.name);
+  const keys = new Set(nameKeys(c.name));
+  const matches = (name: string) => nameKeys(name).some((k) => keys.has(k));
   return [...candidates]
-    .sort((a, b) => Number(matchKey(b.name) === key) - Number(matchKey(a.name) === key))
+    .sort((a, b) => Number(matches(b.name)) - Number(matches(a.name)))
     .map((o) => ({ value: o.id, label: o.name, hint: o.catalog }));
 }
 

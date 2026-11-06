@@ -19,8 +19,8 @@ export default function DuplicatesPage() {
       <div className="flex flex-col gap-2">
         <h1 className="display-l">Possible duplicates</h1>
         <p className="text-muted">
-          Same name and type, ignoring case, &ldquo;The,&rdquo; and punctuation. Compare a group to merge it, or mark
-          them as different.
+          Matching names of the same type. Case, &ldquo;The,&rdquo; and punctuation don&rsquo;t count, and a name in
+          parentheses or initials like G.A.B. count too. Compare a group to merge it, or mark them as different.
         </p>
       </div>
       <Suspense fallback={<p className="text-muted">Loading…</p>}>
