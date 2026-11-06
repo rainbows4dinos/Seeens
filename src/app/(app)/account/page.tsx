@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { getCurrentUser, getMembership } from "@/lib/auth/dal";
+import { getCurrentUser, getMembership, getLinkedPeople, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
+import { YourPage } from "@/components/your-page";
 import {
   DeleteAccountForm,
   DisplayNameField,
@@ -52,6 +53,7 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
   const { data: counts } = await supabase.from("workspace_members").select("workspace_id, user_id, role");
   const members = (id: string) => (counts ?? []).filter((m) => m.workspace_id === id).length;
   const tz = membership?.timeZone ?? "America/Los_Angeles";
+  const you = membership ? await loadYourPage(membership.workspaceId, membership.connectionId) : null;
   const note = Object.keys(NOTES).find((k) => params[k]);
   const name = bands?.[0]?.display_name ?? membership?.displayName ?? "";
   // Bands that would be left without an owner. The database checks again.
@@ -74,6 +76,14 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
       {bands?.length ? (
         <ProfilePanel id="account-you" title="You" summary={name}>
           <DisplayNameField initial={name} />
+          {membership && you ? (
+            <YourPage
+              linked={you.linked}
+              people={you.people}
+              band={membership.workspaceName}
+              hasBandPage={you.hasBandPage}
+            />
+          ) : null}
         </ProfilePanel>
       ) : null}
 
@@ -130,4 +140,35 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
       </ProfilePanel>
     </>
   );
+}
+
+// Your person in the band's directory, and the people you could be (#44):
+// those not linked to anyone yet, your band's members first.
+async function loadYourPage(workspaceId: string, connectionId: string | null) {
+  const supabase = await createClient();
+  const [us, linkedPeople] = await Promise.all([getUsConnection(), getLinkedPeople()]);
+  if (connectionId) {
+    const { data } = await supabase.from("connections").select("id, name").eq("id", connectionId).maybeSingle();
+    return { linked: data ? { id: data.id, name: data.name } : null, people: [], hasBandPage: Boolean(us) };
+  }
+  const [{ data: people }, { data: ours }] = await Promise.all([
+    supabase
+      .from("connections")
+      .select("id, name")
+      .eq("workspace_id", workspaceId)
+      .eq("kind", "person")
+      .is("merged_into", null)
+      .is("archived_at", null)
+      .order("name")
+      .limit(2000),
+    us
+      ? supabase.from("affiliations").select("from_connection_id").eq("to_connection_id", us.id).eq("kind", "member")
+      : Promise.resolve({ data: [] as { from_connection_id: string }[] }),
+  ]);
+  const inBand = new Set((ours ?? []).map((a) => a.from_connection_id));
+  const options = (people ?? [])
+    .filter((p) => !linkedPeople.has(p.id))
+    .map((p) => ({ value: p.id, label: p.name, hint: inBand.has(p.id) ? "In the band" : undefined }))
+    .sort((a, b) => Number(Boolean(b.hint)) - Number(Boolean(a.hint)));
+  return { linked: null, people: options, hasBandPage: Boolean(us) };
 }

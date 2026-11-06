@@ -90,7 +90,9 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
       {membership ? (
         <div className="menu-group">
           <p className="caption">Band</p>
-          <Link
+          {/* A full page load: a link from here to a connection would otherwise open
+              the directory's quick view over an empty page. */}
+          <a
             href={us ? `/connections/${us.id}` : "/connections/new?us=1"}
             className="nav-chip nav-chip-inverse menu-item"
             aria-label={us ? `${membership.workspaceName}, your band's page` : `${membership.workspaceName}: add your band's page`}
@@ -98,7 +100,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
             {membership.workspaceName}
             <Checkmark size={16} aria-hidden="true" />
             <span className="sr-only"> (current band)</span>
-          </Link>
+          </a>
           <Link href="/band" className="nav-chip menu-item">
             Band Settings
           </Link>
@@ -106,6 +108,11 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
       ) : null}
       <div className="menu-group">
         <p className="caption break-all">Signed in as {name}</p>
+        {membership?.connectionId ? (
+          <a href={`/connections/${membership.connectionId}`} className="nav-chip menu-item">
+            Your Page
+          </a>
+        ) : null}
         <Link href="/account" className="nav-chip menu-item">
           Account Settings
         </Link>

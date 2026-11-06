@@ -15,6 +15,8 @@ export type Membership = {
   displayName: string;
   role: "owner" | "member";
   timeZone: string;
+  /** Your person in the band's directory, once you've linked it (#44). */
+  connectionId: string | null;
 };
 
 // Verified user for this request, or a redirect to /login.
@@ -40,7 +42,7 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
 
   const { data, error } = await supabase
     .from("workspace_members")
-    .select("workspace_id, display_name, role, workspaces ( name, time_zone )")
+    .select("workspace_id, display_name, role, connection_id, workspaces ( name, time_zone )")
     .eq("user_id", user.id)
     .order("created_at")
     .limit(1)
@@ -55,6 +57,7 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
     displayName: data.display_name,
     role: data.role,
     timeZone: safeTimeZone(data.workspaces?.time_zone),
+    connectionId: data.connection_id,
   };
 });
 
@@ -84,4 +87,17 @@ export const getUsConnection = cache(async (): Promise<{ id: string; photoPath: 
     .maybeSingle();
   if (error || !data) return null;
   return { id: data.id, photoPath: data.photo_path };
+});
+
+// Who in the band's directory has a login (#44): person id -> their account.
+export const getLinkedPeople = cache(async (): Promise<Map<string, { userId: string; displayName: string }>> => {
+  const membership = await getMembership();
+  if (!membership) return new Map();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("workspace_members")
+    .select("user_id, display_name, connection_id")
+    .eq("workspace_id", membership.workspaceId)
+    .not("connection_id", "is", null);
+  return new Map((data ?? []).map((m) => [m.connection_id!, { userId: m.user_id, displayName: m.display_name }]));
 });

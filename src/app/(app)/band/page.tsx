@@ -60,9 +60,10 @@ async function Band() {
         <p className="text-sm text-muted">
           In the directory as{" "}
           {us ? (
-            <Link href={`/connections/${us.id}`} className="link">
+            // A full page load, not the directory's quick view (#44).
+            <a href={`/connections/${us.id}`} className="link">
               {membership.workspaceName}
-            </Link>
+            </a>
           ) : (
             <>
               nothing yet.{" "}

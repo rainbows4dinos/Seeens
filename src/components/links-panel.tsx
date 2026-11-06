@@ -78,6 +78,7 @@ export function LinksPanel({
   carry,
   pending,
   heading = true,
+  usesSeeens,
 }: {
   subjectId: string;
   rows: LinkRow[];
@@ -93,6 +94,8 @@ export function LinksPanel({
   pending?: PendingLinks;
   /** Off on the profile page, where the panel's title bar says it (#126). */
   heading?: boolean;
+  /** On the band marked "us": people with a login get a mark (#44). */
+  usesSeeens?: string[];
 }) {
   const [adding, setAdding] = useState<string | null>(null);
   // Bands can take a pasted lineup (once they exist).
@@ -140,7 +143,7 @@ export function LinksPanel({
               {[...s.rows]
                 .sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent))
                 .map((r) => (
-                  <LinkItem key={r.id} row={r} />
+                  <LinkItem key={r.id} row={r} usesSeeens={usesSeeens?.includes(r.otherId) ?? false} />
                 ))}
             </ul>
           </div>
@@ -198,7 +201,7 @@ export function LinksPanel({
   );
 }
 
-function LinkItem({ row }: { row: LinkRow }) {
+function LinkItem({ row, usesSeeens }: { row: LinkRow; usesSeeens: boolean }) {
   const [mode, setMode] = useState<"view" | "edit" | "remove">("view");
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
@@ -218,6 +221,7 @@ function LinkItem({ row }: { row: LinkRow }) {
             {row.otherName}
           </Link>{" "}
           <span className="text-xs text-muted whitespace-nowrap">{row.otherCatalog}</span>
+          {usesSeeens ? <span className="tag ml-2 align-middle">Uses Seeens</span> : null}
           {row.role ? <span> · {row.role}</span> : null}
           {!row.isCurrent ? <span className="text-muted"> (former)</span> : null}
           {row.otherArchived ? <span className="text-muted"> (archived)</span> : null}

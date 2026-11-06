@@ -171,7 +171,7 @@ returning display_name, role;
 
 Without `returning`, the Supabase SQL editor reports 0 rows even when the insert worked.
 
-Everyone else joins from **Band Settings** (account menu > Band Settings). Any member can invite by email or copy a link; only owners can invite owners. Links work once, for 7 days. Someone new makes their account on the invite page, so public sign-ups stay turned off in the Supabase auth settings. Owners change roles, remove members, and rename the band there too, and a band always keeps an owner. Members leave from Account Settings.
+Everyone else joins from **Band Settings** (account menu > Band Settings). Any member can invite by email or copy a link; only owners can invite owners. Links work once, for 7 days. Someone new makes their account on the invite page, so public sign-ups stay turned off in the Supabase auth settings. Owners change roles, remove members, and rename the band there too, and a band always keeps an owner. Members leave from Account Settings. Each member can link their login to their person in the directory (Account Settings > You > Your Page): pick themselves, or make a page that's added to the band. Linked people show "Uses Seeens" on the band's page, and Your Page appears in the account menu.
 
 Invites and account deletion need server-only env vars in Vercel (never `NEXT_PUBLIC_`, never in the repo):
 

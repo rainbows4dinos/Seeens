@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { catalogNo } from "@/lib/connections/card";
 import { Suspense } from "react";
-import { getCurrentUser, getMembership } from "@/lib/auth/dal";
+import { getCurrentUser, getLinkedPeople, getMembership } from "@/lib/auth/dal";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
 import { BackButton } from "@/components/back-button";
@@ -58,14 +58,15 @@ async function Connection({
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
 
-  const [{ id }, { saved, offer, missed_photo, missed_links, merged, unmerged }] = await Promise.all([params, searchParams]);
+  const [{ id }, { saved, offer, missed_photo, missed_links, merged, unmerged, mine }] = await Promise.all([params, searchParams]);
   const tz = membership.timeZone;
-  const [detail, user, sceneOptions, lastMerge, undone] = await Promise.all([
+  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople] = await Promise.all([
     getConnection(id),
     getCurrentUser(),
     listSceneOptions(),
     loadUndoableMerge(id, tz),
     typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
+    getLinkedPeople(),
   ]);
   const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
@@ -88,6 +89,10 @@ async function Connection({
       ? await loadPlayedOffer(await createClient(), membership.workspaceId, c.id)
       : null;
 
+  // Who has a login (#44): you, a bandmate, or on the band's page, its members.
+  const account = linkedPeople.get(c.id);
+  const isYou = account?.userId === user.id;
+  const usesSeeens = c.is_us ? [...linkedPeople.keys()] : undefined;
   const values = toFormValues(c);
   const venue = c.kind === "group" && c.group_type === "venue";
   const band = c.kind === "group" && c.group_type === "band";
@@ -109,7 +114,11 @@ async function Connection({
       />
 
       <p role="status" className="text-sm font-medium empty:hidden">
-        {saved ? savedNote(missed_photo === "1", Number(missed_links) || 0) : ""}
+        {saved
+          ? savedNote(missed_photo === "1", Number(missed_links) || 0)
+          : mine && isYou
+            ? "This is your page now. Bandmates can see you use Seeens."
+            : ""}
       </p>
 
       {/* Just merged (#169): say what came in, with Undo. Later visits get a quiet line at the bottom. */}
@@ -152,6 +161,7 @@ async function Connection({
           <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
           <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
             {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
+            {isYou ? <span className="tag font-semibold">This is you</span> : account ? <span className="tag">Uses Seeens</span> : null}
             {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}
             {ourLabel ? <span className="tag font-semibold">Our label</span> : null}
             {sharedWithUs.length ? (
@@ -288,7 +298,7 @@ async function Connection({
         summary={connectionsSummary(links.rows) || "None yet"}
       >
         <div className="flex flex-col gap-6">
-          <LinksPanel {...links} heading={false} />
+          <LinksPanel {...links} heading={false} usesSeeens={usesSeeens} />
           {band && labelMates.length ? (
             <section aria-labelledby="mates-heading" className="flex flex-col gap-1">
               <h2 id="mates-heading" className="label text-muted">
