@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // Account settings (#67). Email and password changes go through Supabase
 // Auth; nothing sensitive is kept in app tables.
@@ -101,6 +102,39 @@ export async function leaveBand(workspaceId: string): Promise<FormState> {
   }
   revalidatePath("/", "layout");
   redirect("/account?left=1");
+}
+
+// Delete your account. Your password confirms it's you; the database checks
+// that every band you own keeps an owner. Then the auth user is deleted with
+// the admin API, your memberships go with it, and what you added stays with
+// each band.
+export async function deleteAccount(_prev: FormState, formData: FormData): Promise<FormState> {
+  const user = await getCurrentUser();
+  const password = String(formData.get("password") ?? "");
+  if (String(formData.get("confirm") ?? "").trim() !== "DELETE") return { error: "Type DELETE to confirm." };
+  if (!password) return { error: "Enter your password." };
+  if (!user.email) return { error: "Couldn't delete it. Try again." };
+
+  const admin = createAdminClient();
+  if (!admin) return { error: "Accounts can't be deleted right now. Try again later." };
+
+  const supabase = await createClient();
+  const check = await supabase.auth.signInWithPassword({ email: user.email, password });
+  if (check.error) {
+    if (rateLimited(check.error)) return { error: "Too many tries. Wait a minute and try again." };
+    return { error: "That's not your password." };
+  }
+  const { data: blocking, error } = await supabase.rpc("prepare_account_deletion");
+  if (error) return { error: "Couldn't delete it. Try again." };
+  if (blocking?.length) {
+    return { error: `You're the only owner of ${blocking.join(", ")}. Make someone else an owner first.` };
+  }
+  const removed = await admin.auth.admin.deleteUser(user.id);
+  if (removed.error) return { error: "Couldn't delete it. Try again." };
+
+  // The account is gone; clear this browser's session too.
+  await supabase.auth.signOut({ scope: "local" }).catch(() => null);
+  redirect("/login?deleted=1");
 }
 
 // Forgot password, from Sign In. Says the same thing whether or not there's

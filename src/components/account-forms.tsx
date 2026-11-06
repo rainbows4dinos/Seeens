@@ -7,6 +7,7 @@ import { offline } from "@/lib/offline";
 import {
   changeEmail,
   changePassword,
+  deleteAccount,
   leaveBand,
   signOutOtherDevices,
   updateDisplayName,
@@ -229,6 +230,82 @@ export function LeaveBand({ workspaceId, name }: { workspaceId: string; name: st
           Stay
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Delete your account, after a password check and typing DELETE. */
+export function DeleteAccountForm({ email, blockedBy }: { email: string; blockedBy: string[] }) {
+  const [state, action, pending] = useActionState(deleteAccount, {});
+  const [open, setOpen] = useState(false);
+  if (blockedBy.length)
+    return (
+      <p className="text-sm">
+        You&rsquo;re the only owner of {blockedBy.join(", ")}. A band always keeps an owner, so make someone else an
+        owner in{" "}
+        <Link href="/band" className="link">
+          Band Settings
+        </Link>{" "}
+        first. If you&rsquo;re the only one in the band, invite a bandmate to take it over.
+      </p>
+    );
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm">
+        This deletes your login, your name, and your email. Everything you added stays with your bands, shown as
+        &ldquo;Former member.&rdquo; It can&rsquo;t be undone.
+      </p>
+      {open ? (
+        <form
+          action={action}
+          className="flex flex-col gap-4 border border-dashed border-strong p-3"
+          aria-label="Delete your account"
+        >
+          <input type="email" name="username" autoComplete="username" value={email} readOnly hidden />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="delete-password" className="label">
+                Password
+              </label>
+              <input
+                id="delete-password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                className="field"
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="delete-confirm" className="label">
+                Type DELETE
+              </label>
+              <input
+                {...noAutofill}
+                id="delete-confirm"
+                name="confirm"
+                className="field"
+                placeholder="DELETE"
+                autoCapitalize="characters"
+                required
+              />
+            </div>
+          </div>
+          <Message state={state} id="delete-msg" />
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" className="button-primary" disabled={pending}>
+              {pending ? "Deleting…" : "Delete My Account"}
+            </button>
+            <button type="button" className="button-secondary" onClick={() => setOpen(false)}>
+              Keep It
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button type="button" className="button-secondary self-start" onClick={() => setOpen(true)}>
+          Delete Account
+        </button>
+      )}
     </div>
   );
 }

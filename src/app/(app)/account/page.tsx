@@ -5,7 +5,14 @@ import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
-import { DisplayNameField, EmailForm, LeaveBand, PasswordForm, SignOutOthersForm } from "@/components/account-forms";
+import {
+  DeleteAccountForm,
+  DisplayNameField,
+  EmailForm,
+  LeaveBand,
+  PasswordForm,
+  SignOutOthersForm,
+} from "@/components/account-forms";
 
 export const metadata: Metadata = { title: "Account Settings · Seeens" };
 
@@ -42,11 +49,19 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
     .select("workspace_id, role, created_at, display_name, workspaces ( name )")
     .eq("user_id", user.id)
     .order("created_at");
-  const { data: counts } = await supabase.from("workspace_members").select("workspace_id");
+  const { data: counts } = await supabase.from("workspace_members").select("workspace_id, user_id, role");
   const members = (id: string) => (counts ?? []).filter((m) => m.workspace_id === id).length;
   const tz = membership?.timeZone ?? "America/Los_Angeles";
   const note = Object.keys(NOTES).find((k) => params[k]);
   const name = bands?.[0]?.display_name ?? membership?.displayName ?? "";
+  // Bands that would be left without an owner. The database checks again.
+  const soleOwnerOf = (bands ?? [])
+    .filter(
+      (b) =>
+        b.role === "owner" &&
+        !(counts ?? []).some((m) => m.workspace_id === b.workspace_id && m.role === "owner" && m.user_id !== user.id),
+    )
+    .map((b) => b.workspaces?.name ?? "Your band");
 
   return (
     <>
@@ -108,6 +123,10 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
         ) : (
           <p className="text-muted">You&rsquo;re not in a band yet. Ask a bandmate to invite you.</p>
         )}
+      </ProfilePanel>
+
+      <ProfilePanel id="account-delete" title="Delete Account">
+        <DeleteAccountForm email={user.email ?? ""} blockedBy={soleOwnerOf} />
       </ProfilePanel>
     </>
   );
