@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
+import { BackButton } from "@/components/back-button";
 import { AutosaveForm, AutosaveProvider, SaveStatus } from "@/components/profile/autosave";
 import { ProfilePanel } from "@/components/profile/panel";
 import { BasicInfoFields } from "@/components/profile/basic-info";
@@ -90,9 +91,7 @@ async function Connection({
   return (
     <AutosaveProvider>
     <article className="page-measure flex flex-col gap-8">
-      <Link href={directoryHrefFor(c.kind, c.group_type, archived)} className="link text-sm text-muted">
-        Back to directory
-      </Link>
+      <BackButton href={directoryHrefFor(c.kind, c.group_type, archived)} />
 
       <p role="status" className="text-sm font-medium empty:hidden">
         {saved ? savedNote(missed_photo === "1", Number(missed_links) || 0) : ""}

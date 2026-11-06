@@ -5,27 +5,64 @@ import { useState } from "react";
 import { Combobox } from "@/components/combobox";
 import { Field, invalid } from "@/components/form-field";
 import { PlaceField } from "@/components/place-field";
-import type { ConnectionFormValues } from "@/lib/connections/form";
+import { splitList, type ConnectionFormErrors, type ConnectionFormValues } from "@/lib/connections/form";
 import { useFieldErrors } from "@/components/profile/autosave";
 import {
   GROUP_TYPES,
   GROUP_TYPE_LABELS,
   PERSON_ROLES,
   PERSON_ROLE_LABELS,
+  STATUSES,
+  playedWords,
+  statusLabel,
+  type GroupType,
+  type PersonRole,
 } from "@/lib/connections/labels";
 
 type SceneOption = { id: string; name: string; parent_id: string | null };
 
-// Basic Info on the profile page (#126): name and type on one row, then
-// what a person does, "This is our band", the town, and scenes. One Type
-// select stands in for "Person or group?" and "What is it?"; it posts the
-// kind and group type the save expects.
-export function BasicInfoFields({ values: v, scenes }: { values: ConnectionFormValues; scenes: SceneOption[] }) {
-  const errors = useFieldErrors();
-  const [type, setType] = useState(v.kind === "person" ? "person" : v.groupType);
+// Basic Info on the profile page (#126) and the Add form: name and type on
+// one row, then what a person does, "This is our band", the town, and
+// scenes. One Type select stands in for "Person or group?" and "What is
+// it?"; it posts the kind and group type the save expects.
+//
+// On the profile, errors come from its AutosaveForm and status saves on its
+// own (QuickStatus). The Add form passes its errors, keeps the type (other
+// panels follow it), and asks for the status fields here.
+export function BasicInfoFields({
+  values: v,
+  scenes,
+  errors: passed,
+  type: typeProp,
+  onTypeChange,
+  withStatus = false,
+}: {
+  values: ConnectionFormValues;
+  scenes: SceneOption[];
+  errors?: ConnectionFormErrors;
+  /** "person", a group type, or "" before one is picked. */
+  type?: string;
+  onTypeChange?: (type: string) => void;
+  withStatus?: boolean;
+}) {
+  const fromAutosave = useFieldErrors();
+  const errors = passed ?? fromAutosave;
+  const [ownType, setOwnType] = useState(v.kind === "person" ? "person" : v.groupType);
+  const type = typeProp ?? ownType;
+  const setType = (t: string) => {
+    setOwnType(t);
+    onTypeChange?.(t);
+  };
   const [isUs, setIsUs] = useState(v.isUs);
   const person = type === "person";
   const typeError = errors.kind ?? errors.groupType;
+  const us = type === "band" && isUs;
+  // Status words follow the type as it's picked (#139).
+  const typed = {
+    kind: (person ? "person" : "group") as "person" | "group",
+    group_type: (GROUP_TYPES as string[]).includes(type) ? (type as GroupType) : null,
+    person_roles: v.personRoles.filter((r): r is PersonRole => (PERSON_ROLES as string[]).includes(r)),
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -41,6 +78,11 @@ export function BasicInfoFields({ values: v, scenes }: { values: ConnectionFormV
             className="field"
             {...invalid("p-type", typeError)}
           >
+            {type === "" ? (
+              <option value="" disabled>
+                Choose one
+              </option>
+            ) : null}
             {GROUP_TYPES.map((g) => (
               <option key={g} value={g}>
                 {GROUP_TYPE_LABELS[g]}
@@ -94,10 +136,44 @@ export function BasicInfoFields({ values: v, scenes }: { values: ConnectionFormV
             depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
           }))}
           defaultValue={v.sceneIds}
-          create={{ name: "new_scenes", defaultValue: [], verb: "New Scene" }}
+          create={{ name: "new_scenes", defaultValue: splitList(v.newScenes), verb: "New Scene" }}
           error={errors.newScenes}
         />
       </div>
+
+      {/* Add only. Status is how we relate to others; it doesn't apply to
+          us. Hidden, not removed, so the default still submits. */}
+      {withStatus ? (
+        <div className="flex flex-col gap-2" hidden={us}>
+          <label htmlFor="p-status" className="label">
+            Status
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              id="p-status"
+              name="status"
+              defaultValue={v.status}
+              className="field min-w-28 flex-1 basis-28 sm:max-w-80"
+              {...invalid("p-status", errors.status)}
+            >
+              {STATUSES.map((st) => (
+                <option key={st} value={st}>
+                  {statusLabel(st, typed)}
+                </option>
+              ))}
+            </select>
+            <label className="choice shrink-0">
+              <input type="checkbox" name="played_together" value="on" defaultChecked={v.playedTogether} />
+              <span>{playedWords(typed).label}</span>
+            </label>
+          </div>
+          {errors.status ? (
+            <p id="p-status-error" className="text-sm font-medium text-error">
+              Error: {errors.status}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
