@@ -5,6 +5,8 @@ import { createConnection } from "@/lib/connections/actions";
 import { EMPTY_FORM, type ConnectionFormValues } from "@/lib/connections/form";
 import { ConnectionForm } from "@/components/connection-form";
 import { NoWorkspace } from "@/components/no-workspace";
+import { BackButton } from "@/components/back-button";
+import { TABS } from "@/lib/connections/tabs";
 import { listSceneOptions } from "@/lib/scenes/queries";
 import { loadNetwork } from "@/lib/connections/queries";
 import { catalogNo } from "@/lib/connections/card";
@@ -23,12 +25,22 @@ export const metadata: Metadata = { title: "Add connection · Seeens" };
 export default function NewConnectionPage({ searchParams }: PageProps<"/connections/new">) {
   return (
     <div className="page-measure flex flex-col gap-6">
+      <Suspense fallback={<BackButton href="/" />}>
+        <Back searchParams={searchParams} />
+      </Suspense>
       <h1 className="display-l sm:display-xl">Add connection</h1>
       <Suspense fallback={<p className="text-muted">Loading…</p>}>
         <NewConnection searchParams={searchParams} />
       </Suspense>
     </div>
   );
+}
+
+// Back to the tab Add came from (#122), or the directory.
+async function Back({ searchParams }: { searchParams: PageProps<"/connections/new">["searchParams"] }) {
+  const { type } = await searchParams;
+  const tab = TABS.find((t) => t.addType && t.addType === type);
+  return <BackButton href={tab ? `/?type=${tab.id}` : "/"} />;
 }
 
 async function NewConnection({ searchParams }: { searchParams: PageProps<"/connections/new">["searchParams"] }) {

@@ -1690,6 +1690,19 @@
     }
   }
 
+  /* Back to Directory on a profile or Add: pinned under the header as the
+     page scrolls, floating over the panels. */
+  .back-pin {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-md));
+    z-index: 20;
+    align-self: flex-start;
+  }
+  /* Floating over the panels, it lifts off them (Shadow/Soft). */
+  .back-pin[data-pinned] > * {
+    box-shadow: var(--shadow-soft);
+  }
+
   /* App Header (Figma): surface with an ink rule under it, pinned. */
   .app-header {
     position: sticky;
