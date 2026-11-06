@@ -143,7 +143,25 @@ try {
 
   await page.goto(`${BASE_URL}/follow-ups`);
   await shot(page, "follow-ups.png");
+
+  // Band Settings with one pending invite, then that invite as the person
+  // receiving it sees it (signed out).
+  await page.goto(`${BASE_URL}/band`);
+  await page.getByLabel("Email").fill("jo@example.com");
+  await page.getByLabel("Name (Optional)").fill("Jo");
+  await page.getByRole("button", { name: "Send Invite" }).click();
+  const linkBox = page.getByRole("textbox", { name: "Invite link" });
+  await linkBox.waitFor();
+  const inviteLink = await linkBox.inputValue();
+  await page.goto(`${BASE_URL}/band`);
+  await shot(page, "band-settings.png", { fullPage: true });
   await desktop.close();
+
+  const invitee = await browser.newContext(DESKTOP);
+  const invitePage = await invitee.newPage();
+  await invitePage.goto(inviteLink);
+  await shot(invitePage, "invite.png");
+  await invitee.close();
 
   // Mobile, signed in
   const mobile = await browser.newContext(MOBILE);

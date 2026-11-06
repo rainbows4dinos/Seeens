@@ -1,6 +1,7 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
+import { siteOrigin } from "@/lib/origin";
 import { RECOVERY_COOKIE } from "@/lib/auth/recovery";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -13,14 +14,6 @@ import { createClient } from "@/lib/supabase/server";
 export type FormState = { error?: string; done?: string };
 
 const MIN_PASSWORD = 8;
-
-/** This site's origin, for links in emails (auth callback). */
-async function origin() {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
 
 function rateLimited(error: { status?: number; code?: string }) {
   return error.status === 429 || error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit";
@@ -47,7 +40,7 @@ export async function changeEmail(_prev: FormState, formData: FormData): Promise
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser(
     { email },
-    { emailRedirectTo: `${await origin()}/auth/callback?next=${encodeURIComponent("/account?email=changed")}` },
+    { emailRedirectTo: `${await siteOrigin()}/auth/callback?next=${encodeURIComponent("/account?email=changed")}` },
   );
   if (error) {
     if (error.code === "email_exists") return { error: "Another account already uses that email." };
@@ -117,7 +110,7 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter your email address." };
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${await origin()}/auth/callback?next=/reset-password`,
+    redirectTo: `${await siteOrigin()}/auth/callback?next=/reset-password`,
   });
   if (error && rateLimited(error)) return { error: "Too many emails just now. Wait a few minutes and try again." };
   return { done: `If there's an account for ${email}, we sent it a link. It works for an hour.` };
