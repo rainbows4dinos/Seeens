@@ -42,8 +42,10 @@
   --color-plate-yellow: var(--plate-yellow);
   /* Primary accent is ink. Color is saved for highlights and tags. */
   --color-accent-primary: var(--ink-900);
-  /* Hover on paper controls and rows: a quiet step toward the ground. */
+  /* Hover on paper controls: a quiet step toward the ground. */
   --color-bg-hover: var(--ground-200);
+  /* Rows and cards lift off the page on hover or when open (#157). */
+  --color-bg-raised: var(--paper-photo);
   --color-status-homie: var(--plate-magenta);
   --color-status-prospect: var(--plate-cyan);
   --color-status-lets-play: var(--plate-yellow);
@@ -82,6 +84,10 @@
   /* Effects */
   --shadow-hard: 5px 5px 0 0 var(--ink-900);
   --shadow-photo: 0 3px 6px 0 rgb(0 0 0 / 0.22);
+  /* Shadow/Soft: a lighter Shadow/Hard for lifted rows. */
+  --shadow-soft: 4px 4px 0 0 rgb(20 20 20 / 0.3);
+  /* The same shadow measured from a row nudged 2px up and left. */
+  --shadow-soft-nudged: 6px 6px 0 0 rgb(20 20 20 / 0.3);
   --misregister-cyan: 2px 1px 0 var(--plate-cyan);
 }
 
@@ -1375,15 +1381,59 @@
     }
   }
   .connection-card:hover .card-meta {
-    background: var(--color-bg-hover);
+    background: var(--color-bg-raised);
   }
   .connection-card:focus-visible {
     outline-offset: 4px;
   }
 
-  /* Whole-row links (directory, follow-ups): a quiet hover tint. */
-  .row-link:hover {
-    background: var(--color-bg-hover);
+  /* Whole-row links (directory, follow-ups) lift off the page on hover and
+     focus (#157): brighter paper, a soft hard-edged shadow, and a 2px nudge
+     up and left, so the shadow ends up 4px out like Figma's Shadow/Soft.
+     The open row (aria-current) stays lifted and gets an ink bar. */
+  .row-link {
+    position: relative;
+    transition:
+      translate 100ms ease-out,
+      box-shadow 100ms ease-out,
+      background-color 100ms ease-out;
+  }
+  .row-link:hover,
+  .row-link:focus-visible,
+  .row-link[aria-current="true"] {
+    /* Above the next row and the panel's border, so the shadow shows.
+       The row covers that border, so it brings its own hairline. */
+    z-index: 3;
+    background: var(--color-bg-raised);
+    translate: -2px -2px;
+    box-shadow:
+      inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
+      var(--shadow-soft-nudged);
+  }
+  .row-link[aria-current="true"] {
+    box-shadow:
+      inset 6px 0 0 0 var(--color-border-strong),
+      inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
+      var(--shadow-soft-nudged);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row-link {
+      transition: none;
+    }
+    .row-link:hover,
+    .row-link:focus-visible,
+    .row-link[aria-current="true"] {
+      translate: none;
+      box-shadow:
+        inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
+        var(--shadow-soft);
+    }
+    .row-link[aria-current="true"] {
+      box-shadow:
+        inset 6px 0 0 0 var(--color-border-strong),
+        inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
+        var(--shadow-soft);
+    }
   }
 
   .link {

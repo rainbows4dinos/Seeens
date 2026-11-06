@@ -472,7 +472,7 @@
   "cref": "src/components/directory-results.tsx",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Nov 5 (#157): State variant added (Default, Hover, Selected). Hover = color/bg/raised + Shadow/Soft + hairline; Selected adds a 6px ink bar. Code: .row-link :hover/:focus-visible/[aria-current]. Rest of layout not re-audited.",
   "checklist": [
    "[x] Typography: name font-semibold 20/24 -> display-s (Bold); caption .caption now 12px; place Mono/Body. Thumb initials decorative, unstyled in Figma."
   ]
@@ -699,5 +699,26 @@
   "cls": "match",
   "status": "pending",
   "notes": "New in Figma Nov 4. Figma has a 2px corner radius; code corners are square everywhere (radius/none). Needs a call."
+ },
+ {
+  "id": "V-08",
+  "cat": "Variables",
+  "item": "color/bg/raised (1)",
+  "fref": "Color",
+  "cref": "src/app/globals.css --color-bg-raised",
+  "cls": "missing-in-code",
+  "status": "synced",
+  "notes": "New Nov 5 (#157): rows and cards lifted on hover or when open. Aliases paper/photo. Controls keep color/bg/hover.",
+  "count": 1
+ },
+ {
+  "id": "E-06",
+  "cat": "Effect styles",
+  "item": "Shadow/Soft",
+  "fref": "effect style",
+  "cref": "src/app/globals.css --shadow-soft",
+  "cls": "missing-in-code",
+  "status": "synced",
+  "notes": "New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place."
  }
 ]
