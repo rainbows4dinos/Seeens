@@ -157,8 +157,9 @@ function Facts({ detail, place }: { detail: Detail; place: string | null }) {
       ]);
   }
 
-  // Linked connections, grouped like the Connections block. Each name opens
-  // in this panel; former ones are left out to keep it short.
+  // Linked connections, grouped like the Connections block, one per line so
+  // a long lineup stays readable. Each name opens in this panel; former ones
+  // are left out to keep it short.
   const { rows: links } = linksPanelProps(detail);
   const bySection = new Map<string, typeof links>();
   for (const l of links) {
@@ -169,15 +170,16 @@ function Facts({ detail, place }: { detail: Detail; place: string | null }) {
   for (const [section, items] of [...bySection].sort(([a], [b]) => order(a) - order(b))) {
     rows.push([
       section,
-      items.map((l, i) => (
-        <span key={l.id}>
-          {i ? ", " : null}
-          <Link href={`/connections/${l.otherId}`} replace className="link">
-            {l.otherName}
-          </Link>
-          {l.role ? <span className="text-muted"> ({l.role})</span> : null}
-        </span>
-      )),
+      <ul key={section} className="flex flex-col">
+        {items.map((l) => (
+          <li key={l.id}>
+            <Link href={`/connections/${l.otherId}`} replace className="link">
+              {l.otherName}
+            </Link>
+            {l.role ? <span className="text-muted"> ({l.role})</span> : null}
+          </li>
+        ))}
+      </ul>,
     ]);
   }
 
