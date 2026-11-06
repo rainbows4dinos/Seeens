@@ -315,14 +315,14 @@ isOneToOne: false
                   ]
                 },"workspace_members": {
                   Row: {
-                    "created_at": string,"display_name": string,"role": Database["public"]['Enums']["member_role"],"user_id": string,"workspace_id": string
+                    "connection_id": string | null,"created_at": string,"display_name": string,"role": Database["public"]['Enums']["member_role"],"user_id": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name": string,"role"?: Database["public"]['Enums']["member_role"],"user_id": string,"workspace_id": string
+                    "connection_id"?: string | null,"created_at"?: string,"display_name": string,"role"?: Database["public"]['Enums']["member_role"],"user_id": string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string,"role"?: Database["public"]['Enums']["member_role"],"user_id"?: string,"workspace_id"?: string
+                    "connection_id"?: string | null,"created_at"?: string,"display_name"?: string,"role"?: Database["public"]['Enums']["member_role"],"user_id"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -383,6 +383,12 @@ isOneToOne: false
 { Args: never; Returns: (string)[] },
             "is_app_admin":
 { Args: never; Returns: boolean },
+            "link_me_to_person":
+{ Args: { "p_workspace_id": string,"p_connection_id": string }; Returns: undefined },
+            "unlink_me":
+{ Args: { "p_workspace_id": string }; Returns: undefined },
+            "create_my_person":
+{ Args: { "p_workspace_id": string }; Returns: string },
             "submit_feedback":
 { Args: { "p_workspace_id": string,"p_kind": Database["public"]["Enums"]["feedback_kind"],"p_body": string,"p_path"?: string | null,"p_app_version"?: string | null,"p_user_agent"?: string | null,"p_screen"?: string | null,"p_error_digest"?: string | null,"p_screenshot_path"?: string | null }; Returns: string },
             "update_feedback":
