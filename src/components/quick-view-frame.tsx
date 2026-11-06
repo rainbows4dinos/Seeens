@@ -63,7 +63,7 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
     <LogContext value={{ logging, setLogging }}>
       <aside ref={aside} className="quick-view" aria-label="Quick view">
         <div className="quick-view-title">
-          <span className="text-sm font-semibold">Quick view</span>
+          <span className="font-semibold">Quick view</span>
           <button type="button" className="quick-view-close" onClick={close}>
             <Close size={16} aria-hidden="true" />
             <span className="sr-only">Close quick view</span>

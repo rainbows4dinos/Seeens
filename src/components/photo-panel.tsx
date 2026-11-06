@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Add } from "@carbon/icons-react";
 import { PhotoCopier, type CapturedPhoto, type PhotoProps } from "@/components/photo-copier";
 import type { CopierSettings } from "@/lib/photos/settings";
 import { initials } from "@/lib/connections/card";
@@ -22,7 +23,10 @@ export function PhotoPanel(props: PhotoProps) {
       >
         <span className="photo-thumb-empty" aria-hidden="true">
           <span className="card-print-initials">{initials(name)}</span>
-          {photoUrl ? null : <span className="photo-thumb-add">+ Photo</span>}
+          {photoUrl ? null : <span className="photo-thumb-add">
+            <Add size={12} />
+            Photo
+          </span>}
         </span>
         {/* A photo that fails to load steps aside, leaving the initials. */}
         {photoUrl ? <Photo key={photoUrl} src={photoUrl} alt={alt ?? ""} /> : null}
@@ -54,7 +58,10 @@ export function NewPhotoPanel({
         aria-haspopup="dialog"
       >
         <span className="photo-thumb-empty" aria-hidden="true">
-          {photo ? null : <span className="photo-thumb-add">+ Photo</span>}
+          {photo ? null : <span className="photo-thumb-add">
+            <Add size={12} />
+            Photo
+          </span>}
         </span>
         {photo ? (
           // A local preview of the copy; it uploads with the save.

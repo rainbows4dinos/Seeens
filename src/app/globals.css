@@ -36,6 +36,8 @@
   --color-border-strong: var(--ink-900);
   --color-border-subtle: var(--ground-300);
   --color-border-error: var(--red-error);
+  /* Borders on ink (the profile panel's fold button). */
+  --color-border-inverse: var(--paper-50);
   --color-pattern-dot: var(--ground-dot);
   --color-plate-cyan: var(--plate-cyan);
   --color-plate-magenta: var(--plate-magenta);
@@ -82,7 +84,11 @@
   --type-hand: "Reenie Beanie", cursive;
 
   /* Effects */
-  --shadow-hard: 5px 5px 0 0 var(--ink-900);
+  /* Shadow/Hard: the ink shadow, with a 1px sliver of paper between it and
+     the box so the two read as separate (Figma's second drop). */
+  --shadow-hard:
+    1px 1px 0 0 var(--paper-photo),
+    5px 5px 0 0 var(--ink-900);
   --shadow-photo: 0 3px 6px 0 rgb(0 0 0 / 0.22);
   /* Shadow/Soft: a lighter Shadow/Hard for lifted rows. */
   --shadow-soft: 4px 4px 0 0 rgb(20 20 20 / 0.3);
@@ -377,8 +383,9 @@
     padding-left: 7px;
     color: var(--color-text-secondary);
   }
+  /* The box's 4px gap, less 7 so the text (7px in) starts 4px after the icon. */
   .combo-icon + * {
-    margin-left: -3px;
+    margin-left: -7px;
   }
   /* The one-row bar's filters are narrow: let the text shrink, not wrap
      under the icon. */
@@ -400,7 +407,7 @@
   }
   .field-icon > .field {
     width: 100%;
-    padding-left: 35px;
+    padding-left: 31px;
   }
   .combo input {
     flex: 1;
@@ -509,7 +516,9 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
     gap: 6px;
-    padding: 0.25rem 0.75rem;
+    /* Figma: 8px padding plus the label's own 2px, so text sits 10px in
+       from the outer edge (1px border + 9). Icons sit 8px in (see below). */
+    padding: 0.25rem 9px;
     line-height: 20px;
     font-family: var(--type-mono);
     font-size: 14px;
@@ -517,9 +526,10 @@
     color: var(--color-text-primary);
     text-decoration: none;
   }
-  /* Figma Button with Icon L: 8px in from the edge, icon, then the label. */
+  /* Figma Button with Icon L: the icon 8px in from the outer edge (1px
+     border + 7), then 6px (4 + the label's 2) to the label. */
   :is(.button-primary, .button-secondary):not(.button-icon, .button-icon-phone):has(> svg:first-child) {
-    padding-left: 8px;
+    padding-left: 7px;
   }
   .button-primary {
     background: var(--color-accent-primary);
@@ -586,10 +596,34 @@
     line-height: 20px;
     cursor: pointer;
   }
-  .choice input {
+  /* A square box, as in Figma: paper with an ink edge, and an ink check
+     when on. Drawn by hand because native checkboxes round their corners. */
+  .choice input[type="checkbox"] {
+    appearance: none;
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-bg-surface) center / 12px 10px no-repeat;
+    cursor: pointer;
+  }
+  .choice input[type="radio"] {
     width: 1.125rem;
     height: 1.125rem;
     accent-color: var(--color-accent-primary);
+  }
+  .choice:has(input[type="radio"]:checked) input {
+    accent-color: var(--paper-50);
+  }
+  .choice input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .choice input[type="checkbox"]:checked {
+    /* Ink (--ink-900); a data URI can't read the variable. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M1 5.2 4.4 8.5 11 1.5' fill='none' stroke='%23141414' stroke-width='2'/%3E%3C/svg%3E");
   }
   .choice:hover {
     background: var(--color-bg-hover);
@@ -598,10 +632,6 @@
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
     font-weight: 500;
-  }
-  /* Keep the native control visible on the ink fill. */
-  .choice:has(input:checked) input {
-    accent-color: var(--paper-50);
   }
   /* Upload CSV (#148): a label styled as a button around a hidden file input. */
   .file-button {
@@ -810,15 +840,16 @@
     pointer-events: none;
   }
   /* Figma Search Field (Field with Show Icon L, Show Key Hint, Show Clear):
-     12px side padding (space/md), 8px gaps, 16px icons, 42px keycap. Text
-     starts at 12 + 16 + 8 = 36 from the outer edge (1px border + 35). */
+     12px side padding (space/md), 4px gaps (space/xs), 16px icons, 42px
+     keycap. Text starts at 12 + 16 + 4 = 32 from the outer edge (1px border
+     + 31) and stops 12 + 42 + 4 = 58 from the right. */
   .search-field > .field {
     width: 100%;
-    padding-left: 35px;
-    padding-right: 61px;
+    padding-left: 31px;
+    padding-right: 57px;
   }
   .search-field:has(.search-clear) > .field:not(:placeholder-shown) {
-    padding-right: 85px;
+    padding-right: 81px;
   }
   /* The hint stands in for the browser's clear button. */
   .search-field > .field::-webkit-search-cancel-button {
@@ -831,11 +862,16 @@
     top: 50%;
     right: 12px;
     translate: 0 -50%;
-    padding: 1px 4px;
+    /* Figma pads 4 from the outer edge (1 + 3) and trims the text to its
+       cap height: 1 + 3 + 7 + 3 + 1 = 15 tall. */
+    padding: 3px;
     border: var(--stroke-hair) solid var(--color-border-subtle);
+    /* The one rounded thing: a keycap (decided Nov 5). */
+    border-radius: 2px;
     font-family: var(--type-mono);
     font-size: 10px;
-    line-height: 14px;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--color-text-secondary);
@@ -929,7 +965,8 @@
   /* Figma: the icon sits a little closer to its label than the count. */
   .type-tab-icon {
     flex: none;
-    margin-right: -0.25ch;
+    /* Figma Segment: 4px from icon to label (the tab's gap is 1ch). */
+    margin-right: calc(4px - 1ch);
     /* The narrowest phones: words only, so the tabs and ⋮ stay on one row. */
     @media (width < 23.5rem) {
       display: none;
@@ -1196,12 +1233,20 @@
   .photo-thumb-empty .card-print-initials {
     font-size: 40px;
   }
+  /* Figma Photo Action: 4 + 12 (the Add icon) + 4 = 20 tall, a 2px gap to
+     the label. Label is Mono/Hint (10px, 5%, uppercase, cap-trimmed). */
   .photo-thumb-add {
     position: absolute;
     inset: auto 0 0;
-    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: var(--space-xs) var(--space-md);
     font-family: var(--type-mono);
-    font-size: 11px;
+    font-size: 10px;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background: var(--color-bg-inverse);
@@ -1687,20 +1732,26 @@
   /* Profile panels (Figma Window, #126): a box with a hard shadow and an
      ink title bar that folds the panel. Folded, the bar shows a summary. */
   .profile-panel {
-    border: var(--stroke-strong) solid var(--color-border-strong);
     background: var(--color-bg-surface);
-    box-shadow: var(--shadow-hard);
+    /* The 1.5px edge is an inset shadow, not a border, so padding is
+       measured from the outer edge like Figma (borders take no space). */
+    box-shadow:
+      inset 0 0 0 var(--stroke-strong) var(--color-border-strong),
+      var(--shadow-hard);
   }
   .profile-panel-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
-    padding: var(--space-md) var(--space-lg);
+    /* 12 + 20 (the fold box) + 12 = 44, like Figma's Window title bar. */
+    padding: var(--space-md) var(--space-md) var(--space-md) var(--space-lg);
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
-    font-size: 14px;
-    line-height: 20px;
+    /* Mono/Small Strong for the title; the summary drops the weight. */
+    font-family: var(--type-mono);
+    font-size: 12px;
+    line-height: 16px;
     list-style: none;
     cursor: pointer;
     user-select: none;
@@ -1712,9 +1763,10 @@
     display: grid;
     flex: none;
     place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: var(--stroke-hair) solid currentColor;
+    /* 20 x 20 from the outer edge, as in Figma's Window: 1px around 18. */
+    width: 1.25rem;
+    height: 1.25rem;
+    border: var(--stroke-hair) solid var(--color-border-inverse);
   }
   .profile-panel[open] .icon-closed,
   .profile-panel:not([open]) .icon-open,
@@ -1727,7 +1779,7 @@
   .profile-panel-body {
     display: flex;
     flex-direction: column;
-    padding: var(--space-xl) var(--space-lg);
+    padding: var(--space-xl) var(--space-lg) var(--space-2xl);
     @media (width >= 48rem) {
       padding-inline: var(--space-xl);
     }
@@ -1850,16 +1902,21 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--space-md) var(--space-md) var(--space-md) var(--space-lg);
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
+    /* Same bar as a Window: Mono/Small Strong. */
+    font-family: var(--type-mono);
+    font-size: 12px;
+    line-height: 16px;
   }
   .quick-view-close {
     display: grid;
     place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: var(--stroke-hair) solid currentColor;
+    /* 20 x 20 from the outer edge, as in Figma's Window: 1px around 18. */
+    width: 1.25rem;
+    height: 1.25rem;
+    border: var(--stroke-hair) solid var(--color-border-inverse);
     cursor: pointer;
   }
   .quick-view-close:hover {
