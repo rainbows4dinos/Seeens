@@ -323,6 +323,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            "update_my_display_name":
+{ Args: { "p_name": string }; Returns: undefined },
+            "leave_workspace":
+{ Args: { "p_workspace_id": string }; Returns: undefined },
             "merge_connections":
 { Args: { "p_keep": string,"p_merge": (string)[],"p_photo"?: Json }; Returns: string },
             "merged_photos_due":

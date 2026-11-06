@@ -91,7 +91,7 @@ Priorities live on the issues (`priority: now`, `next`, `later`); this is the or
 
 The MVP launched on November 1, 2026. What it does:
 
-- Email/password sign-in, with access limited to workspace members.
+- Email/password sign-in, with access limited to workspace members. Account Settings for your name, email, password, signing out other devices, and leaving a band; forgot password from Sign In.
 - Directory: add, edit, view, and archive connections; tabs by type (Bands, People, Venues, Labels & more, All); search, status, scene, town, plays, ages, and capacity filters; archived ones are a link under the bar.
 - Scenes, including scenes inside bigger ones, and town search from GeoNames.
 - Status and "we've played together," saved as soon as you change them. Marking a band offers to mark its current members too (and a person, their bands); new members can take the band's town, scenes, and played together.
@@ -154,7 +154,9 @@ npx supabase db push --linked
 
 ### Creating the workspace and adding members
 
-Until the invite flow exists, add members in Supabase. Create their account under Authentication > Users > Add user (email, password, auto-confirm), share the password with them privately, then add the membership in the SQL editor. Public sign-ups should stay turned off in the Supabase auth settings.
+Until the invite flow exists, add members in Supabase. Create their account under Authentication > Users > Add user (email, password, auto-confirm), share the password with them privately, then add the membership in the SQL editor. They can change the password themselves under Account Settings. Public sign-ups should stay turned off in the Supabase auth settings.
+
+Password reset and email change links land on `/auth/callback`. Its URLs (`https://seeens.com/auth/callback`, `https://www.seeens.com/auth/callback`, and the preview and localhost ones) need to be allowed under Authentication > URL Configuration > Redirect URLs, or covered by a wildcard there.
 
 ```sql
 -- once

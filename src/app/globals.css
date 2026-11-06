@@ -1639,6 +1639,114 @@
     display: block;
   }
 
+  /* Account menu (#67, Figma Nav Chip Style=Account and the account menu
+     proposal): the band's picture, "Band & You", a caret. Opens a window-
+     style panel under it, right-aligned to the header. */
+  .account-menu {
+    position: relative;
+  }
+  .account-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: var(--control-height);
+    max-width: 22rem;
+    padding-right: var(--space-xs);
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    font-family: var(--type-mono);
+    font-size: 14px;
+    line-height: 20px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .account-chip::-webkit-details-marker {
+    display: none;
+  }
+  .account-chip:hover {
+    background: var(--color-bg-hover);
+  }
+  .account-menu[open] > .account-chip,
+  .account-menu[open] > .account-chip:hover {
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
+  .account-chip-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* A long band name gives way first; "& You" stays readable. */
+  .account-chip-band {
+    display: inline-block;
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+  }
+  /* Figma Avatar: 36px, the band's photo over its initials, edge to edge
+     with the chip's left border. */
+  .account-avatar {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: calc(var(--control-height) - 2px);
+    height: calc(var(--control-height) - 2px);
+    overflow: hidden;
+    border-right: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+  }
+  .account-avatar > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .account-menu-panel {
+    position: absolute;
+    top: calc(100% + var(--space-sm));
+    right: 0;
+    z-index: 40;
+    width: 16.25rem;
+    padding: var(--space-lg);
+    border: var(--stroke-strong) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-hard);
+  }
+  /* The groups: band, you, signing out, with hairlines between. In the
+     phone menu they follow the nav under a rule. */
+  .menu-groups {
+    display: flex;
+    flex-direction: column;
+  }
+  .menu-groups > * + * {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .menu-panel > .menu-groups {
+    padding-top: var(--space-xl);
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .menu-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .menu-group > .caption {
+    text-align: right;
+  }
+  .menu-item {
+    width: 100%;
+    justify-content: flex-end;
+    gap: var(--space-xs);
+  }
+
   /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):
      the full header row needs about 740px. A <details>, so it
      opens without JavaScript. Open, the button turns ink and shows Close. */

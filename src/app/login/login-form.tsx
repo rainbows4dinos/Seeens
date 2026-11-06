@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn, type SignInState } from "@/lib/auth/actions";
 
 export function LoginForm() {
-  const next = useSearchParams().get("next") ?? "/";
+  const params = useSearchParams();
+  const next = params.get("next") ?? "/";
+  const expired = params.get("link") === "expired";
   const [state, action, pending] = useActionState<SignInState | undefined, FormData>(
     signIn,
     undefined,
@@ -14,6 +17,11 @@ export function LoginForm() {
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
       <input type="hidden" name="next" value={next} />
+      {expired ? (
+        <p role="status" className="text-sm font-medium">
+          That link has run out or was already used. Sign in, or ask for a new reset link.
+        </p>
+      ) : null}
 
       <div className="flex flex-col gap-2">
         <label htmlFor="email" className="label">
@@ -61,6 +69,9 @@ export function LoginForm() {
       <button type="submit" disabled={pending} className="button-primary">
         {pending ? "Signing In…" : "Sign In"}
       </button>
+      <Link href="/forgot-password" className="link self-start text-sm">
+        Forgot your password?
+      </Link>
     </form>
   );
 }

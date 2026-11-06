@@ -69,18 +69,19 @@ export async function requireWorkspaceId(): Promise<string> {
 }
 
 // The connection marked "This is us" in the current workspace, if there is
-// one. The header's band chip opens it (#123). Archived still counts.
-export const getUsConnectionId = cache(async (): Promise<string | null> => {
+// one: the header's band item opens it (#123), and its photo is the account
+// menu's picture. Archived still counts.
+export const getUsConnection = cache(async (): Promise<{ id: string; photoPath: string | null } | null> => {
   const membership = await getMembership();
   if (!membership) return null;
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("connections")
-    .select("id")
+    .select("id, photo_path")
     .eq("workspace_id", membership.workspaceId)
     .eq("is_us", true)
     .limit(1)
     .maybeSingle();
-  if (error) return null;
-  return data?.id ?? null;
+  if (error || !data) return null;
+  return { id: data.id, photoPath: data.photo_path };
 });
