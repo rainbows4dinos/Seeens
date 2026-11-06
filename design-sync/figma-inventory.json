@@ -1,6 +1,6 @@
 {
  "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
- "readAt": "2026-11-04 (re-read after Search Field rebuild)",
+ "readAt": "2026-11-05 (color/bg/raised, Shadow/Soft, Directory Row State variants)",
  "variables": {
   "Primitives": {
    "modes": [
@@ -55,7 +55,8 @@
     "color/focus/outline": "@ink/900",
     "color/focus/glow": "@plate/magenta",
     "color/accent/primary": "@ink/900",
-    "color/bg/hover": "@ground/200"
+    "color/bg/hover": "@ground/200",
+    "color/bg/raised": "@paper/photo"
    }
   },
   "Spacing": {
@@ -189,7 +190,8 @@
   "Shadow/Photo": "drop 0 3 6 0 #00000038",
   "Misregister/Cyan": "drop 2 1 0 0 #00b4e6",
   "Texture/Rub-down": "texture 1.5 | noise",
-  "Texture/Rub-down on paper": "texture 1.5 | noise"
+  "Texture/Rub-down on paper": "texture 1.5 | noise",
+  "Shadow/Soft": "drop 4 4 0 0 #1414144d"
  },
  "paintStyles": {},
  "components": {

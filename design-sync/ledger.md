@@ -1,23 +1,23 @@
 # Design sync ledger
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
-- Inventory read: 2026-11-04 (re-read after Search Field rebuild)
-- Code baseline: e5f4c27 (2026-11-04)
-- Rendered 2026-11-04 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
+- Inventory read: 2026-11-05 (color/bg/raised, Shadow/Soft, Directory Row State variants)
+- Code baseline: edc418a (2026-11-05)
+- Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
 ## Inventory
 
 | Category | Figma count | Ledger rows | Synced | Open |
 |---|---|---|---|---|
-| Variables | 58 | 7 groups (58 items) | 5 | 0 |
+| Variables | 59 | 8 groups (59 items) | 6 | 0 |
 | Text styles | 13 | 13 | 13 | 0 |
-| Effect styles | 5 | 5 | 3 | 0 |
+| Effect styles | 6 | 6 | 4 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
 | Components | 31 | 31 | 2 | 24 |
 | Figma hygiene | - | 6 | 0 | 0 |
 
-Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
+Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 25
 
 ## Log
 
@@ -73,7 +73,7 @@ Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
 | C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-17 | Components | App Footer | 48:197 | `src/app/(app)/layout.tsx footer` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-18 | Components | Save Bar | 48:209 | `.save-bar` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-19 | Components | Directory Row | 50:189 | `src/components/directory-results.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
+| C-19 | Components | Directory Row | 50:189 | `src/components/directory-results.tsx` | structure-drift | pending | Nov 5 (#157): State variant added (Default, Hover, Selected). Hover = color/bg/raised + Shadow/Soft + hairline; Selected adds a 6px ink bar. Code: .row-link :hover/:focus-visible/[aria-current]. Rest of layout not re-audited. |
 | C-20 | Components | Follow-up Row | 50:207 | `src/app/(app)/follow-ups/page.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-21 | Components | Scene Row | 50:209 | `src/app/(app)/scenes/page.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-22 | Components | Affiliation Row | 50:217 | `src/components/links-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
@@ -93,6 +93,8 @@ Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 23
 | H-06 | Figma hygiene | Directory Row / Thumb initials | 109:79 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%. |
 | T-13 | Text styles | Mono/Hint | text style | `src/app/globals.css .search-hint` | match | synced | New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key. |
 | C-31 | Components | Keyboard Hint | 133:4158 | `kbd.search-hint` | match | pending | New in Figma Nov 4. Figma has a 2px corner radius; code corners are square everywhere (radius/none). Needs a call. |
+| V-08 | Variables | color/bg/raised (1) | Color | `src/app/globals.css --color-bg-raised` | missing-in-code | synced | New Nov 5 (#157): rows and cards lifted on hover or when open. Aliases paper/photo. Controls keep color/bg/hover. |
+| E-06 | Effect styles | Shadow/Soft | effect style | `src/app/globals.css --shadow-soft` | missing-in-code | synced | New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place. |
 
 ## Component checklists
 
