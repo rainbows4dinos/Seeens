@@ -54,12 +54,18 @@ export function ConnectionCard({
   tags,
   today,
   detail,
+  open = false,
+  replace = false,
 }: {
   connection: CardConnection;
   tags: ReactNode[];
   today: string;
   /** One more line under the name: members, the bands someone plays in, a note (#122). */
   detail?: string | null;
+  /** Open in the quick view (#126): it stays lifted. */
+  open?: boolean;
+  /** Switching from another open connection replaces it in history. */
+  replace?: boolean;
 }) {
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
@@ -71,7 +77,11 @@ export function ConnectionCard({
   const cardTilt = ((lean < 0.5 ? -1 : 1) * (0.6 + (lean % 0.5) * 1.2)).toFixed(2);
 
   return (
-    <Link href={`/connections/${c.id}`} className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
+    <Link
+      href={`/connections/${c.id}`}
+      replace={replace}
+      aria-current={open ? "true" : undefined}
+      className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
       <span className="card-print" aria-hidden="true">
         {/* Initials sit under the photo, so a photo that fails to load never leaves a blank print. */}
         <span className="card-print-initials">{initials(c.name)}</span>

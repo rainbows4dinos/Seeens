@@ -111,7 +111,7 @@ function EntryRow({ entry: e, mine, today }: { entry: Entry; mine: boolean; toda
   );
 }
 
-function LogForm({
+export function LogForm({
   connectionId,
   today,
   onClose,

@@ -60,13 +60,20 @@ async function signIn(context) {
 }
 
 await mkdir(OUT, { recursive: true });
+// Loads a connection's full page. Clicking a directory row opens the quick
+// view instead (#126), so go to the row's address directly.
+async function openFullPage(page, name) {
+  const href = await page.getByRole("link", { name: new RegExp(name) }).first().getAttribute("href");
+  await page.goto(`${BASE_URL}${href}`);
+}
+
 // Adds each sample photo through the photo copier, skipping any connection
 // that already has one, so running the script twice is fine.
 async function addPhotos(page) {
   for (const [name, file, lighter = 0] of PHOTOS) {
     await page.goto(`${BASE_URL}/?type=all&layout=list&q=${encodeURIComponent(name)}`);
-    await page.getByRole("link", { name: new RegExp(name) }).first().click();
-    await page.waitForURL(/\/connections\//);
+    // A row click opens the quick view; the photo copier is on the full page.
+    await openFullPage(page, name);
     // The print's button says Add or Change; only add where there's none.
     const print = page.getByRole("button", { name: new RegExp(`(Add a|Change the) photo of ${name}`) });
     await print.waitFor();
@@ -121,9 +128,14 @@ try {
   await page.goto(`${BASE_URL}/?type=all&status=lets_play`);
   await shot(page, "lets-play.png");
 
-  await page.goto(`${BASE_URL}/`);
+  // A row opens the quick view beside the list.
+  await page.goto(`${BASE_URL}/?type=bands`);
   await page.getByRole("link", { name: /The Tin Hollows/ }).first().click();
-  await page.waitForURL(/\/connections\//);
+  await page.getByRole("complementary", { name: "Quick view" }).getByRole("heading", { name: "The Tin Hollows" }).waitFor();
+  await shot(page, "quick-view.png");
+
+  await page.goto(`${BASE_URL}/`);
+  await openFullPage(page, "The Tin Hollows");
   await shot(page, "connection.png", { fullPage: true });
 
   await page.goto(`${BASE_URL}/scenes`);
@@ -138,6 +150,12 @@ try {
   const phone = await signIn(mobile);
   await phone.goto(`${BASE_URL}/`);
   await shot(phone, "mobile-directory.png");
+
+  // On a phone the quick view is a sheet under the header.
+  await phone.goto(`${BASE_URL}/?type=venues`);
+  await phone.getByRole("link", { name: /The Lantern Room/ }).first().click();
+  await phone.getByRole("complementary", { name: "Quick view" }).getByRole("heading", { name: "The Lantern Room" }).waitFor();
+  await shot(phone, "mobile-quick-view.png");
   await mobile.close();
 } finally {
   await browser.close();

@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-05 (color/bg/raised, Shadow/Soft, Directory Row State variants)
-- Code baseline: edc418a (2026-11-05)
+- Code baseline: 41d7bf4 (2026-11-05)
 - Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -70,7 +70,7 @@ Status totals: fixed-in-figma 7, pending 24, skipped 8, synced 25
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
-| C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
+| C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | pending | Nov 5 (#126): Figma App Header now has a surface fill, 16px padding and a 2px ink bottom rule, and is pinned. Code: .app-header (sticky, inset 2px rule, --header-h 68px); the directory bar pins under it. Rest not re-audited. |
 | C-17 | Components | App Footer | 48:197 | `src/app/(app)/layout.tsx footer` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-18 | Components | Save Bar | 48:209 | `.save-bar` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-19 | Components | Directory Row | 50:189 | `src/components/directory-results.tsx` | structure-drift | pending | Nov 5 (#157): State variant added (Default, Hover, Selected). Hover = color/bg/raised + Shadow/Soft + hairline; Selected adds a 6px ink bar. Code: .row-link :hover/:focus-visible/[aria-current]. Rest of layout not re-audited. |

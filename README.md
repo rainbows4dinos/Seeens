@@ -24,6 +24,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | **Let's play.** The booking backlog: All, filtered to Let's play, and by town or scene if you like. | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest. |
 | ![Follow-ups grouped by date](docs/screenshots/follow-ups.png) | ![The directory on a phone](docs/screenshots/mobile-directory.png) |
 | **Follow-ups.** Every next step, with dates as plain facts and no overdue alarms. | **On a phone.** The same app, built for the merch table. |
+| ![The directory with The Tin Hollows open in the quick view panel beside it](docs/screenshots/quick-view.png) | ![The Lantern Room's quick view as a sheet on a phone](docs/screenshots/mobile-quick-view.png) |
+| **Quick view.** Click a row and the connection opens beside the list: change status, handle the next step, log outreach. | **Quick view on a phone.** The same panel as a sheet under the header. |
 
 ## MVP
 
