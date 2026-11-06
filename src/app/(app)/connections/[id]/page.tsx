@@ -29,6 +29,10 @@ import {
 import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
+import { MergeWith } from "@/components/merge-with";
+import { MergedNotice, UnmergedNotice } from "@/components/merged-notice";
+import { loadUndoableMerge, loadUndoneMerge } from "@/lib/connections/merge";
+import { matchKey } from "@/lib/import/rows";
 import { LinksPanel } from "@/components/links-panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { QuickStatus } from "@/components/quick-status";
@@ -54,9 +58,15 @@ async function Connection({
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
 
-  const [{ id }, { saved, offer, missed_photo, missed_links }] = await Promise.all([params, searchParams]);
-  const [detail, user, sceneOptions] = await Promise.all([getConnection(id), getCurrentUser(), listSceneOptions()]);
+  const [{ id }, { saved, offer, missed_photo, missed_links, merged, unmerged }] = await Promise.all([params, searchParams]);
   const tz = membership.timeZone;
+  const [detail, user, sceneOptions, lastMerge, undone] = await Promise.all([
+    getConnection(id),
+    getCurrentUser(),
+    listSceneOptions(),
+    loadUndoableMerge(id, tz),
+    typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
+  ]);
   const today = todayISO(new Date(), tz);
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
   // A label we're on is "our label": from our band's label link, not a checkbox.
@@ -89,7 +99,9 @@ async function Connection({
   // summary. Status, plans, outreach, connections, and the photo save on
   // their own as before; the rest saves through AutosaveForm.
   return (
-    <AutosaveProvider>
+    // A merge or undo changes this one's fields from the server: start the
+    // forms fresh rather than have them notice the change and save it back.
+    <AutosaveProvider key={`${lastMerge?.id ?? ""}:${typeof unmerged === "string" ? unmerged : ""}`}>
     <article className="page-measure flex flex-col gap-8">
       <BackButton
         href={directoryHrefFor(c.kind, c.group_type, archived)}
@@ -99,6 +111,12 @@ async function Connection({
       <p role="status" className="text-sm font-medium empty:hidden">
         {saved ? savedNote(missed_photo === "1", Number(missed_links) || 0) : ""}
       </p>
+
+      {/* Just merged (#169): say what came in, with Undo. Later visits get a quiet line at the bottom. */}
+      {undone ? <UnmergedNotice merged={undone} /> : null}
+      {lastMerge && merged === "1" ? (
+        <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} />
+      ) : null}
 
       {archived ? (
         <p className="window p-3 text-sm font-medium">
@@ -321,11 +339,28 @@ async function Connection({
         <p className="text-sm text-muted">
           Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
         </p>
-        <ArchiveControl id={c.id} name={c.name} archived={archived} />
+        {lastMerge && merged !== "1" ? (
+          <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} quiet />
+        ) : null}
+        <div className="flex flex-wrap items-start gap-3">
+          <MergeWith id={c.id} name={c.name} options={mergeOptions(c, detail.candidates)} />
+          <ArchiveControl id={c.id} name={c.name} archived={archived} />
+        </div>
       </footer>
     </article>
     </AutosaveProvider>
   );
+}
+
+// Others to merge with, those with a matching name first (#169).
+function mergeOptions(
+  c: { name: string },
+  candidates: { id: string; name: string; kind: string; group_type: string | null; person_roles: string[]; catalog: string }[],
+) {
+  const key = matchKey(c.name);
+  return [...candidates]
+    .sort((a, b) => Number(matchKey(b.name) === key) - Number(matchKey(a.name) === key))
+    .map((o) => ({ value: o.id, label: o.name, hint: o.catalog }));
 }
 
 // "Members (2) · Labels (1)": what's linked, for a folded Connections panel.

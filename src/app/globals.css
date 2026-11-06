@@ -1785,6 +1785,44 @@
     }
   }
 
+  /* Merge review (#169): the duplicates side by side as windows, up to
+     three across; four or more stack so none get too narrow. */
+  .merge-cards {
+    display: grid;
+    gap: var(--space-xl);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    @media (width >= 48rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (width >= 76rem) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .merge-cards[data-count="2"] {
+    @media (width >= 76rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .merge-cards-stacked {
+    @media (width >= 48rem) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    @media (width >= 76rem) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .merge-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .merge-card-title {
+    cursor: default;
+    user-select: auto;
+  }
+
   /* Back to Directory on a profile or Add: pinned under the header as the
      page scrolls, floating over the panels. */
   .back-pin {

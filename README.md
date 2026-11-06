@@ -40,6 +40,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
 - **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV, and import a spreadsheet of bands, venues, or people. The import guesses each column, matches towns, and shows every row before saving. Rows already in the directory only get their blanks filled. Anything unreadable or marked with a ? goes into notes, not a field, and venue bookers become Booked By links.
+- **Duplicates:** a "possible duplicates" link lists connections with matching names, and Merge with… on a profile picks any others. The merge review puts them side by side: the one you keep wins, the rest fill its blanks, and their links, scenes, connections, outreach, and plans move over. A merge can be undone for 30 days.
 
 Search by name and filter by status, scene (a bigger scene includes the scenes inside it), town, and what people play, or open the archived ones from the count line. Who you're eyeing is picked by hand; automated discovery is deferred.
 
@@ -100,6 +101,7 @@ The MVP launched on November 1, 2026. What it does:
 - Outreach log, next actions, and the Follow-ups page.
 - Connection photos through the copier, shown on cards, list rows, and the connection page.
 - CSV export, and spreadsheet import with a review step.
+- Merging duplicates, with undo for 30 days.
 - Error and not-found pages, and phase 1 design tokens from Figma.
 
 Database schema, Row Level Security, and access tests are in `supabase/`. What's next is in the Roadmap above.
@@ -133,7 +135,7 @@ Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `a
 
 The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. Signing up does not grant access; a member has to be added.
 
-History is kept, not overwritten: connections are archived instead of deleted, status changes are logged, replacing a next action closes the old one (`set_next_action`), and outreach entries can only be changed by their author.
+History is kept, not overwritten: connections are archived instead of deleted (merged duplicates are hidden for 30 days, then deleted, with everything they held moved to the one kept), status changes are logged, replacing a next action closes the old one (`set_next_action`), and outreach entries can only be changed by their author.
 
 Saves that touch several tables run as one database function, so they either fully land or change nothing: `save_connection` (the connection, its town, links, and scenes) and `create_linked_connection` (adding someone new as a member, label, or related band).
 

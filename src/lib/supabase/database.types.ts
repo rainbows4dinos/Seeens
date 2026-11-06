@@ -97,16 +97,40 @@ isOneToOne: false
       referencedColumns: ["workspace_id","id"]
     }
                   ]
-                },"connections": {
+                },"connection_merges": {
                   Row: {
-                    "archived_at": string | null,"attributes": Json,"can_help_with": (string)[],"catalog_no": number,"created_at": string,"created_by": string | null,"email": string | null,"group_type": Database["public"]['Enums']["group_type"] | null,"id": string,"is_us": boolean,"kind": Database["public"]['Enums']["connection_kind"],"locality_id": string | null,"name": string,"notes": string | null,"person_roles": (Database["public"]['Enums']["person_role"])[],"phone": string | null,"photo_alt": string | null,"photo_original_path": string | null,"photo_path": string | null,"photo_settings": Json | null,"played_together": boolean,"status": Database["public"]['Enums']["connection_status"],"updated_at": string,"workspace_id": string
+                    "id": string,"keep_id": string,"log": Json,"merged_at": string,"merged_by": string | null,"merged_ids": (string)[],"merged_summary": Json,"purged_at": string | null,"undone_at": string | null,"undone_by": string | null,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived_at"?: string | null,"attributes"?: Json,"can_help_with"?: (string)[],"catalog_no"?: number,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"group_type"?: Database["public"]['Enums']["group_type"] | null,"id"?: string,"is_us"?: boolean,"kind"?: Database["public"]['Enums']["connection_kind"],"locality_id"?: string | null,"name": string,"notes"?: string | null,"person_roles"?: (Database["public"]['Enums']["person_role"])[],"phone"?: string | null,"photo_alt"?: string | null,"photo_original_path"?: string | null,"photo_path"?: string | null,"photo_settings"?: Json | null,"played_together"?: boolean,"status"?: Database["public"]['Enums']["connection_status"],"updated_at"?: string,"workspace_id": string
+                    "id"?: string,"keep_id": string,"log"?: Json,"merged_at"?: string,"merged_by"?: string | null,"merged_ids": (string)[],"merged_summary"?: Json,"purged_at"?: string | null,"undone_at"?: string | null,"undone_by"?: string | null,"workspace_id": string
                   }
                   Update: {
-                    "archived_at"?: string | null,"attributes"?: Json,"can_help_with"?: (string)[],"catalog_no"?: number,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"group_type"?: Database["public"]['Enums']["group_type"] | null,"id"?: string,"is_us"?: boolean,"kind"?: Database["public"]['Enums']["connection_kind"],"locality_id"?: string | null,"name"?: string,"notes"?: string | null,"person_roles"?: (Database["public"]['Enums']["person_role"])[],"phone"?: string | null,"photo_alt"?: string | null,"photo_original_path"?: string | null,"photo_path"?: string | null,"photo_settings"?: Json | null,"played_together"?: boolean,"status"?: Database["public"]['Enums']["connection_status"],"updated_at"?: string,"workspace_id"?: string
+                    "id"?: string,"keep_id"?: string,"log"?: Json,"merged_at"?: string,"merged_by"?: string | null,"merged_ids"?: (string)[],"merged_summary"?: Json,"purged_at"?: string | null,"undone_at"?: string | null,"undone_by"?: string | null,"workspace_id"?: string
+                  }
+                  Relationships: []
+                },"connection_not_duplicates": {
+                  Row: {
+                    "connection_a": string,"connection_b": string,"created_at": string,"created_by": string | null,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "connection_a": string,"connection_b": string,"created_at"?: string,"created_by"?: string | null,"workspace_id": string
+                  }
+                  Update: {
+                    "connection_a"?: string,"connection_b"?: string,"created_at"?: string,"created_by"?: string | null,"workspace_id"?: string
+                  }
+                  Relationships: []
+                },"connections": {
+                  Row: {
+                    "archived_at": string | null,"attributes": Json,"can_help_with": (string)[],"catalog_no": number,"created_at": string,"created_by": string | null,"email": string | null,"group_type": Database["public"]['Enums']["group_type"] | null,"id": string,"is_us": boolean,"kind": Database["public"]['Enums']["connection_kind"],"locality_id": string | null,"merged_at": string | null,"merged_into": string | null,"name": string,"notes": string | null,"person_roles": (Database["public"]['Enums']["person_role"])[],"phone": string | null,"photo_alt": string | null,"photo_original_path": string | null,"photo_path": string | null,"photo_settings": Json | null,"played_together": boolean,"status": Database["public"]['Enums']["connection_status"],"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "archived_at"?: string | null,"attributes"?: Json,"can_help_with"?: (string)[],"catalog_no"?: number,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"group_type"?: Database["public"]['Enums']["group_type"] | null,"id"?: string,"is_us"?: boolean,"kind"?: Database["public"]['Enums']["connection_kind"],"locality_id"?: string | null,"merged_at"?: string | null,"merged_into"?: string | null,"name": string,"notes"?: string | null,"person_roles"?: (Database["public"]['Enums']["person_role"])[],"phone"?: string | null,"photo_alt"?: string | null,"photo_original_path"?: string | null,"photo_path"?: string | null,"photo_settings"?: Json | null,"played_together"?: boolean,"status"?: Database["public"]['Enums']["connection_status"],"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "archived_at"?: string | null,"attributes"?: Json,"can_help_with"?: (string)[],"catalog_no"?: number,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"group_type"?: Database["public"]['Enums']["group_type"] | null,"id"?: string,"is_us"?: boolean,"kind"?: Database["public"]['Enums']["connection_kind"],"locality_id"?: string | null,"merged_at"?: string | null,"merged_into"?: string | null,"name"?: string,"notes"?: string | null,"person_roles"?: (Database["public"]['Enums']["person_role"])[],"phone"?: string | null,"photo_alt"?: string | null,"photo_original_path"?: string | null,"photo_path"?: string | null,"photo_settings"?: Json | null,"played_together"?: boolean,"status"?: Database["public"]['Enums']["connection_status"],"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -299,6 +323,16 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            "merge_connections":
+{ Args: { "p_keep": string,"p_merge": (string)[],"p_photo"?: Json }; Returns: string },
+            "merged_photos_due":
+{ Args: never; Returns: (string)[] },
+            "purge_merged_connections":
+{ Args: never; Returns: number },
+            "undo_merge":
+{ Args: { "p_merge": string }; Returns: string },
+            "merged_target":
+{ Args: { "p_id": string }; Returns: string | null },
             "add_band_members":
 { Args: { "p_locality_id"?: string,"p_played_together"?: boolean,"p_scene_ids"?: (string)[],"p_band_id": string,"p_rows": Json,"p_workspace_id": string }; Returns: Json },
             "import_connections":

@@ -1,6 +1,6 @@
 import "server-only";
 import { readVenueDetails, venueDetailsToForm } from "./venue-details";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
@@ -118,7 +118,12 @@ export async function getConnection(id: string) {
   // An invalid UUID comes back as an error; treat it like a missing record.
   if (connection.error?.code === "22P02") notFound();
   if (connection.error) throw new Error("Couldn't load this connection.");
-  if (!connection.data) notFound();
+  if (!connection.data) {
+    // Merged into another one (#169): go there instead.
+    const { data: target } = await supabase.rpc("merged_target", { p_id: id });
+    if (target) redirect(`/connections/${target}`);
+    notFound();
+  }
   if (
     outgoing.error ||
     incoming.error ||

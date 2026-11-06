@@ -44,6 +44,7 @@ import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
 import { hasFilters, type DirectoryFilters } from "@/lib/connections/filters";
 import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
+import { countDuplicates } from "@/lib/connections/merge";
 
 export default function DirectoryPage({ searchParams }: PageProps<"/">) {
   return (
@@ -190,6 +191,11 @@ async function Directory({
                   {c.archived} archived
                 </Link>
               ) : null}
+              {archived ? null : (
+                <Suspense fallback={null}>
+                  <DuplicatesLink />
+                </Suspense>
+              )}
             </div>
 
             {c.matched === 0 && filtering ? (
@@ -524,6 +530,18 @@ function AddConnection({ tab, className, iconOnly = false }: { tab: Tab; classNa
     >
       <Add size={16} aria-hidden="true" />
       {iconOnly ? null : t.add}
+    </Link>
+  );
+}
+
+// "2 possible duplicates" (#169), across the whole directory. Loads on its
+// own so the list doesn't wait for it.
+async function DuplicatesLink() {
+  const n = await countDuplicates();
+  if (!n) return null;
+  return (
+    <Link href="/duplicates" className="link">
+      {n} possible {n === 1 ? "duplicate" : "duplicates"}
     </Link>
   );
 }
