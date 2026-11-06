@@ -15,7 +15,9 @@ import {
   kindLabel,
   statusLabel,
 } from "@/lib/feedback/labels";
+import { Camera, ChevronDown } from "@carbon/icons-react";
 import { FeedbackControls } from "./feedback-controls";
+import { FeedbackItem } from "./feedback-item";
 
 export const metadata: Metadata = { title: "Feedback Inbox · Seeens" };
 
@@ -69,7 +71,7 @@ async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedbac
         <p className="caption">App Admin</p>
         <h1 className="display-l">Feedback Inbox</h1>
         <p className="text-muted">
-          {open?.length ?? 0} new. Everything testers sent, newest first. Only app admins see this page.
+          {open?.length ?? 0} new. Everything testers sent, newest first; open one to sort it. Only app admins see this page.
         </p>
       </div>
 
@@ -124,63 +126,75 @@ async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedbac
       </form>
 
       {items?.length ? (
-        <ul className="flex flex-col gap-6">
+        <ul className="window rows flex flex-col">
           {items.map((f) => (
-            <li key={f.id} id={`f-${f.id}`} className="window flex scroll-mt-28 flex-col gap-4 p-4">
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="tag">{statusLabel(f.status)}</span>
-                <span className="font-medium">{kindLabel(f.kind)}</span>
-                <span className="text-muted">
-                  from {f.sender_name}
-                  {f.band_name ? ` (${f.band_name})` : ""}
-                  {f.user_id ? "" : ", account deleted"} · {formatDate(f.created_at, tz)}
-                </span>
-              </div>
-              <p className="break-words whitespace-pre-line">{f.body}</p>
-              {f.screenshot_path ? (
-                <a href={`/api/feedback-screenshots/${f.screenshot_path}`} target="_blank" rel="noopener" className="self-start">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- private, served by our own route */}
-                  <img
-                    src={`/api/feedback-screenshots/${f.screenshot_path}`}
-                    alt={`Screenshot from ${f.sender_name}`}
-                    className="max-h-64 max-w-full border border-strong"
-                    loading="lazy"
-                  />
-                </a>
-              ) : null}
-              <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
-                {f.path ? (
-                  <>
-                    <dt className="text-muted">Page</dt>
-                    <dd className="break-all">{f.path}</dd>
-                  </>
-                ) : null}
-                {f.error_digest ? (
-                  <>
-                    <dt className="text-muted">Error</dt>
-                    <dd className="break-all">{f.error_digest}</dd>
-                  </>
-                ) : null}
-                <dt className="text-muted">Browser</dt>
-                <dd title={f.user_agent ?? undefined}>{describeBrowser(f.user_agent)}</dd>
-                {f.screen ? (
-                  <>
-                    <dt className="text-muted">Window</dt>
-                    <dd>{f.screen}</dd>
-                  </>
-                ) : null}
-                <dt className="text-muted">Version</dt>
-                <dd>{f.app_version ?? "Unknown"}</dd>
-              </dl>
-              <FeedbackControls
+            <li key={f.id}>
+              <FeedbackItem
                 id={f.id}
-                status={f.status}
-                githubUrl={f.github_url ?? ""}
-                draftUrl={issueDraftUrl(f)}
-                sender={f.sender_name}
-                canTell={Boolean(f.user_id)}
-                toldOn={f.notified_at ? formatDate(f.notified_at, tz) : null}
-              />
+                summary={
+                  <>
+                    <span className="tag shrink-0">{statusLabel(f.status)}</span>
+                    <span className="shrink-0 font-medium">{kindLabel(f.kind)}</span>
+                    <span className="min-w-0 flex-1 basis-40 truncate">{f.body.split("\n")[0]}</span>
+                    {f.screenshot_path ? <Camera size={16} aria-label="With a screenshot" className="shrink-0" /> : null}
+                    <span className="shrink-0 text-sm text-muted">
+                      {f.sender_name} · {formatDate(f.created_at, tz)}
+                    </span>
+                    <ChevronDown size={16} aria-hidden="true" className="feedback-item-caret shrink-0" />
+                  </>
+                }
+              >
+                <p className="text-sm text-muted">
+                  From {f.sender_name}
+                  {f.band_name ? ` (${f.band_name})` : ""}
+                  {f.user_id ? "" : ", account deleted"}
+                </p>
+                <p className="break-words whitespace-pre-line">{f.body}</p>
+                {f.screenshot_path ? (
+                  <a href={`/api/feedback-screenshots/${f.screenshot_path}`} target="_blank" rel="noopener" className="self-start">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- private, served by our own route */}
+                    <img
+                      src={`/api/feedback-screenshots/${f.screenshot_path}`}
+                      alt={`Screenshot from ${f.sender_name}. Opens full size.`}
+                      className="max-h-32 max-w-full border border-strong"
+                      loading="lazy"
+                    />
+                  </a>
+                ) : null}
+                <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+                  {f.path ? (
+                    <>
+                      <dt className="text-muted">Page</dt>
+                      <dd className="break-all">{f.path}</dd>
+                    </>
+                  ) : null}
+                  {f.error_digest ? (
+                    <>
+                      <dt className="text-muted">Error</dt>
+                      <dd className="break-all">{f.error_digest}</dd>
+                    </>
+                  ) : null}
+                  <dt className="text-muted">Browser</dt>
+                  <dd title={f.user_agent ?? undefined}>{describeBrowser(f.user_agent)}</dd>
+                  {f.screen ? (
+                    <>
+                      <dt className="text-muted">Window</dt>
+                      <dd>{f.screen}</dd>
+                    </>
+                  ) : null}
+                  <dt className="text-muted">Version</dt>
+                  <dd>{f.app_version ?? "Unknown"}</dd>
+                </dl>
+                <FeedbackControls
+                  id={f.id}
+                  status={f.status}
+                  githubUrl={f.github_url ?? ""}
+                  draftUrl={issueDraftUrl(f)}
+                  sender={f.sender_name}
+                  canTell={Boolean(f.user_id)}
+                  toldOn={f.notified_at ? formatDate(f.notified_at, tz) : null}
+                />
+              </FeedbackItem>
             </li>
           ))}
         </ul>
