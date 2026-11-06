@@ -56,7 +56,9 @@ export async function loadDuplicateGroups() {
 
 /** How many extra copies there may be (a group of three is two), for the directory's link. */
 export async function countDuplicates() {
-  const groups = await loadDuplicateGroups();
+  // A side note on the directory: if it can't load, leave it out rather
+  // than break the page.
+  const groups = await loadDuplicateGroups().catch(() => []);
   return groups.reduce((n, g) => n + g.length - 1, 0);
 }
 
