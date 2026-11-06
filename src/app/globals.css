@@ -1368,19 +1368,27 @@
     background: var(--plate-yellow);
   }
 
-  /* Straight at rest; leans on hover (the angle is seeded per card). */
+  /* Straight at rest; on hover it leans (the angle is seeded per card) and
+     lifts off the page with Shadow/Soft, like the rows (#157). The shadow
+     follows the card's box, so the tape stays unshadowed. */
   .connection-card {
-    transition: rotate 120ms ease-out;
+    transition:
+      rotate 120ms ease-out,
+      box-shadow 120ms ease-out;
   }
-  .connection-card:hover {
+  .connection-card:hover,
+  .connection-card:focus-visible {
+    z-index: 1;
     rotate: var(--card-tilt, 0deg);
+    box-shadow: var(--shadow-soft);
   }
   @media (prefers-reduced-motion: reduce) {
     .connection-card {
       transition: none;
     }
   }
-  .connection-card:hover .card-meta {
+  .connection-card:hover .card-meta,
+  .connection-card:focus-visible .card-meta {
     background: var(--color-bg-raised);
   }
   .connection-card:focus-visible {
