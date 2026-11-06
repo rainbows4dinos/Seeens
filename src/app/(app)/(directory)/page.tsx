@@ -2,7 +2,21 @@ import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
 import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
-import { Add, Search as SearchIcon } from "@carbon/icons-react";
+import {
+  Add,
+  Bar,
+  Events,
+  EventsAlt,
+  LocationStar,
+  Music,
+  Network_1,
+  Person,
+  Recording,
+  Search as SearchIcon,
+  Store,
+  Tag,
+  type CarbonIconType,
+} from "@carbon/icons-react";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -240,6 +254,7 @@ function TypeTabs({ tab, counts, filters }: { tab: Tab; counts: TabCounts; filte
           aria-current={t.id === tab ? "page" : undefined}
           className={overflow.includes(t) ? "type-tab-overflow" : undefined}
         >
+          {TAB_ICONS[t.id]}
           <span>
             {t.id === "more" ? (
               <>
@@ -254,11 +269,27 @@ function TypeTabs({ tab, counts, filters }: { tab: Tab; counts: TabCounts; filte
       ))}
       <TypeMenu
         key={tab}
-        items={overflow.map((t) => ({ href: directoryHref(t.id, filters), label: t.label, count: counts[t.id] }))}
+        items={overflow.map((t) => ({
+          href: directoryHref(t.id, filters),
+          label: t.label,
+          count: counts[t.id],
+          icon: TAB_ICONS[t.id],
+        }))}
       />
     </nav>
   );
 }
+
+// An icon per type, so the tabs don't run together as one line of mono
+// text. All is everything, so it has none. Decorative: the words are read.
+const icon = (Icon: CarbonIconType) => <Icon size={16} aria-hidden="true" className="type-tab-icon" />;
+const TAB_ICONS: Record<Tab, React.ReactNode> = {
+  bands: icon(Events),
+  people: icon(Person),
+  venues: icon(Store),
+  more: icon(Recording),
+  all: null,
+};
 
 // The directory URL for a tab and filters. Bands is the default tab.
 function directoryHref(tab: Tab, f: DirectoryFilters) {
@@ -386,10 +417,14 @@ function FilterForm({
           <label htmlFor="f-status" className="sr-only">
             Status
           </label>
+          {/* Each filter keeps an icon, so it still says what it filters
+              once a value replaces its placeholder. */}
+          <span className="field-icon filter-status">
+            <Tag size={16} aria-hidden="true" />
           <select
             id="f-status"
             name="status"
-            className="field filter-status"
+            className="field"
             defaultValue={f.statuses.length === 1 ? f.statuses[0] : ""}
           >
             {/* Archived ones keep Avoid in view (nothing's hidden there). */}
@@ -400,8 +435,10 @@ function FilterForm({
               </option>
             ))}
           </select>
+          </span>
           <Combobox
             label="Scene"
+            icon={<Network_1 size={16} />}
             labelClassName="sr-only"
             name="scene"
             multiple={false}
@@ -419,6 +456,7 @@ function FilterForm({
           />
           <Combobox
             label="Town"
+            icon={<LocationStar size={16} />}
             labelClassName="sr-only"
             name="town"
             multiple={false}
@@ -430,6 +468,7 @@ function FilterForm({
           {showPlays ? (
             <Combobox
               label="Plays"
+              icon={<Music size={16} />}
               labelClassName="sr-only"
               name="plays"
               multiple={false}
@@ -444,6 +483,7 @@ function FilterForm({
             <>
               <Combobox
                 label="Ages"
+                icon={<Bar size={16} />}
                 labelClassName="sr-only"
                 name="ages"
                 multiple={false}
@@ -454,6 +494,7 @@ function FilterForm({
               />
               <Combobox
                 label="Capacity"
+                icon={<EventsAlt size={16} />}
                 labelClassName="sr-only"
                 name="cap"
                 multiple={false}

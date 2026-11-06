@@ -7,7 +7,11 @@ import { useEffect, useRef } from "react";
 // Phones only (#122): the type tabs that don't fit sit behind a ⋮ button at
 // the end of the row. A <details> menu, so it opens without script; with
 // script, Escape and a click outside close it.
-export function TypeMenu({ items }: { items: { href: string; label: string; count: number }[] }) {
+export function TypeMenu({
+  items,
+}: {
+  items: { href: string; label: string; count: number; icon?: React.ReactNode }[];
+}) {
   const ref = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -40,6 +44,7 @@ export function TypeMenu({ items }: { items: { href: string; label: string; coun
         {items.map((item) => (
           <li key={item.href}>
             <Link href={item.href} onClick={() => ref.current?.removeAttribute("open")}>
+              {item.icon}
               {item.label} <span className="tabular-nums">{item.count}</span>
             </Link>
           </li>
