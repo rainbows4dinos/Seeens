@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { startTransition, useEffect, useRef } from "react";
 
 // Shown when a page in the app can't load. Plain words, a way to retry,
@@ -9,6 +9,10 @@ import { startTransition, useEffect, useRef } from "react";
 export default function AppError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const report = `/feedback?kind=bug${error.digest ? `&digest=${encodeURIComponent(error.digest)}` : ""}${
+    pathname ? `&from=${encodeURIComponent(pathname)}` : ""
+  }`;
   // Refetch from the server, then re-render, so a retry really retries.
   const retry = () =>
     startTransition(() => {
@@ -35,6 +39,9 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         </button>
         <Link href="/" className="button-secondary">
           Back to the Directory
+        </Link>
+        <Link href={report} className="button-secondary">
+          Report This
         </Link>
       </div>
       {error.digest ? <p className="text-sm text-muted">Reference: {error.digest}</p> : null}

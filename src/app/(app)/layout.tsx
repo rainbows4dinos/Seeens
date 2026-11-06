@@ -8,6 +8,8 @@ import { AccountMenu } from "@/components/account-menu";
 import { Photo } from "@/components/photo";
 import { MainNav } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
+import { FeedbackLink } from "@/components/feedback-link";
+import { createClient } from "@/lib/supabase/server";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -25,11 +27,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
               </Link>
+              {/* Everyone is a tester for now (#71). */}
+              <span className="tag">Beta</span>
               <div className="hidden md:block">
                 <MainNav />
               </div>
             </div>
-            <div className="hidden md:block">
+            <div className="hidden items-center gap-2 md:flex">
+              <FeedbackLink className="nav-chip" />
               <Suspense fallback={<span className="caption">Loading…</span>}>
                 <Account />
               </Suspense>
@@ -39,6 +44,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               opens over the page below it. */}
           <MobileMenu>
             <MainNav layout="menu" />
+            <FeedbackLink className="nav-chip w-full justify-end" />
             <Suspense fallback={<span className="caption self-end">Loading…</span>}>
               <Account layout="menu" />
             </Suspense>
@@ -74,6 +80,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   // the page's own error state explains what happened.
   const membership = await getMembership().catch(() => null);
   const us = membership ? await getUsConnection() : null;
+  const { data: appAdmin } = await (await createClient()).rpc("is_app_admin");
   const name = membership?.displayName ?? user.email ?? "you";
 
   // Figma account menu (#67): the band, you, then signing out. The band item
@@ -102,6 +109,11 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
         <Link href="/account" className="nav-chip menu-item">
           Account Settings
         </Link>
+        {appAdmin ? (
+          <Link href="/admin/feedback" className="nav-chip menu-item">
+            Feedback Inbox
+          </Link>
+        ) : null}
       </div>
       <form action="/auth/signout" method="post" className="menu-group">
         <button type="submit" className="nav-chip menu-item">
