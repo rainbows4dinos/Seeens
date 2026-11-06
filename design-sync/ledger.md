@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)
-- Code baseline: 3665f53 (2026-11-05)
+- Code baseline: 2c7fe7f (2026-11-05)
 - Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -10,14 +10,14 @@
 
 | Category | Figma count | Ledger rows | Synced | Open |
 |---|---|---|---|---|
-| Variables | 60 | 9 groups (60 items) | 6 | 1 |
+| Variables | 60 | 9 groups (60 items) | 7 | 0 |
 | Text styles | 13 | 13 | 13 | 0 |
-| Effect styles | 6 | 6 | 3 | 1 |
+| Effect styles | 6 | 6 | 4 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 34 | 34 | 6 | 23 |
+| Components | 34 | 34 | 12 | 17 |
 | Figma hygiene | - | 6 | 0 | 0 |
 
-Status totals: fixed-in-figma 7, needs-decision 3, needs-figma-fix 1, pending 21, skipped 8, synced 28
+Status totals: fixed-in-figma 7, needs-figma-fix 2, pending 15, skipped 8, synced 36
 
 ## Log
 
@@ -51,27 +51,27 @@ Status totals: fixed-in-figma 7, needs-decision 3, needs-figma-fix 1, pending 21
 | T-10 | Text styles | Mono/Label | text style | `src/app/globals.css .label` | match | synced | text-style-classes: match. Font loads via Fontsource in src/app/layout.tsx. |
 | T-11 | Text styles | Mono/Caption | text style | `src/app/globals.css .caption` | value-drift | synced | font-size 11px -> 12px (Figma 12/16, 5%, uppercase). .tag follows it.. Font loads via Fontsource in src/app/layout.tsx. |
 | T-12 | Text styles | Hand/Note | text style | `src/app/globals.css .hand` | match | synced | text-style-classes: match. Font loads via Fontsource in src/app/layout.tsx. |
-| E-01 | Effect styles | Shadow/Hard | effect style | `src/app/globals.css --shadow-hard` | match | pending | Re-read Nov 5 evening: Figma Shadow/Hard is now two drops, 5 5 0 0 ink/900 plus 1 1 0 0 paper/photo (#fbfaf5). Code --shadow-hard has only the first. Value drift. |
+| E-01 | Effect styles | Shadow/Hard | effect style | `src/app/globals.css --shadow-hard` | match | synced | Nov 5: Figma's second drop (1 1 0 0 paper/photo) is a sliver of paper between the box and its ink shadow. Code: --shadow-hard is now 1px 1px 0 0 paper-photo, 5px 5px 0 0 ink-900. |
 | E-02 | Effect styles | Shadow/Photo | effect style | `src/app/globals.css --shadow-photo` | match | synced | Matches: 0 3 6 0 rgb(0 0 0 / 0.22) |
 | E-03 | Effect styles | Misregister/Cyan | effect style | `src/app/globals.css --misregister-cyan` | match | synced | Matches: 2 1 0 plate/cyan |
 | E-04 | Effect styles | Texture/Rub-down | effect style | `src/app/globals.css -` | missing-in-code | skipped | Texture and noise effects have no CSS equivalent; rub-down wear is planned in #62 |
 | E-05 | Effect styles | Texture/Rub-down on paper | effect style | `src/app/globals.css -` | missing-in-code | skipped | Same as Texture/Rub-down (#62) |
 | C-01 | Components | Avatar | 82:2229 | `-` | missing-in-code | skipped | Not built in code yet; part of account settings (#67). |
-| C-02 | Components | Button | 10:22 | `.button-primary, .button-secondary` | structure-drift | pending | Re-audited Nov 5: Figma pad 8 + Label Frame pad 2, so text sits 10px in; code is 12px (0.75rem) + 1px border. Icon L at 8 and the 6px icon gap (4 + 2) match. Small drift. |
+| C-02 | Components | Button | 10:22 | `.button-primary, .button-secondary` | structure-drift | synced | Nov 5: Figma padding 8 + Label Frame 2 = text 10px from the outer edge; code 1px border + 9px. Icon L 8px in (border + 7), 6px to the label. Matches. |
 | C-03 | Components | Nav Chip | 10:8 | `.nav-chip, .logo` | structure-drift | synced | Re-audited Nov 5: pad 4/12, 1px ink border, UI/Nav (Hanken SemiBold 16/20). Matches .nav-chip. |
-| C-04 | Components | Segment | 10:27 | `.segmented > *` | structure-drift | pending | Re-audited Nov 5: pad 12, Mono/Body, Icon swap prop. Icon-to-label gap is 4 in Figma; the type tabs use 1ch - 0.25ch (about 6px). Small drift. Phones keep 12px under 480px (code-owned). |
+| C-04 | Components | Segment | 10:27 | `.segmented > *` | structure-drift | synced | Nov 5: pad 12, Mono/Body, 4px icon-to-label (type tabs: margin-right calc(4px - 1ch)). Phones keep 12px under 480px (code-owned). |
 | C-05 | Components | Segmented Control | 11:2 | `.segmented` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-06 | Components | Tag | 10:15 | `.tag` | structure-drift | synced | Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches. |
 | C-07 | Components | Date Line | 10:34 | `.date-line` | structure-drift | synced | Re-audited Nov 5: gap 6, arrow + label Mono/Small Strong (future) / Mono/Small (past). Matches .date-line. |
-| C-08 | Components | Window | 11:9 | `.window, .dialog-title` | structure-drift | needs-figma-fix | Re-audited Nov 5. Figma Window strokes are inconsistent: Open has only a 1px left stroke, Collapsed has top/bottom/left (no right); code draws 1.5px all round. Which is intended? Also drift vs code: title 12px SemiBold (Mono/Small Strong) vs code 14px; collapse box 20px vs 24; content padding bottom 32 vs 24. Summary/Show summary props are in code (.profile-panel-summary). |
+| C-08 | Components | Window | 11:9 | `.window, .dialog-title` | structure-drift | needs-figma-fix | Nov 5: the strokes were a workaround for separating the window from its shadow; Shadow/Hard's paper drop does that now (and is in code). Figma: restore the Window's stroke on all sides in both states. Still open vs code: title 12px SemiBold vs 14px, collapse box 20 vs 24, content bottom padding 32 vs 24. |
 | C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-10 | Components | Tape | 10:41 | `.tape` | structure-drift | skipped | Synced in #114 (CSS strips stand in for the Figma shader). No text; not re-audited. |
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
-| C-12 | Components | Field | 47:170 | `.field` | structure-drift | pending | Re-audited Nov 5: Field's icon-to-text gap is now 4 (space/xs). Code uses 8: .search-field (35px text inset), .field-icon (35px), .combo-icon. Text should start at 1 + 12 + 16 + 4 = 33px. Font size decision (14, 16 on touch) stands. |
+| C-12 | Components | Field | 47:170 | `.field` | structure-drift | synced | Nov 5: 4px icon gap (space/xs); text 32px in beside an icon (.field-icon 31 + border, .combo-icon). Font size decision (14, 16 on touch) stands. |
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | needs-decision | Re-audited Nov 5: pad 8, gap 8, Mono/Label, 18px box match. Figma checkbox has a 2px corner radius; code is square (radius/none). Same call as Keyboard Hint (C-31). |
+| C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | needs-figma-fix | Decided Nov 5: the checkbox stays square. Figma's Choice checkbox has a 2px radius to remove. Code already matches (square); rest of Choice matches. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
-| C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | needs-decision | Re-audited Nov 5: surface fill, 2px ink rule, 16px top/bottom match. Side padding: Figma 16px; code uses the page gutter (16 phones, 24 tablet, 32 at 1280) so the header lines up with the page content. Keep the gutter or go to 16? |
+| C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | synced | Decided Nov 5: code keeps the page gutter for side padding (16/24/32) so the header lines up with the content; Figma's 16 stays as the component default. Fill, 2px rule, 16px top/bottom match. |
 | C-17 | Components | App Footer | 48:197 | `src/app/(app)/layout.tsx footer` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-18 | Components | Save Bar | 48:209 | `.save-bar` | structure-drift | synced | Re-audited Nov 5: ground fill, pad 12/16, 1px ink top rule, gap 12. Matches .save-bar (inset rule). |
 | C-19 | Components | Directory Row | 50:189 | `src/components/directory-results.tsx` | structure-drift | synced | Re-audited Nov 5: content pad 12, Default/Hover/Selected states (raised fill, Shadow/Soft, hairline; Selected 6px left bar) match .row-link incl. :hover/:focus-visible/[aria-current]. The 2px nudge is code-only motion. |
@@ -80,7 +80,7 @@ Status totals: fixed-in-figma 7, needs-decision 3, needs-figma-fix 1, pending 21
 | C-22 | Components | Affiliation Row | 50:217 | `src/components/links-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-23 | Components | Outreach Entry | 50:225 | `src/components/outreach-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-24 | Components | Next Action Card | 50:232 | `src/components/next-action-panel.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-25 | Components | Search Field | 134:4549 | `.search-field, .search-hint, src/components/search-clear.tsx` | structure-drift | pending | Was synced Nov 4 with 8px gaps. Its Field now has a 4px icon gap (see C-12); keycap and clear-button gaps to re-check with it. |
+| C-25 | Components | Search Field | 134:4549 | `.search-field, .search-hint, src/components/search-clear.tsx` | structure-drift | synced | Nov 5: 4px gaps. Text 32px in, keycap 4px after the text (padding-right 57; 81 with the clear button). Keycap 2px radius. |
 | C-26 | Components | Layout Toggle | 88:352 | `src/components/layout-toggle.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-27 | Components | Show More | 88:354 | `src/components/directory-results.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
 | C-28 | Components | Directory Bar | 89:634 | `.directory-bar` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
@@ -93,10 +93,10 @@ Status totals: fixed-in-figma 7, needs-decision 3, needs-figma-fix 1, pending 21
 | H-05 | Figma hygiene | Connection Card / Print initials | 95:460 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/XL (52/52). Code .card-print-initials 64px -> 52px. |
 | H-06 | Figma hygiene | Directory Row / Thumb initials | 109:79 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%. |
 | T-13 | Text styles | Mono/Hint | text style | `src/app/globals.css .search-hint` | match | synced | New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key. |
-| C-31 | Components | Keyboard Hint | 133:4158 | `kbd.search-hint` | match | needs-decision | Figma Keyboard Hint has a 2px corner radius (still, re-read Nov 5); code corners are square everywhere (radius/none). Same call as the Choice checkbox (C-14). |
+| C-31 | Components | Keyboard Hint | 133:4158 | `kbd.search-hint` | match | synced | Decided Nov 5: the keycap keeps Figma's 2px radius (border-radius: 2px on .search-hint), the one rounded element. |
 | V-08 | Variables | color/bg/raised (1) | Color | `src/app/globals.css --color-bg-raised` | missing-in-code | synced | New Nov 5 (#157): rows and cards lifted on hover or when open. Aliases paper/photo. Controls keep color/bg/hover. |
 | E-06 | Effect styles | Shadow/Soft | effect style | `src/app/globals.css --shadow-soft` | missing-in-code | synced | New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place. |
-| V-09 | Variables | color/border/inverse (1) | Color | `src/app/globals.css (missing)` | missing-in-code | pending | New in Figma (Window collapse icon border). Aliases paper/50. Add --color-border-inverse. |
+| V-09 | Variables | color/border/inverse (1) | Color | `src/app/globals.css (missing)` | missing-in-code | synced | Added --color-border-inverse (paper/50); used by .profile-panel-icon and .quick-view-close borders. |
 | C-32 | Components | Profile Pic | 161:3824 | `src/components/photo-panel.tsx, .quick-view-thumb` | changed | pending | Moved to Components Nov 5. 108px, photo-paper fill, 1px ink border, initials Display/L in border/subtle, Photo Action bar (20px, ink, Mono/Hint + Add 12px). Not compared with PhotoPanel yet. |
 | C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | pending | Moved to Components Nov 5. Default/Hover; pad 4/12, gap 2, Add 12px + Mono/Hint label. Not compared yet. |
 | C-34 | Components | Favicon | 161:3876 | `src/app/icon.*` | changed | pending | 16/32/48 variants. Check the app's icon files match. |
@@ -107,7 +107,7 @@ Status totals: fixed-in-figma 7, needs-decision 3, needs-figma-fix 1, pending 21
 
 - [x] Typography: Mono/Label = 14/20 Medium, already matched
 
-Evidence: -
+Evidence: design-sync/evidence/audit-2026-11-05.md
 
 ### C-03 Nav Chip
 
@@ -120,7 +120,7 @@ Evidence: design-sync/evidence/audit-2026-11-05.md
 
 - [x] Typography: Mono/Body 13px -> 14/20; current segment no longer bold (Figma On variants are Regular)
 
-Evidence: -
+Evidence: design-sync/evidence/audit-2026-11-05.md
 
 ### C-05 Segmented Control
 
@@ -157,7 +157,7 @@ Evidence: -
 
 - [x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)
 
-Evidence: -
+Evidence: design-sync/evidence/audit-2026-11-05.md
 
 ### C-13 Form Field
 
@@ -175,7 +175,7 @@ Evidence: -
 
 - [x] Typography: member name Mono/Body via body text, already matched
 
-Evidence: -
+Evidence: design-sync/evidence/audit-2026-11-05.md
 
 ### C-17 App Footer
 
@@ -229,7 +229,7 @@ Evidence: -
 
 - [ ] Typography: both text layers unstyled in Figma (see hygiene); depends on the Field decision
 
-Evidence: design-sync/evidence/search-field.png
+Evidence: design-sync/evidence/audit-2026-11-05.md
 
 ### C-26 Layout Toggle
 
@@ -255,3 +255,8 @@ Evidence: -
 - [x] Size: 75 x 18 in a 4px 12px chip (101 x 36 vs Figma 100 x 36)
 
 Evidence: design-sync/evidence/logo-header-login.png
+
+### C-31 Keyboard Hint
+
+
+Evidence: design-sync/evidence/audit-2026-11-05.md

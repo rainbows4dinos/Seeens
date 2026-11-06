@@ -197,8 +197,8 @@
   "fref": "effect style",
   "cref": "src/app/globals.css --shadow-hard",
   "cls": "match",
-  "status": "pending",
-  "notes": "Re-read Nov 5 evening: Figma Shadow/Hard is now two drops, 5 5 0 0 ink/900 plus 1 1 0 0 paper/photo (#fbfaf5). Code --shadow-hard has only the first. Value drift."
+  "status": "synced",
+  "notes": "Nov 5: Figma's second drop (1 1 0 0 paper/photo) is a sliver of paper between the box and its ink shadow. Code: --shadow-hard is now 1px 1px 0 0 paper-photo, 5px 5px 0 0 ink-900."
  },
  {
   "id": "E-02",
@@ -257,11 +257,12 @@
   "fref": "10:22",
   "cref": ".button-primary, .button-secondary",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Re-audited Nov 5: Figma pad 8 + Label Frame pad 2, so text sits 10px in; code is 12px (0.75rem) + 1px border. Icon L at 8 and the 6px icon gap (4 + 2) match. Small drift.",
+  "status": "synced",
+  "notes": "Nov 5: Figma padding 8 + Label Frame 2 = text 10px from the outer edge; code 1px border + 9px. Icon L 8px in (border + 7), 6px to the label. Matches.",
   "checklist": [
    "[x] Typography: Mono/Label = 14/20 Medium, already matched"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-03",
@@ -285,11 +286,12 @@
   "fref": "10:27",
   "cref": ".segmented > *",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Re-audited Nov 5: pad 12, Mono/Body, Icon swap prop. Icon-to-label gap is 4 in Figma; the type tabs use 1ch - 0.25ch (about 6px). Small drift. Phones keep 12px under 480px (code-owned).",
+  "status": "synced",
+  "notes": "Nov 5: pad 12, Mono/Body, 4px icon-to-label (type tabs: margin-right calc(4px - 1ch)). Phones keep 12px under 480px (code-owned).",
   "checklist": [
    "[x] Typography: Mono/Body 13px -> 14/20; current segment no longer bold (Figma On variants are Regular)"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-05",
@@ -341,7 +343,7 @@
   "cref": ".window, .dialog-title",
   "cls": "structure-drift",
   "status": "needs-figma-fix",
-  "notes": "Re-audited Nov 5. Figma Window strokes are inconsistent: Open has only a 1px left stroke, Collapsed has top/bottom/left (no right); code draws 1.5px all round. Which is intended? Also drift vs code: title 12px SemiBold (Mono/Small Strong) vs code 14px; collapse box 20px vs 24; content padding bottom 32 vs 24. Summary/Show summary props are in code (.profile-panel-summary).",
+  "notes": "Nov 5: the strokes were a workaround for separating the window from its shadow; Shadow/Hard's paper drop does that now (and is in code). Figma: restore the Window's stroke on all sides in both states. Still open vs code: title 12px SemiBold vs 14px, collapse box 20 vs 24, content bottom padding 32 vs 24.",
   "checklist": [
    "[x] Typography: Window title (copier dialog) 13px -> Mono/Small 12/16"
   ]
@@ -386,11 +388,12 @@
   "fref": "47:170",
   "cref": ".field",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Re-audited Nov 5: Field's icon-to-text gap is now 4 (space/xs). Code uses 8: .search-field (35px text inset), .field-icon (35px), .combo-icon. Text should start at 1 + 12 + 16 + 4 = 33px. Font size decision (14, 16 on touch) stands.",
+  "status": "synced",
+  "notes": "Nov 5: 4px icon gap (space/xs); text 32px in beside an icon (.field-icon 31 + border, .combo-icon). Font size decision (14, 16 on touch) stands.",
   "checklist": [
    "[x] Typography: .field 16px -> 14/20, 16/24 under pointer: coarse (measured: desktop 14px h36, phone 16px h36)"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-13",
@@ -412,8 +415,8 @@
   "fref": "47:187",
   "cref": ".choice",
   "cls": "structure-drift",
-  "status": "needs-decision",
-  "notes": "Re-audited Nov 5: pad 8, gap 8, Mono/Label, 18px box match. Figma checkbox has a 2px corner radius; code is square (radius/none). Same call as Keyboard Hint (C-31).",
+  "status": "needs-figma-fix",
+  "notes": "Decided Nov 5: the checkbox stays square. Figma's Choice checkbox has a 2px radius to remove. Code already matches (square); rest of Choice matches.",
   "checklist": [
    "[x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)"
   ]
@@ -435,11 +438,12 @@
   "fref": "48:191",
   "cref": "src/app/(app)/layout.tsx",
   "cls": "structure-drift",
-  "status": "needs-decision",
-  "notes": "Re-audited Nov 5: surface fill, 2px ink rule, 16px top/bottom match. Side padding: Figma 16px; code uses the page gutter (16 phones, 24 tablet, 32 at 1280) so the header lines up with the page content. Keep the gutter or go to 16?",
+  "status": "synced",
+  "notes": "Decided Nov 5: code keeps the page gutter for side padding (16/24/32) so the header lines up with the content; Figma's 16 stays as the component default. Fill, 2px rule, 16px top/bottom match.",
   "checklist": [
    "[x] Typography: member name Mono/Body via body text, already matched"
-  ]
+  ],
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-17",
@@ -554,12 +558,12 @@
   "fref": "134:4549",
   "cref": ".search-field, .search-hint, src/components/search-clear.tsx",
   "cls": "structure-drift",
-  "status": "pending",
-  "notes": "Was synced Nov 4 with 8px gaps. Its Field now has a 4px icon gap (see C-12); keycap and clear-button gaps to re-check with it.",
+  "status": "synced",
+  "notes": "Nov 5: 4px gaps. Text 32px in, keycap 4px after the text (padding-right 57; 81 with the clear button). Keycap 2px radius.",
   "checklist": [
    "[ ] Typography: both text layers unstyled in Figma (see hygiene); depends on the Field decision"
   ],
-  "evidence": "design-sync/evidence/search-field.png"
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "C-26",
@@ -702,8 +706,9 @@
   "fref": "133:4158",
   "cref": "kbd.search-hint",
   "cls": "match",
-  "status": "needs-decision",
-  "notes": "Figma Keyboard Hint has a 2px corner radius (still, re-read Nov 5); code corners are square everywhere (radius/none). Same call as the Choice checkbox (C-14)."
+  "status": "synced",
+  "notes": "Decided Nov 5: the keycap keeps Figma's 2px radius (border-radius: 2px on .search-hint), the one rounded element.",
+  "evidence": "design-sync/evidence/audit-2026-11-05.md"
  },
  {
   "id": "V-08",
@@ -733,8 +738,8 @@
   "fref": "Color",
   "cref": "src/app/globals.css (missing)",
   "cls": "missing-in-code",
-  "status": "pending",
-  "notes": "New in Figma (Window collapse icon border). Aliases paper/50. Add --color-border-inverse.",
+  "status": "synced",
+  "notes": "Added --color-border-inverse (paper/50); used by .profile-panel-icon and .quick-view-close borders.",
   "count": 1
  },
  {
