@@ -1638,6 +1638,30 @@
   .logo > img {
     display: block;
   }
+  /* Feedback inbox (#71): one row per item, opening to the whole thing. */
+  .feedback-item-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    list-style: none;
+  }
+  .feedback-item-summary::-webkit-details-marker {
+    display: none;
+  }
+  .feedback-item-summary:hover {
+    background: var(--color-bg-hover);
+  }
+  .feedback-item-summary:focus-visible {
+    outline: 2px solid var(--color-focus-outline);
+    outline-offset: -2px;
+  }
+  .feedback-item[open] .feedback-item-caret {
+    transform: rotate(180deg);
+  }
+
   /* Figma Nav Chip, Style=Logo, Show Beta: a cyan plate pinned over the
      chip's top-right corner, its border on the chip's. Figma pads 4 / 6
      with borders excluded, so 3 / 5 here. */
