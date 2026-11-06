@@ -26,9 +26,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 {/* Figma Logo component: the hand-set wordmark with its cyan misregister and rub-down. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
+                {/* Everyone is a tester for now (#71). */}
+                <span className="logo-beta">Beta</span>
               </Link>
-              {/* Everyone is a tester for now (#71). */}
-              <span className="tag">Beta</span>
               <div className="hidden md:block">
                 <MainNav />
               </div>
