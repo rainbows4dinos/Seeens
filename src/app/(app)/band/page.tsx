@@ -79,8 +79,8 @@ async function Band() {
 
       <ProfilePanel id="band-sharing" title="What You Share" summary={sharingSummary(shared, kept)}>
         <p>
-          When Seeens opens up as one directory, other bands will see the records {membership.workspaceName}{" "}
-          shares. Status, notes, and contacts stay yours either way.
+          Other bands see the records {membership.workspaceName} shares. Status, notes, and contacts stay yours
+          either way.
         </p>
         <p className="text-sm text-muted">{sharingSummary(shared, kept)}.</p>
         <Link href="/band/sharing" className="button-secondary self-start">

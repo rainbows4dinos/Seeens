@@ -27,6 +27,26 @@ export function ContactFields({ values: v }: { values: ConnectionFormValues }) {
   );
 }
 
+/** This band's own contacts and notes on another band's record (#185). */
+export function BandNoteFields({ values: v }: { values: ConnectionFormValues }) {
+  const errors = useFieldErrors();
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field id="p-email" label="Email" error={errors.email}>
+          <input {...noAutofill} id="p-email" name="email" type="email" inputMode="email" defaultValue={v.email} className="field" {...invalid("p-email", errors.email)} />
+        </Field>
+        <Field id="p-phone" label="Phone">
+          <input {...noAutofill} id="p-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
+        </Field>
+      </div>
+      <Field id="p-notes" label="Notes">
+        <textarea {...noAutofill} id="p-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
+      </Field>
+    </>
+  );
+}
+
 export function VenueDetailFields({ values }: { values: ConnectionFormValues["venue"] }) {
   const errors = useFieldErrors();
   return <VenueFields values={values} errors={errors.venue} legend={false} />;

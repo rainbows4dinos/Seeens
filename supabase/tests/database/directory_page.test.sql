@@ -44,9 +44,13 @@ insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, 
   ('d9c00000-0000-0000-0000-000000000008', 'd9aaaaaa-0000-0000-0000-0000000000a1', 'Grey Static', 'group', '{}', 'label', 'neutral', false, null, null),
   ('d9c00000-0000-0000-0000-000000000009', 'd9aaaaaa-0000-0000-0000-0000000000a1', 'Jo Example', 'person', '{musician,dj}', null, 'neutral', false, null, null),
   ('d9c00000-0000-0000-0000-000000000010', 'd9aaaaaa-0000-0000-0000-0000000000a1', '100% Noise', 'group', '{}', 'band', 'neutral', false, null, null),
-  ('d9c00000-0000-0000-0000-0000000000b1', 'd9bbbbbb-0000-0000-0000-0000000000b2', 'Their Band', 'group', '{}', 'band', 'homies', true, null, null);
+  ('d9c00000-0000-0000-0000-0000000000b1', 'd9bbbbbb-0000-0000-0000-0000000000b2', 'Their Band', 'group', '{}', 'band', 'homies', false, null, null);
 insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, is_us, locality_id) select id, workspace_id, name, kind, person_roles, group_type, is_us, locality_id from tc;
 update public.connection_band_details d set status = coalesce(t.status, d.status), archived_at = t.archived_at from tc t where d.connection_id = t.id;
+-- Kept private, so this checks one band can't see another's (#185 opens
+-- shared records to every band; shared_directory.test.sql covers that).
+update public.connections set keep_private = true where workspace_id = 'd9bbbbbb-0000-0000-0000-0000000000b2' and not is_us;
+
 truncate tc;
 
 -- bees and Old Band share our label; Dogs shares a member with us.

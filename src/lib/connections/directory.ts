@@ -66,6 +66,8 @@ export type DirectoryItem = {
   via: string | null;
   /** The first line of the notes, for Labels & more (#122). */
   note: string | null;
+  /** The band that shared it, when it isn't this band's own (#185). */
+  sharedBy: string | null;
 };
 
 
@@ -155,10 +157,13 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, is_us, catalog_no, photo_path, photo_alt, attributes, band:connection_band_details ( status, played_together, notes ), localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) )",
+          "id, workspace_id, name, kind, person_roles, group_type, is_us, catalog_no, photo_path, photo_alt, attributes, added_by:workspaces!connections_workspace_id_fkey ( name ), band:connection_band_details ( status, played_together, notes ), localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) )",
         )
-        .eq("workspace_id", ws)
         .in("id", ids)
+        // Other bands' records too (#185), with this band's layer, plans, and outreach on them.
+        .eq("band.workspace_id", ws)
+        .eq("next_actions.workspace_id", ws)
+        .eq("outreach_entries.workspace_id", ws)
         // Date lines: only the latest outreach and the open plan.
         .eq("next_actions.status", "open")
         .order("occurred_on", { referencedTable: "outreach_entries", ascending: false })
@@ -180,7 +185,7 @@ export async function loadDirectoryPage(
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
-    const { connection_scenes, notes, incoming, outgoing, attributes, ...rest } = d;
+    const { connection_scenes, notes, incoming, outgoing, attributes, workspace_id, added_by, ...rest } = d;
     // Current, unarchived members only, in name order.
     const names = (links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[]) =>
       links
@@ -208,6 +213,7 @@ export async function loadDirectoryPage(
             : null,
         venue: rest.group_type === "venue" ? venueLine(readVenueDetails(attributes)) : null,
         note: notes?.split("\n").find((line) => line.trim())?.trim() ?? null,
+        sharedBy: workspace_id === ws ? null : (added_by?.name ?? "another band"),
       },
     ];
   });

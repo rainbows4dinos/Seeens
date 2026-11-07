@@ -5,7 +5,7 @@ import { liftBand } from "./band-details";
 import { catalogNo } from "./card";
 import { formatType } from "./labels";
 
-// What a band shares when the directory opens (phase 2): every record it
+// What a band shares with every other band (#185): every record it
 // added, kept private or not. People start private, everything else shared.
 
 export type SharingRow = {

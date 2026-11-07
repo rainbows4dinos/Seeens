@@ -23,6 +23,10 @@ insert into public.connections (id, workspace_id, name, kind, person_roles, grou
   ('b4c00000-0000-0000-0000-000000000003', 'b4aaaaaa-0000-0000-0000-0000000000a1', 'Static Basement', 'group', '{}', 'venue'),
   ('b4c00000-0000-0000-0000-000000000004', 'b4aaaaaa-0000-0000-0000-0000000000a1', 'Riley Drums', 'person', '{musician}', null),
   ('b4c00000-0000-0000-0000-0000000000b1', 'b4bbbbbb-0000-0000-0000-0000000000b2', 'Their Person', 'person', '{musician}', null);
+-- Kept private, so this checks one band can't see another's (#185 opens
+-- shared records to every band; shared_directory.test.sql covers that).
+update public.connections set keep_private = true where id = 'b4c00000-0000-0000-0000-000000000001';
+
 
 -- Riley is already a member.
 insert into public.affiliations (workspace_id, from_connection_id, to_connection_id, kind, role) values

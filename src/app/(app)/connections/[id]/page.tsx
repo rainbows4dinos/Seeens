@@ -30,6 +30,7 @@ import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
 import { KeepPrivate } from "@/components/keep-private";
+import { SharedRecord } from "./shared-record";
 import { MergeWith } from "@/components/merge-with";
 import { MergedNotice, UnmergedNotice } from "@/components/merged-notice";
 import { loadUndoableMerge, loadUndoneMerge } from "@/lib/connections/merge";
@@ -70,6 +71,10 @@ async function Connection({
     getLinkedPeople(),
   ]);
   const today = todayISO(new Date(), tz);
+  // Another band's record (#185): theirs to change, ours to keep notes on.
+  if (!detail.mine) {
+    return <SharedRecord detail={detail} band={membership.workspaceName} me={user.id} today={today} tz={tz} />;
+  }
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
   // A label we're on is "our label": from our band's label link, not a checkbox.
   const ourLabel = detail.affiliations.incoming.some((a) => a.kind === "on_label" && a.other?.is_us && a.is_current);

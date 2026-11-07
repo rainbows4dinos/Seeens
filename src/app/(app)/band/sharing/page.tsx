@@ -8,7 +8,7 @@ import { SharingList } from "@/components/sharing-list";
 
 export const metadata: Metadata = { title: "What You Share · Seeens" };
 
-// Review what the band shares before the directory opens (phase 2).
+// Review what the band shares with other bands (#185).
 export default function SharingPage() {
   return (
     <div className="page-measure flex flex-col gap-8">
@@ -32,13 +32,13 @@ async function Sharing() {
         <p className="caption">Band Settings</p>
         <h1 className="display-l break-words">What You Share</h1>
         <p className="text-muted">
-          Seeens is becoming one directory that every band shares. When it opens, other bands will see the
-          records {band} shares: names, types, towns, scenes, links, and photos. Anything you keep private stays in{" "}
-          {band}&rsquo;s directory only.
+          Seeens is one directory that every band shares. Other bands see the records {band} shares: names,
+          types, towns, links, photos, and venue details. Anything you keep private stays in {band}&rsquo;s
+          directory only.
         </p>
         <p className="text-muted">
-          Status, notes, contacts, played together, and archiving are always {band}&rsquo;s own, shared or not.
-          People start private; everything else starts shared. Nothing is visible to other bands yet.
+          Status, notes, contacts, plans, outreach, played together, and archiving are always {band}&rsquo;s
+          own, shared or not. People start private; everything else starts shared.
         </p>
       </div>
       <SharingList sections={sections} band={band} />
