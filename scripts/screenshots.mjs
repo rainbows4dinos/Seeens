@@ -156,6 +156,10 @@ try {
   await page.goto(`${BASE_URL}/band`);
   await shot(page, "band-settings.png", { fullPage: true });
 
+  // What You Share: people start private, the rest shared.
+  await page.goto(`${BASE_URL}/band/sharing`);
+  await shot(page, "sharing.png");
+
   // Send Feedback, filled in, from the Scenes page.
   await page.goto(`${BASE_URL}/feedback?from=%2Fscenes`);
   await page.getByLabel("Idea").check();
