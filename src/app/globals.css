@@ -1980,17 +1980,48 @@
 
   /* Back to Directory on a profile or Add: pinned under the header as the
      page scrolls, floating over the panels. */
+  /* The pinned row spans the column so a control can sit at its right end;
+     the gap between lets clicks through to the page under it. */
   .back-pin {
     position: sticky;
     top: calc(var(--header-h) + var(--space-md));
     z-index: 20;
     display: flex;
-    align-self: flex-start;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    align-self: stretch;
     max-width: 100%;
+    pointer-events: none;
   }
-  /* Floating over the panels, it lifts off them (Shadow/Soft). */
-  .back-pin[data-pinned] {
+  .back-pin-lead {
+    display: flex;
+    min-width: 0;
+    pointer-events: auto;
+  }
+  .back-pin-end {
+    position: relative;
+    flex: none;
+    pointer-events: auto;
+  }
+  /* Floating over the panels, they lift off them (Shadow/Soft). */
+  .back-pin[data-pinned] > .back-pin-lead,
+  .back-pin[data-pinned] > .back-pin-end > .choice {
     box-shadow: var(--shadow-soft);
+  }
+  /* A failed Keep Private save, under the box. */
+  .keep-private-error {
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    right: 0;
+    width: max-content;
+    max-width: 16rem;
+    border: var(--stroke-hair) solid var(--color-error);
+    background: var(--color-bg-surface);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-error);
   }
   /* On a profile, the name joins the button once the big one is gone, like
      a second segment. Long names end in an ellipsis. */
