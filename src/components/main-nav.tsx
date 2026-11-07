@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 
 const ITEMS = [
-  { href: "/", label: "Directory", match: (p: string) => p === "/" || p.startsWith("/connections") || p === "/export" },
-  { href: "/scenes", label: "Scenes", match: (p: string) => p.startsWith("/scenes") },
+  { href: "/", label: "My Network", match: (p: string) => p === "/" || p.startsWith("/connections") || p === "/export" },
   { href: "/follow-ups", label: "Follow-ups", match: (p: string) => p.startsWith("/follow-ups") },
+  { href: "/scenes", label: "Scenes", match: (p: string) => p.startsWith("/scenes") },
+  // Every band's shared records (#192).
+  { href: "/directory", label: "Directory", match: (p: string) => p.startsWith("/directory") },
 ];
 
 type Layout = "row" | "menu";

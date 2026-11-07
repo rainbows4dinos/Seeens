@@ -11,8 +11,9 @@ import { useEffect, useId, useRef, useState } from "react";
 // for Enter or the button.
 export function AutoFilterForm({
   children,
+  action = "/",
   ...props
-}: Omit<React.ComponentProps<typeof Form>, "action" | "onChange">) {
+}: Omit<React.ComponentProps<typeof Form>, "action" | "onChange"> & { action?: string }) {
   const ref = useRef<HTMLFormElement>(null);
   const params = useSearchParams();
   const query = params.toString();
@@ -37,7 +38,7 @@ export function AutoFilterForm({
     <Form
       {...props}
       ref={ref}
-      action="/"
+      action={action}
       scroll={false}
       onChange={(e) => {
         const t = e.target;

@@ -27,6 +27,7 @@ export function DirectoryResults({
   groups,
   matched,
   query,
+  basePath = "/",
   today,
   tab,
 }: {
@@ -36,6 +37,8 @@ export function DirectoryResults({
   matched: number;
   /** The directory URL's query string, without layout or after. */
   query: string;
+  /** / for My Network, /directory for the full directory (#192). */
+  basePath?: string;
   today: string;
   /** Which tab: decides the detail line and whether scenes show. */
   tab: Tab;
@@ -67,7 +70,7 @@ export function DirectoryResults({
     focusId.current = null;
   }, [items]);
 
-  const moreHref = next ? `/?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}` : null;
+  const moreHref = next ? `${basePath}?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}` : null;
 
   function loadMore(e: React.MouseEvent) {
     if (!next || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
