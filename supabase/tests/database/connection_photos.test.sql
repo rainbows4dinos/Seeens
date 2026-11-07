@@ -8,6 +8,8 @@ select plan(14);
 -- Only this file's records: other data in the database (the local seed, say)
 -- would show up as shared. Rolled back with the rest.
 delete from public.connections;
+-- Storage refuses direct deletes unless asked; this file tests who may delete.
+select set_config('storage.allow_delete_query', 'true', true);
 
 insert into auth.users (id, email) values
   ('f0111111-1111-1111-1111-111111111111', 'photo-alex@example.com'),
