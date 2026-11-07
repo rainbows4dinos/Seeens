@@ -113,12 +113,13 @@ export type ArchiveState = { error?: string };
 async function setArchived(id: string, archived: boolean): Promise<ArchiveState> {
   const workspaceId = await requireWorkspace();
   const supabase = await createClient();
+  // Archiving is this band's own (#181): it hides the record from this band's directory.
   const { data, error } = await supabase
-    .from("connections")
+    .from("connection_band_details")
     .update({ archived_at: archived ? new Date().toISOString() : null })
-    .eq("id", id)
+    .eq("connection_id", id)
     .eq("workspace_id", workspaceId)
-    .select("id");
+    .select("connection_id");
 
   if (error || !data.length) {
     return { error: archived ? "Couldn't archive. Try again." : "Couldn't restore. Try again." };
@@ -159,19 +160,20 @@ export async function quickUpdate(
 
   const current = async () => {
     const { data } = await supabase
-      .from("connections")
+      .from("connection_band_details")
       .select("status, played_together")
-      .eq("id", id)
+      .eq("connection_id", id)
       .eq("workspace_id", workspaceId)
       .maybeSingle();
     return data ? { status: data.status, playedTogether: data.played_together } : null;
   };
   if (!patch) return { ok: false, saved: await current() };
 
+  // Status and played together are this band's own (#181).
   const { data, error } = await supabase
-    .from("connections")
+    .from("connection_band_details")
     .update(patch)
-    .eq("id", id)
+    .eq("connection_id", id)
     .eq("workspace_id", workspaceId)
     .select("status, played_together")
     .maybeSingle();
@@ -198,11 +200,11 @@ export async function markPlayedTogether(sourceId: string, ids: string[]): Promi
   if (!pick.length) return { ok: true, marked: 0 };
 
   const { data, error } = await supabase
-    .from("connections")
+    .from("connection_band_details")
     .update({ played_together: true })
     .eq("workspace_id", workspaceId)
-    .in("id", pick)
-    .select("id");
+    .in("connection_id", pick)
+    .select("connection_id");
   if (error) return { ok: false };
   revalidatePath("/", "layout");
   return { ok: true, marked: data.length };

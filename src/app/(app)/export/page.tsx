@@ -29,14 +29,14 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
   const [current, archivedCount] = await Promise.all([
     supabase
       .from("connections")
-      .select("id", { count: "exact", head: true })
+      .select("id, band:connection_band_details!inner ( archived_at )", { count: "exact", head: true })
       .eq("workspace_id", membership.workspaceId)
-      .is("archived_at", null),
+      .is("band.archived_at", null),
     supabase
       .from("connections")
-      .select("id", { count: "exact", head: true })
+      .select("id, band:connection_band_details!inner ( archived_at )", { count: "exact", head: true })
       .eq("workspace_id", membership.workspaceId)
-      .not("archived_at", "is", null),
+      .not("band.archived_at", "is", null),
   ]);
   const nCurrent = current.count ?? 0;
   const nArchived = archivedCount.count ?? 0;

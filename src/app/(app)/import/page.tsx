@@ -25,9 +25,9 @@ async function Import() {
   // Everyone already here, so the review can say who a row fills in.
   const { data } = await supabase
     .from("connections")
-    .select("id, name, kind, group_type")
+    .select("id, name, kind, group_type, band:connection_band_details!inner ( archived_at )")
     .eq("workspace_id", membership.workspaceId)
-    .is("archived_at", null)
+    .is("band.archived_at", null)
     .eq("is_us", false)
     .limit(5000);
   return <ImportWizard existing={data ?? []} />;

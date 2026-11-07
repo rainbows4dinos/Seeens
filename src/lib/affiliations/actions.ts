@@ -20,7 +20,7 @@ async function carryFromBand(supabase: Supabase, workspaceId: string, bandId: st
   if (!pick) return {};
   const { data: band } = await supabase
     .from("connections")
-    .select("locality_id, played_together, connection_scenes ( scene_id )")
+    .select("locality_id, band:connection_band_details ( played_together ), connection_scenes ( scene_id )")
     .eq("id", bandId)
     .eq("workspace_id", workspaceId)
     .maybeSingle();
@@ -30,7 +30,7 @@ async function carryFromBand(supabase: Supabase, workspaceId: string, bandId: st
   return {
     p_locality_id: pick.town && band.locality_id ? band.locality_id : undefined,
     p_scene_ids: sceneIds.length ? sceneIds : undefined,
-    p_played_together: Boolean(pick.played && band.played_together),
+    p_played_together: Boolean(pick.played && band.band?.played_together),
   };
 }
 const fail = (error: string): LinkState => ({ error, attempt: Date.now() });

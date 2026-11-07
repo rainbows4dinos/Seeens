@@ -1,4 +1,5 @@
 import "server-only";
+import { liftBand } from "./band-details";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
@@ -22,9 +23,9 @@ export async function loadDuplicateGroups() {
     fetchAll((from, to) =>
       supabase
         .from("connections")
-        .select(`id, name, kind, group_type, person_roles, catalog_no, created_at, ${LOCALITY}`)
+        .select(`id, name, kind, group_type, person_roles, catalog_no, created_at, band:connection_band_details!inner ( archived_at ), ${LOCALITY}`)
         .eq("workspace_id", ws)
-        .is("archived_at", null)
+        .is("band.archived_at", null)
         .order("name")
         .order("id")
         .range(from, to),
@@ -102,7 +103,7 @@ export async function loadMergeCandidates(ids: string[], today: string): Promise
     supabase
       .from("connections")
       .select(
-        `id, name, kind, group_type, person_roles, catalog_no, status, email, phone, notes, photo_path, is_us, archived_at, can_help_with, ${LOCALITY}, connection_links ( label, url, position ), connection_scenes ( scenes ( name ) )`,
+        `id, name, kind, group_type, person_roles, catalog_no, photo_path, is_us, can_help_with, band:connection_band_details ( status, played_together, notes, email, phone, archived_at ), ${LOCALITY}, connection_links ( label, url, position ), connection_scenes ( scenes ( name ) )`,
       )
       .eq("workspace_id", ws)
       .in("id", ids),
@@ -134,7 +135,8 @@ export async function loadMergeCandidates(ids: string[], today: string): Promise
   }
 
   return ids.flatMap((id) => {
-    const c = conns.data.find((x) => x.id === id);
+    const found = conns.data.find((x) => x.id === id);
+    const c = found ? liftBand(found) : undefined;
     if (!c) return [];
     const linked = [
       ...outgoing.data.filter((a) => a.from_connection_id === id).map((a) => a.other),

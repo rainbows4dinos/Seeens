@@ -154,11 +154,11 @@ async function loadYourPage(workspaceId: string, connectionId: string | null) {
   const [{ data: people }, { data: ours }] = await Promise.all([
     supabase
       .from("connections")
-      .select("id, name")
+      .select("id, name, band:connection_band_details!inner ( archived_at )")
       .eq("workspace_id", workspaceId)
       .eq("kind", "person")
       .is("merged_into", null)
-      .is("archived_at", null)
+      .is("band.archived_at", null)
       .order("name")
       .limit(2000),
     us

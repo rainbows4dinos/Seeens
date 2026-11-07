@@ -8,6 +8,7 @@ import { buildNetwork } from "./network";
 import { catalogNo } from "./card";
 import { formatPlace } from "@/lib/places";
 import { EMPTY_FORM, type ConnectionFormValues } from "./form";
+import { liftBand, liftOther } from "./band-details";
 
 // All reads go through RLS, and each also filters to the current workspace
 // so someone in two bands only sees this band's rows.
@@ -25,14 +26,17 @@ function fetchEdges(supabase: Supabase, ws: string) {
   );
 }
 
+// The record, with this band's private layer (#181).
 const CONNECTION_SELECT =
-  "*, localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
+  "*, band:connection_band_details ( status, played_together, notes, email, phone, archived_at ), localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
 
 // Links in order and scenes by name, the way the pages show them.
 function shapeConnection<T extends {
+  band: Parameters<typeof liftBand>[0]["band"];
   connection_links: { position: number }[];
   connection_scenes: { scenes: { id: string; name: string } | null }[];
-}>(row: T) {
+}>(withBand: T) {
+  const row = liftBand(withBand);
   const links = [...row.connection_links].sort((a, b) => a.position - b.position);
   const scenes = row.connection_scenes
     .map((cs) => cs.scenes)
@@ -66,14 +70,14 @@ export async function getConnection(id: string) {
     supabase
       .from("affiliations")
       .select(
-        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, archived_at )",
+        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at ) )",
       )
       .eq("from_connection_id", id)
       .eq("workspace_id", ws),
     supabase
       .from("affiliations")
       .select(
-        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, archived_at )",
+        "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at ) )",
       )
       .eq("to_connection_id", id)
       .eq("workspace_id", ws),
@@ -138,7 +142,10 @@ export async function getConnection(id: string) {
 
   return {
     connection: shapeConnection(connection.data),
-    affiliations: { outgoing: outgoing.data, incoming: incoming.data },
+    affiliations: {
+      outgoing: outgoing.data.map((a) => ({ ...a, other: liftOther(a.other) })),
+      incoming: incoming.data.map((a) => ({ ...a, other: liftOther(a.other) })),
+    },
     nextAction: nextAction.data,
     outreach: outreach.data,
     pastPlans: pastPlans.data,
@@ -202,7 +209,7 @@ export async function loadNetwork() {
     fetchAll((from, to) =>
       supabase
         .from("connections")
-        .select("id, name, kind, group_type, person_roles, catalog_no, is_us, archived_at")
+        .select("id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at )")
         .eq("workspace_id", ws)
         .order("name")
         .order("id")
@@ -212,5 +219,5 @@ export async function loadNetwork() {
   ]).catch(() => {
     throw new Error("Couldn't load your network.");
   });
-  return buildNetwork(connections, edges);
+  return buildNetwork(connections.map(liftBand), edges);
 }

@@ -7,6 +7,7 @@ import { formatType, statusLabel } from "@/lib/connections/labels";
 import { AGES, BOOK_VIA, CAPACITY, SPACE, readVenueDetails } from "@/lib/connections/venue-details";
 import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
+import { liftBand } from "@/lib/connections/band-details";
 
 
 // Everything in the current workspace. Outreach history is
@@ -22,18 +23,19 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
     const query = supabase
       .from("connections")
       .select(
-        "catalog_no, name, kind, person_roles, group_type, status, played_together, attributes, is_us, can_help_with, email, phone, notes, archived_at, created_at, updated_at, localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
+        "catalog_no, name, kind, person_roles, group_type, attributes, is_us, can_help_with, created_at, updated_at, band:connection_band_details!inner ( status, played_together, notes, email, phone, archived_at ), localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )",
       )
       .eq("workspace_id", ws)
       // Only the current plan, not every plan the connection ever had.
       // Connections without one are still exported.
       .eq("next_actions.status", "open");
-    return (includeArchived ? query : query.is("archived_at", null)).order("name").order("id").range(from, to);
+    // Archived is this band's own (#181).
+    return (includeArchived ? query : query.is("band.archived_at", null)).order("name").order("id").range(from, to);
   }).catch(() => {
     throw new Error("export query failed");
   });
 
-  return data.map((c): ExportRow => {
+  return data.map(liftBand).map((c): ExportRow => {
     const v = c.group_type === "venue" ? readVenueDetails(c.attributes) : {};
     const yesNo = (b?: boolean) => (b === true ? "yes" : b === false ? "no" : "");
     const next = c.next_actions.find((a) => a.status === "open");

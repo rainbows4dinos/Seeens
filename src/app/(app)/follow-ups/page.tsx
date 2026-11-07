@@ -34,7 +34,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
       supabase
         .from("next_actions")
         .select(
-          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, archived_at )",
+          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, band:connection_band_details ( archived_at ) )",
         )
         .eq("workspace_id", membership.workspaceId)
         .eq("status", "open")
@@ -55,7 +55,8 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
   if (actions.error || members.error) throw new Error("Couldn't load follow-ups.");
 
   const today = todayISO(new Date(), membership.timeZone);
-  const open = (actions.data ?? []).filter((a) => a.connection && !a.connection.archived_at);
+  // Archived is this band's own (#181).
+  const open = (actions.data ?? []).filter((a) => a.connection && !a.connection.band?.archived_at);
   const shown = open.filter((a) => (who === "" ? true : who === "anyone" ? !a.assignee_id : a.assignee_id === who));
   const dated = shown.filter((a) => a.due_on);
   const undated = shown.filter((a) => !a.due_on);
