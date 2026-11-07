@@ -9,7 +9,7 @@ const ITEMS = [
   { href: "/follow-ups", label: "Follow-ups", match: (p: string) => p.startsWith("/follow-ups") },
   { href: "/scenes", label: "Scenes", match: (p: string) => p.startsWith("/scenes") },
   // Every band's shared records (#192).
-  { href: "/directory", label: "Directory", match: (p: string) => p.startsWith("/directory") },
+  { href: "/directory", label: "Full Directory", match: (p: string) => p.startsWith("/directory") },
 ];
 
 type Layout = "row" | "menu";

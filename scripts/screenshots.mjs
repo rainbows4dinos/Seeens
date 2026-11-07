@@ -124,7 +124,7 @@ try {
   await page.goto(`${BASE_URL}/?type=all`);
   await shot(page, "directory.png");
 
-  // The full Directory (#192): venues every band shares, Moth Signal's included.
+  // The Full Directory (#192): venues every band shares, Moth Signal's included.
   await page.goto(`${BASE_URL}/directory?type=venues`);
   await shot(page, "full-directory.png");
 

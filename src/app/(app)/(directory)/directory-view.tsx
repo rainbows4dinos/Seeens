@@ -102,7 +102,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
     // key: a server render with a different layout (a shared link) resets it.
     <LayoutProvider key={layout} initial={layout}>
       <div className="flex flex-col gap-6">
-        <h1 className="sr-only">{scope === "all" ? "Directory" : "My Network"}</h1>
+        <h1 className="sr-only">{scope === "all" ? "Full Directory" : "My Network"}</h1>
 
         {/* Every directory control in one bar, pinned while the list scrolls.
             Phones pin only the search row. */}
@@ -214,7 +214,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link href={directoryHref(tab, { ...filters, scope: "all" })} className="button-primary">
-                    Search the Directory
+                    Search the Full Directory
                   </Link>
                   <Link href={directoryHref(tab, { ...EMPTY, scope: filters.scope })} className="button-secondary">
                     Clear Filters
