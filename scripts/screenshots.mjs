@@ -138,6 +138,11 @@ try {
   await openFullPage(page, "The Tin Hollows");
   await shot(page, "connection.png", { fullPage: true });
 
+  // Another band's record (#185): Moth Signal's venue, with Merwulf's own layer.
+  await page.goto(`${BASE_URL}/connections/d0000000-0000-0000-0000-000000000002`);
+  await page.getByRole("heading", { name: "The Brine Hall" }).waitFor();
+  await shot(page, "shared-record.png");
+
   await page.goto(`${BASE_URL}/scenes`);
   await shot(page, "scenes.png");
 

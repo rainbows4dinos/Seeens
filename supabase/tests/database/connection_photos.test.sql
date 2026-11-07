@@ -20,6 +20,10 @@ insert into public.workspace_members (workspace_id, user_id, role, display_name)
 insert into public.connections (id, workspace_id, name, kind, person_roles, group_type) values
   ('f0c00000-0000-0000-0000-000000000001', 'f0aaaaaa-0000-0000-0000-0000000000a1', 'Photo Band One', 'group', '{}', 'band'),
   ('f0c00000-0000-0000-0000-0000000000b1', 'f0bbbbbb-0000-0000-0000-0000000000b2', 'Their Band', 'group', '{}', 'band');
+-- Kept private, so this checks one band can't see another's (#185 opens
+-- shared records to every band; shared_directory.test.sql covers that).
+update public.connections set keep_private = true;
+
 
 -- Stored files, put there as the storage service would.
 insert into storage.objects (bucket_id, name) values

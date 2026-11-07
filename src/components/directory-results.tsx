@@ -141,6 +141,8 @@ function tagsFor(c: DirectoryItem, tab: Tab) {
       c.played_together ? playedWords(c).tag : null,
       ...c.tags,
       ...(tab === "all" ? [] : c.scenes),
+      // Another band's record (#185).
+      c.sharedBy ? `From ${c.sharedBy}` : null,
     ]),
   ].filter(
     (t): t is string => Boolean(t),

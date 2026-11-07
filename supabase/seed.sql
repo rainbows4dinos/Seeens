@@ -4,6 +4,8 @@
 -- Local sign-ins (password: password123)
 --   alex@example.com  member (owner) of Merwulf, and an app admin (#71)
 --   sam@example.com   member of Merwulf
+--   robin@example.com member (owner) of Moth Signal, a second band, so the
+--                     shared directory (#185) has another side to it
 --   dana@example.com  signed up, not a member: should see nothing
 
 -- ---------------------------------------------------------------------------
@@ -23,6 +25,7 @@ select
 from (values
   ('11111111-1111-1111-1111-111111111111'::uuid, 'alex@example.com'),
   ('22222222-2222-2222-2222-222222222222'::uuid, 'sam@example.com'),
+  ('55555555-5555-5555-5555-555555555555'::uuid, 'robin@example.com'),
   ('44444444-4444-4444-4444-444444444444'::uuid, 'dana@example.com')
 ) as u (id, email);
 
@@ -34,7 +37,7 @@ select
   jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
   now(), now(), now()
 from auth.users u
-where u.email in ('alex@example.com', 'sam@example.com', 'dana@example.com');
+where u.email in ('alex@example.com', 'sam@example.com', 'robin@example.com', 'dana@example.com');
 
 -- ---------------------------------------------------------------------------
 -- Workspace
@@ -248,6 +251,49 @@ insert into public.next_actions (workspace_id, connection_id, description, due_o
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000005',
    'Ask Velvet Ditch for an intro', null,
    '22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222');
+
+-- ---------------------------------------------------------------------------
+-- A second band (#185): Moth Signal, from Olympia, joined after Merwulf
+-- ---------------------------------------------------------------------------
+
+insert into public.workspaces (id, name, created_at) values
+  ('aaaaaaaa-0000-0000-0000-000000000002', 'Moth Signal', now() + interval '1 second');
+insert into public.workspace_members (workspace_id, user_id, role, display_name) values
+  ('aaaaaaaa-0000-0000-0000-000000000002', '55555555-5555-5555-5555-555555555555', 'owner', 'Robin');
+
+insert into public.localities
+  (id, workspace_id, place_id, name, region, region_code, country, country_code, latitude, longitude)
+select l.id, 'aaaaaaaa-0000-0000-0000-000000000002', p.id, p.name, p.region_name, p.region_code,
+       p.country_name, p.country_code, p.latitude, p.longitude
+from (values
+  ('10000000-0000-0000-0000-000000000011'::uuid, 5805687),  -- Olympia, WA
+  ('10000000-0000-0000-0000-000000000012'::uuid, 5746545)   -- Portland, OR
+) as l (id, place_id)
+join public.places p on p.id = l.place_id;
+
+insert into public.connections
+  (id, workspace_id, name, kind, person_roles, group_type, is_us, locality_id, created_by)
+values
+  ('d0000000-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002',
+   'Moth Signal', 'group', '{}', 'band', true, '10000000-0000-0000-0000-000000000011', '55555555-5555-5555-5555-555555555555'),
+  ('d0000000-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002',
+   'The Brine Hall', 'group', '{}', 'venue', false, '10000000-0000-0000-0000-000000000011', '55555555-5555-5555-5555-555555555555'),
+  ('d0000000-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000002',
+   'Paper Lanterns', 'group', '{}', 'band', false, '10000000-0000-0000-0000-000000000012', '55555555-5555-5555-5555-555555555555'),
+  ('d0000000-0000-0000-0000-000000000004', 'aaaaaaaa-0000-0000-0000-000000000002',
+   'Quinn Example', 'person', '{booker}', null, false, '10000000-0000-0000-0000-000000000011', '55555555-5555-5555-5555-555555555555');
+
+insert into public.connection_links (workspace_id, connection_id, label, url, position) values
+  ('aaaaaaaa-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'Website', 'https://example.com/brine-hall', 0);
+
+update public.connection_band_details set status = 'homies', played_together = true
+where workspace_id = 'aaaaaaaa-0000-0000-0000-000000000002' and connection_id = 'd0000000-0000-0000-0000-000000000003';
+
+-- Moth Signal's own notes on a venue Merwulf shares. Merwulf never sees them.
+insert into public.connection_band_details (workspace_id, connection_id, status, notes) values
+  ('aaaaaaaa-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000006', 'lets_play',
+   'Robin knows the folks who run it.');
+delete from public.connection_status_changes where workspace_id = 'aaaaaaaa-0000-0000-0000-000000000002';
 
 -- Alex runs Seeens locally, so the feedback inbox (#71) has someone to show.
 insert into public.app_admins (user_id) values ('11111111-1111-1111-1111-111111111111');

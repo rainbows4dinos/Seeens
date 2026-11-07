@@ -4,8 +4,7 @@ import { useState, useTransition } from "react";
 import { offline } from "@/lib/offline";
 import { setKeepPrivate } from "@/lib/connections/sharing-actions";
 
-// Keep one record private (phase 2): when the directory opens, only this
-// band will see it. Saves on change. Pinned at the top of the record page.
+// Keep one record private (phase 2): only this band sees it. Saves on change. Pinned at the top of the record page.
 export function KeepPrivate({ id, band, initial }: { id: string; band: string; initial: boolean }) {
   const [on, setOn] = useState(initial);
   const [error, setError] = useState("");
@@ -26,8 +25,8 @@ export function KeepPrivate({ id, band, initial }: { id: string; band: string; i
   // Pinned beside the back button: the explanation is read with the box,
   // and shows on hover.
   const hint = on
-    ? `Only ${band} will see this record when Seeens opens up as one directory.`
-    : `Shared: other bands will see this record when Seeens opens up as one directory. Status, notes, and contacts stay ${band}'s.`;
+    ? `Only ${band} sees this record.`
+    : `Shared: other bands see this record. Status, notes, and contacts stay ${band}'s.`;
   return (
     <>
       <label className="choice" title={hint}>

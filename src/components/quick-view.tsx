@@ -40,6 +40,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <QuickViewHeading id={c.id}>{c.name}</QuickViewHeading>
             <p className="text-sm text-muted">{[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}</p>
+            {detail.sharedBy ? <p className="text-sm">Shared by {detail.sharedBy}</p> : null}
             <DateLines lastOutreach={lastEntry} nextAction={nextAction} today={today} />
             {c.scenes.length ? (
               <p className="text-sm">
@@ -104,7 +105,8 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
       <div className="quick-view-footer">
         {/* A plain link: the profile loads as its own page, not in this panel. */}
         <a href={`/connections/${c.id}`} className="button-primary">
-          Edit Profile<span className="sr-only"> of {c.name}</span>
+          {detail.mine ? "Edit Profile" : "Open Profile"}
+          <span className="sr-only"> of {c.name}</span>
         </a>
         {c.is_us ? null : <LogOutreachButton connectionId={c.id} />}
       </div>
@@ -116,7 +118,9 @@ type Detail = Awaited<ReturnType<typeof getConnection>>;
 
 // A few facts, label then value: the venue's room and booking, who's linked
 // (members, labels, who books it), how to reach them, and the start of the notes.
-function Facts({ detail, place }: { detail: Detail; place: string | null }) {
+// recordOnly leaves out this band's own contacts and notes (another band's
+// record page edits those below it, #185).
+export function Facts({ detail, place, recordOnly = false }: { detail: Detail; place: string | null; recordOnly?: boolean }) {
   const c = detail.connection;
   const rows: [string, ReactNode][] = [];
 
@@ -196,14 +200,14 @@ function Facts({ detail, place }: { detail: Detail; place: string | null }) {
         </span>
       )),
     ]);
-  if (c.email)
+  if (c.email && !recordOnly)
     rows.push([
       "Email",
       <a key="e" href={`mailto:${c.email}`} className="link break-all">
         {c.email}
       </a>,
     ]);
-  if (c.phone)
+  if (c.phone && !recordOnly)
     rows.push([
       "Phone",
       <a key="p" href={`tel:${c.phone}`} className="link">
@@ -211,7 +215,7 @@ function Facts({ detail, place }: { detail: Detail; place: string | null }) {
       </a>,
     ]);
   if (c.can_help_with.length) rows.push(["Can help with", c.can_help_with.join(", ")]);
-  if (c.notes) rows.push(["Notes", <span key="n" className="quick-view-notes">{c.notes}</span>]);
+  if (c.notes && !recordOnly) rows.push(["Notes", <span key="n" className="quick-view-notes">{c.notes}</span>]);
 
   if (!rows.length) return null;
   return (

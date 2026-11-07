@@ -18,6 +18,7 @@ import {
 } from "./form";
 import { getConnectionValues } from "./queries";
 import { VENUE_KEYS } from "./venue-details";
+import { writeBandLayer } from "./band-layer";
 import type { Json } from "@/lib/supabase/database.types";
 
 // Venue details replace the keys the form owns; anything else stored (an
@@ -113,15 +114,13 @@ export type ArchiveState = { error?: string };
 async function setArchived(id: string, archived: boolean): Promise<ArchiveState> {
   const workspaceId = await requireWorkspace();
   const supabase = await createClient();
-  // Archiving is this band's own (#181): it hides the record from this band's directory.
-  const { data, error } = await supabase
-    .from("connection_band_details")
-    .update({ archived_at: archived ? new Date().toISOString() : null })
-    .eq("connection_id", id)
-    .eq("workspace_id", workspaceId)
-    .select("connection_id");
+  // Archiving is this band's own (#181): it hides the record from this
+  // band's directory, another band's record included (#185).
+  const { rows, error } = await writeBandLayer(supabase, workspaceId, [id], {
+    archived_at: archived ? new Date().toISOString() : null,
+  });
 
-  if (error || !data.length) {
+  if (error || !rows.length) {
     return { error: archived ? "Couldn't archive. Try again." : "Couldn't restore. Try again." };
   }
   // Any change can show up on other pages (both ends of a link, the
@@ -165,18 +164,14 @@ export async function quickUpdate(
       .eq("connection_id", id)
       .eq("workspace_id", workspaceId)
       .maybeSingle();
-    return data ? { status: data.status, playedTogether: data.played_together } : null;
+    // A record this band never touched reads as Known (#185).
+    return data ? { status: data.status, playedTogether: data.played_together } : { status: "neutral" as const, playedTogether: false };
   };
   if (!patch) return { ok: false, saved: await current() };
 
-  // Status and played together are this band's own (#181).
-  const { data, error } = await supabase
-    .from("connection_band_details")
-    .update(patch)
-    .eq("connection_id", id)
-    .eq("workspace_id", workspaceId)
-    .select("status, played_together")
-    .maybeSingle();
+  // Status and played together are this band's own (#181), on any record it can see (#185).
+  const { rows, error } = await writeBandLayer(supabase, workspaceId, [id], patch);
+  const data = rows[0];
   if (error || !data) return { ok: false, saved: await current() };
 
   revalidatePath("/", "layout");
@@ -212,6 +207,27 @@ export async function markPlayedTogether(sourceId: string, ids: string[]): Promi
 
 export type AutosaveResult = { ok: true } | { ok: false; errors: ConnectionFormErrors };
 
+// The fields a band keeps on any record: its own notes and contacts (#185).
+const BAND_GROUPS = { email: "email", phone: "phone", notes: "notes" } as const;
+
+async function saveBandFields(
+  workspaceId: string,
+  id: string,
+  groups: AutosaveGroup[],
+  data: ValidConnection,
+): Promise<AutosaveResult> {
+  if (groups.some((g) => !(g in BAND_GROUPS))) {
+    return { ok: false, errors: { form: "Only the band that shared this can change it." } };
+  }
+  const patch: { email?: string | null; phone?: string | null; notes?: string | null } = {};
+  for (const g of groups as (keyof typeof BAND_GROUPS)[]) patch[BAND_GROUPS[g]] = data[g] || null;
+  const supabase = await createClient();
+  const { error } = await writeBandLayer(supabase, workspaceId, [id], patch);
+  if (error) return { ok: false, errors: { form: SAVE_FAILED } };
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 // The zoned profile page (#126) saves as you go: just the groups of fields
 // that changed, laid over what's stored now. A bandmate's edit to another
 // field, or a status change from the same page, is kept. If someone saves
@@ -227,6 +243,8 @@ export async function autosaveConnection(id: string, groups: string[], formData:
     if (!stored) return { ok: false, errors: { form: "This connection isn't here anymore." } };
     const result = mergeForAutosave(stored.values, incoming, valid);
     if (!result.ok) return { ok: false, errors: result.errors };
+    // Another band's record (#185): only this band's own notes and contacts.
+    if (!stored.mine) return saveBandFields(workspaceId, id, valid, result.data);
     try {
       await saveConnection(workspaceId, id, result.data, stored.updatedAt, stored.attributes);
     } catch (error) {

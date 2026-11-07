@@ -28,7 +28,7 @@ function fetchEdges(supabase: Supabase, ws: string) {
 
 // The record, with this band's private layer (#181).
 const CONNECTION_SELECT =
-  "*, band:connection_band_details ( status, played_together, notes, email, phone, archived_at, updated_at ), localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
+  "*, added_by:workspaces!connections_workspace_id_fkey ( name ), band:connection_band_details ( status, played_together, notes, email, phone, archived_at, updated_at ), localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
 
 // A timestamp to the microsecond, as the database compares them (Date drops
 // the last three digits).
@@ -60,11 +60,17 @@ function shapeConnection<T extends {
 /** Just the connection's own fields, for an autosave to merge into (#126). */
 export async function getConnectionValues(id: string) {
   const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  const { data, error } = await supabase.from("connections").select(CONNECTION_SELECT).eq("id", id).eq("workspace_id", ws).maybeSingle();
+  // Any record this band can see (#185), with this band's layer on it.
+  const { data, error } = await supabase
+    .from("connections")
+    .select(CONNECTION_SELECT)
+    .eq("id", id)
+    .eq("band.workspace_id", ws)
+    .maybeSingle();
   if (error) throw error;
   if (!data) return null;
   const c = shapeConnection(data);
-  return { values: toFormValues(c), updatedAt: c.version, attributes: c.attributes };
+  return { values: toFormValues(c), updatedAt: c.version, attributes: c.attributes, mine: c.workspace_id === ws };
 }
 
 export async function getConnection(id: string) {
@@ -77,7 +83,8 @@ export async function getConnection(id: string) {
       .from("connections")
       .select(CONNECTION_SELECT)
       .eq("id", id)
-      .eq("workspace_id", ws)
+      // This band's records and the ones other bands share (#185); only this band's layer.
+      .eq("band.workspace_id", ws)
       .maybeSingle(),
     supabase
       .from("affiliations")
@@ -152,8 +159,13 @@ export async function getConnection(id: string) {
     throw new Error("Couldn't load this connection's details.");
   }
 
+  const shaped = shapeConnection(connection.data);
   return {
-    connection: shapeConnection(connection.data),
+    connection: shaped,
+    /** Added by this band, so it can change the record itself (#185). */
+    mine: shaped.workspace_id === ws,
+    /** The band that shared it, when it's another band's. */
+    sharedBy: shaped.workspace_id === ws ? null : (shaped.added_by?.name ?? "another band"),
     affiliations: {
       outgoing: outgoing.data.map((a) => ({ ...a, other: liftOther(a.other) })),
       incoming: incoming.data.map((a) => ({ ...a, other: liftOther(a.other) })),

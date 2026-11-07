@@ -115,7 +115,7 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
                               save(
                                 [r.id],
                                 e.target.checked,
-                                e.target.checked ? `${r.name}: only ${band} will see it.` : `${r.name}: shared.`,
+                                e.target.checked ? `${r.name}: only ${band} sees it.` : `${r.name}: shared.`,
                               )
                             }
                           />

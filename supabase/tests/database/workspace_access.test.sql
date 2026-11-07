@@ -31,6 +31,10 @@ insert into public.connections (id, workspace_id, name, kind, person_roles, grou
   ('c0000000-0000-0000-0000-0000000000f1', 'aaaaaaaa-0000-0000-0000-0000000000f1', 'The Tin Hollows', 'group', '{}', 'band'),
   ('c0000000-0000-0000-0000-0000000000f2', 'aaaaaaaa-0000-0000-0000-0000000000f1', 'Jo Example', 'person', '{musician,dj}', null),
   ('c0000000-0000-0000-0000-0000000000f3', 'bbbbbbbb-0000-0000-0000-0000000000f2', 'Elsewhere Hall', 'group', '{}', 'venue');
+-- Kept private, so this checks one band can't see another's (#185 opens
+-- shared records to every band; shared_directory.test.sql covers that).
+update public.connections set keep_private = true where id in ('c0000000-0000-0000-0000-0000000000f1', 'c0000000-0000-0000-0000-0000000000f3');
+
 
 insert into public.scenes (id, workspace_id, name) values
   ('5c000000-0000-0000-0000-0000000000f9', 'bbbbbbbb-0000-0000-0000-0000000000f2', 'Elsewhere scene');
@@ -238,7 +242,7 @@ select lives_ok(
   'a band can be marked as us'
 );
 select throws_ok(
-  $$update public.connections set is_us = true where id = 'c0000000-0000-0000-0000-0000000000f1'$$,
+  $$update public.connections set is_us = true, keep_private = false where id = 'c0000000-0000-0000-0000-0000000000f1'$$,
   '23505', null,
   'only one us per workspace'
 );
