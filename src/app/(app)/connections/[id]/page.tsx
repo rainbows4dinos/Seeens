@@ -112,6 +112,7 @@ async function Connection({
       <BackButton
         href={directoryHrefFor(c.kind, c.group_type, archived)}
         name={{ text: c.name, headingId: "profile-name" }}
+        end={c.is_us ? null : <KeepPrivate key={String(c.keep_private)} id={c.id} band={membership.workspaceName} initial={c.keep_private} />}
       />
 
       <p role="status" className="text-sm font-medium empty:hidden">
@@ -350,7 +351,6 @@ async function Connection({
         <p className="text-sm text-muted">
           Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
         </p>
-        {c.is_us ? null : <KeepPrivate key={String(c.keep_private)} id={c.id} band={membership.workspaceName} initial={c.keep_private} />}
         {lastMerge && merged !== "1" ? (
           <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} quiet />
         ) : null}
