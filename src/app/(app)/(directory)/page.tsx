@@ -38,7 +38,7 @@ import {
   type Tab,
   type TabCounts,
 } from "@/lib/connections/directory";
-import { STATUSES, STATUS_WORDS, formatLocality } from "@/lib/connections/labels";
+import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
@@ -97,6 +97,8 @@ async function Directory({
     <LayoutProvider key={layout} initial={layout}>
       <div className="flex flex-col gap-6">
         <h1 className="sr-only">Directory</h1>
+
+        {archived ? null : <ScopeTabs tab={tab} filters={filters} counts={c.scopes} />}
 
         {/* Every directory control in one bar, pinned while the list scrolls.
             Phones pin only the search row. */}
@@ -173,7 +175,7 @@ async function Directory({
                 </Link>
               ) : null}
               {filtering ? (
-                <Link href={directoryHref(tab, { ...EMPTY, archived })} className="link">
+                <Link href={directoryHref(tab, { ...EMPTY, archived, scope: filters.scope })} className="link">
                   Clear filters
                 </Link>
               ) : null}
@@ -204,7 +206,7 @@ async function Directory({
                 <p className="text-muted">
                   Try fewer filters or a shorter search.
                 </p>
-                <Link href={directoryHref(tab, { ...EMPTY, archived })} className="button-secondary">
+                <Link href={directoryHref(tab, { ...EMPTY, archived, scope: filters.scope })} className="button-secondary">
                   Clear Filters
                 </Link>
               </div>
@@ -243,7 +245,30 @@ async function Directory({
   );
 }
 
-const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", ages: "", capacity: "", archived: false };
+const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", ages: "", capacity: "", archived: false, noStatus: false, scope: "network" };
+
+// My network or all scenes (#192): what this band added or has touched, or
+// everything every band shares. Counts follow the other filters.
+function ScopeTabs({ tab, filters, counts }: { tab: Tab; filters: DirectoryFilters; counts: { network: number; all: number } }) {
+  const scopes = [
+    { id: "network", label: "My Network", count: counts.network },
+    { id: "all", label: "All Scenes", count: counts.all },
+  ] as const;
+  return (
+    <nav aria-label="Whose connections" className="segmented type-tabs">
+      {scopes.map((s) => (
+        <Link
+          key={s.id}
+          href={directoryHref(tab, { ...filters, scope: s.id })}
+          aria-current={filters.scope === s.id ? "page" : undefined}
+        >
+          <span>{s.label}</span>
+          <span className="tabular-nums">{s.count}</span>
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
 // One tab per kind of connection (#122), each with its count under the
 // other filters. Phones show Bands, People, and a third tab (Venues, or the
@@ -303,6 +328,7 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (tab !== DEFAULT_TAB) p.set("type", tab);
   if (f.q) p.set("q", f.q);
   f.statuses.forEach((st) => p.append("status", st));
+  if (f.noStatus) p.set("status", "none");
   if (f.scene) p.set("scene", f.scene);
   if (f.town) p.set("town", f.town);
   // Plays only means something where there are people.
@@ -311,6 +337,8 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (tab === "venues" && f.ages) p.set("ages", f.ages);
   if (tab === "venues" && f.capacity) p.set("cap", f.capacity);
   if (f.archived) p.set("archived", "1");
+  // My network is the default (#192); the archived view is always yours.
+  else if (f.scope === "all") p.set("scope", "all");
   const qs = p.toString();
   return qs ? `/?${qs}` : "/";
 }
@@ -379,6 +407,7 @@ function FilterForm({
       {tab !== DEFAULT_TAB ? <input type="hidden" name="type" value={tab} /> : null}
       {/* The archived view keeps its half while you search and filter. */}
       {f.archived ? <input type="hidden" name="archived" value="1" /> : null}
+      {!f.archived && f.scope === "all" ? <input type="hidden" name="scope" value="all" /> : null}
       <FilterDisclosure
         initialOpen={open}
         active={active}
@@ -431,7 +460,7 @@ function FilterForm({
             id="f-status"
             name="status"
             className="field"
-            defaultValue={f.statuses.length === 1 ? f.statuses[0] : ""}
+            defaultValue={f.noStatus ? "none" : f.statuses.length === 1 ? f.statuses[0] : ""}
           >
             {/* Archived ones keep Avoid in view (nothing's hidden there). */}
             <option value="">{f.archived ? "Everyone" : "Everyone but Avoid"}</option>
@@ -440,6 +469,8 @@ function FilterForm({
                 {STATUS_WORDS[wordSetForTab(tab)][st]}
               </option>
             ))}
+            {/* Not sorted yet (#192). */}
+            <option value="none">{NO_STATUS}</option>
           </select>
           </span>
           <Combobox

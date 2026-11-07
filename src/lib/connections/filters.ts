@@ -17,6 +17,10 @@ export type DirectoryFilters = {
   ages: Ages | "";
   capacity: Capacity | "";
   archived: boolean;
+  /** Only records with no status (#192): ?status=none. */
+  noStatus: boolean;
+  /** My network (the default) or all scenes (#192): ?scope=all. */
+  scope: "network" | "all";
 };
 
 type Params = Record<string, string | string[] | undefined>;
@@ -38,10 +42,12 @@ export function readFilters(params: Params): DirectoryFilters {
     ages: first(params.ages) in AGES ? (first(params.ages) as Ages) : "",
     capacity: first(params.cap) in CAPACITY ? (first(params.cap) as Capacity) : "",
     archived: first(params.archived) === "1" || view === "archived",
+    noStatus: all(params.status).includes("none"),
+    scope: first(params.scope) === "all" ? "all" : "network",
   };
 }
 
 /** Filters that narrow the list: search, status, scene, town. Archived is a different half, not a narrowing. */
 export function hasFilters(f: DirectoryFilters) {
-  return Boolean(f.q || f.statuses.length || f.scene || f.town || f.instrument || f.ages || f.capacity);
+  return Boolean(f.q || f.statuses.length || f.noStatus || f.scene || f.town || f.instrument || f.ages || f.capacity);
 }

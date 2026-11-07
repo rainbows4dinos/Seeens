@@ -1,7 +1,7 @@
 // Status words by type (#139). Run with: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { playedWords, statusHint, statusLabel, wordSetFor } from "./status-words.ts";
+import { historyLine, playedWords, statusHint, statusLabel, wordSetFor } from "./status-words.ts";
 
 const band = { kind: "group" as const, group_type: "band" as const };
 const venue = { kind: "group" as const, group_type: "venue" as const };
@@ -31,7 +31,7 @@ test("each type gets its words; the shared ones stay shared", () => {
   );
   for (const c of [band, venue, person(), label]) {
     assert.equal(statusLabel("prospect", c), "Eyeing");
-    assert.equal(statusLabel("neutral", c), "Known");
+    assert.equal(statusLabel("neutral", c), "Heard of");
     assert.equal(statusLabel("avoid", c), "Avoid");
   }
   assert.equal(statusLabel("homies"), "Homies", "no type: band words");
@@ -53,4 +53,12 @@ test("played together says what it means for the type", () => {
   assert.equal(playedWords(person("writer")).tag, "Covered us");
   assert.equal(playedWords(person("photographer")).tag, "Worked together");
   assert.equal(playedWords(null).label, "We've played together");
+});
+
+test("history lines: a first status, a change, a clear (#192)", () => {
+  assert.equal(historyLine({ from_status: null, to_status: "neutral" }, band), "Set to Heard of");
+  assert.equal(historyLine({ from_status: null, to_status: "homies" }, band, "Added as"), "Added as Homies");
+  assert.equal(historyLine({ from_status: "prospect", to_status: "lets_play" }, band), "Eyeing to Let's play");
+  assert.equal(historyLine({ from_status: "neutral", to_status: null }, band), "Cleared (was Heard of)");
+  assert.equal(statusLabel(null, band), "No status");
 });
