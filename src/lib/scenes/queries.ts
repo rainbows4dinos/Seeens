@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
+import { layerOf } from "@/lib/connections/band-details";
 
 const SCENE_FIELDS =
   "id, name, description, parent_id, locality_id, localities ( name, region, region_code, country, country_code, place_id ), connection_scenes ( connection_id, connection:connections ( band:connection_band_details ( archived_at ) ) )";
@@ -11,11 +12,11 @@ const SCENE_FIELDS =
 function withCount<
   T extends {
     // Archived is this band's own (#181).
-    connection_scenes: { connection_id: string; connection: { band: { archived_at: string | null } | null } | null }[];
+    connection_scenes: { connection_id: string; connection: { band: { archived_at: string | null } | { archived_at: string | null }[] | null } | null }[];
   },
 >(s: T) {
   const ids = s.connection_scenes
-    .filter((cs) => cs.connection && !cs.connection.band?.archived_at)
+    .filter((cs) => cs.connection && !layerOf(cs.connection.band)?.archived_at)
     .map((cs) => cs.connection_id);
   return { ...s, connectionIds: ids, count: ids.length };
 }

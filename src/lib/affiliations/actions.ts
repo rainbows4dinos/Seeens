@@ -1,5 +1,6 @@
 "use server";
 
+import { layerOf } from "@/lib/connections/band-details";
 import { revalidatePath } from "next/cache";
 import { getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { GROUP_TYPES, type GroupType, type PersonRole } from "@/lib/connections/labels";
@@ -30,7 +31,7 @@ async function carryFromBand(supabase: Supabase, workspaceId: string, bandId: st
   return {
     p_locality_id: pick.town && band.locality_id ? band.locality_id : undefined,
     p_scene_ids: sceneIds.length ? sceneIds : undefined,
-    p_played_together: Boolean(pick.played && band.band?.played_together),
+    p_played_together: Boolean(pick.played && layerOf(band.band)?.played_together),
   };
 }
 const fail = (error: string): LinkState => ({ error, attempt: Date.now() });

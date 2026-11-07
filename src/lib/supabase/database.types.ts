@@ -90,11 +90,11 @@ isOneToOne: false
                   }
                   Relationships: [
                     {
-      foreignKeyName: "connection_status_changes_workspace_id_connection_id_fkey"
-      columns: ["workspace_id","connection_id"]
+      foreignKeyName: "connection_status_changes_connection_id_fkey"
+      columns: ["connection_id"]
 isOneToOne: false
       referencedRelation: "connections"
-      referencedColumns: ["workspace_id","id"]
+      referencedColumns: ["id"]
     }
                   ]
                 },"connection_merges": {
@@ -152,11 +152,11 @@ isOneToOne: false
                   Update: { "archived_at"?: string | null,"connection_id"?: string,"email"?: string | null,"notes"?: string | null,"phone"?: string | null,"played_together"?: boolean,"status"?: Database["public"]["Enums"]["connection_status"],"updated_at"?: string,"workspace_id"?: string }
                   Relationships: [
                     {
-      foreignKeyName: "connection_band_details_workspace_id_connection_id_fkey"
-      columns: ["workspace_id","connection_id"]
-isOneToOne: true
+      foreignKeyName: "connection_band_details_connection_id_fkey"
+      columns: ["connection_id"]
+isOneToOne: false
       referencedRelation: "connections"
-      referencedColumns: ["workspace_id","id"]
+      referencedColumns: ["id"]
     }
                   ]
                 },"app_admins": {
@@ -242,11 +242,11 @@ isOneToOne: false
       referencedRelation: "workspace_members"
       referencedColumns: ["workspace_id","user_id"]
     },{
-      foreignKeyName: "next_actions_workspace_id_connection_id_fkey"
-      columns: ["workspace_id","connection_id"]
+      foreignKeyName: "next_actions_connection_id_fkey"
+      columns: ["connection_id"]
 isOneToOne: false
       referencedRelation: "connections"
-      referencedColumns: ["workspace_id","id"]
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "next_actions_workspace_id_created_by_fkey"
       columns: ["workspace_id","created_by"]
@@ -274,11 +274,11 @@ isOneToOne: false
       referencedRelation: "workspace_members"
       referencedColumns: ["workspace_id","user_id"]
     },{
-      foreignKeyName: "outreach_entries_workspace_id_connection_id_fkey"
-      columns: ["workspace_id","connection_id"]
+      foreignKeyName: "outreach_entries_connection_id_fkey"
+      columns: ["connection_id"]
 isOneToOne: false
       referencedRelation: "connections"
-      referencedColumns: ["workspace_id","id"]
+      referencedColumns: ["id"]
     }
                   ]
                 },"places": {
@@ -449,7 +449,7 @@ isOneToOne: false
         isSetofReturn: true
       } },
 "set_next_action":
-{ Args: { "p_assignee_id"?: string,"p_connection_id": string,"p_description": string,"p_due_on"?: string }; Returns: {
+{ Args: { "p_assignee_id"?: string,"p_connection_id": string,"p_description": string,"p_due_on"?: string,"p_workspace_id"?: string }; Returns: {
               "assignee_id": string | null,
 "closed_at": string | null,
 "closed_by": string | null,

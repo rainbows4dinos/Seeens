@@ -8,6 +8,7 @@ import { formatDay, todayISO } from "@/lib/outreach/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 import { catalogNo } from "@/lib/connections/card";
 import { formatType } from "@/lib/connections/labels";
+import { layerOf } from "@/lib/connections/band-details";
 
 export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 
@@ -34,7 +35,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
       supabase
         .from("next_actions")
         .select(
-          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_workspace_id_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, band:connection_band_details ( archived_at ) )",
+          "id, description, due_on, assignee_id, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ), connection:connections!next_actions_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, band:connection_band_details ( archived_at ) )",
         )
         .eq("workspace_id", membership.workspaceId)
         .eq("status", "open")
@@ -56,7 +57,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
 
   const today = todayISO(new Date(), membership.timeZone);
   // Archived is this band's own (#181).
-  const open = (actions.data ?? []).filter((a) => a.connection && !a.connection.band?.archived_at);
+  const open = (actions.data ?? []).filter((a) => a.connection && !layerOf(a.connection.band)?.archived_at);
   const shown = open.filter((a) => (who === "" ? true : who === "anyone" ? !a.assignee_id : a.assignee_id === who));
   const dated = shown.filter((a) => a.due_on);
   const undated = shown.filter((a) => !a.due_on);
