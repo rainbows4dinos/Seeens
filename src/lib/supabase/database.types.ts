@@ -150,7 +150,15 @@ isOneToOne: false
                   ComputedFields: never
                   Insert: { "archived_at"?: string | null,"connection_id": string,"email"?: string | null,"notes"?: string | null,"phone"?: string | null,"played_together"?: boolean,"status"?: Database["public"]["Enums"]["connection_status"],"updated_at"?: string,"workspace_id": string }
                   Update: { "archived_at"?: string | null,"connection_id"?: string,"email"?: string | null,"notes"?: string | null,"phone"?: string | null,"played_together"?: boolean,"status"?: Database["public"]["Enums"]["connection_status"],"updated_at"?: string,"workspace_id"?: string }
-                  Relationships: []
+                  Relationships: [
+                    {
+      foreignKeyName: "connection_band_details_workspace_id_connection_id_fkey"
+      columns: ["workspace_id","connection_id"]
+isOneToOne: true
+      referencedRelation: "connections"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
                 },"app_admins": {
                   Row: { "created_at": string,"user_id": string }
                   ComputedFields: never

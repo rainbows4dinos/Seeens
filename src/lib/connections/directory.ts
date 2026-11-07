@@ -1,4 +1,5 @@
 import "server-only";
+import { liftBand, liftOther } from "./band-details";
 import { readVenueDetails, venueLine } from "./venue-details";
 import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
@@ -154,7 +155,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, name, kind, person_roles, group_type, status, played_together, is_us, catalog_no, photo_path, photo_alt, notes, attributes, localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, archived_at ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, archived_at ) )",
+          "id, name, kind, person_roles, group_type, is_us, catalog_no, photo_path, photo_alt, attributes, band:connection_band_details ( status, played_together, notes ), localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) )",
         )
         .eq("workspace_id", ws)
         .in("id", ids)
@@ -166,7 +167,15 @@ export async function loadDirectoryPage(
     : { data: [], error: null };
   if (detailError) throw new Error("Couldn't load the directory.");
 
-  const byId = new Map((details ?? []).map((d) => [d.id, d]));
+  // This band's private layer (#181) lifted onto each record and each linked one.
+  const byId = new Map(
+    (details ?? []).map((raw) => {
+      const d = liftBand(raw);
+      const lift = <A extends { other: Parameters<typeof liftOther>[0] }>(links: A[]) =>
+        links.map((a) => ({ ...a, other: liftOther(a.other) }));
+      return [d.id, { ...d, incoming: lift(d.incoming), outgoing: lift(d.outgoing) }] as const;
+    }),
+  );
   const sceneNames = new Map(scenes.map((s) => [s.id, s.name]));
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
