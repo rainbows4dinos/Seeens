@@ -6,6 +6,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- Fixtures with a band's private details (#181): staged, then split into
+-- the record and this band's private layer.
+create temp table tc as select * from public.connections with no data;
+alter table tc add column status public.connection_status, add column played_together boolean,
+  add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
+
 select plan(9);
 
 insert into auth.users (id, email) values
@@ -20,9 +26,12 @@ insert into public.workspace_members (workspace_id, user_id, role, display_name)
   ('c2aaaaaa-0000-0000-0000-0000000000a1', 'c2111111-1111-1111-1111-111111111111', 'owner', 'Alex'),
   ('c2bbbbbb-0000-0000-0000-0000000000b2', 'c2333333-3333-3333-3333-333333333333', 'member', 'Cora');
 
-insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, notes) values
+insert into tc (id, workspace_id, name, kind, person_roles, group_type, notes) values
   ('c2c00000-0000-0000-0000-0000000000a1', 'c2aaaaaa-0000-0000-0000-0000000000a1', 'Static Basement', 'group', '{}', 'venue', 'Sam''s notes'),
   ('c2c00000-0000-0000-0000-0000000000b2', 'c2bbbbbb-0000-0000-0000-0000000000b2', 'Their Venue', 'group', '{}', 'venue', null);
+insert into public.connections (id, workspace_id, name, kind, person_roles, group_type) select id, workspace_id, name, kind, person_roles, group_type from tc;
+update public.connection_band_details d set notes = t.notes from tc t where d.connection_id = t.id;
+truncate tc;
 
 insert into public.connection_links (workspace_id, connection_id, url) values
   ('c2aaaaaa-0000-0000-0000-0000000000a1', 'c2c00000-0000-0000-0000-0000000000a1', 'https://static.example.com');
@@ -43,7 +52,7 @@ select throws_ok(
   'saving a form opened on an older version is refused'
 );
 select is(
-  (select notes from public.connections where id = 'c2c00000-0000-0000-0000-0000000000a1'),
+  (select notes from public.connections join public.connection_band_details on connection_id = id where id = 'c2c00000-0000-0000-0000-0000000000a1'),
   'Sam''s notes',
   'a refused save keeps the bandmate''s notes'
 );
@@ -70,7 +79,7 @@ select lives_ok(
   'saving a form opened on the current version works'
 );
 select is(
-  (select notes from public.connections where id = 'c2c00000-0000-0000-0000-0000000000a1'),
+  (select notes from public.connections join public.connection_band_details on connection_id = id where id = 'c2c00000-0000-0000-0000-0000000000a1'),
   'Alex''s notes',
   'the current-version save lands'
 );

@@ -3,6 +3,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- Fixtures with a band's private details (#181): staged, then split into
+-- the record and this band's private layer.
+create temp table tc as select * from public.connections with no data;
+alter table tc add column status public.connection_status, add column played_together boolean,
+  add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
+
 select plan(32);
 
 insert into auth.users (id, email) values
@@ -27,7 +33,7 @@ insert into public.scenes (id, workspace_id, name) values
 -- Us (neutral), three homies with mixed case, a let's play band, an
 -- avoid, an archived band, a label, a person who plays in both bands, and a
 -- name with a literal percent sign.
-insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, status, is_us, locality_id, archived_at) values
+insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, is_us, locality_id, archived_at) values
   ('d9c00000-0000-0000-0000-000000000001', 'd9aaaaaa-0000-0000-0000-0000000000a1', 'Merwulf', 'group', '{}', 'band', 'neutral', true, 'd9100000-0000-0000-0000-000000000001', null),
   ('d9c00000-0000-0000-0000-000000000002', 'd9aaaaaa-0000-0000-0000-0000000000a1', 'bees', 'group', '{}', 'band', 'homies', false, 'd9100000-0000-0000-0000-000000000001', null),
   ('d9c00000-0000-0000-0000-000000000003', 'd9aaaaaa-0000-0000-0000-0000000000a1', 'Ants', 'group', '{}', 'band', 'homies', false, 'd9100000-0000-0000-0000-000000000002', null),
@@ -39,6 +45,9 @@ insert into public.connections (id, workspace_id, name, kind, person_roles, grou
   ('d9c00000-0000-0000-0000-000000000009', 'd9aaaaaa-0000-0000-0000-0000000000a1', 'Jo Example', 'person', '{musician,dj}', null, 'neutral', false, null, null),
   ('d9c00000-0000-0000-0000-000000000010', 'd9aaaaaa-0000-0000-0000-0000000000a1', '100% Noise', 'group', '{}', 'band', 'neutral', false, null, null),
   ('d9c00000-0000-0000-0000-0000000000b1', 'd9bbbbbb-0000-0000-0000-0000000000b2', 'Their Band', 'group', '{}', 'band', 'homies', true, null, null);
+insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, is_us, locality_id) select id, workspace_id, name, kind, person_roles, group_type, is_us, locality_id from tc;
+update public.connection_band_details d set status = coalesce(t.status, d.status), archived_at = t.archived_at from tc t where d.connection_id = t.id;
+truncate tc;
 
 -- bees and Old Band share our label; Dogs shares a member with us.
 insert into public.affiliations (workspace_id, from_connection_id, to_connection_id, kind) values

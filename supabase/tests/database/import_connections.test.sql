@@ -3,6 +3,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- Fixtures with a band's private details (#181): staged, then split into
+-- the record and this band's private layer.
+create temp table tc as select * from public.connections with no data;
+alter table tc add column status public.connection_status, add column played_together boolean,
+  add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
+
 select plan(12);
 
 insert into auth.users (id, email) values ('d1111111-1111-1111-1111-111111111111', 'import-alex@example.com');
@@ -11,10 +17,13 @@ insert into public.workspace_members (workspace_id, user_id, role, display_name)
 values ('d1aaaaaa-0000-0000-0000-0000000000a1', 'd1111111-1111-1111-1111-111111111111', 'owner', 'Alex');
 
 -- Already in the directory: a venue with some details, and Joel.
-insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, status, email, notes, attributes) values
+insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, email, notes, attributes) values
   ('d1c00000-0000-0000-0000-000000000001', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Dantes', 'group', '{}', 'venue', 'homies',
    'old@dantes.example', 'We love it here.', '{"ages": "21_plus", "checked_on": "2025-01-01"}'),
   ('d1c00000-0000-0000-0000-000000000002', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Joel', 'person', '{booker}', null, 'neutral', null, null, '{}');
+insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, attributes) select id, workspace_id, name, kind, person_roles, group_type, attributes from tc;
+update public.connection_band_details d set status = coalesce(t.status, d.status), email = t.email, notes = t.notes from tc t where d.connection_id = t.id;
+truncate tc;
 insert into public.connection_links (workspace_id, connection_id, label, url, position) values
   ('d1aaaaaa-0000-0000-0000-0000000000a1', 'd1c00000-0000-0000-0000-000000000001', 'Website', 'https://dantes.example', 0);
 
@@ -39,7 +48,7 @@ select is(
 
 -- New rows land like a form save.
 select is((select row(group_type::text, email, notes, attributes ->> 'capacity', (attributes ? 'checked_on'))::text
-  from public.connections where name = 'Fixin'' To'),
+  from public.connections join public.connection_band_details on connection_id = id where name = 'Fixin'' To'),
   '(venue,booking@fixinto.example,"Great sound",50_150,t)', 'a new venue, with its details stamped');
 select is((select count(*)::int from public.connection_scenes cs join public.scenes s on s.id = cs.scene_id
   where s.name = 'Portland DIY'), 2, 'scenes by name: one scene, two connections');
@@ -47,13 +56,13 @@ select is((select l.url from public.connection_links l join public.connections c
   where c.name = 'The Barf Bags'), 'https://instagram.com/barfbags', 'links');
 
 -- Fill blanks: what's there stays.
-select is((select email from public.connections where id = 'd1c00000-0000-0000-0000-000000000001'),
+select is((select email from public.connections join public.connection_band_details on connection_id = id where id = 'd1c00000-0000-0000-0000-000000000001'),
   'old@dantes.example', 'an existing email is kept');
-select is((select notes from public.connections where id = 'd1c00000-0000-0000-0000-000000000001'),
+select is((select notes from public.connections join public.connection_band_details on connection_id = id where id = 'd1c00000-0000-0000-0000-000000000001'),
   E'We love it here.\n\nNot sure: booked by Chris?', 'sheet notes go under the existing ones');
 select is((select attributes - 'checked_on' from public.connections where id = 'd1c00000-0000-0000-0000-000000000001'),
   '{"ages": "21_plus", "capacity": "150_300"}'::jsonb, 'existing details win; missing ones are added');
-select is((select status::text from public.connections where id = 'd1c00000-0000-0000-0000-000000000001'),
+select is((select status::text from public.connections join public.connection_band_details on connection_id = id where id = 'd1c00000-0000-0000-0000-000000000001'),
   'homies', 'status is left alone');
 select is((select array_agg(url order by position) from public.connection_links where connection_id = 'd1c00000-0000-0000-0000-000000000001'),
   array['https://dantes.example', 'https://instagram.com/dantes'], 'only new links are added, after the old ones');

@@ -54,7 +54,7 @@ select lives_ok(
 
 select is(
   (select row(name, status::text, played_together, group_type::text)::text
-   from public.connections where id = (select id from saved)),
+   from public.connections join public.connection_band_details on connection_id = id where id = (select id from saved)),
   row('The Tin Hollows', 'lets_play', true, 'band')::text,
   'the connection row is saved'
 );

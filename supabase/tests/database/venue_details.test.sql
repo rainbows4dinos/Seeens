@@ -3,6 +3,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- Fixtures with a band's private details (#181): staged, then split into
+-- the record and this band's private layer.
+create temp table tc as select * from public.connections with no data;
+alter table tc add column status public.connection_status, add column played_together boolean,
+  add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
+
 select plan(10);
 
 insert into auth.users (id, email) values ('cf111111-1111-1111-1111-111111111111', 'venue-alex@example.com');
@@ -10,13 +16,16 @@ insert into public.workspaces (id, name) values ('cfaaaaaa-0000-0000-0000-000000
 insert into public.workspace_members (workspace_id, user_id, role, display_name)
 values ('cfaaaaaa-0000-0000-0000-0000000000a1', 'cf111111-1111-1111-1111-111111111111', 'owner', 'Alex');
 
-insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, status, attributes) values
+insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, attributes) values
   ('cfc00000-0000-0000-0000-000000000001', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'Basement', 'group', '{}', 'venue', 'neutral',
    '{"ages": "all_ages", "capacity": "under_50", "space": "diy", "checked_on": "2025-01-01", "from_import": "keep me"}'),
   ('cfc00000-0000-0000-0000-000000000002', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'Big Room', 'group', '{}', 'venue', 'neutral',
    '{"ages": "21_plus", "capacity": "300_600"}'),
   ('cfc00000-0000-0000-0000-000000000003', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'No Details', 'group', '{}', 'venue', 'neutral', '{}'),
   ('cfc00000-0000-0000-0000-000000000011', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'Joel', 'person', '{booker}', null, 'neutral', '{}');
+insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, attributes) select id, workspace_id, name, kind, person_roles, group_type, attributes from tc;
+update public.connection_band_details d set status = coalesce(t.status, d.status) from tc t where d.connection_id = t.id;
+truncate tc;
 
 select throws_ok(
   $$update public.connections set attributes = '[]' where id = 'cfc00000-0000-0000-0000-000000000003'$$,

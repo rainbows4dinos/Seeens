@@ -3,6 +3,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- Fixtures with a band's private details (#181): staged, then split into
+-- the record and this band's private layer.
+create temp table tc as select * from public.connections with no data;
+alter table tc add column status public.connection_status, add column played_together boolean,
+  add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
+
 select plan(10);
 
 -- role_instruments
@@ -19,13 +25,16 @@ insert into public.workspace_members (workspace_id, user_id, role, display_name)
 values ('ceaaaaaa-0000-0000-0000-0000000000a1', 'ce111111-1111-1111-1111-111111111111', 'owner', 'Alex');
 
 -- Two bands, and people who are Heard of, Avoid, or Crush themselves.
-insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, status, archived_at) values
+insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, archived_at) values
   ('cec00000-0000-0000-0000-000000000001', 'ceaaaaaa-0000-0000-0000-0000000000a1', 'Homie Band', 'group', '{}', 'band', 'homies', null),
   ('cec00000-0000-0000-0000-000000000002', 'ceaaaaaa-0000-0000-0000-0000000000a1', 'Avoid Band', 'group', '{}', 'band', 'avoid', null),
   ('cec00000-0000-0000-0000-000000000011', 'ceaaaaaa-0000-0000-0000-0000000000a1', 'Jo Drums', 'person', '{musician}', null, 'neutral', null),
   ('cec00000-0000-0000-0000-000000000012', 'ceaaaaaa-0000-0000-0000-0000000000a1', 'Ana Avoided', 'person', '{musician}', null, 'avoid', null),
   ('cec00000-0000-0000-0000-000000000013', 'ceaaaaaa-0000-0000-0000-0000000000a1', 'Cy Crush', 'person', '{musician}', null, 'prospect', null),
   ('cec00000-0000-0000-0000-000000000014', 'ceaaaaaa-0000-0000-0000-0000000000a1', 'Ed Elsewhere', 'person', '{musician}', null, 'neutral', null);
+insert into public.connections (id, workspace_id, name, kind, person_roles, group_type) select id, workspace_id, name, kind, person_roles, group_type from tc;
+update public.connection_band_details d set status = coalesce(t.status, d.status), archived_at = t.archived_at from tc t where d.connection_id = t.id;
+truncate tc;
 
 insert into public.affiliations (workspace_id, from_connection_id, to_connection_id, kind, role, is_current) values
   -- Jo drums in a Homie band now and played bass in the Avoid band.

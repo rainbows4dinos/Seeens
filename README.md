@@ -137,7 +137,7 @@ Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `a
 
 ## Database
 
-The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. Signing in does not grant access; a member has to invite you.
+The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. What a band keeps to itself about a record (status, played together, notes, email, phone, and whether it archived it) lives in `connection_band_details`, one row per band and record, apart from the record itself. That's the groundwork for a directory every band shares (#181). Signing in does not grant access; a member has to invite you.
 
 History is kept, not overwritten: connections are archived instead of deleted (merged duplicates are hidden for 30 days, then deleted, with everything they held moved to the one kept), status changes are logged, replacing a next action closes the old one (`set_next_action`), and outreach entries can only be changed by their author.
 
