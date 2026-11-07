@@ -28,21 +28,33 @@ function fetchEdges(supabase: Supabase, ws: string) {
 
 // The record, with this band's private layer (#181).
 const CONNECTION_SELECT =
-  "*, band:connection_band_details ( status, played_together, notes, email, phone, archived_at ), localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
+  "*, band:connection_band_details ( status, played_together, notes, email, phone, archived_at, updated_at ), localities ( name, region, region_code, country, country_code, place_id ), connection_links ( id, label, url, position ), connection_scenes ( scenes ( id, name ) )";
+
+// A timestamp to the microsecond, as the database compares them (Date drops
+// the last three digits).
+function micros(ts: string) {
+  const fraction = (ts.match(/\.(\d+)/)?.[1] ?? "").padEnd(6, "0").slice(0, 6);
+  return BigInt(Date.parse(ts.replace(/\.\d+/, ""))) * BigInt(1000) + BigInt(fraction);
+}
 
 // Links in order and scenes by name, the way the pages show them.
 function shapeConnection<T extends {
   band: Parameters<typeof liftBand>[0]["band"];
   connection_links: { position: number }[];
   connection_scenes: { scenes: { id: string; name: string } | null }[];
-}>(withBand: T) {
+}>(withBand: T & { updated_at: string }) {
   const row = liftBand(withBand);
+  // The version an edit form saves against: the record or this band's
+  // private layer, whichever changed last (#181).
+  const layer = Array.isArray(withBand.band) ? withBand.band[0] : withBand.band;
+  const layerAt = (layer as { updated_at?: string } | null)?.updated_at;
+  const version = layerAt && micros(layerAt) > micros(withBand.updated_at) ? layerAt : withBand.updated_at;
   const links = [...row.connection_links].sort((a, b) => a.position - b.position);
   const scenes = row.connection_scenes
     .map((cs) => cs.scenes)
     .filter((s): s is NonNullable<typeof s> => Boolean(s))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-  return { ...row, connection_links: links, scenes };
+  return { ...row, connection_links: links, scenes, version };
 }
 
 /** Just the connection's own fields, for an autosave to merge into (#126). */
@@ -52,7 +64,7 @@ export async function getConnectionValues(id: string) {
   if (error) throw error;
   if (!data) return null;
   const c = shapeConnection(data);
-  return { values: toFormValues(c), updatedAt: c.updated_at, attributes: c.attributes };
+  return { values: toFormValues(c), updatedAt: c.version, attributes: c.attributes };
 }
 
 export async function getConnection(id: string) {
@@ -197,7 +209,7 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
       ? c.connection_links.map((l) => ({ label: l.label ?? "", url: l.url }))
       : EMPTY_FORM.links,
     venue: venueDetailsToForm(readVenueDetails(c.attributes)),
-    updatedAt: c.updated_at,
+    updatedAt: c.version,
   };
 }
 

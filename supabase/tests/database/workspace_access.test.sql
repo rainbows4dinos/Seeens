@@ -122,7 +122,7 @@ select results_eq(
 );
 select is((select count(*) from public.workspace_members), 1::bigint, 'other-workspace member sees only their own roster');
 
-update public.connections set status = 'homies' where id = 'c0000000-0000-0000-0000-0000000000f2';
+update public.connection_band_details set status = 'homies' where connection_id = 'c0000000-0000-0000-0000-0000000000f2';
 
 select throws_ok(
   $$insert into public.affiliations (workspace_id, from_connection_id, to_connection_id, role)
@@ -145,7 +145,7 @@ select is(
   'non-member update changed nothing'
 );
 select is(
-  (select status::text from public.connections where id = 'c0000000-0000-0000-0000-0000000000f2'),
+  (select status::text from public.connection_band_details where connection_id = 'c0000000-0000-0000-0000-0000000000f2'),
   'neutral',
   'other-workspace update changed nothing'
 );
@@ -153,6 +153,9 @@ select is(
 -- ---------------------------------------------------------------------------
 -- Member (alex)
 -- ---------------------------------------------------------------------------
+
+-- The fixtures were made earlier than now (each test file is one transaction).
+update public.connection_status_changes set changed_at = now() - interval '1 day';
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"f1111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
@@ -247,12 +250,12 @@ select throws_ok(
 );
 
 -- Status and played-together are separate facts; status changes are logged.
-update public.connections set status = 'lets_play' where id = 'c0000000-0000-0000-0000-0000000000f1';
-update public.connections set played_together = true where id = 'c0000000-0000-0000-0000-0000000000f1';
-update public.connections set status = 'homies' where id = 'c0000000-0000-0000-0000-0000000000f1';
+update public.connection_band_details set status = 'lets_play' where connection_id = 'c0000000-0000-0000-0000-0000000000f1';
+update public.connection_band_details set played_together = true where connection_id = 'c0000000-0000-0000-0000-0000000000f1';
+update public.connection_band_details set status = 'homies' where connection_id = 'c0000000-0000-0000-0000-0000000000f1';
 select results_eq(
-  $$select status::text, played_together from public.connections
-    where id = 'c0000000-0000-0000-0000-0000000000f1'$$,
+  $$select status::text, played_together from public.connection_band_details
+    where connection_id = 'c0000000-0000-0000-0000-0000000000f1'$$,
   $$values ('homies'::text, true)$$,
   'status and played together are set independently'
 );
@@ -280,8 +283,8 @@ select throws_ok(
 );
 
 select throws_ok(
-  $$update public.connections set status = 'urgent'
-    where id = 'c0000000-0000-0000-0000-0000000000f1'$$,
+  $$update public.connection_band_details set status = 'urgent'
+    where connection_id = 'c0000000-0000-0000-0000-0000000000f1'$$,
   '22P02', null,
   'status only accepts the known set'
 );

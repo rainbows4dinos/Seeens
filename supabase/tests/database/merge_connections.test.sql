@@ -3,6 +3,12 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
+-- Fixtures with a band's private details (#181): staged, then split into
+-- the record and this band's private layer.
+create temp table tc as select * from public.connections with no data;
+alter table tc add column status public.connection_status, add column played_together boolean,
+  add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
+
 select plan(44);
 
 insert into auth.users (id, email) values
@@ -22,13 +28,16 @@ insert into public.scenes (id, workspace_id, name) values
   ('ae200000-0000-0000-0000-000000000002', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'Merge garage');
 
 -- K is kept. G1 has more to it than G2, so it fills blanks first.
-insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, locality_id, email, phone, notes, played_together, status) values
+insert into tc (id, workspace_id, name, kind, person_roles, group_type, locality_id, email, phone, notes, played_together, status) values
   ('aec00000-0000-0000-0000-00000000000a', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'GAB', 'group', '{}', 'band', 'ae100000-0000-0000-0000-000000000001', null, null, 'Kept notes.', false, 'homies'),
   ('aec00000-0000-0000-0000-0000000000b1', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'Gab', 'group', '{}', 'band', 'ae100000-0000-0000-0000-000000000002', 'gab@example.com', null, 'From the sheet.', true, 'neutral'),
   ('aec00000-0000-0000-0000-0000000000b2', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'G.A.B.', 'group', '{}', 'band', null, 'other@example.com', '555-0100', null, false, 'neutral'),
   ('aec00000-0000-0000-0000-0000000000c1', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'Isabel Example', 'person', '{musician}', null, null, null, null, null, false, 'neutral'),
   ('aec00000-0000-0000-0000-0000000000c2', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'Quinn Example', 'person', '{musician}', null, null, null, null, null, false, 'neutral'),
   ('aec00000-0000-0000-0000-0000000000d1', 'aeaaaaaa-0000-0000-0000-0000000000b2', 'Elsewhere', 'group', '{}', 'band', null, null, null, null, false, 'neutral');
+insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, locality_id) select id, workspace_id, name, kind, person_roles, group_type, locality_id from tc;
+update public.connection_band_details d set email = t.email, phone = t.phone, notes = t.notes, played_together = coalesce(t.played_together, d.played_together), status = coalesce(t.status, d.status) from tc t where d.connection_id = t.id;
+truncate tc;
 
 insert into public.connection_links (id, workspace_id, connection_id, label, url, position) values
   ('ae300000-0000-0000-0000-000000000001', 'aeaaaaaa-0000-0000-0000-0000000000a1', 'aec00000-0000-0000-0000-00000000000a', 'Bandcamp', 'https://gab.bandcamp.com', 0),
@@ -77,14 +86,14 @@ select is(public.merged_target('aec00000-0000-0000-0000-0000000000b1'), 'aec0000
 select is(public.merged_target('aec00000-0000-0000-0000-00000000000a'), null, 'the kept one points nowhere');
 
 -- The kept one wins; blanks fill from the fuller one first.
-select is((select email from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'), 'gab@example.com', 'email from the fuller duplicate');
-select is((select phone from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'), '555-0100', 'phone from the other');
+select is((select email from public.connections join public.connection_band_details on connection_id = id where id = 'aec00000-0000-0000-0000-00000000000a'), 'gab@example.com', 'email from the fuller duplicate');
+select is((select phone from public.connections join public.connection_band_details on connection_id = id where id = 'aec00000-0000-0000-0000-00000000000a'), '555-0100', 'phone from the other');
 select is((select locality_id from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'),
   'ae100000-0000-0000-0000-000000000001'::uuid, 'town stays');
-select is((select status::text from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'), 'homies', 'status stays');
-select is((select notes from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'),
+select is((select status::text from public.connections join public.connection_band_details on connection_id = id where id = 'aec00000-0000-0000-0000-00000000000a'), 'homies', 'status stays');
+select is((select notes from public.connections join public.connection_band_details on connection_id = id where id = 'aec00000-0000-0000-0000-00000000000a'),
   E'Kept notes.\n\nFrom Gab:\nFrom the sheet.', 'notes go below');
-select ok((select played_together from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'), 'played together carries');
+select ok((select played_together from public.connections join public.connection_band_details on connection_id = id where id = 'aec00000-0000-0000-0000-00000000000a'), 'played together carries');
 
 -- Lists combine without repeats.
 select is((select array_agg(url order by position) from public.connection_links where connection_id = 'aec00000-0000-0000-0000-00000000000a'),
@@ -103,11 +112,11 @@ select throws_ok($$ select public.merge_connections('aec00000-0000-0000-0000-000
   'P0002', 'connection not found', 'a merged one can''t be merged again');
 
 -- Someone edits the kept one before undoing: their edit stays.
-update public.connections set phone = '555-0199' where id = 'aec00000-0000-0000-0000-00000000000a';
+update public.connection_band_details set phone = '555-0199' where connection_id = 'aec00000-0000-0000-0000-00000000000a';
 
 select is(public.undo_merge((select id from made where k = 'm1')), 'aec00000-0000-0000-0000-00000000000a'::uuid, 'undo returns the kept one');
 select is((select count(*)::int from public.connections where name in ('GAB', 'Gab', 'G.A.B.')), 3, 'all three are back');
-select is((select row(email, phone, notes, played_together)::text from public.connections where id = 'aec00000-0000-0000-0000-00000000000a'),
+select is((select row(email, phone, notes, played_together)::text from public.connections join public.connection_band_details on connection_id = id where id = 'aec00000-0000-0000-0000-00000000000a'),
   '(,555-0199,"Kept notes.",f)', 'filled values revert; the edit stays');
 select is((select array_agg(url order by position) from public.connection_links where connection_id = 'aec00000-0000-0000-0000-0000000000b1'),
   array['https://www.gab.bandcamp.com/', 'https://gab.example.com'], 'links go back, the dropped one too');

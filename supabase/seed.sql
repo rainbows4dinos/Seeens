@@ -83,7 +83,17 @@ update public.scenes set parent_id = '20000000-0000-0000-0000-000000000005'
 -- Connections (all fictional)
 -- ---------------------------------------------------------------------------
 
-insert into public.connections
+-- Each record is staged with this band's private details (#181), then split:
+-- the record into connections, the rest into the band's private layer.
+create temp table seed_connections (
+  id uuid, workspace_id uuid, name text, kind public.connection_kind,
+  person_roles public.person_role[] default '{}', group_type public.group_type,
+  status public.connection_status default 'neutral', played_together boolean default false,
+  can_help_with text[] default '{}', is_us boolean default false, locality_id uuid,
+  email text, phone text, notes text, archived_at timestamptz, created_by uuid
+);
+
+insert into pg_temp.seed_connections
   (id, workspace_id, name, kind, person_roles, group_type, status, played_together, can_help_with,
    locality_id, email, notes, created_by)
 values
@@ -122,7 +132,7 @@ values
    '10000000-0000-0000-0000-000000000003', null,
    'Said at the merch table: next time they come through, play together.', '11111111-1111-1111-1111-111111111111');
 
-insert into public.connections
+insert into pg_temp.seed_connections
   (id, workspace_id, name, kind, person_roles, group_type, status, played_together, is_us, locality_id, created_by)
 values
   ('c0000000-0000-0000-0000-000000000010', 'aaaaaaaa-0000-0000-0000-000000000001',
@@ -142,12 +152,29 @@ values
    '10000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111');
 
 -- An archived band, so the "1 archived" link under the bar has something to open.
-insert into public.connections
+insert into pg_temp.seed_connections
   (id, workspace_id, name, kind, person_roles, group_type, status, locality_id, archived_at, created_by)
 values
   ('c0000000-0000-0000-0000-000000000015', 'aaaaaaaa-0000-0000-0000-000000000001',
    'Cassette Funeral', 'group', '{}', 'band', 'neutral',
    '10000000-0000-0000-0000-000000000001', now(), '11111111-1111-1111-1111-111111111111');
+
+insert into public.connections
+  (id, workspace_id, name, kind, person_roles, group_type, can_help_with, is_us, locality_id, created_by)
+select id, workspace_id, name, kind, person_roles, group_type, can_help_with, is_us, locality_id, created_by
+from pg_temp.seed_connections;
+
+update public.connection_band_details d set
+  status = s.status, played_together = s.played_together, notes = s.notes,
+  email = s.email, phone = s.phone, archived_at = s.archived_at
+from pg_temp.seed_connections s
+where d.workspace_id = s.workspace_id and d.connection_id = s.id;
+
+-- One starting status each, as if it had been entered that way.
+delete from public.connection_status_changes h using pg_temp.seed_connections s
+where h.connection_id = s.id and h.from_status is null and h.to_status = 'neutral' and s.status <> 'neutral';
+update public.connection_status_changes h set from_status = null
+from pg_temp.seed_connections s where h.connection_id = s.id;
 
 insert into public.connection_links (workspace_id, connection_id, label, url, position) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Bandcamp', 'https://example.com/tin-hollows', 0),
