@@ -132,7 +132,7 @@ npm run dev                  # http://localhost:3000
 | `npm run db:start` / `db:stop` | Local Supabase via the CLI (Docker) |
 | `npm run db:migration <name>` | New versioned migration in `supabase/migrations/` |
 | `npm run db:reset` | Rebuild local DB from migrations |
-| `npm run db:test` | Run database access tests (`supabase/tests/`) |
+| `npm run db:test` | Run database access tests (`supabase/tests/`); CI runs them on every pull request too |
 | `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` |
 
 Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `alex@example.com` or `sam@example.com` (members of Merwulf; Alex is also an app admin, for the feedback inbox), `robin@example.com` (Moth Signal, a second band, so the shared directory has another side), or `dana@example.com` (not a member), all with password `password123`.

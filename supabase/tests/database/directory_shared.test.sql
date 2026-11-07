@@ -7,6 +7,10 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(9);
 
+-- Only this file's records: other data in the database (the local seed, say)
+-- would show up as shared. Rolled back with the rest.
+delete from public.connections;
+
 insert into auth.users (id, email) values
   ('cf111111-1111-1111-1111-111111111111', 'dir-alex@example.com'),
   ('cf222222-2222-2222-2222-222222222222', 'dir-bea@example.com');

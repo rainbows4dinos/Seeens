@@ -5,6 +5,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(14);
 
+-- Only this file's records: other data in the database (the local seed, say)
+-- would show up as shared. Rolled back with the rest.
+delete from public.connections;
+-- Storage refuses direct deletes unless asked; this file tests who may delete.
+select set_config('storage.allow_delete_query', 'true', true);
+
 insert into auth.users (id, email) values
   ('f0111111-1111-1111-1111-111111111111', 'photo-alex@example.com'),
   ('f0333333-3333-3333-3333-333333333333', 'photo-cora@example.com');
@@ -22,7 +28,7 @@ insert into public.connections (id, workspace_id, name, kind, person_roles, grou
   ('f0c00000-0000-0000-0000-0000000000b1', 'f0bbbbbb-0000-0000-0000-0000000000b2', 'Their Band', 'group', '{}', 'band');
 -- Kept private, so this checks one band can't see another's (#185 opens
 -- shared records to every band; shared_directory.test.sql covers that).
-update public.connections set keep_private = true;
+update public.connections set keep_private = true where id in ('f0c00000-0000-0000-0000-000000000001', 'f0c00000-0000-0000-0000-0000000000b1');
 
 
 -- Stored files, put there as the storage service would.

@@ -18,3 +18,19 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+
+  # The pgTAP tests in supabase/tests/database: RLS, the database functions,
+  # and what each band can see. They run against a local Supabase (Docker on
+  # the runner) with every migration applied, never the hosted project, and
+  # need no secrets.
+  database:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      # The Supabase CLI version pinned in package-lock.json.
+      - uses: supabase/setup-cli@v2
+      # Just the database, auth, and storage the migrations build on.
+      - run: supabase start -x realtime,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: supabase test db

@@ -11,6 +11,10 @@ alter table tc add column status public.connection_status, add column played_tog
 
 select plan(32);
 
+-- Only this file's records: other data in the database (the local seed, say)
+-- would show up as shared. Rolled back with the rest.
+delete from public.connections;
+
 insert into auth.users (id, email) values
   ('d9111111-1111-1111-1111-111111111111', 'page-alex@example.com'),
   ('d9333333-3333-3333-3333-333333333333', 'page-cora@example.com');
