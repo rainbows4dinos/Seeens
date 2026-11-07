@@ -28,8 +28,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | **Quick view.** Click a row and the connection opens beside the list: change status, handle the next step, log outreach. | **Quick view on a phone.** The same panel as a sheet under the header. |
 | ![Band Settings: band name, members with roles, the invite form, and a pending invite](docs/screenshots/band-settings.png) | ![An invite: "Alex invited you to Merwulf on Seeens" with a form to make an account and join](docs/screenshots/invite.png) |
 | **Band Settings.** Everyone in the band, and invites by email or link. Owners manage roles. | **An invite.** Who invited you, to which band, and that Seeens is in beta. Make an account or sign in, and you're in. |
-| ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png) | |
-| **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue. | |
+| ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png) | ![What You Share: people kept private, bands shared, with Keep Private on each](docs/screenshots/sharing.png) |
+| **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue. | **What You Share.** Before the directory opens to every band, choose what stays yours. People start private; everything else starts shared. |
 
 ## MVP
 
@@ -137,7 +137,7 @@ Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `a
 
 ## Database
 
-The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. What a band keeps to itself about a record (status, played together, notes, email, phone, and whether it archived it) lives in `connection_band_details`, one row per band and record, apart from the record itself. That's the groundwork for a directory every band shares (#181). Signing in does not grant access; a member has to invite you.
+The schema lives in `supabase/migrations/`. Every private table carries a `workspace_id`, and Row Level Security only lets members of that workspace read or write it. What a band keeps to itself about a record (status, played together, notes, email, phone, and whether it archived it) lives in `connection_band_details`, one row per band and record, apart from the record itself. That's the groundwork for a directory every band shares (#181). Each record also says whether its band keeps it private (`keep_private`): people start private, everything else shared, and a band reviews this in Band Settings > What You Share. Nothing is visible to other bands yet. Signing in does not grant access; a member has to invite you.
 
 History is kept, not overwritten: connections are archived instead of deleted (merged duplicates are hidden for 30 days, then deleted, with everything they held moved to the one kept), status changes are logged, replacing a next action closes the old one (`set_next_action`), and outreach entries can only be changed by their author.
 

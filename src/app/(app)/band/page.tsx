@@ -30,9 +30,11 @@ async function Band() {
   const [user, us, supabase] = await Promise.all([getCurrentUser(), getUsConnection(), createClient()]);
   const ws = membership.workspaceId;
   const owner = membership.role === "owner";
-  const [{ data: members }, invites] = await Promise.all([
+  const [{ data: members }, invites, { count: shared }, { count: kept }] = await Promise.all([
     supabase.rpc("band_members", { p_workspace_id: ws }),
     loadPendingInvites(ws),
+    supabase.from("connections").select("id", { count: "exact", head: true }).eq("workspace_id", ws).eq("keep_private", false),
+    supabase.from("connections").select("id", { count: "exact", head: true }).eq("workspace_id", ws).eq("keep_private", true),
   ]);
   const tz = membership.timeZone;
 
@@ -73,6 +75,17 @@ async function Band() {
             </>
           )}
         </p>
+      </ProfilePanel>
+
+      <ProfilePanel id="band-sharing" title="What You Share" summary={sharingSummary(shared, kept)}>
+        <p>
+          When Seeens opens up as one directory, other bands will see the records {membership.workspaceName}{" "}
+          shares. Status, notes, and contacts stay yours either way.
+        </p>
+        <p className="text-sm text-muted">{sharingSummary(shared, kept)}.</p>
+        <Link href="/band/sharing" className="button-secondary self-start">
+          Review What You Share
+        </Link>
       </ProfilePanel>
 
       <ProfilePanel id="band-members" title={`Members (${members?.length ?? 0})`}>
@@ -143,4 +156,8 @@ async function Band() {
       </ProfilePanel>
     </>
   );
+}
+
+function sharingSummary(shared: number | null, kept: number | null) {
+  return `${shared ?? 0} shared · ${kept ?? 0} kept private`;
 }

@@ -29,6 +29,7 @@ import {
 import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
+import { KeepPrivate } from "@/components/keep-private";
 import { MergeWith } from "@/components/merge-with";
 import { MergedNotice, UnmergedNotice } from "@/components/merged-notice";
 import { loadUndoableMerge, loadUndoneMerge } from "@/lib/connections/merge";
@@ -349,6 +350,7 @@ async function Connection({
         <p className="text-sm text-muted">
           Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
         </p>
+        {c.is_us ? null : <KeepPrivate key={String(c.keep_private)} id={c.id} band={membership.workspaceName} initial={c.keep_private} />}
         {lastMerge && merged !== "1" ? (
           <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} quiet />
         ) : null}
