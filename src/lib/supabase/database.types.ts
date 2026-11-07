@@ -145,6 +145,12 @@ isOneToOne: false
                     "app_version"?: string | null,"band_name"?: string | null,"body"?: string,"created_at"?: string,"error_digest"?: string | null,"github_url"?: string | null,"id"?: string,"kind"?: Database["public"]["Enums"]["feedback_kind"],"notified_at"?: string | null,"path"?: string | null,"screen"?: string | null,"screenshot_path"?: string | null,"sender_name"?: string,"status"?: Database["public"]["Enums"]["feedback_status"],"updated_at"?: string,"user_agent"?: string | null,"user_id"?: string | null,"workspace_id"?: string | null
                   }
                   Relationships: []
+                },"connection_band_details": {
+                  Row: { "archived_at": string | null,"connection_id": string,"email": string | null,"notes": string | null,"phone": string | null,"played_together": boolean,"status": Database["public"]["Enums"]["connection_status"],"updated_at": string,"workspace_id": string }
+                  ComputedFields: never
+                  Insert: { "archived_at"?: string | null,"connection_id": string,"email"?: string | null,"notes"?: string | null,"phone"?: string | null,"played_together"?: boolean,"status"?: Database["public"]["Enums"]["connection_status"],"updated_at"?: string,"workspace_id": string }
+                  Update: { "archived_at"?: string | null,"connection_id"?: string,"email"?: string | null,"notes"?: string | null,"phone"?: string | null,"played_together"?: boolean,"status"?: Database["public"]["Enums"]["connection_status"],"updated_at"?: string,"workspace_id"?: string }
+                  Relationships: []
                 },"app_admins": {
                   Row: { "created_at": string,"user_id": string }
                   ComputedFields: never
