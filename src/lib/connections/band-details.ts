@@ -31,12 +31,18 @@ export const NO_BAND_DETAILS: BandDetails = {
 //   band:connection_band_details ( archived_at )                (linked records)
 //   band:connection_band_details!inner ( archived_at )          (to filter on it)
 
+/** The band's layer from an embed: a list now that other bands can keep
+ * one on the same record (step 3a); RLS only returns your band's. */
+export function layerOf<L>(band: L | L[] | null | undefined): L | null {
+  return (Array.isArray(band) ? band[0] : band) ?? null;
+}
+
 /** The record with its private layer laid over it, and `band` gone. */
 export function liftBand<T extends { band: Partial<BandDetails> | Partial<BandDetails>[] | null }>(
   row: T,
 ): Omit<T, "band" | keyof BandDetails> & BandDetails {
   const { band, ...rest } = row;
-  const layer = Array.isArray(band) ? band[0] : band;
+  const layer = layerOf(band);
   const lifted = { ...NO_BAND_DETAILS };
   for (const key of Object.keys(NO_BAND_DETAILS) as (keyof BandDetails)[]) {
     if (layer && key in layer) (lifted as Record<string, unknown>)[key] = layer[key];

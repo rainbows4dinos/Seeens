@@ -110,8 +110,10 @@ export async function setNextAction(
   if (values.assigneeId && !UUID_RE.test(values.assigneeId)) errors.assigneeId = "Pick someone in the band.";
   if (Object.keys(errors).length) return { values, errors, attempt: Date.now() };
 
-  const supabase = await createClient();
+  const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);
+  // On this band's layer, whoever added the record (#185).
   const { error } = await supabase.rpc("set_next_action", {
+    p_workspace_id: workspaceId,
     p_connection_id: connectionId,
     p_description: values.description,
     p_due_on: values.dueOn || undefined,
