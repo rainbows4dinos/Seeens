@@ -5,6 +5,10 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(52);
 
+-- Only this file's records: other data in the database (the local seed, say)
+-- would show up as shared. Rolled back with the rest.
+delete from public.connections;
+
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres)
 --   ws_merwulf: alex (owner), sam (member)
