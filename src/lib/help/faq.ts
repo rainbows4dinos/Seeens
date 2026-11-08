@@ -7,7 +7,7 @@ export type FaqLink = { href: string; label: string };
 
 export const FAQ: [string, string, FaqLink?][] = [
   ["How do I join Seeens?", "Someone already on Seeens invites you. For now, ask a band that uses it. There's no sign-up form, and the plan is to keep it that way after the beta: everyone comes in through someone in the scene who knows them. That makes it a lot harder for fake bands, scammers, and abusers to get in."],
-  ["Who can see what I add?", "A listing you add (its name, type, town, links, photo) is seen by every band on Seeens, unless you set it to Keep Private. Your status, notes, contacts, and plans are only seen by your band."],
+  ["Who can see what I add?", "Bands, venues, labels, and the rest are seen by every band on Seeens (their name, type, town, links, and photo), unless you set them to Keep Private. People start private: only your band sees a person you add, until you share them. Your status, notes, contacts, and plans are only ever seen by your band."],
   ["Can another band change something we added?", "No. Only the band that added a listing can change it, plus moderators fixing mistakes. Other bands can keep their own notes on it, which you never see."],
   ["A listing says “From” another band. Can I use it?", "Yes. Set a status, add notes, plan a next step, or archive it, just like your own. Its name and details stay the other band's to edit."],
   ["What's the difference between Homies and Let's Play?", "Homies are your people already. Let's Play means you both want to play together and haven't booked it yet. The table above has all five."],
