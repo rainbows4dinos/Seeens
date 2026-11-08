@@ -1,7 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Metronome, PageLoader } from "./metronome";
 
 const SIZE = 32;
@@ -14,6 +13,10 @@ const SHOW_AFTER_MS = 300;
 const SETTLE_MS = 200;
 const GIVE_UP_MS = 15000;
 
+// Where the mouse last was. Outside the component, so it survives remounts
+// and the metronome lands on the pointer even before it moves again.
+const last = { x: -100, y: -100, seen: false };
+
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
 // becomes a swinging metronome, like the old busy cursors. Only with a mouse
 // over the page; otherwise the page loader's own metronome does the job, and
@@ -22,23 +25,14 @@ const GIVE_UP_MS = 15000;
 // Waiting means a link was clicked and the new page hasn't arrived, or a page
 // loader is on screen. It shows after a beat, so quick loads don't flicker.
 export function BusyPointer() {
-  const pathname = usePathname();
-  const search = useSearchParams().toString();
   const [navigating, setNavigating] = useState(false);
   const [loaderShown, setLoaderShown] = useState(false);
   const [settling, setSettling] = useState(false);
   const [due, setDue] = useState(false);
-  const [mouse, setMouse] = useState(false);
+  const [mouse, setMouse] = useState(last.seen);
   const ref = useRef<HTMLDivElement>(null);
-  const at = useRef({ x: -100, y: -100 });
-
-  // A new page arrived: done navigating.
-  const here = pathname + "?" + search;
-  const [prev, setPrev] = useState(here);
-  if (prev !== here) {
-    setPrev(here);
-    setNavigating(false);
-  }
+  // The address when the link was clicked: once it changes, the page arrived.
+  const from = useRef("");
 
   // Internal link clicks start a wait. Capture, so this sees the click before
   // the router's Link handles it.
@@ -50,6 +44,7 @@ export function BusyPointer() {
       const url = new URL(a.href, location.href);
       if (url.origin !== location.origin) return;
       if (url.pathname === location.pathname && url.search === location.search) return;
+      from.current = location.href;
       setNavigating(true);
     };
     document.addEventListener("click", onClick, true);
@@ -67,16 +62,34 @@ export function BusyPointer() {
     let frame = 0;
     const check = () => {
       frame = 0;
-      setLoaderShown(Boolean(document.querySelector(".page-loader:not(.nav-loader .page-loader)")));
+      if (from.current && location.href !== from.current) {
+        from.current = "";
+        setNavigating(false);
+      }
+      // Only ones on screen: earlier pages stay in the page, hidden.
+      const loaders = document.querySelectorAll<HTMLElement>(".page-loader:not(.nav-loader .page-loader)");
+      setLoaderShown([...loaders].some((el) => el.checkVisibility()));
     };
     check();
     const mo = new MutationObserver(() => {
       if (!frame) frame = requestAnimationFrame(check);
     });
-    mo.observe(document.body, { childList: true, subtree: true });
+    mo.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "hidden", "class"],
+    });
+    // Back and forward land here too.
+    const pop = () => {
+      from.current = "";
+      setNavigating(false);
+    };
+    addEventListener("popstate", pop);
     return () => {
       mo.disconnect();
       cancelAnimationFrame(frame);
+      removeEventListener("popstate", pop);
     };
   }, []);
 
@@ -102,25 +115,30 @@ export function BusyPointer() {
     return () => clearTimeout(t);
   }, [waiting]);
 
-  // Follow the mouse; touch and pens don't get one.
+  // Follow the mouse; touch and pens don't get one. Any mouse event counts,
+  // the click itself included, so it's in place without another move.
   useEffect(() => {
-    const place = () => {
+    const track = (e: PointerEvent | MouseEvent) => {
+      if ("pointerType" in e && e.pointerType && e.pointerType !== "mouse") return;
+      last.x = e.clientX;
+      last.y = e.clientY;
+      last.seen = true;
       const el = ref.current;
-      if (el) el.style.transform = `translate(${at.current.x - HOTSPOT_X}px, ${at.current.y - HOTSPOT_Y}px)`;
-    };
-    const move = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
-      at.current = { x: e.clientX, y: e.clientY };
-      place();
+      if (el) el.style.transform = `translate(${last.x - HOTSPOT_X}px, ${last.y - HOTSPOT_Y}px)`;
       setMouse(true);
     };
     const leave = () => setMouse(false);
-    document.addEventListener("pointermove", move, { passive: true });
-    document.addEventListener("pointerdown", move, { passive: true });
+    const opts = { passive: true, capture: true } as const;
+    document.addEventListener("pointermove", track, opts);
+    document.addEventListener("pointerdown", track, opts);
+    document.addEventListener("pointerover", track, opts);
+    document.addEventListener("click", track, opts);
     document.documentElement.addEventListener("mouseleave", leave);
     return () => {
-      document.removeEventListener("pointermove", move);
-      document.removeEventListener("pointerdown", move);
+      document.removeEventListener("pointermove", track, opts);
+      document.removeEventListener("pointerdown", track, opts);
+      document.removeEventListener("pointerover", track, opts);
+      document.removeEventListener("click", track, opts);
       document.documentElement.removeEventListener("mouseleave", leave);
     };
   }, []);
@@ -135,7 +153,10 @@ export function BusyPointer() {
   const pointerMode = waiting && canPoint;
   const show = pointerMode && due;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Put it on the pointer before it shows.
+    const el = ref.current;
+    if (show && el) el.style.transform = `translate(${last.x - HOTSPOT_X}px, ${last.y - HOTSPOT_Y}px)`;
     const root = document.documentElement;
     root.toggleAttribute("data-busy-pointer", pointerMode);
     root.toggleAttribute("data-busy-pointer-on", show);
