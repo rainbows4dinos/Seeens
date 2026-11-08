@@ -2314,12 +2314,16 @@
     left: 0;
     z-index: 100;
     pointer-events: none;
-    opacity: 0;
+    visibility: hidden;
     transform: translate(-100px, -100px);
-    transition: opacity 0.12s;
   }
   .busy-pointer[data-on] {
-    opacity: 1;
+    visibility: visible;
+  }
+  /* The metronome is the pointer while it's out. */
+  :root[data-busy-pointer-on],
+  :root[data-busy-pointer-on] * {
+    cursor: none !important;
   }
 
   .nav-loader {
