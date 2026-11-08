@@ -125,7 +125,7 @@ export default function AboutPage() {
         </h2>
         <ul>
           <li>Find the venues, bands, and people other bands already know, and add the ones you know.</li>
-          <li>Mark how you feel about each: Homies, Let&rsquo;s Play, Eyeing, Heard Of, or Avoid.</li>
+          <li>Mark how you feel about each: Homies, Let&rsquo;s Play, Want to Play, Heard Of, or Avoid.</li>
           <li>Group them by scene and town, so planning a run starts with who you already know there.</li>
           <li>Log what happened and plan what&rsquo;s next, with a date and whose turn it is.</li>
           <li>Import the spreadsheet you&rsquo;ve been keeping, and export it all as a CSV whenever you want.</li>
