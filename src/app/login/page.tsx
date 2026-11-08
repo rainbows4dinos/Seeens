@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 
@@ -37,7 +38,10 @@ export default function LoginPage() {
           </Suspense>
           <p className="text-sm text-muted">
             Seeens is invite-only. Ask a bandmate to add you if you don&rsquo;t
-            have an account.
+            have an account.{" "}
+            <Link href="/about" className="link">
+              What&rsquo;s Seeens?
+            </Link>
           </p>
         </div>
       </section>

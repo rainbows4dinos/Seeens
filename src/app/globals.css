@@ -2389,3 +2389,99 @@
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   About and Help: running text, lists, and plain tables.
+   --------------------------------------------------------------------------- */
+@layer components {
+  .about-prose {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 65ch;
+  }
+  .about-prose p,
+  .about-prose li {
+    line-height: 1.6;
+  }
+  .about-prose ol,
+  .about-prose ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 1.5em;
+  }
+  .about-prose ol {
+    list-style: decimal;
+  }
+  .about-prose ul {
+    list-style: square;
+  }
+  .about-prose strong {
+    font-weight: 600;
+  }
+  .about-table {
+    width: 100%;
+    min-width: 480px;
+    border-collapse: collapse;
+    background: var(--color-bg-surface);
+    border: 1.5px solid var(--color-border-strong);
+    font-size: 14px;
+  }
+  .about-table th,
+  .about-table td {
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .about-table thead th {
+    font-weight: 600;
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+  }
+  .about-table tbody th {
+    font-weight: 600;
+  }
+
+  .help-words {
+    display: flex;
+    flex-direction: column;
+  }
+  .help-words > div {
+    display: grid;
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+    gap: 4px 16px;
+    padding-block: 10px;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .help-words dt {
+    font-weight: 600;
+  }
+  .help-words dd .caption {
+    display: block;
+    margin-top: 2px;
+  }
+  @media (max-width: 640px) {
+    .help-words > div {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .help-faq {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+  .help-faq details {
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .help-faq summary {
+    cursor: pointer;
+    padding-block: 10px;
+    font-weight: 600;
+  }
+  .help-faq details p {
+    padding-bottom: 12px;
+  }
+}
