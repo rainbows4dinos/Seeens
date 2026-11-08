@@ -20,6 +20,9 @@ export default function LoginPage() {
           <br />
           <span className="swipe">Your scenes.</span>
         </p>
+        <Link href="/about" className="button-secondary">
+          What&rsquo;s Seeens?
+        </Link>
       </header>
 
       <section
@@ -38,10 +41,7 @@ export default function LoginPage() {
           </Suspense>
           <p className="text-sm text-muted">
             Seeens is invite-only. Ask a bandmate to add you if you don&rsquo;t
-            have an account.{" "}
-            <Link href="/about" className="link">
-              What&rsquo;s Seeens?
-            </Link>
+            have an account.
           </p>
         </div>
       </section>
