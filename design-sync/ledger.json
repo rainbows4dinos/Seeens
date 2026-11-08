@@ -357,7 +357,7 @@
   "cref": "src/components/connection-card.tsx",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Nov 8 borders only: Meta still excludes its border in Figma, so code pads 12 / 11 / 11 (content 12 from the outer edge, measured); Dates includes its top border (border-top + 8). Rest of the card not re-audited.",
   "checklist": [
    "[x] Typography: caption via .caption (now 12px), name via display-m. Print initials are decorative, unstyled in Figma."
   ]
@@ -712,8 +712,8 @@
   "cref": "kbd.search-hint",
   "cls": "match",
   "status": "synced",
-  "notes": "Nov 5: 2px radius kept (the one rounded element). Borders excluded: 40 x 15, pad 4, text trimmed to cap height. Code padding 3 + text-box trim.",
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "notes": "Nov 8: Keyboard Hint includes its border, fixed 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3px all round).",
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "V-08",
@@ -817,8 +817,8 @@
   "fref": "48:209",
   "cref": ".save-bar",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "With the 1px top border included, 1 + 12 + 36 + 12 = 61, but the frame is fixed at 60, so the Button is squeezed. Either 61 tall, or 11 top padding. Code keeps 60 with an inset line."
+  "status": "skipped",
+  "notes": "Larry keeps the Save Bar at 60 (Nov 8). Code: 60 with an inset top line."
  },
  {
   "id": "H-08",
@@ -827,8 +827,8 @@
   "fref": "48:191",
   "cref": "src/app/(app)/layout.tsx header",
   "cls": "hygiene",
-  "status": "needs-figma-fix",
-  "notes": "16 + 36 + 16 + 2 = 70, fixed at 68. Either 70 tall or 14 bottom padding. Code unchanged."
+  "status": "skipped",
+  "notes": "Larry keeps the App Header at 68 (Nov 8). Code unchanged."
  },
  {
   "id": "H-09",
@@ -838,6 +838,6 @@
   "cref": "-",
   "cls": "hygiene",
   "status": "fixed-in-figma",
-  "notes": "Larry switched Tag, BETA, Segmented Control, Checkbox, Collapse, Date Line, Card Dates, Directory Bar pinned, mobile menu to included (Nov 8). Still excluded: Keyboard Hint, Connection Card Meta, App Header Account (mobile) and an Account Nav Chip frame; code matches those as excluded. Directory Bar pinned keeps an inset line in code so pinning doesn't shift the bar by 1px."
+  "notes": "Fixed in Figma Nov 8 (two rounds): everything but Connection Card Meta and the mobile menu's Account frames now includes borders. Code matches both as they are. Directory Bar pinned keeps an inset line in code so pinning doesn't shift it 1px."
  }
 ]
