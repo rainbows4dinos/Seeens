@@ -27,7 +27,17 @@ async function Moderators() {
   const [{ data: admin }, membership] = await Promise.all([supabase.rpc("is_app_admin"), getMembership()]);
   if (!admin) notFound();
   const tz = membership?.timeZone ?? "America/Los_Angeles";
-  const { data: people } = await supabase.rpc("list_moderators");
+  const [{ data: people }, { data: everyone }] = await Promise.all([
+    supabase.rpc("list_moderators"),
+    supabase.rpc("list_accounts"),
+  ]);
+  // Who can still be made one: by name, with their bands, email when there's no name.
+  const accounts = (everyone ?? [])
+    .filter((a) => !a.moderator && !a.admin)
+    .map((a) => ({
+      value: a.user_id,
+      label: `${a.display_name ?? a.email}${a.bands ? ` (${a.bands})` : " (no band)"}`,
+    }));
 
   return (
     <>
@@ -41,7 +51,7 @@ async function Moderators() {
       </div>
 
       <ProfilePanel id="add-moderator" title="Make a Moderator">
-        <GrantForm />
+        <GrantForm accounts={accounts} />
       </ProfilePanel>
 
       <ProfilePanel id="moderators" title={`Moderators (${people?.length ?? 0})`}>

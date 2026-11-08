@@ -407,6 +407,10 @@ isOneToOne: false
 { Args: never; Returns: boolean },
             "list_moderators":
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"granted_at": string,"admin": boolean }[] },
+            "list_accounts":
+{ Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
+            "grant_moderator_user":
+{ Args: { "p_user_id": string }; Returns: undefined },
             "grant_moderator":
 { Args: { "p_email": string }; Returns: string },
             "revoke_moderator":
