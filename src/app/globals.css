@@ -2327,7 +2327,8 @@
     cursor: none !important;
   }
 
-  .nav-loader {
+  .nav-loader,
+  .busy-overlay {
     position: fixed;
     inset: 0;
     z-index: 90;
@@ -2336,7 +2337,8 @@
     pointer-events: none;
   }
   /* Over the old page it needs its own paper, like an old dialog box. */
-  .nav-loader .page-loader {
+  .nav-loader .page-loader,
+  .busy-overlay .page-loader {
     padding: 16px 24px;
     background: var(--color-bg-surface);
     border: 1.5px solid var(--color-border-strong);
