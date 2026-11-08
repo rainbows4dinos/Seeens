@@ -1112,9 +1112,7 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-top: 0;
     background: var(--color-bg-surface);
-    /* Figma's Meta still excludes its border: 12px from the outer edge,
-       so 11 inside the side and bottom borders. */
-    padding: var(--space-md) 11px 11px;
+    padding: var(--space-md);
   }
   .card-dates {
     display: block;

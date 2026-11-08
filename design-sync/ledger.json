@@ -357,7 +357,7 @@
   "cref": "src/components/connection-card.tsx",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Nov 8 borders only: Meta still excludes its border in Figma, so code pads 12 / 11 / 11 (content 12 from the outer edge, measured); Dates includes its top border (border-top + 8). Rest of the card not re-audited.",
+  "notes": "Nov 8 borders: Meta and Dates both include their borders in Figma; code is border + 12 and border-top + 8 (measured). Rest of the card not re-audited.",
   "checklist": [
    "[x] Typography: caption via .caption (now 12px), name via display-m. Print initials are decorative, unstyled in Figma."
   ]
@@ -838,6 +838,6 @@
   "cref": "-",
   "cls": "hygiene",
   "status": "fixed-in-figma",
-  "notes": "Fixed in Figma Nov 8 (two rounds): everything but Connection Card Meta and the mobile menu's Account frames now includes borders. Code matches both as they are. Directory Bar pinned keeps an inset line in code so pinning doesn't shift it 1px."
+  "notes": "Fixed in Figma Nov 8 (four rounds): every visible bordered frame includes its border. Only the hidden Main Nav Menu / Account in App Header Mobile, Show Menu=False still excludes, which never shows. Directory Bar pinned keeps an inset line in code so pinning doesn't shift it 1px."
  }
 ]
