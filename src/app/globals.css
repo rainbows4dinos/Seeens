@@ -266,21 +266,13 @@
     line-height: 32px;
   }
 
-  /* Paper surface: forms, panels, cards. The 1px edge is drawn by an
-     overlay, not a border, so it adds no height (4px grid) and stays on
-     top of full-width rows inside. */
+  /* Paper surface: forms, panels, cards, with a 1px ink border. Figma
+     includes borders in layout, so padding starts inside the border, as in
+     plain CSS. */
   .panel {
     position: relative;
-    background: var(--color-bg-surface);
-  }
-  .panel::after,
-  .window::after {
-    content: "";
-    position: absolute;
-    inset: 0;
     border: var(--stroke-hair) solid var(--color-border-strong);
-    z-index: 2;
-    pointer-events: none;
+    background: var(--color-bg-surface);
   }
 
   /* Stacked rows with hairline dividers drawn on top, again adding no
@@ -307,11 +299,9 @@
   /* Window: the boxed tool look with a hard shadow. */
   .window {
     position: relative;
+    border: var(--stroke-strong) solid var(--color-border-strong);
     background: var(--color-bg-surface);
     box-shadow: var(--shadow-hard);
-  }
-  .window::after {
-    border-width: var(--stroke-strong);
   }
 
   .field {
@@ -319,8 +309,8 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
     background: var(--color-bg-surface);
-    /* Figma Field pads 12px (space/md) with an inside stroke: 1 + 11. */
-    padding: 0.3125rem 11px;
+    /* Figma Field: 12px (space/md) inside the 1px border. */
+    padding: 0.3125rem 12px;
     /* Mono/Body, like Figma's Field. */
     font-family: var(--type-mono);
     font-size: 14px;
@@ -341,10 +331,10 @@
   select.field {
     appearance: none;
     -webkit-appearance: none;
-    padding-right: 31px;
+    padding-right: 32px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23141414' stroke-width='1.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 11px center;
+    background-position: right 12px center;
     background-size: 0.75rem 0.5rem;
     cursor: pointer;
   }
@@ -355,7 +345,7 @@
 
   /* Combobox (components/combobox.tsx): a field holding picked tags and a
      borderless text box, with a list underneath. 1 + 3 + 28 + 3 + 1 = 36.
-     Text starts at 1 + 4 + 7 = 12px, like a Field. */
+     Text starts at 1 + 4 + 8 = 13px, like a Field (1px border + 12). */
   .combo {
     display: flex;
     flex-wrap: wrap;
@@ -375,17 +365,17 @@
     box-shadow: 0 0 0 5px var(--color-focus-glow);
   }
   /* A filter's icon, first in the box (Figma Field, Show Icon L): 12px in
-     from the outer edge like the search field's. */
+     from the border (13 from the outer edge), like the search field's. */
   .combo-icon {
     display: grid;
     flex: none;
     place-items: center;
-    padding-left: 7px;
+    padding-left: 8px;
     color: var(--color-text-secondary);
   }
-  /* The box's 4px gap, less 7 so the text (7px in) starts 4px after the icon. */
+  /* The box's 4px gap, less 8 so the text (8px in) starts 4px after the icon. */
   .combo-icon + * {
-    margin-left: -7px;
+    margin-left: -8px;
   }
   /* The one-row bar's filters are narrow: let the text shrink, not wrap
      under the icon. */
@@ -400,14 +390,14 @@
   .field-icon > svg {
     position: absolute;
     top: 50%;
-    left: 12px;
+    left: 13px;
     translate: 0 -50%;
     color: var(--color-text-secondary);
     pointer-events: none;
   }
   .field-icon > .field {
     width: 100%;
-    padding-left: 31px;
+    padding-left: 32px;
   }
   .combo input {
     flex: 1;
@@ -415,7 +405,7 @@
     min-height: 28px;
     border: 0;
     background: transparent;
-    padding: 0 7px;
+    padding: 0 8px;
     font: inherit;
   }
   .combo input:focus-visible {
@@ -474,7 +464,7 @@
     align-items: center;
     gap: 0.5rem;
     min-height: var(--control-height);
-    padding: 8px 11px;
+    padding: 8px 12px;
     font-family: var(--type-mono);
     font-size: 14px;
     line-height: 20px;
@@ -516,9 +506,9 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
     gap: 6px;
-    /* Figma: 8px padding plus the label's own 2px, so text sits 10px in
-       from the outer edge (1px border + 9). Icons sit 8px in (see below). */
-    padding: 0.25rem 9px;
+    /* Figma: 8px padding inside the border, plus the label's own 2px. Icons
+       sit 8px in (see below). */
+    padding: 0.25rem 10px;
     line-height: 20px;
     font-family: var(--type-mono);
     font-size: 14px;
@@ -526,10 +516,10 @@
     color: var(--color-text-primary);
     text-decoration: none;
   }
-  /* Figma Button with Icon L: the icon 8px in from the outer edge (1px
-     border + 7), then 6px (4 + the label's 2) to the label. */
+  /* Figma Button with Icon L: the icon 8px in from the border, then 6px
+     (4 + the label's 2) to the label. */
   :is(.button-primary, .button-secondary):not(.button-icon, .button-icon-phone):has(> svg:first-child) {
-    padding-left: 7px;
+    padding-left: 8px;
   }
   .button-primary {
     background: var(--color-accent-primary);
@@ -588,8 +578,8 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
     background: var(--color-bg-surface);
-    /* Figma Choice pads 8px (space/sm): 1 + 7. */
-    padding: 0.25rem 7px;
+    /* Figma Choice: 8px (space/sm) inside the border. */
+    padding: 0.25rem 8px;
     font-family: var(--type-mono);
     /* Mono/Body; checked is Mono/Label */
     font-size: 14px;
@@ -834,22 +824,22 @@
   .search-field > svg {
     position: absolute;
     top: 50%;
-    left: 12px;
+    left: 13px;
     translate: 0 -50%;
     color: var(--color-text-secondary);
     pointer-events: none;
   }
   /* Figma Search Field (Field with Show Icon L, Show Key Hint, Show Clear):
      12px side padding (space/md), 4px gaps (space/xs), 16px icons, 42px
-     keycap. Text starts at 12 + 16 + 4 = 32 from the outer edge (1px border
-     + 31) and stops 12 + 42 + 4 = 58 from the right. */
+     keycap, all inside the 1px border. Text starts 12 + 16 + 4 = 32 in
+     from the border and stops 12 + 42 + 4 = 58 from it. */
   .search-field > .field {
     width: 100%;
-    padding-left: 31px;
-    padding-right: 57px;
+    padding-left: 32px;
+    padding-right: 58px;
   }
   .search-field:has(.search-clear) > .field:not(:placeholder-shown) {
-    padding-right: 81px;
+    padding-right: 82px;
   }
   /* The hint stands in for the browser's clear button. */
   .search-field > .field::-webkit-search-cancel-button {
@@ -860,7 +850,7 @@
   .search-hint {
     position: absolute;
     top: 50%;
-    right: 12px;
+    right: 13px;
     translate: 0 -50%;
     /* Figma pads 4 from the outer edge (1 + 3) and trims the text to its
        cap height: 1 + 3 + 7 + 3 + 1 = 15 tall. */
@@ -880,12 +870,12 @@
 
   /* With a value, the keycap moves left and the clear button takes the edge. */
   .search-field:has(> .field:not(:placeholder-shown)) > .search-hint {
-    right: 36px;
+    right: 37px;
   }
   .search-clear {
     position: absolute;
     top: 50%;
-    right: 8px;
+    right: 9px;
     translate: 0 -50%;
     display: grid;
     place-items: center;
@@ -1022,8 +1012,8 @@
     align-items: center;
     gap: 0.5rem;
     min-height: var(--control-height);
-    /* 1px border + 11 = 12 (space/md), like a Field. */
-    padding: 0 11px;
+    /* 12px (space/md), like a Field. */
+    padding: 0 12px;
   }
   .type-menu a:hover {
     background: var(--color-bg-hover);

@@ -1,6 +1,6 @@
 {
  "fileKey": "QKSF4MTanGHlnbNvmUKDX0",
- "readAt": "2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)",
+ "readAt": "2026-11-08 (components and variables re-read; no token, text, or effect drift)",
  "variables": {
   "Primitives": {
    "modes": [
@@ -848,6 +848,34 @@
    "nested": [
     "Add",
     "Photo Action"
+   ]
+  },
+  "Page Loader": {
+   "key": "4fcc4358d46f324b8e54aa6380ed34e70e2838dd",
+   "nodeId": "220:24087",
+   "page": "Components",
+   "axes": {},
+   "props": {},
+   "nested": [
+    "Metronome Loader"
+   ]
+  },
+  "Metronome Loader": {
+   "key": "56e89d35bfeee3d5d30975d433c8c90d8944a894",
+   "nodeId": "220:23885",
+   "page": "Components",
+   "axes": {},
+   "props": {},
+   "nested": []
+  },
+  "App Header Menu": {
+   "key": "42e84d96a31ee699adad6f30a7bc79902343314b",
+   "nodeId": "211:21700",
+   "page": "Components",
+   "axes": {},
+   "props": {},
+   "nested": [
+    "Nav Chip"
    ]
   }
  }

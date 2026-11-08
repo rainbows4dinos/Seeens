@@ -1,9 +1,9 @@
 # Design sync ledger
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
-- Inventory read: 2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)
-- Code baseline: bed2739 (2026-11-05)
-- Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
+- Inventory read: 2026-11-08 (components and variables re-read; no token, text, or effect drift)
+- Code baseline: e8b6635 (2026-11-08)
+- Rendered 2026-11-08 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
 ## Inventory
@@ -14,10 +14,10 @@
 | Text styles | 13 | 13 | 13 | 0 |
 | Effect styles | 6 | 6 | 4 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 34 | 34 | 18 | 11 |
-| Figma hygiene | - | 6 | 0 | 0 |
+| Components | 37 | 37 | 20 | 12 |
+| Figma hygiene | - | 9 | 0 | 3 |
 
-Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
+Status totals: fixed-in-figma 7, needs-decision 1, needs-figma-fix 2, pending 12, skipped 8, synced 44
 
 ## Log
 
@@ -28,6 +28,7 @@ Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 - 2026-11-04: Off-token paddings fixed in Figma: Field 12 (md), Choice 8 (sm), Tag 8 (sm). Code follows (border + padding = token).
 - 2026-11-05: Audit Nov 5 evening: full Figma re-read (60 variables, 13 text styles, 6 effect styles, 34 components with axes and props). New: color/border/inverse, Profile Pic, Photo Action, Favicon. Changed: Shadow/Hard (second drop), Field icon gap 4. Evidence: design-sync/evidence/audit-2026-11-05.md
 - 2026-11-05: Nov 5: all Figma auto layouts set to exclude borders; rule in rules.md; re-audited resized components; code fixes for Keyboard Hint, Window title bar, Next Action Card, Choice checkbox.
+- 2026-11-08: Nov 8 borders audit: 198 bordered auto-layout frames include borders, 68 exclude (mostly inside instances). Code switched to plain border + padding for Button, Field, Choice, Search Field, combobox, Window, Panel. Still excluded in Figma, code unchanged: Tag, Keyboard Hint, BETA, Segmented Control outer, Checkbox, Window Collapse, Date Line underline, Connection Card Meta/Dates, Directory Bar pinned, mobile menu frames.
 
 ## Rows
 
@@ -101,6 +102,12 @@ Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 | C-32 | Components | Profile Pic | 161:3824 | `src/components/photo-panel.tsx, .quick-view-thumb` | changed | pending | Nov 5: resized 108 -> 112 to match .photo-thumb (80 on mobile). Initials size and color not compared yet. |
 | C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | synced | Nov 5: Add icon 12 + Mono/Hint label, pad 4/12, gap 2, 110 x 20 inside the Profile Pic edge, ink fill, yellow hover. Code and Figma both on existing styles. |
 | C-34 | Components | Favicon | 161:3876 | `src/app/icon.*` | changed | pending | 16/32/48 variants. Check the app's icon files match. |
+| C-35 | Components | Page Loader | 220:24087 | `src/components/metronome.tsx PageLoader, .page-loader` | new | synced | Built Nov 8 (#200-#202): metronome, label, dots in time (1s). Busy pointer carries the metronome with a mouse. |
+| C-36 | Components | Metronome Loader | 220:23885 | `src/components/metronome.tsx Metronome` | new | synced | Built Nov 8 (#200): SVG from Figma, dial swings 45deg each way at 120 BPM (Figma motion). |
+| C-37 | Components | App Header Menu | 211:21700 | `src/components/account-menu.tsx .account-menu-panel` | new | pending | Not re-audited this pass. |
+| H-07 | Figma hygiene | Save Bar: fixed 60 tall with an included top border | 48:209 | `.save-bar` | hygiene | needs-figma-fix | With the 1px top border included, 1 + 12 + 36 + 12 = 61, but the frame is fixed at 60, so the Button is squeezed. Either 61 tall, or 11 top padding. Code keeps 60 with an inset line. |
+| H-08 | Figma hygiene | App Header: fixed 68 tall with an included 2px bottom border | 48:191 | `src/app/(app)/layout.tsx header` | hygiene | needs-figma-fix | 16 + 36 + 16 + 2 = 70, fixed at 68. Either 70 tall or 14 bottom padding. Code unchanged. |
+| H-09 | Figma hygiene | Frames that still exclude borders | 9:2 | `-` | hygiene | needs-decision | Tag, Keyboard Hint, BETA, Segmented Control outer border, Checkbox, Window Collapse, Date Line underline, Connection Card Meta and Dates, Directory Bar pinned, mobile Main Nav Menu and Account. Intended, or missed? Code matches Figma as it is (excluded) until decided. |
 
 ## Component checklists
 
@@ -266,3 +273,13 @@ Evidence: design-sync/evidence/audit-2026-11-05.md
 
 
 Evidence: design-sync/evidence/audit-2026-11-05.md
+
+### C-35 Page Loader
+
+
+Evidence: design-sync/evidence/metronome-2026-11-08.md
+
+### C-36 Metronome Loader
+
+
+Evidence: design-sync/evidence/metronome-2026-11-08.md

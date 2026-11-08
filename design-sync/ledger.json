@@ -777,5 +777,67 @@
   "cls": "changed",
   "status": "pending",
   "notes": "16/32/48 variants. Check the app's icon files match."
+ },
+ {
+  "id": "C-35",
+  "cat": "Components",
+  "item": "Page Loader",
+  "fref": "220:24087",
+  "cref": "src/components/metronome.tsx PageLoader, .page-loader",
+  "cls": "new",
+  "status": "synced",
+  "notes": "Built Nov 8 (#200-#202): metronome, label, dots in time (1s). Busy pointer carries the metronome with a mouse.",
+  "evidence": "design-sync/evidence/metronome-2026-11-08.md"
+ },
+ {
+  "id": "C-36",
+  "cat": "Components",
+  "item": "Metronome Loader",
+  "fref": "220:23885",
+  "cref": "src/components/metronome.tsx Metronome",
+  "cls": "new",
+  "status": "synced",
+  "notes": "Built Nov 8 (#200): SVG from Figma, dial swings 45deg each way at 120 BPM (Figma motion).",
+  "evidence": "design-sync/evidence/metronome-2026-11-08.md"
+ },
+ {
+  "id": "C-37",
+  "cat": "Components",
+  "item": "App Header Menu",
+  "fref": "211:21700",
+  "cref": "src/components/account-menu.tsx .account-menu-panel",
+  "cls": "new",
+  "status": "pending",
+  "notes": "Not re-audited this pass."
+ },
+ {
+  "id": "H-07",
+  "cat": "Figma hygiene",
+  "item": "Save Bar: fixed 60 tall with an included top border",
+  "fref": "48:209",
+  "cref": ".save-bar",
+  "cls": "hygiene",
+  "status": "needs-figma-fix",
+  "notes": "With the 1px top border included, 1 + 12 + 36 + 12 = 61, but the frame is fixed at 60, so the Button is squeezed. Either 61 tall, or 11 top padding. Code keeps 60 with an inset line."
+ },
+ {
+  "id": "H-08",
+  "cat": "Figma hygiene",
+  "item": "App Header: fixed 68 tall with an included 2px bottom border",
+  "fref": "48:191",
+  "cref": "src/app/(app)/layout.tsx header",
+  "cls": "hygiene",
+  "status": "needs-figma-fix",
+  "notes": "16 + 36 + 16 + 2 = 70, fixed at 68. Either 70 tall or 14 bottom padding. Code unchanged."
+ },
+ {
+  "id": "H-09",
+  "cat": "Figma hygiene",
+  "item": "Frames that still exclude borders",
+  "fref": "9:2",
+  "cref": "-",
+  "cls": "hygiene",
+  "status": "needs-decision",
+  "notes": "Tag, Keyboard Hint, BETA, Segmented Control outer border, Checkbox, Window Collapse, Date Line underline, Connection Card Meta and Dates, Directory Bar pinned, mobile Main Nav Menu and Account. Intended, or missed? Code matches Figma as it is (excluded) until decided."
  }
 ]

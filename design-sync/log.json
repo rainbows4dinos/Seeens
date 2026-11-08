@@ -26,5 +26,9 @@
  {
   "date": "2026-11-05",
   "entry": "Nov 5: all Figma auto layouts set to exclude borders; rule in rules.md; re-audited resized components; code fixes for Keyboard Hint, Window title bar, Next Action Card, Choice checkbox."
+ },
+ {
+  "date": "2026-11-08",
+  "entry": "Nov 8 borders audit: 198 bordered auto-layout frames include borders, 68 exclude (mostly inside instances). Code switched to plain border + padding for Button, Field, Choice, Search Field, combobox, Window, Panel. Still excluded in Figma, code unchanged: Tag, Keyboard Hint, BETA, Segmented Control outer, Checkbox, Window Collapse, Date Line underline, Connection Card Meta/Dates, Directory Bar pinned, mobile menu frames."
  }
 ]
