@@ -9,6 +9,9 @@ const SIZE = 32;
 const HOTSPOT_X = (10 / 40) * SIZE;
 const HOTSPOT_Y = (5 / 40) * SIZE;
 const SHOW_AFTER_MS = 300;
+// Once out, it stays at least one full swing, so a load that ends just after
+// it appears doesn't blink it on and off.
+const MIN_SHOW_MS = 1000;
 // Clicked a link, then the new page's loader: one wait, not two.
 const SETTLE_MS = 200;
 const GIVE_UP_MS = 15000;
@@ -150,8 +153,20 @@ export function BusyPointer() {
     !matchMedia("(prefers-reduced-motion: reduce)").matches;
   // The pointer will carry the metronome: page loaders drop theirs right away,
   // so two never tick at once.
-  const pointerMode = waiting && canPoint;
-  const show = pointerMode && due;
+  const [held, setHeld] = useState(false);
+  const due2 = waiting && due;
+  const [prevDue, setPrevDue] = useState(due2);
+  if (prevDue !== due2) {
+    setPrevDue(due2);
+    if (due2) setHeld(true);
+  }
+  useEffect(() => {
+    if (!held) return;
+    const t = setTimeout(() => setHeld(false), MIN_SHOW_MS);
+    return () => clearTimeout(t);
+  }, [held]);
+  const pointerMode = (waiting || held) && canPoint;
+  const show = pointerMode && (due2 || held);
 
   useLayoutEffect(() => {
     // Put it on the pointer before it shows.
