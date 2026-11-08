@@ -8,6 +8,7 @@ import "@fontsource/ibm-plex-mono/latin-500.css";
 import "@fontsource/ibm-plex-mono/latin-600.css";
 import "@fontsource/reenie-beanie/latin-400.css";
 import "./globals.css";
+import { RESTORE_POINTER_SCRIPT } from "@/lib/saved-pointer";
 
 export const metadata: Metadata = {
   title: "Seeens",
@@ -16,7 +17,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    // The script may mark <html> before React starts, hence the warning off.
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: RESTORE_POINTER_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
