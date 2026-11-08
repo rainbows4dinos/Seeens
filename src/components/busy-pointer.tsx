@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { POINTER_KEY, readSavedPointer } from "@/lib/saved-pointer";
 import { Metronome, PageLoader } from "./metronome";
 
 const SIZE = 32;
@@ -19,6 +20,12 @@ const GIVE_UP_MS = 15000;
 // Where the mouse last was. Outside the component, so it survives remounts
 // and the metronome lands on the pointer even before it moves again.
 const last = { x: -100, y: -100, seen: false };
+
+// Across a reload: where the mouse was as the page went away.
+if (typeof window !== "undefined") {
+  const saved = readSavedPointer();
+  if (saved) Object.assign(last, { x: saved.x, y: saved.y, seen: true });
+}
 
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
 // becomes a swinging metronome, like the old busy cursors.
@@ -143,8 +150,17 @@ export function BusyPointer() {
     };
     const leave = () => {
       document.documentElement.removeAttribute("data-mouse");
+      last.seen = false;
       setMouse(false);
     };
+    // Leaving the page: remember where the mouse is, if it's over the page.
+    const away = () => {
+      try {
+        if (last.seen) sessionStorage.setItem(POINTER_KEY, JSON.stringify({ x: last.x, y: last.y, t: Date.now() }));
+        else sessionStorage.removeItem(POINTER_KEY);
+      } catch {}
+    };
+    addEventListener("pagehide", away);
     const opts = { passive: true, capture: true } as const;
     document.addEventListener("pointermove", track, opts);
     document.addEventListener("pointerdown", track, opts);
@@ -157,6 +173,7 @@ export function BusyPointer() {
       document.removeEventListener("pointerover", track, opts);
       document.removeEventListener("click", track, opts);
       document.documentElement.removeEventListener("mouseleave", leave);
+      removeEventListener("pagehide", away);
     };
   }, []);
 
