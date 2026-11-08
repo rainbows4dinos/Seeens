@@ -1,9 +1,9 @@
 # Design sync ledger
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
-- Inventory read: 2026-11-05 evening (full re-read: variables, text/effect/paint styles, Components page 9:2 with axes and props)
-- Code baseline: bed2739 (2026-11-05)
-- Rendered 2026-11-05 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
+- Inventory read: 2026-11-08 (components and variables re-read; no token, text, or effect drift)
+- Code baseline: d4e8f58 (2026-11-08)
+- Rendered 2026-11-08 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
 ## Inventory
@@ -14,10 +14,10 @@
 | Text styles | 13 | 13 | 13 | 0 |
 | Effect styles | 6 | 6 | 4 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
-| Components | 34 | 34 | 18 | 11 |
-| Figma hygiene | - | 6 | 0 | 0 |
+| Components | 37 | 37 | 20 | 12 |
+| Figma hygiene | - | 9 | 0 | 0 |
 
-Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
+Status totals: fixed-in-figma 8, pending 12, skipped 10, synced 44
 
 ## Log
 
@@ -28,6 +28,7 @@ Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 - 2026-11-04: Off-token paddings fixed in Figma: Field 12 (md), Choice 8 (sm), Tag 8 (sm). Code follows (border + padding = token).
 - 2026-11-05: Audit Nov 5 evening: full Figma re-read (60 variables, 13 text styles, 6 effect styles, 34 components with axes and props). New: color/border/inverse, Profile Pic, Photo Action, Favicon. Changed: Shadow/Hard (second drop), Field icon gap 4. Evidence: design-sync/evidence/audit-2026-11-05.md
 - 2026-11-05: Nov 5: all Figma auto layouts set to exclude borders; rule in rules.md; re-audited resized components; code fixes for Keyboard Hint, Window title bar, Next Action Card, Choice checkbox.
+- 2026-11-08: Nov 8 borders audit: 198 bordered auto-layout frames include borders, 68 exclude (mostly inside instances). Code switched to plain border + padding for Button, Field, Choice, Search Field, combobox, Window, Panel. Still excluded in Figma, code unchanged: Tag, Keyboard Hint, BETA, Segmented Control outer, Checkbox, Window Collapse, Date Line underline, Connection Card Meta/Dates, Directory Bar pinned, mobile menu frames.
 
 ## Rows
 
@@ -59,18 +60,18 @@ Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 | E-05 | Effect styles | Texture/Rub-down on paper | effect style | `src/app/globals.css -` | missing-in-code | skipped | Same as Texture/Rub-down (#62) |
 | C-01 | Components | Avatar | 82:2229 | `-` | missing-in-code | skipped | Not built in code yet; part of account settings (#67). |
 | C-02 | Components | Button | 10:22 | `.button-primary, .button-secondary` | structure-drift | synced | Nov 5: Figma padding 8 + Label Frame 2 = text 10px from the outer edge; code 1px border + 9px. Icon L 8px in (border + 7), 6px to the label. Matches. |
-| C-03 | Components | Nav Chip | 10:8 | `.nav-chip, .logo` | structure-drift | synced | Re-audited Nov 5: pad 4/12, 1px ink border, UI/Nav (Hanken SemiBold 16/20). Matches .nav-chip. |
+| C-03 | Components | Nav Chip | 10:8 | `.nav-chip, .logo` | structure-drift | synced | Nov 8: BETA includes its border, 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3/5). |
 | C-04 | Components | Segment | 10:27 | `.segmented > *` | structure-drift | synced | Nov 5: pad 12, Mono/Body, 4px icon-to-label (type tabs: margin-right calc(4px - 1ch)). Phones keep 12px under 480px (code-owned). |
 | C-05 | Components | Segmented Control | 11:2 | `.segmented` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-06 | Components | Tag | 10:15 | `.tag` | structure-drift | synced | Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches. |
+| C-06 | Components | Tag | 10:15 | `.tag` | structure-drift | synced | Nov 8: Tag now includes its border in Figma, fixed 20 tall. Code: height 20, padding 0 8px (was 1px 7px). |
 | C-07 | Components | Date Line | 10:34 | `.date-line` | structure-drift | synced | Re-audited Nov 5: gap 6, arrow + label Mono/Small Strong (future) / Mono/Small (past). Matches .date-line. |
 | C-08 | Components | Window | 11:9 | `.window, .dialog-title` | structure-drift | synced | Nov 5: Shadow/Hard back to two drops (ink 5,5 under paper 1,1); 1.5px stroke on all sides; title bar 44, 20px fold box, Mono/Small Strong; content pad 24/16/32. Code edge is an inset shadow. |
-| C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
+| C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Nov 8 borders: Meta and Dates both include their borders in Figma; code is border + 12 and border-top + 8 (measured). Rest of the card not re-audited. |
 | C-10 | Components | Tape | 10:41 | `.tape` | structure-drift | skipped | Synced in #114 (CSS strips stand in for the Figma shader). No text; not re-audited. |
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
 | C-12 | Components | Field | 47:170 | `.field` | structure-drift | synced | Nov 5: 4px icon gap (space/xs); text 32px in beside an icon (.field-icon 31 + border, .combo-icon). Font size decision (14, 16 on touch) stands. |
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | synced | Nov 5: square box both sides. Figma's box is radius 0; code now draws the checkbox (paper, ink edge, ink check) instead of the rounded native one. Pad 8 from the outer edge (1 + 7). |
+| C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | synced | Nov 8: Choice includes its border (padding 8). Checkbox now 16 square in Figma (was 18). Measured: box 9 in, 16 x 16. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
 | C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | synced | Decided Nov 5: code keeps the page gutter for side padding (16/24/32) so the header lines up with the content; Figma's 16 stays as the component default. Fill, 2px rule, 16px top/bottom match. |
 | C-17 | Components | App Footer | 48:197 | `src/app/(app)/layout.tsx footer` | structure-drift | synced | Nov 5 (borders excluded): pad 16/32, 48 tall, top rule. Matches the footer (py-4, overlay rule). |
@@ -94,13 +95,19 @@ Status totals: fixed-in-figma 7, pending 11, skipped 8, synced 42
 | H-05 | Figma hygiene | Connection Card / Print initials | 95:460 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/XL (52/52). Code .card-print-initials 64px -> 52px. |
 | H-06 | Figma hygiene | Directory Row / Thumb initials | 109:79 | `-` | hygiene | fixed-in-figma | Fixed by the designer Nov 4: initials bound to Display/S (20/24). Code .row-thumb-initials 18px -> 20/24, -3%. |
 | T-13 | Text styles | Mono/Hint | text style | `src/app/globals.css .search-hint` | match | synced | New in Figma Nov 4 (Plex 10, auto, 5%, uppercase). Code .search-hint already 10px, 5%, uppercase; keeps 14px line height for the bordered key. |
-| C-31 | Components | Keyboard Hint | 133:4158 | `kbd.search-hint` | match | synced | Nov 5: 2px radius kept (the one rounded element). Borders excluded: 40 x 15, pad 4, text trimmed to cap height. Code padding 3 + text-box trim. |
+| C-31 | Components | Keyboard Hint | 133:4158 | `kbd.search-hint` | match | synced | Nov 8: Keyboard Hint includes its border, fixed 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3px all round). |
 | V-08 | Variables | color/bg/raised (1) | Color | `src/app/globals.css --color-bg-raised` | missing-in-code | synced | New Nov 5 (#157): rows and cards lifted on hover or when open. Aliases paper/photo. Controls keep color/bg/hover. |
 | E-06 | Effect styles | Shadow/Soft | effect style | `src/app/globals.css --shadow-soft` | missing-in-code | synced | New Nov 5 (#157): 4 4 0 0 ink at 30%. Code also has --shadow-soft-nudged (6 6) for rows nudged 2px up-left, so the shadow lands in the same place. |
 | V-09 | Variables | color/border/inverse (1) | Color | `src/app/globals.css (missing)` | missing-in-code | synced | Added --color-border-inverse (paper/50); used by .profile-panel-icon and .quick-view-close borders. |
 | C-32 | Components | Profile Pic | 161:3824 | `src/components/photo-panel.tsx, .quick-view-thumb` | changed | pending | Nov 5: resized 108 -> 112 to match .photo-thumb (80 on mobile). Initials size and color not compared yet. |
 | C-33 | Components | Photo Action | 161:3817 | `src/components/photo-panel.tsx` | changed | synced | Nov 5: Add icon 12 + Mono/Hint label, pad 4/12, gap 2, 110 x 20 inside the Profile Pic edge, ink fill, yellow hover. Code and Figma both on existing styles. |
 | C-34 | Components | Favicon | 161:3876 | `src/app/icon.*` | changed | pending | 16/32/48 variants. Check the app's icon files match. |
+| C-35 | Components | Page Loader | 220:24087 | `src/components/metronome.tsx PageLoader, .page-loader` | new | synced | Built Nov 8 (#200-#202): metronome, label, dots in time (1s). Busy pointer carries the metronome with a mouse. |
+| C-36 | Components | Metronome Loader | 220:23885 | `src/components/metronome.tsx Metronome` | new | synced | Built Nov 8 (#200): SVG from Figma, dial swings 45deg each way at 120 BPM (Figma motion). |
+| C-37 | Components | App Header Menu | 211:21700 | `src/components/account-menu.tsx .account-menu-panel` | new | pending | Not re-audited this pass. |
+| H-07 | Figma hygiene | Save Bar: fixed 60 tall with an included top border | 48:209 | `.save-bar` | hygiene | skipped | Larry keeps the Save Bar at 60 (Nov 8). Code: 60 with an inset top line. |
+| H-08 | Figma hygiene | App Header: fixed 68 tall with an included 2px bottom border | 48:191 | `src/app/(app)/layout.tsx header` | hygiene | skipped | Larry keeps the App Header at 68 (Nov 8). Code unchanged. |
+| H-09 | Figma hygiene | Frames that still exclude borders | 9:2 | `-` | hygiene | fixed-in-figma | Fixed in Figma Nov 8 (four rounds): every visible bordered frame includes its border. Only the hidden Main Nav Menu / Account in App Header Mobile, Show Menu=False still excludes, which never shows. Directory Bar pinned keeps an inset line in code so pinning doesn't shift it 1px. |
 
 ## Component checklists
 
@@ -115,7 +122,7 @@ Evidence: design-sync/evidence/audit-2026-11-05.md
 - [x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).
 - [x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-04 Segment
 
@@ -134,7 +141,7 @@ Evidence: -
 - [x] Typography: Mono/Caption 11px -> 12px
 - [x] Typography: Mono/Caption 11px -> 12px, weight pinned to 400 (it inherited 500 inside .label headings)
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-07 Date Line
 
@@ -170,7 +177,7 @@ Evidence: -
 
 - [x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-16 App Header
 
@@ -260,9 +267,19 @@ Evidence: design-sync/evidence/logo-header-login.png
 ### C-31 Keyboard Hint
 
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-33 Photo Action
 
 
 Evidence: design-sync/evidence/audit-2026-11-05.md
+
+### C-35 Page Loader
+
+
+Evidence: design-sync/evidence/metronome-2026-11-08.md
+
+### C-36 Metronome Loader
+
+
+Evidence: design-sync/evidence/metronome-2026-11-08.md

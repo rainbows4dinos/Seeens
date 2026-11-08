@@ -272,12 +272,12 @@
   "cref": ".nav-chip, .logo",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Re-audited Nov 5: pad 4/12, 1px ink border, UI/Nav (Hanken SemiBold 16/20). Matches .nav-chip.",
+  "notes": "Nov 8: BETA includes its border, 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3/5).",
   "checklist": [
    "[x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).",
    "[x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg"
   ],
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "C-04",
@@ -314,12 +314,12 @@
   "cref": ".tag",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches.",
+  "notes": "Nov 8: Tag now includes its border in Figma, fixed 20 tall. Code: height 20, padding 0 8px (was 1px 7px).",
   "checklist": [
    "[x] Typography: Mono/Caption 11px -> 12px",
    "[x] Typography: Mono/Caption 11px -> 12px, weight pinned to 400 (it inherited 500 inside .label headings)"
   ],
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "C-07",
@@ -357,7 +357,7 @@
   "cref": "src/components/connection-card.tsx",
   "cls": "structure-drift",
   "status": "pending",
-  "notes": "Layout, anatomy, and variants not re-audited in this pass.",
+  "notes": "Nov 8 borders: Meta and Dates both include their borders in Figma; code is border + 12 and border-top + 8 (measured). Rest of the card not re-audited.",
   "checklist": [
    "[x] Typography: caption via .caption (now 12px), name via display-m. Print initials are decorative, unstyled in Figma."
   ]
@@ -417,11 +417,11 @@
   "cref": ".choice",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Nov 5: square box both sides. Figma's box is radius 0; code now draws the checkbox (paper, ink edge, ink check) instead of the rounded native one. Pad 8 from the outer edge (1 + 7).",
+  "notes": "Nov 8: Choice includes its border (padding 8). Checkbox now 16 square in Figma (was 18). Measured: box 9 in, 16 x 16.",
   "checklist": [
    "[x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)"
   ],
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "C-15",
@@ -712,8 +712,8 @@
   "cref": "kbd.search-hint",
   "cls": "match",
   "status": "synced",
-  "notes": "Nov 5: 2px radius kept (the one rounded element). Borders excluded: 40 x 15, pad 4, text trimmed to cap height. Code padding 3 + text-box trim.",
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "notes": "Nov 8: Keyboard Hint includes its border, fixed 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3px all round).",
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "V-08",
@@ -777,5 +777,67 @@
   "cls": "changed",
   "status": "pending",
   "notes": "16/32/48 variants. Check the app's icon files match."
+ },
+ {
+  "id": "C-35",
+  "cat": "Components",
+  "item": "Page Loader",
+  "fref": "220:24087",
+  "cref": "src/components/metronome.tsx PageLoader, .page-loader",
+  "cls": "new",
+  "status": "synced",
+  "notes": "Built Nov 8 (#200-#202): metronome, label, dots in time (1s). Busy pointer carries the metronome with a mouse.",
+  "evidence": "design-sync/evidence/metronome-2026-11-08.md"
+ },
+ {
+  "id": "C-36",
+  "cat": "Components",
+  "item": "Metronome Loader",
+  "fref": "220:23885",
+  "cref": "src/components/metronome.tsx Metronome",
+  "cls": "new",
+  "status": "synced",
+  "notes": "Built Nov 8 (#200): SVG from Figma, dial swings 45deg each way at 120 BPM (Figma motion).",
+  "evidence": "design-sync/evidence/metronome-2026-11-08.md"
+ },
+ {
+  "id": "C-37",
+  "cat": "Components",
+  "item": "App Header Menu",
+  "fref": "211:21700",
+  "cref": "src/components/account-menu.tsx .account-menu-panel",
+  "cls": "new",
+  "status": "pending",
+  "notes": "Not re-audited this pass."
+ },
+ {
+  "id": "H-07",
+  "cat": "Figma hygiene",
+  "item": "Save Bar: fixed 60 tall with an included top border",
+  "fref": "48:209",
+  "cref": ".save-bar",
+  "cls": "hygiene",
+  "status": "skipped",
+  "notes": "Larry keeps the Save Bar at 60 (Nov 8). Code: 60 with an inset top line."
+ },
+ {
+  "id": "H-08",
+  "cat": "Figma hygiene",
+  "item": "App Header: fixed 68 tall with an included 2px bottom border",
+  "fref": "48:191",
+  "cref": "src/app/(app)/layout.tsx header",
+  "cls": "hygiene",
+  "status": "skipped",
+  "notes": "Larry keeps the App Header at 68 (Nov 8). Code unchanged."
+ },
+ {
+  "id": "H-09",
+  "cat": "Figma hygiene",
+  "item": "Frames that still exclude borders",
+  "fref": "9:2",
+  "cref": "-",
+  "cls": "hygiene",
+  "status": "fixed-in-figma",
+  "notes": "Fixed in Figma Nov 8 (four rounds): every visible bordered frame includes its border. Only the hidden Main Nav Menu / Account in App Header Mobile, Show Menu=False still excludes, which never shows. Directory Bar pinned keeps an inset line in code so pinning doesn't shift it 1px."
  }
 ]
