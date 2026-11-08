@@ -98,7 +98,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
           What&rsquo;s in it
         </h2>
         <p>
-          One row per connection: who they are, status, town, scenes, contact info, links, notes, and their current
+          One row per listing: who they are, status, town, scenes, contact info, links, notes, and their current
           next action. <strong>Outreach history isn&rsquo;t included.</strong>
         </p>
         <p className="text-muted">
