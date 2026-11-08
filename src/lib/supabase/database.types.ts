@@ -410,7 +410,11 @@ isOneToOne: false
             "list_accounts":
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
             "grant_moderator_user":
-{ Args: { "p_user_id": string }; Returns: undefined },
+{ Args: { "p_user_id": string }; Returns: { "email": string,"display_name": string | null,"added": boolean }[] },
+            "moderator_welcome_pending":
+{ Args: never; Returns: boolean },
+            "dismiss_moderator_welcome":
+{ Args: never; Returns: undefined },
             "grant_moderator":
 { Args: { "p_email": string }; Returns: string },
             "revoke_moderator":

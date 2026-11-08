@@ -9,6 +9,7 @@ import { Photo } from "@/components/photo";
 import { MainNav } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
 import { FeedbackLink } from "@/components/feedback-link";
+import { ModeratorWelcome } from "@/components/moderator-welcome";
 import { createClient } from "@/lib/supabase/server";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -51,7 +52,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </MobileMenu>
         </div>
       </header>
-      <main className="page-gutter w-full flex-1 pt-8 pb-16">{children}</main>
+      <main className="page-gutter w-full flex-1 pt-8 pb-16">
+        <Suspense fallback={null}>
+          <NewModeratorNote />
+        </Suspense>
+        {children}
+      </main>
       <footer className="rule-top rule-strong bg-surface">
         <p className="page-gutter w-full py-4 text-xs text-muted">
           Town data from{" "}
@@ -72,6 +78,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </footer>
     </div>
   );
+}
+
+// A note for someone just made a moderator, until they dismiss it.
+async function NewModeratorNote() {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("moderator_welcome_pending");
+  return data ? <ModeratorWelcome /> : null;
 }
 
 async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {

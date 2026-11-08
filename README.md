@@ -198,7 +198,7 @@ With email set up, each app admin gets an email for every new item (reply to ans
 ### Roles
 
 - **Members** add records, edit what their band added, and keep their band's own statuses and notes.
-- **Moderators** are trusted people an app admin picks under **Moderators** in the account menu (`/admin/moderators`). They can fix the details of any record other bands share: name, type, town, links, what someone can help with, and venue details. Every moderator edit is logged in `connection_edits`, and the record's band sees "Last fixed by a moderator" on it.
+- **Moderators** are trusted people an app admin picks by name under **Moderators** in the account menu (`/admin/moderators`). A new moderator gets an email (when email is set up) and a one-time note in the app explaining the role. They can fix the details of any record other bands share: name, type, town, links, what someone can help with, and venue details. Every moderator edit is logged in `connection_edits`, and the record's band sees "Last fixed by a moderator" on it.
 - **App admins** can do everything moderators can, and make moderators.
 
 Keep Private follows roles too. A venue, band, or other group can only be kept private by an owner of its band, or a moderator. A person is their own call once they've linked Your Page; until then, the band that added them decides. Changes go through `set_keep_private`, which applies these rules.
