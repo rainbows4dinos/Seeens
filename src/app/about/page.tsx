@@ -204,11 +204,9 @@ export default function AboutPage() {
           It&rsquo;s a beta
         </h2>
         <p>
-          Seeens is invite-only for now. Everyone using it is a tester, so things will change, and what you tell us
+          Seeens is in a closed beta. Everyone using it is a tester, so things will change, and what you tell us
           decides what changes. Once you&rsquo;re in, Send Feedback is in the header.
         </p>
-        <h3 className="display-s">How to get in</h3>
-        <p>Ask a band that uses Seeens to invite you. There&rsquo;s no sign-up form yet.</p>
       </section>
 
       <footer className="flex flex-wrap gap-3">
