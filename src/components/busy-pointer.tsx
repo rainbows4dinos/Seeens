@@ -21,7 +21,8 @@ const GIVE_UP_MS = 15000;
 const last = { x: -100, y: -100, seen: false };
 
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
-// becomes a swinging metronome, like the old busy cursors. Only with a mouse
+// becomes a swinging metronome, like the old busy cursors. The system cursor
+// turns into a still one (CSS), and this draws the swinging one over it. Only with a mouse
 // over the page; otherwise the page loader's own metronome does the job, and
 // a link still waiting shows one over the old page.
 //
@@ -32,7 +33,9 @@ export function BusyPointer() {
   const [loaderShown, setLoaderShown] = useState(false);
   const [settling, setSettling] = useState(false);
   const [due, setDue] = useState(false);
-  const [mouse, setMouse] = useState(last.seen);
+  // true: a mouse is over the page; false: it left; null: not moved yet since
+  // the page loaded (the system cursor still shows where it is).
+  const [mouse, setMouse] = useState<boolean | null>(last.seen ? true : null);
   const ref = useRef<HTMLDivElement>(null);
   // The address when the link was clicked: once it changes, the page arrived.
   const from = useRef("");
@@ -122,7 +125,10 @@ export function BusyPointer() {
   // the click itself included, so it's in place without another move.
   useEffect(() => {
     const track = (e: PointerEvent | MouseEvent) => {
-      if ("pointerType" in e && e.pointerType && e.pointerType !== "mouse") return;
+      // Mouse only: not touch or pens, and not a link opened with the keyboard
+      // (its click has no real position).
+      if ("pointerType" in e && e.pointerType !== "mouse") return;
+      if (e.type === "click" && e.detail === 0) return;
       last.x = e.clientX;
       last.y = e.clientY;
       last.seen = true;
@@ -147,7 +153,7 @@ export function BusyPointer() {
   }, []);
 
   const canPoint =
-    mouse &&
+    mouse !== false &&
     typeof window !== "undefined" &&
     matchMedia("(hover: hover) and (pointer: fine)").matches &&
     !matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -180,7 +186,7 @@ export function BusyPointer() {
 
   return (
     <>
-      <div ref={ref} className="busy-pointer" data-on={show ? "" : undefined} aria-hidden="true">
+      <div ref={ref} className="busy-pointer" data-on={show && mouse ? "" : undefined} aria-hidden="true">
         <Metronome size={SIZE} />
       </div>
       {navigating && due && !canPoint ? (
