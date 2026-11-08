@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { BandNameField, InviteForm, MemberControls, PendingInviteActions } from "@/components/band-settings";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Band Settings · Seeens" };
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = { title: "Band Settings · Seeens" };
 export default function BandPage() {
   return (
     <div className="page-measure flex flex-col gap-8">
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Band />
       </Suspense>
     </div>

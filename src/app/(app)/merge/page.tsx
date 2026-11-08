@@ -8,6 +8,7 @@ import { photoUrl } from "@/lib/photos/urls";
 import { BackButton } from "@/components/back-button";
 import { MergeReview } from "@/components/merge-review";
 import { NoWorkspace } from "@/components/no-workspace";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Merge duplicates · Seeens" };
 
@@ -19,7 +20,7 @@ export default function MergePage({ searchParams }: PageProps<"/merge">) {
   return (
     <div className="flex flex-col gap-8">
       <BackButton href="/duplicates" label="Possible Duplicates" />
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Merge searchParams={searchParams} />
       </Suspense>
     </div>

@@ -2255,3 +2255,131 @@
     margin-top: 4px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Busy: the metronome (Figma: Metronome Loader, Page Loader). The dial swings
+   45° each way at 120 BPM; the dots keep time with it.
+   --------------------------------------------------------------------------- */
+@layer components {
+  .metronome {
+    display: block;
+    flex: none;
+  }
+  .metronome-face {
+    fill: var(--color-bg-raised);
+  }
+  .metronome-ink {
+    fill: var(--color-text-primary);
+  }
+  .metronome-dial {
+    transform-box: view-box;
+    transform-origin: 20px 27px;
+    animation: metronome-swing 1s cubic-bezier(0.364, 0, 0.636, 1) infinite;
+  }
+
+  .page-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-block: 48px;
+  }
+  .page-loader-label {
+    font-family: var(--type-mono);
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-text-primary);
+  }
+  .page-loader-dots span {
+    opacity: 0;
+    animation: 1s linear infinite;
+  }
+  .page-loader-dots span:nth-child(1) {
+    animation-name: metronome-dot-1;
+  }
+  .page-loader-dots span:nth-child(2) {
+    animation-name: metronome-dot-2;
+  }
+  .page-loader-dots span:nth-child(3) {
+    animation-name: metronome-dot-3;
+  }
+  /* One metronome at a time: with the busy pointer out, this one steps aside. */
+  :root[data-busy-pointer] .page-loader .metronome {
+    visibility: hidden;
+  }
+
+  .busy-pointer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-100px, -100px);
+    transition: opacity 0.12s;
+  }
+  .busy-pointer[data-on] {
+    opacity: 1;
+  }
+
+  .nav-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+  }
+  /* Over the old page it needs its own paper, like an old dialog box. */
+  .nav-loader .page-loader {
+    padding: 16px 24px;
+    background: var(--color-bg-surface);
+    border: 1.5px solid var(--color-border-strong);
+  }
+
+  /* Clicked a link, still waiting: the old page fades back. */
+  :root[data-navigating] main {
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+}
+
+@keyframes metronome-swing {
+  0% {
+    transform: rotate(-45deg);
+  }
+  50% {
+    transform: rotate(45deg);
+  }
+  100% {
+    transform: rotate(-45deg);
+  }
+}
+@keyframes metronome-dot-1 {
+  0% { opacity: 0; }
+  22%, 80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes metronome-dot-2 {
+  0%, 19% { opacity: 0; }
+  41%, 80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes metronome-dot-3 {
+  0%, 38% { opacity: 0; }
+  60%, 80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metronome-dial {
+    animation: none;
+  }
+  .page-loader-dots span {
+    animation: none;
+    opacity: 1;
+  }
+  .busy-pointer {
+    display: none;
+  }
+}

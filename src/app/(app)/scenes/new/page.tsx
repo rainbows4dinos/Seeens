@@ -5,6 +5,7 @@ import { createScene } from "@/lib/scenes/actions";
 import { listSceneOptions } from "@/lib/scenes/queries";
 import { SceneForm } from "@/components/scene-form";
 import { NoWorkspace } from "@/components/no-workspace";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "New scene · Seeens" };
 
@@ -12,7 +13,7 @@ export default function NewScenePage() {
   return (
     <div className="page-measure flex flex-col gap-6">
       <h1 className="display-l sm:display-xl">New scene</h1>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <NewScene />
       </Suspense>
     </div>

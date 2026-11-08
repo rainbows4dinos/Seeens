@@ -43,10 +43,11 @@ import { QuickStatus } from "@/components/quick-status";
 import { PhotoPanel } from "@/components/photo-panel";
 import { photoUrl } from "@/lib/photos/urls";
 import { defaultSettings, readSettings } from "@/lib/photos/settings";
+import { PageLoader } from "@/components/metronome";
 
 export default function ConnectionPage({ params, searchParams }: PageProps<"/connections/[id]">) {
   return (
-    <Suspense fallback={<p className="text-muted">Loading…</p>}>
+    <Suspense fallback={<PageLoader label="loading record" />}>
       <Connection params={params} searchParams={searchParams} />
     </Suspense>
   );

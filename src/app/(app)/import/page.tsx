@@ -4,6 +4,7 @@ import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { NoWorkspace } from "@/components/no-workspace";
 import { ImportWizard } from "@/components/import-wizard";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Import · Seeens" };
 
@@ -11,7 +12,7 @@ export default function ImportPage() {
   return (
     <div className="page-measure flex flex-col gap-6">
       <h1 className="text-3xl font-bold tracking-tight">Import a spreadsheet</h1>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Import />
       </Suspense>
     </div>

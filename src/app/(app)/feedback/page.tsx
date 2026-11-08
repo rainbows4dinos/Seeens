@@ -8,6 +8,7 @@ import { cleanPath, isKind, kindLabel, statusLabel } from "@/lib/feedback/labels
 import { ProfilePanel } from "@/components/profile/panel";
 import { NoWorkspace } from "@/components/no-workspace";
 import { FeedbackForm } from "./feedback-form";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Send Feedback · Seeens" };
 
@@ -24,7 +25,7 @@ export default function FeedbackPage({ searchParams }: PageProps<"/feedback">) {
           did. It goes straight to the people building Seeens, not anywhere public.
         </p>
       </div>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Feedback searchParams={searchParams} />
       </Suspense>
     </div>

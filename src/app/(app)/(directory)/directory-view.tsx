@@ -45,6 +45,7 @@ import { nestScenes } from "@/lib/scenes/queries";
 import { hasFilters, type DirectoryFilters } from "@/lib/connections/filters";
 import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
 import { countDuplicates } from "@/lib/connections/merge";
+import { PageLoader } from "@/components/metronome";
 
 type Params = Record<string, string | string[] | undefined>;
 export type Scope = "network" | "all";
@@ -54,7 +55,7 @@ export type Scope = "network" | "all";
 // band can see. The archived view is always My Network's.
 export function DirectoryView({ searchParams, scope }: { searchParams: Promise<Params>; scope: Scope }) {
   return (
-    <Suspense fallback={<p className="text-muted">Loading the directory…</p>}>
+    <Suspense fallback={<PageLoader label={scope === "network" ? "loading your network" : "loading directory"} />}>
       <Directory searchParams={searchParams} scope={scope} />
     </Suspense>
   );
