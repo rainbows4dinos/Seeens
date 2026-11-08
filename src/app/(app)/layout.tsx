@@ -70,6 +70,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Link href="/help" className="link">
             Help
           </Link>{" "}
+          ·{" "}
+          <Link href="/ai" className="link">
+            How Seeens Uses AI
+          </Link>{" "}
           · Town data from{" "}
           <a href="https://www.geonames.org/" className="link" target="_blank" rel="noopener noreferrer">
             GeoNames
