@@ -18,7 +18,7 @@ import {
 
 const unreachable = offline<BandState>({ error: "Couldn't reach Seeens. Try again." });
 
-function Note({ state, id }: { state: BandState; id?: string }) {
+export function Note({ state, id }: { state: BandState; id?: string }) {
   if (state.error)
     return (
       <p id={id} role="alert" className="text-sm font-medium text-error">
@@ -33,7 +33,7 @@ function Note({ state, id }: { state: BandState; id?: string }) {
 }
 
 /** A link to hand over: copied for you when the browser allows, and shown either way. */
-function LinkBox({ link }: { link: string }) {
+export function LinkBox({ link }: { link: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {

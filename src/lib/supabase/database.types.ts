@@ -409,6 +409,12 @@ isOneToOne: false
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"granted_at": string,"admin": boolean }[] },
             "list_accounts":
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
+            "start_band":
+{ Args: { "p_band": string,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string }[] },
+            "list_bands":
+{ Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null }[] },
+            "renew_band_invite":
+{ Args: { "p_invite_id": string }; Returns: string },
             "grant_moderator_user":
 { Args: { "p_user_id": string }; Returns: { "email": string,"display_name": string | null,"added": boolean }[] },
             "moderator_welcome_pending":
