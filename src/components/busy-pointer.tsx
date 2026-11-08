@@ -21,20 +21,22 @@ const GIVE_UP_MS = 15000;
 const last = { x: -100, y: -100, seen: false };
 
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
-// becomes a swinging metronome, like the old busy cursors. The system cursor
-// turns into a still one (CSS), and this draws the swinging one over it. Only with a mouse
-// over the page; otherwise the page loader's own metronome does the job, and
-// a link still waiting shows one over the old page.
+// becomes a swinging metronome, like the old busy cursors.
 //
 // Waiting means a link was clicked and the new page hasn't arrived, or a page
-// loader is on screen. It shows after a beat, so quick loads don't flicker.
+// loader is on screen. Whoever has the metronome when a wait starts keeps it
+// to the end, so it never jumps: the pointer, when there's a mouse whose
+// position is known; otherwise the page loader (a phone, the keyboard, or a
+// fresh page the mouse hasn't moved over yet), and a link still waiting shows
+// one over the old page. The pointer shows after a beat, so quick loads
+// don't flicker.
 export function BusyPointer() {
   const [navigating, setNavigating] = useState(false);
   const [loaderShown, setLoaderShown] = useState(false);
   const [settling, setSettling] = useState(false);
   const [due, setDue] = useState(false);
-  // true: a mouse is over the page; false: it left; null: not moved yet since
-  // the page loaded (the system cursor still shows where it is).
+  // true: a mouse is over the page; false: it left; null: not moved over this
+  // page yet, so its position isn't known.
   const [mouse, setMouse] = useState<boolean | null>(last.seen ? true : null);
   const ref = useRef<HTMLDivElement>(null);
   // The address when the link was clicked: once it changes, the page arrived.
@@ -134,9 +136,15 @@ export function BusyPointer() {
       last.seen = true;
       const el = ref.current;
       if (el) el.style.transform = `translate(${last.x - HOTSPOT_X}px, ${last.y - HOTSPOT_Y}px)`;
+      // Straight on the page, not after a render: a loader that appears next
+      // frame is already without its metronome (see globals.css).
+      document.documentElement.toggleAttribute("data-mouse", pointerDevice());
       setMouse(true);
     };
-    const leave = () => setMouse(false);
+    const leave = () => {
+      document.documentElement.removeAttribute("data-mouse");
+      setMouse(false);
+    };
     const opts = { passive: true, capture: true } as const;
     document.addEventListener("pointermove", track, opts);
     document.addEventListener("pointerdown", track, opts);
@@ -152,13 +160,9 @@ export function BusyPointer() {
     };
   }, []);
 
-  const canPoint =
-    mouse !== false &&
-    typeof window !== "undefined" &&
-    matchMedia("(hover: hover) and (pointer: fine)").matches &&
-    !matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // The pointer will carry the metronome: page loaders drop theirs right away,
-  // so two never tick at once.
+  const canPoint = mouse === true && pointerDevice();
+
+  // Once out, it stays a full beat.
   const [held, setHeld] = useState(false);
   const due2 = waiting && due;
   const [prevDue, setPrevDue] = useState(due2);
@@ -171,29 +175,43 @@ export function BusyPointer() {
     const t = setTimeout(() => setHeld(false), MIN_SHOW_MS);
     return () => clearTimeout(t);
   }, [held]);
-  const pointerMode = (waiting || held) && canPoint;
-  const show = pointerMode && (due2 || held);
+
+  // Who has the metronome for this wait, decided when it starts.
+  const active = waiting || held;
+  const [owner, setOwner] = useState<"pointer" | "page" | null>(null);
+  const [prevActive, setPrevActive] = useState(false);
+  if (prevActive !== active) {
+    setPrevActive(active);
+    setOwner(active ? (canPoint ? "pointer" : "page") : null);
+  }
+  const show = owner === "pointer" && mouse === true && (due2 || held);
 
   useLayoutEffect(() => {
     // Put it on the pointer before it shows.
     const el = ref.current;
     if (show && el) el.style.transform = `translate(${last.x - HOTSPOT_X}px, ${last.y - HOTSPOT_Y}px)`;
     const root = document.documentElement;
-    root.toggleAttribute("data-busy-pointer", pointerMode);
+    root.toggleAttribute("data-page-owns", owner === "page");
     root.toggleAttribute("data-busy-pointer-on", show);
     root.toggleAttribute("data-navigating", navigating && due);
-  }, [pointerMode, show, navigating, due]);
+  }, [owner, show, navigating, due]);
 
   return (
     <>
-      <div ref={ref} className="busy-pointer" data-on={show && mouse ? "" : undefined} aria-hidden="true">
+      <div ref={ref} className="busy-pointer" data-on={show ? "" : undefined} aria-hidden="true">
         <Metronome size={SIZE} />
       </div>
-      {navigating && due && !canPoint ? (
+      {navigating && due && owner === "page" ? (
         <div className="nav-loader">
           <PageLoader />
         </div>
       ) : null}
     </>
+  );
+}
+
+function pointerDevice() {
+  return (
+    matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 }

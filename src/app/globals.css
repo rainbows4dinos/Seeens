@@ -2303,8 +2303,9 @@
   .page-loader-dots span:nth-child(3) {
     animation: metronome-dot-3 1s linear infinite;
   }
-  /* One metronome at a time: with the busy pointer out, this one steps aside. */
-  :root[data-busy-pointer] .page-loader .metronome {
+  /* One metronome at a time: with a mouse over the page, the pointer carries
+     it, unless this wait began before the mouse was known. */
+  :root[data-mouse]:not([data-page-owns]) .page-loader .metronome {
     visibility: hidden;
   }
 
@@ -2320,15 +2321,10 @@
   .busy-pointer[data-on] {
     visibility: visible;
   }
-  /* The metronome is the pointer while it's out. The system cursor becomes a
-     still metronome, so it's right on the pointer even before the mouse
-     moves; once it has, the swinging one covers it exactly. */
+  /* The metronome is the pointer while it's out. */
   :root[data-busy-pointer-on],
   :root[data-busy-pointer-on] * {
-    cursor:
-      url("/cursors/metronome.svg") 8 4,
-      url("/cursors/metronome.png") 8 4,
-      progress !important;
+    cursor: none !important;
   }
 
   .nav-loader {
