@@ -141,6 +141,9 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
         <Link href="/help" className="nav-chip menu-item">
           Help
         </Link>
+        <Link href="/about" className="nav-chip menu-item">
+          About Seeens
+        </Link>
         {appAdmin ? (
           <>
             <Link href="/admin/feedback" className="nav-chip menu-item">

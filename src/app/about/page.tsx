@@ -25,7 +25,7 @@ const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
 // band's own layer on it, and Keep Private.
 export default function AboutPage() {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-12 px-4 py-16">
+    <main className="page-measure flex flex-1 flex-col gap-12 px-4 py-16">
       <header className="flex flex-col items-start gap-6">
         <Link href="/" className="logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}

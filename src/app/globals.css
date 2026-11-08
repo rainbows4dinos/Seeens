@@ -2398,7 +2398,6 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    max-width: 65ch;
   }
   .about-prose p,
   .about-prose li {
