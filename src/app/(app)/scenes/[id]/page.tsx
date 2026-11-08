@@ -6,12 +6,13 @@ import { getScene, listSceneOptions } from "@/lib/scenes/queries";
 import { formatPlace } from "@/lib/places";
 import { SceneForm } from "@/components/scene-form";
 import { NoWorkspace } from "@/components/no-workspace";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Edit scene · Seeens" };
 
 export default function EditScenePage({ params }: PageProps<"/scenes/[id]">) {
   return (
-    <Suspense fallback={<p className="text-muted">Loading…</p>}>
+    <Suspense fallback={<PageLoader label="loading scene" />}>
       <EditScene params={params} />
     </Suspense>
   );

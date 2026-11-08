@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AcceptForm, JoinForms, OptOutButton } from "./join-forms";
+import { PageLoader } from "@/components/metronome";
 
 // The token is the key: don't send it on to other sites.
 export const metadata: Metadata = { title: "You're invited · Seeens", referrer: "no-referrer" };
@@ -17,7 +18,7 @@ export default function InvitePage({ params, searchParams }: PageProps<"/invite/
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
       </Link>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Invite params={params} searchParams={searchParams} />
       </Suspense>
     </main>

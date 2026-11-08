@@ -5,6 +5,7 @@ import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { EXPORT_COLUMNS } from "@/lib/export/csv";
 import { NoWorkspace } from "@/components/no-workspace";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Export · Seeens" };
 
@@ -12,7 +13,7 @@ export default function ExportPage({ searchParams }: PageProps<"/export">) {
   return (
     <div className="page-measure flex flex-col gap-6">
       <h1 className="text-3xl font-bold tracking-tight">Export</h1>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Export searchParams={searchParams} />
       </Suspense>
     </div>

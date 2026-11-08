@@ -9,6 +9,7 @@ import { NoWorkspace } from "@/components/no-workspace";
 import { catalogNo } from "@/lib/connections/card";
 import { formatType } from "@/lib/connections/labels";
 import { layerOf } from "@/lib/connections/band-details";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 
@@ -16,7 +17,7 @@ export default function FollowUpsPage({ searchParams }: PageProps<"/follow-ups">
   return (
     <div className="page-measure flex flex-col gap-6">
       <h1 className="display-l sm:display-xl">Follow-ups</h1>
-      <Suspense fallback={<p className="text-muted">Loading follow-ups…</p>}>
+      <Suspense fallback={<PageLoader label="loading follow-ups" />}>
         <FollowUps searchParams={searchParams} />
       </Suspense>
     </div>

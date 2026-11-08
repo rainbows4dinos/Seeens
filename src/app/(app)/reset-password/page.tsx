@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { RECOVERY_COOKIE } from "@/lib/auth/recovery";
 import { ResetForm } from "./reset-form";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Set a new password · Seeens" };
 
@@ -13,7 +14,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="page-measure flex flex-col gap-8">
       <h1 className="display-l">Set a new password</h1>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Reset />
       </Suspense>
     </div>

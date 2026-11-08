@@ -14,6 +14,7 @@ import {
   PasswordForm,
   SignOutOthersForm,
 } from "@/components/account-forms";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Account Settings · Seeens" };
 
@@ -29,7 +30,7 @@ export default function AccountPage({ searchParams }: PageProps<"/account">) {
         </div>
         <p className="text-muted">Your login, across every band you&rsquo;re in. Only you see this page.</p>
       </div>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Account searchParams={searchParams} />
       </Suspense>
     </div>

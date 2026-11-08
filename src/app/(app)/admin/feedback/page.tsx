@@ -18,6 +18,7 @@ import {
 import { Camera, ChevronDown } from "@carbon/icons-react";
 import { FeedbackControls } from "./feedback-controls";
 import { FeedbackItem } from "./feedback-item";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Feedback Inbox · Seeens" };
 
@@ -26,7 +27,7 @@ export const metadata: Metadata = { title: "Feedback Inbox · Seeens" };
 export default function FeedbackInboxPage({ searchParams }: PageProps<"/admin/feedback">) {
   return (
     <div className="page-measure flex flex-col gap-8">
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Inbox searchParams={searchParams} />
       </Suspense>
     </div>

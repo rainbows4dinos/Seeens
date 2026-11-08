@@ -5,6 +5,7 @@ import { getMembership } from "@/lib/auth/dal";
 import { listScenes, nestScenes, type SceneItem } from "@/lib/scenes/queries";
 import { formatLocality } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Scenes · Seeens" };
 
@@ -17,7 +18,7 @@ export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
           New Scene
         </Link>
       </div>
-      <Suspense fallback={<p className="text-muted">Loading scenes…</p>}>
+      <Suspense fallback={<PageLoader label="loading scenes" />}>
         <Scenes searchParams={searchParams} />
       </Suspense>
     </div>

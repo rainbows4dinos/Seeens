@@ -5,6 +5,7 @@ import { loadSharing } from "@/lib/connections/sharing";
 import { BackButton } from "@/components/back-button";
 import { NoWorkspace } from "@/components/no-workspace";
 import { SharingList } from "@/components/sharing-list";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "What You Share · Seeens" };
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = { title: "What You Share · Seeens" };
 export default function SharingPage() {
   return (
     <div className="page-measure flex flex-col gap-8">
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Sharing />
       </Suspense>
     </div>

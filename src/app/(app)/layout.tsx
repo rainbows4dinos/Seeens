@@ -10,6 +10,7 @@ import { MainNav } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
 import { FeedbackLink } from "@/components/feedback-link";
 import { ModeratorWelcome } from "@/components/moderator-welcome";
+import { BusyPointer } from "@/components/busy-pointer";
 import { createClient } from "@/lib/supabase/server";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -58,6 +59,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </Suspense>
         {children}
       </main>
+      <Suspense fallback={null}>
+        <BusyPointer />
+      </Suspense>
       <footer className="rule-top rule-strong bg-surface">
         <p className="page-gutter w-full py-4 text-xs text-muted">
           Town data from{" "}

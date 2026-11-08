@@ -7,6 +7,7 @@ import { loadDuplicateGroups } from "@/lib/connections/merge";
 import { BackButton } from "@/components/back-button";
 import { NoWorkspace } from "@/components/no-workspace";
 import { NotDuplicatesButton } from "@/components/not-duplicates-button";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Possible duplicates · Seeens" };
 
@@ -23,7 +24,7 @@ export default function DuplicatesPage() {
           parentheses or initials like G.A.B. count too. Compare a group to merge it, or mark them as different.
         </p>
       </div>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Groups />
       </Suspense>
     </div>

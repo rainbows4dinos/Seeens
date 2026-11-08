@@ -12,6 +12,7 @@ import { loadNetwork } from "@/lib/connections/queries";
 import { catalogNo } from "@/lib/connections/card";
 import { defaultSettings } from "@/lib/photos/settings";
 import type { ConnectionStatus } from "@/lib/connections/labels";
+import { PageLoader } from "@/components/metronome";
 
 const PRESETS: Record<string, Partial<ConnectionFormValues>> = {
   band: { kind: "group", groupType: "band" },
@@ -31,7 +32,7 @@ export default function NewConnectionPage({ searchParams }: PageProps<"/add">) {
         <Back searchParams={searchParams} />
       </Suspense>
       <h1 className="display-l sm:display-xl">Add connection</h1>
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <NewConnection searchParams={searchParams} />
       </Suspense>
     </div>

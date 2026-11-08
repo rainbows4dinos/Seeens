@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/connections/labels";
 import { revokeModerator } from "@/lib/auth/moderator-actions";
 import { ProfilePanel } from "@/components/profile/panel";
 import { GrantForm } from "./grant-form";
+import { PageLoader } from "@/components/metronome";
 
 export const metadata: Metadata = { title: "Moderators · Seeens" };
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = { title: "Moderators · Seeens" };
 export default function ModeratorsPage() {
   return (
     <div className="page-measure flex flex-col gap-8">
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageLoader />}>
         <Moderators />
       </Suspense>
     </div>
