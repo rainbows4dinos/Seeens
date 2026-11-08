@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { STATUS_HINT_WORDS, STATUS_WORDS } from "@/lib/connections/status-words";
+import { NO_STATUS, STATUS_HINT_WORDS, STATUS_WORDS } from "@/lib/connections/status-words";
+import { ABOUT_FAQ } from "@/lib/help/faq";
 
 export const metadata: Metadata = {
   title: "About · Seeens",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 const SCREENSHOT: { src: string; alt: string } | null = null;
 
 const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
+const NO_STATUS_MEANING = "Not sorted yet. Everything starts here, and most of the shared directory will stay here, which is fine.";
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
   lets_play: "You both want to play together; it just isn't booked.",
@@ -67,7 +69,7 @@ export default function AboutPage() {
             played, your notes, contacts, and plans are only ever seen by your bandmates.
           </li>
           <li>
-            <strong>Keep Private hides a record from other bands.</strong> People start private; venues, bands, and
+            <strong>Keep Private hides a listing from other bands.</strong> People start private; venues, bands, and
             labels start shared. Flip any of them in Band Settings.
           </li>
         </ol>
@@ -84,7 +86,7 @@ export default function AboutPage() {
           How you feel about them
         </h2>
         <p>
-          Every record gets one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
+          Every listing can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
           outside your band sees it.
         </p>
         <div className="overflow-x-auto">
@@ -106,10 +108,15 @@ export default function AboutPage() {
                   <td>{STATUS_MEANING[s]}</td>
                 </tr>
               ))}
+              <tr>
+                <th scope="row">{NO_STATUS}</th>
+                <td>{NO_STATUS}</td>
+                <td>{NO_STATUS}</td>
+                <td>{NO_STATUS_MEANING}</td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <p>Anything your band hasn&rsquo;t given a status yet has none. Most of the shared directory will be new to you, and that&rsquo;s fine.</p>
       </section>
 
       <section aria-labelledby="do" className="about-prose">
@@ -118,7 +125,7 @@ export default function AboutPage() {
         </h2>
         <ul>
           <li>Find the venues, bands, and people other bands already know, and add the ones you know.</li>
-          <li>Mark how you feel about each: Homies, Let&rsquo;s Play, Eyeing, Heard Of, or Avoid.</li>
+          <li>Mark how you feel about each: Homies, Let&rsquo;s Play, Want to Play, Heard Of, or Avoid.</li>
           <li>Group them by scene and town, so planning a run starts with who you already know there.</li>
           <li>Log what happened and plan what&rsquo;s next, with a date and whose turn it is.</li>
           <li>Import the spreadsheet you&rsquo;ve been keeping, and export it all as a CSV whenever you want.</li>
@@ -158,8 +165,8 @@ export default function AboutPage() {
           </table>
         </div>
         <p>
-          Only people in a band can see Seeens at all. The band that added a record is the one that can change it.
-          Nothing is sold or used for ads. You can export your band&rsquo;s records, and you can delete your account from
+          Only people in a band can see Seeens at all. The band that added a listing is the one that can change it.
+          Nothing is sold or used for ads. You can export your band&rsquo;s listings, and you can delete your account from
           Account Settings.
         </p>
       </section>
@@ -169,9 +176,23 @@ export default function AboutPage() {
           Who keeps it tidy
         </h2>
         <p>
-          Any band can add to Seeens, and the band that added a record looks after it. Moderators, trusted people from
-          the scene, can fix mistakes in any shared record. Every fix is logged.
+          Any band can add to Seeens, and the band that added a listing looks after it. Moderators, trusted people from
+          the scene, can fix mistakes in any shared listing. Every fix is logged.
         </p>
+      </section>
+
+      <section aria-labelledby="faq" className="about-prose">
+        <h2 id="faq" className="display-m">
+          FAQ
+        </h2>
+        <div className="help-faq">
+          {ABOUT_FAQ.map(([q, a]) => (
+            <details key={q} open>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <section aria-labelledby="who" className="about-prose">
@@ -189,11 +210,9 @@ export default function AboutPage() {
           It&rsquo;s a beta
         </h2>
         <p>
-          Seeens is invite-only for now. Everyone using it is a tester, so things will change, and what you tell us
+          Seeens is in a closed beta. Everyone using it is a tester, so things will change, and what you tell us
           decides what changes. Once you&rsquo;re in, Send Feedback is in the header.
         </p>
-        <h3 className="display-s">How to get in</h3>
-        <p>Ask a band that uses Seeens to invite you. There&rsquo;s no sign-up form yet.</p>
       </section>
 
       <footer className="flex flex-wrap gap-3">

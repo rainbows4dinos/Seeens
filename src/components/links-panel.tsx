@@ -276,7 +276,7 @@ function LinkItem({ row, usesSeeens }: { row: LinkRow; usesSeeens: boolean }) {
       {mode === "remove" ? (
         <div role="group" aria-label={`Remove link to ${row.otherName}`} className="flex flex-col gap-2 panel p-3">
           <p className="text-sm">
-            Remove the link to {row.otherName}? Both connections stay in the directory.
+            Remove the link to {row.otherName}? Both listings stay in the directory.
           </p>
           <div className="flex flex-wrap gap-3">
             <button

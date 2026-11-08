@@ -47,7 +47,7 @@ import { PageLoader } from "@/components/metronome";
 
 export default function ConnectionPage({ params, searchParams }: PageProps<"/connections/[id]">) {
   return (
-    <Suspense fallback={<PageLoader label="loading record" />}>
+    <Suspense fallback={<PageLoader label="loading listing" />}>
       <Connection params={params} searchParams={searchParams} />
     </Suspense>
   );

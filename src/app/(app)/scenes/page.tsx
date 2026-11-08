@@ -36,7 +36,7 @@ async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["se
       <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
         <p className="font-medium">No scenes yet.</p>
         <p className="text-muted">
-          Scenes group connections by local community, like &ldquo;Portland
+          Scenes group listings by local community, like &ldquo;Portland
           DIY.&rdquo; Put local scenes inside a bigger one, like &ldquo;Pacific
           Northwest,&rdquo; to see a whole region at once.
         </p>
@@ -97,7 +97,7 @@ function SceneRow({
         <span className="text-sm text-muted">
           {[
             place,
-            `${total} ${total === 1 ? "connection" : "connections"}${hasChildren ? " across its scenes" : ""}`,
+            `${total} ${total === 1 ? "listing" : "listings"}${hasChildren ? " across its scenes" : ""}`,
           ]
             .filter(Boolean)
             .map((t) => ` · ${t}`)

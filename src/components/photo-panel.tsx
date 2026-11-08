@@ -73,7 +73,7 @@ export function NewPhotoPanel({
       <PhotoCopier
         connectionId=""
         workspaceId=""
-        name="the new connection"
+        name="the new listing"
         photoUrl={photo?.copyUrl ?? null}
         originalUrl={photo?.originalUrl ?? null}
         photoPath={photo ? "pending" : null}

@@ -21,7 +21,7 @@ const PRESETS: Record<string, Partial<ConnectionFormValues>> = {
   person: { kind: "person" },
 };
 
-export const metadata: Metadata = { title: "Add connection · Seeens" };
+export const metadata: Metadata = { title: "Add listing · Seeens" };
 
 // At /add, not /connections/new: from the directory, the quick view's
 // intercepted /connections/[id] would take "new" for an id.
@@ -31,7 +31,7 @@ export default function NewConnectionPage({ searchParams }: PageProps<"/add">) {
       <Suspense fallback={<BackButton href="/" />}>
         <Back searchParams={searchParams} />
       </Suspense>
-      <h1 className="display-l sm:display-xl">Add connection</h1>
+      <h1 className="display-l sm:display-xl">Add listing</h1>
       <Suspense fallback={<PageLoader />}>
         <NewConnection searchParams={searchParams} />
       </Suspense>
@@ -69,7 +69,7 @@ async function NewConnection({ searchParams }: { searchParams: PageProps<"/add">
       action={createConnection}
       initial={initial}
       scenes={scenes}
-      submitLabel="Add Connection"
+      submitLabel="Add Listing"
       cancelHref="/"
       create={{
         workspaceId: membership.workspaceId,

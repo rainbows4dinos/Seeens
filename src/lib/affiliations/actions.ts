@@ -52,7 +52,7 @@ export async function addLink(
     .eq("id", connectionId)
     .eq("workspace_id", membership.workspaceId)
     .maybeSingle();
-  if (!subject) return fail("Couldn't find this connection.");
+  if (!subject) return fail("Couldn't find this listing.");
 
   const option = addOptionsFor(subject).find((o) => o.id === optionId);
   if (!option) return fail("That kind of link doesn't fit here.");

@@ -154,7 +154,7 @@ function RemoveScene({ id, name }: { id: string; name: string }) {
         <div role="group" aria-label={`Remove ${name}`} className="flex flex-col gap-3 panel p-4">
           <p className="font-medium">Remove {name}?</p>
           <p className="text-sm text-muted">
-            Connections in it stay in the directory; they just lose this scene tag. Scenes inside it become
+            Listings in it stay in the directory; they just lose this scene tag. Scenes inside it become
             stand-alone.
           </p>
           <div className="flex flex-wrap gap-3">

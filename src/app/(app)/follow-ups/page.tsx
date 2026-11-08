@@ -66,7 +66,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
   return (
     <div className="flex flex-col gap-6">
       <p className="text-muted">
-        Every connection&rsquo;s next step, by date. Dates are just plans; move them whenever you like.
+        Every next step your band has planned, by date. Dates are just plans; move them whenever you like.
       </p>
 
       <form action="/follow-ups" method="get" className="flex flex-wrap items-end gap-2">
@@ -93,7 +93,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
       {open.length === 0 ? (
         <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
           <p className="font-medium">Nothing planned.</p>
-          <p className="text-muted">Plan a next step from any connection&rsquo;s page and it shows up here.</p>
+          <p className="text-muted">Plan a next step from any listing&rsquo;s page and it shows up here.</p>
           <Link href="/" className="button-secondary">
             Go to the Directory
           </Link>
