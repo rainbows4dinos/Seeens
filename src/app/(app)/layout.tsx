@@ -59,9 +59,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </Suspense>
         {children}
       </main>
-      <Suspense fallback={null}>
-        <BusyPointer />
-      </Suspense>
+      <BusyPointer />
       <footer className="rule-top rule-strong bg-surface">
         <p className="page-gutter w-full py-4 text-xs text-muted">
           Town data from{" "}
