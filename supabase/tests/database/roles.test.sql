@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(35);
+select plan(41);
 
 -- Only this file's records: other data (the local seed) would show as shared.
 delete from public.connections;
@@ -53,8 +53,23 @@ select is((select string_agg(email || ':' || admin, ',') from public.list_modera
 select throws_ok($$ select * from public.app_moderators $$, '42501', null, 'the table itself is closed');
 select is((select string_agg(display_name || ':' || bands || ':' || moderator, ',') from public.list_accounts() where email like 'roles-%' and bands is not null),
   'Lin:Roles Band A:false,Mel:Roles Band A:false,Mo:Roles Band B:true,Owen:Roles Band A:false', 'admins see everyone, with their bands, by name');
-select lives_ok($$ select public.grant_moderator_user('d2222222-2222-2222-2222-222222222222') $$, 'and pick a moderator by account');
+select is((select email || ':' || display_name || ':' || added from public.grant_moderator_user('d2222222-2222-2222-2222-222222222222')),
+  'roles-member@example.com:Mel:true', 'and pick a moderator by account, learning who to tell');
+select is((select added from public.grant_moderator_user('d2222222-2222-2222-2222-222222222222')),
+  false, 'picking them again isn''t news');
+
+-- The new moderator sees a note until they dismiss it.
+select set_config('request.jwt.claims', '{"sub":"d2222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
+select ok(public.moderator_welcome_pending(), 'a new moderator gets a note');
+select lives_ok($$ select public.dismiss_moderator_welcome() $$, 'and can dismiss it');
+select ok(not public.moderator_welcome_pending(), 'then it''s gone');
+select set_config('request.jwt.claims', '{"sub":"d1111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+select ok(not public.moderator_welcome_pending(), 'members get no note');
+select set_config('request.jwt.claims', '{"sub":"d4444444-4444-4444-4444-444444444444","role":"authenticated"}', true);
 select lives_ok($$ select public.revoke_moderator('d2222222-2222-2222-2222-222222222222') $$, '(undone)');
+select set_config('request.jwt.claims', '{"sub":"d2222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
+select ok(not public.moderator_welcome_pending(), 'nor someone who isn''t one any more');
+select set_config('request.jwt.claims', '{"sub":"d4444444-4444-4444-4444-444444444444","role":"authenticated"}', true);
 
 -- A moderator fixes another band's record, logged.
 select set_config('request.jwt.claims', '{"sub":"d3333333-3333-3333-3333-333333333333","role":"authenticated"}', true);
