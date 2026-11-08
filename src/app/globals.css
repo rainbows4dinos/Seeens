@@ -2442,6 +2442,11 @@
   .about-table tbody th {
     font-weight: 600;
   }
+  /* Status words stay on one line; the meaning wraps. */
+  .status-table th,
+  .status-table td:not(:last-child) {
+    white-space: nowrap;
+  }
 
   .help-words {
     display: flex;

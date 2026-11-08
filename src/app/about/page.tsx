@@ -14,7 +14,7 @@ const SCREENSHOT: { src: string; alt: string } | null = null;
 const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
-  lets_play: "You both want to play together; it just isn't booked. (For a venue it's Let's book, for a person Let's collab.)",
+  lets_play: "You both want to play together; it just isn't booked.",
   prospect: "You'd like to. They don't know yet, or it isn't mutual.",
   neutral: STATUS_HINT_WORDS.band.neutral.replace("We know", "You know"),
   avoid: "Not for you. Hidden from your directory unless you ask to see them.",
@@ -87,13 +87,28 @@ export default function AboutPage() {
           Every record gets one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
           outside your band sees it.
         </p>
-        <ul>
-          {STATUS_ORDER.map((s) => (
-            <li key={s}>
-              <strong>{STATUS_WORDS.band[s]}.</strong> {STATUS_MEANING[s]}
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-x-auto">
+          <table className="about-table status-table">
+            <thead>
+              <tr>
+                <th scope="col">Bands</th>
+                <th scope="col">Venues</th>
+                <th scope="col">People</th>
+                <th scope="col">What it means</th>
+              </tr>
+            </thead>
+            <tbody>
+              {STATUS_ORDER.map((s) => (
+                <tr key={s}>
+                  <th scope="row">{STATUS_WORDS.band[s]}</th>
+                  <td>{STATUS_WORDS.venue[s]}</td>
+                  <td>{STATUS_WORDS.people[s]}</td>
+                  <td>{STATUS_MEANING[s]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p>Anything your band hasn&rsquo;t given a status yet has none. Most of the shared directory will be new to you, and that&rsquo;s fine.</p>
       </section>
 
