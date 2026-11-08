@@ -245,11 +245,14 @@ select lives_ok(
   $$update public.connections set is_us = true where id = 'c0000000-0000-0000-0000-0000000000f4'$$,
   'a band can be marked as us'
 );
+-- (Flipping keep_private here is about the unique rule, not who may flip it.)
+select set_config('seeens.keep_private_ok', 'on', true);
 select throws_ok(
   $$update public.connections set is_us = true, keep_private = false where id = 'c0000000-0000-0000-0000-0000000000f1'$$,
   '23505', null,
   'only one us per workspace'
 );
+select set_config('seeens.keep_private_ok', 'off', true);
 select throws_ok(
   $$update public.connections set is_us = true, group_type = null, kind = 'person', person_roles = '{dj}'
     where id = 'c0000000-0000-0000-0000-0000000000f4'$$,

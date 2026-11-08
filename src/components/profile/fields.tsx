@@ -6,6 +6,7 @@ import { LinksEditor } from "@/components/links-editor";
 import { VenueFields } from "@/components/venue-fields";
 import { useFieldErrors } from "@/components/profile/autosave";
 import type { ConnectionFormValues } from "@/lib/connections/form";
+import { BasicInfoFields } from "@/components/profile/basic-info";
 
 // The profile page's panel fields (#126) that show save errors. They sit in
 // an AutosaveForm and read its latest errors.
@@ -43,6 +44,21 @@ export function BandNoteFields({ values: v }: { values: ConnectionFormValues }) 
       <Field id="p-notes" label="Notes">
         <textarea {...noAutofill} id="p-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
       </Field>
+    </>
+  );
+}
+
+/** A moderator fixing another band's record (#195): its shared details only. */
+export function ModeratorFields({ values: v, venue }: { values: ConnectionFormValues; venue: boolean }) {
+  const errors = useFieldErrors();
+  return (
+    <>
+      <BasicInfoFields values={v} scenes={[]} sharedOnly />
+      <Field id="p-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
+        <input {...noAutofill} id="p-can_help_with" name="can_help_with" defaultValue={v.canHelpWith} className="field" aria-describedby="p-can_help_with-hint" />
+      </Field>
+      <LinksEditor initial={v.links} errors={errors.linkUrls} />
+      {venue ? <VenueDetailFields values={v.venue} /> : null}
     </>
   );
 }

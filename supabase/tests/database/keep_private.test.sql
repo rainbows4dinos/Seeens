@@ -44,6 +44,9 @@ select is((select updated_at from public.connections where id = 'cd500000-0000-0
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"cd111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 
+-- These check the timestamp, not who may flip it (roles.test.sql does that),
+-- so they flip it the way set_keep_private does.
+select set_config('seeens.keep_private_ok', 'on', true);
 select lives_ok($$ update public.connections set keep_private = true where id = 'cd500000-0000-0000-0000-000000000002' $$,
   'a member keeps a record private');
 select is((select keep_private::text || '|' || updated_at::text from public.connections where id = 'cd500000-0000-0000-0000-000000000002'),
@@ -68,7 +71,8 @@ update public.connections set keep_private = false, name = 'Share Venue' where i
 select ok((select updated_at > now() - interval '1 minute' from public.connections where id = 'cd500000-0000-0000-0000-000000000002'),
   'and an edit that also flips it');
 
-select lives_ok($$ update public.connections set keep_private = false where id = 'cd500000-0000-0000-0000-000000000003' $$,
+select set_config('seeens.keep_private_ok', 'off', true);
+select lives_ok($$ select public.set_keep_private(array['cd500000-0000-0000-0000-000000000003'::uuid], false) $$,
   'and shares a person');
 
 -- Another band can't change it.

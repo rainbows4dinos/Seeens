@@ -70,7 +70,14 @@ export async function getConnectionValues(id: string) {
   if (error) throw error;
   if (!data) return null;
   const c = shapeConnection(data);
-  return { values: toFormValues(c), updatedAt: c.version, attributes: c.attributes, mine: c.workspace_id === ws };
+  return {
+    values: toFormValues(c),
+    updatedAt: c.version,
+    /** The record's own version, without this band's layer: a moderator's check (#195). */
+    recordUpdatedAt: c.updated_at,
+    attributes: c.attributes,
+    mine: c.workspace_id === ws,
+  };
 }
 
 export async function getConnection(id: string) {
@@ -78,7 +85,7 @@ export async function getConnection(id: string) {
 
   // The network doesn't depend on this connection, so load it in the same
   // round trip as everything else.
-  const [connection, outgoing, incoming, nextAction, history, members, outreach, pastPlans, network] = await Promise.all([
+  const [connection, outgoing, incoming, nextAction, history, members, outreach, pastPlans, network, lastEdit] = await Promise.all([
     supabase
       .from("connections")
       .select(CONNECTION_SELECT)
@@ -136,6 +143,14 @@ export async function getConnection(id: string) {
       .order("closed_at", { ascending: false })
       .limit(5),
     loadNetwork(),
+    // A moderator's last fix (#195), when this band or a moderator can see it.
+    supabase
+      .from("connection_edits")
+      .select("edited_at")
+      .eq("connection_id", id)
+      .order("edited_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   // An invalid UUID comes back as an error; treat it like a missing record.
@@ -164,6 +179,8 @@ export async function getConnection(id: string) {
     connection: shaped,
     /** Added by this band, so it can change the record itself (#185). */
     mine: shaped.workspace_id === ws,
+    /** When a moderator last changed it (#195), or null. */
+    moderatedAt: lastEdit.data?.edited_at ?? null,
     /** The band that shared it, when it's another band's. */
     sharedBy: shaped.workspace_id === ws ? null : (shaped.added_by?.name ?? "another band"),
     affiliations: {

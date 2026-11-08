@@ -89,6 +89,13 @@ export const getUsConnection = cache(async (): Promise<{ id: string; photoPath: 
   return { id: data.id, photoPath: data.photo_path };
 });
 
+// A moderator or an admin (#195): can fix any shared record and keep any
+// record private.
+export const isModerator = cache(async (): Promise<boolean> => {
+  const { data } = await (await createClient()).rpc("is_moderator");
+  return Boolean(data);
+});
+
 // Who in the band's directory has a login (#44): person id -> their account.
 export const getLinkedPeople = cache(async (): Promise<Map<string, { userId: string; displayName: string }>> => {
   const membership = await getMembership();

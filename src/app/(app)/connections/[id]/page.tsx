@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { catalogNo } from "@/lib/connections/card";
 import { Suspense } from "react";
-import { getCurrentUser, getLinkedPeople, getMembership } from "@/lib/auth/dal";
+import { getCurrentUser, getLinkedPeople, getMembership, isModerator } from "@/lib/auth/dal";
+import { keepPrivateLock } from "@/lib/connections/sharing";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
 import { BackButton } from "@/components/back-button";
@@ -63,18 +64,21 @@ async function Connection({
 
   const [{ id }, { saved, offer, missed_photo, missed_links, merged, unmerged, mine }] = await Promise.all([params, searchParams]);
   const tz = membership.timeZone;
-  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople] = await Promise.all([
+  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople, moderator] = await Promise.all([
     getConnection(id),
     getCurrentUser(),
     listSceneOptions(),
     loadUndoableMerge(id, tz),
     typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
     getLinkedPeople(),
+    isModerator(),
   ]);
   const today = todayISO(new Date(), tz);
   // Another band's record (#185): theirs to change, ours to keep notes on.
   if (!detail.mine) {
-    return <SharedRecord detail={detail} band={membership.workspaceName} me={user.id} today={today} tz={tz} />;
+    return (
+      <SharedRecord detail={detail} band={membership.workspaceName} me={user.id} today={today} tz={tz} moderator={moderator} />
+    );
   }
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
   // A label we're on is "our label": from our band's label link, not a checkbox.
@@ -118,7 +122,23 @@ async function Connection({
       <BackButton
         href={directoryHrefFor(c.kind, c.group_type, archived)}
         name={{ text: c.name, headingId: "profile-name" }}
-        end={c.is_us ? null : <KeepPrivate key={String(c.keep_private)} id={c.id} band={membership.workspaceName} initial={c.keep_private} />}
+        end={
+          c.is_us ? null : (
+            <KeepPrivate
+              key={String(c.keep_private)}
+              id={c.id}
+              band={membership.workspaceName}
+              initial={c.keep_private}
+              // Groups: band owners; linked people: themselves (#195).
+              locked={keepPrivateLock(c, {
+                owner: membership.role === "owner",
+                moderator,
+                me: user.id,
+                linked: linkedPeople.get(c.id) ?? null,
+              })}
+            />
+          )
+        }
       />
 
       <p role="status" className="text-sm font-medium empty:hidden">
@@ -356,6 +376,7 @@ async function Connection({
       <footer className="flex flex-col gap-4 rule-top pt-6">
         <p className="text-sm text-muted">
           Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
+          {detail.moderatedAt ? ` · Last fixed by a moderator ${formatDate(detail.moderatedAt, tz)}` : null}
         </p>
         {lastMerge && merged !== "1" ? (
           <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} quiet />

@@ -36,6 +36,7 @@ export function BasicInfoFields({
   type: typeProp,
   onTypeChange,
   withStatus = false,
+  sharedOnly = false,
 }: {
   values: ConnectionFormValues;
   scenes: SceneOption[];
@@ -44,6 +45,8 @@ export function BasicInfoFields({
   type?: string;
   onTypeChange?: (type: string) => void;
   withStatus?: boolean;
+  /** A moderator on another band's record (#195): no scenes or Our band, which stay each band's. */
+  sharedOnly?: boolean;
 }) {
   const fromAutosave = useFieldErrors();
   const errors = passed ?? fromAutosave;
@@ -108,7 +111,7 @@ export function BasicInfoFields({
 
       {/* Only a band can be us. Our own band keeps the box even if its type
           changes, so the save can say why instead of quietly dropping it. */}
-      {type === "band" || (v.isUs && !person) ? (
+      {sharedOnly ? null : type === "band" || (v.isUs && !person) ? (
         <div className="flex flex-col gap-1">
           <label className="choice self-start">
             <input type="checkbox" name="is_us" value="on" checked={isUs} onChange={(e) => setIsUs(e.target.checked)} />
@@ -127,19 +130,21 @@ export function BasicInfoFields({
           keepLocalityId={v.keepLocalityId || null}
           error={errors.placeText}
         />
-        <Combobox
-          label="Scenes (Optional)"
-          hint="Pick any, or type a new one."
-          name="scene_ids"
-          options={orderScenes(scenes).map((s) => ({
-            value: s.id,
-            label: s.name,
-            depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
-          }))}
-          defaultValue={v.sceneIds}
-          create={{ name: "new_scenes", defaultValue: splitList(v.newScenes), verb: "New Scene" }}
-          error={errors.newScenes}
-        />
+        {sharedOnly ? null : (
+          <Combobox
+            label="Scenes (Optional)"
+            hint="Pick any, or type a new one."
+            name="scene_ids"
+            options={orderScenes(scenes).map((s) => ({
+              value: s.id,
+              label: s.name,
+              depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
+            }))}
+            defaultValue={v.sceneIds}
+            create={{ name: "new_scenes", defaultValue: splitList(v.newScenes), verb: "New Scene" }}
+            error={errors.newScenes}
+          />
+        )}
       </div>
 
       {/* Add only. Status is how we relate to others; it doesn't apply to
