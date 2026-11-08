@@ -69,7 +69,7 @@ async function Band() {
           ) : (
             <>
               nothing yet.{" "}
-              <Link href="/connections/new?us=1" className="link">
+              <Link href="/add?us=1" className="link">
                 Add your band&rsquo;s page
               </Link>
             </>

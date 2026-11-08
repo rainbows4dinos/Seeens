@@ -22,7 +22,9 @@ const PRESETS: Record<string, Partial<ConnectionFormValues>> = {
 
 export const metadata: Metadata = { title: "Add connection · Seeens" };
 
-export default function NewConnectionPage({ searchParams }: PageProps<"/connections/new">) {
+// At /add, not /connections/new: from the directory, the quick view's
+// intercepted /connections/[id] would take "new" for an id.
+export default function NewConnectionPage({ searchParams }: PageProps<"/add">) {
   return (
     <div className="page-measure flex flex-col gap-6">
       <Suspense fallback={<BackButton href="/" />}>
@@ -37,13 +39,13 @@ export default function NewConnectionPage({ searchParams }: PageProps<"/connecti
 }
 
 // Back to the tab Add came from (#122), or the directory.
-async function Back({ searchParams }: { searchParams: PageProps<"/connections/new">["searchParams"] }) {
+async function Back({ searchParams }: { searchParams: PageProps<"/add">["searchParams"] }) {
   const { type } = await searchParams;
   const tab = TABS.find((t) => t.addType && t.addType === type);
   return <BackButton href={tab ? `/?type=${tab.id}` : "/"} />;
 }
 
-async function NewConnection({ searchParams }: { searchParams: PageProps<"/connections/new">["searchParams"] }) {
+async function NewConnection({ searchParams }: { searchParams: PageProps<"/add">["searchParams"] }) {
   const [membership, params] = await Promise.all([getMembership(), searchParams]);
   if (!membership) return <NoWorkspace />;
   const [scenes, network] = await Promise.all([listSceneOptions(), loadNetwork()]);
