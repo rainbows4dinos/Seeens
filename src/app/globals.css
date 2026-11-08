@@ -2320,10 +2320,15 @@
   .busy-pointer[data-on] {
     visibility: visible;
   }
-  /* The metronome is the pointer while it's out. */
+  /* The metronome is the pointer while it's out. The system cursor becomes a
+     still metronome, so it's right on the pointer even before the mouse
+     moves; once it has, the swinging one covers it exactly. */
   :root[data-busy-pointer-on],
   :root[data-busy-pointer-on] * {
-    cursor: none !important;
+    cursor:
+      url("/cursors/metronome.svg") 8 4,
+      url("/cursors/metronome.png") 8 4,
+      progress !important;
   }
 
   .nav-loader {
