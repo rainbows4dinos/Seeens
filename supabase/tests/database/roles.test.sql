@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(35);
 
 -- Only this file's records: other data (the local seed) would show as shared.
 delete from public.connections;
@@ -42,6 +42,8 @@ select set_config('request.jwt.claims', '{"sub":"d3333333-3333-3333-3333-3333333
 select ok(not public.is_moderator(), 'nobody is a moderator to start with');
 select throws_ok($$ select public.grant_moderator('roles-mod@example.com') $$, '42501', null, 'only an admin makes moderators');
 select is((select count(*)::int from public.list_moderators()), 0, 'or see who they are');
+select is((select count(*)::int from public.list_accounts()), 0, 'or who''s on Seeens');
+select throws_ok($$ select public.grant_moderator_user('d3333333-3333-3333-3333-333333333333') $$, '42501', null, 'or pick themselves');
 select set_config('request.jwt.claims', '{"sub":"d4444444-4444-4444-4444-444444444444","role":"authenticated"}', true);
 select ok(public.is_moderator(), 'an admin is a moderator too');
 select is(public.grant_moderator(' ROLES-MOD@example.com '), 'd3333333-3333-3333-3333-333333333333'::uuid, 'an admin makes one by email');
@@ -49,6 +51,10 @@ select throws_ok($$ select public.grant_moderator('nobody@example.com') $$, 'P00
 select is((select string_agg(email || ':' || admin, ',') from public.list_moderators() where email like 'roles-%'),
   'roles-admin@example.com:true,roles-mod@example.com:false', 'admins list moderators, admins first');
 select throws_ok($$ select * from public.app_moderators $$, '42501', null, 'the table itself is closed');
+select is((select string_agg(display_name || ':' || bands || ':' || moderator, ',') from public.list_accounts() where email like 'roles-%' and bands is not null),
+  'Lin:Roles Band A:false,Mel:Roles Band A:false,Mo:Roles Band B:true,Owen:Roles Band A:false', 'admins see everyone, with their bands, by name');
+select lives_ok($$ select public.grant_moderator_user('d2222222-2222-2222-2222-222222222222') $$, 'and pick a moderator by account');
+select lives_ok($$ select public.revoke_moderator('d2222222-2222-2222-2222-222222222222') $$, '(undone)');
 
 -- A moderator fixes another band's record, logged.
 select set_config('request.jwt.claims', '{"sub":"d3333333-3333-3333-3333-333333333333","role":"authenticated"}', true);
