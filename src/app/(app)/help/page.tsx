@@ -86,7 +86,7 @@ export default function HelpPage() {
           {NO_STATUS}.
         </p>
         <div className="overflow-x-auto">
-          <table className="about-table">
+          <table className="about-table status-table">
             <thead>
               <tr>
                 <th scope="col">Bands</th>
