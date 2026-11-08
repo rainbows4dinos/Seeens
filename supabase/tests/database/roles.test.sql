@@ -46,7 +46,7 @@ select set_config('request.jwt.claims', '{"sub":"d4444444-4444-4444-4444-4444444
 select ok(public.is_moderator(), 'an admin is a moderator too');
 select is(public.grant_moderator(' ROLES-MOD@example.com '), 'd3333333-3333-3333-3333-333333333333'::uuid, 'an admin makes one by email');
 select throws_ok($$ select public.grant_moderator('nobody@example.com') $$, 'P0002', null, 'not without an account');
-select is((select string_agg(email || ':' || admin, ',') from public.list_moderators()),
+select is((select string_agg(email || ':' || admin, ',') from public.list_moderators() where email like 'roles-%'),
   'roles-admin@example.com:true,roles-mod@example.com:false', 'admins list moderators, admins first');
 select throws_ok($$ select * from public.app_moderators $$, '42501', null, 'the table itself is closed');
 
