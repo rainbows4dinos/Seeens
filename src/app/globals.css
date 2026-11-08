@@ -2401,6 +2401,10 @@
     flex-direction: column;
     gap: 16px;
   }
+  /* Jump links land below the sticky header. */
+  .about-prose h2 {
+    scroll-margin-top: 96px;
+  }
   .about-prose p,
   .about-prose li {
     line-height: 1.6;

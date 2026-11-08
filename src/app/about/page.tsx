@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { STATUS_HINT_WORDS, STATUS_WORDS } from "@/lib/connections/status-words";
+import { ABOUT_FAQ } from "@/lib/help/faq";
 
 export const metadata: Metadata = {
   title: "About · Seeens",
@@ -172,6 +173,20 @@ export default function AboutPage() {
           Any band can add to Seeens, and the band that added a record looks after it. Moderators, trusted people from
           the scene, can fix mistakes in any shared record. Every fix is logged.
         </p>
+      </section>
+
+      <section aria-labelledby="faq" className="about-prose">
+        <h2 id="faq" className="display-m">
+          FAQ
+        </h2>
+        <div className="help-faq">
+          {ABOUT_FAQ.map(([q, a]) => (
+            <details key={q} open>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <section aria-labelledby="who" className="about-prose">
