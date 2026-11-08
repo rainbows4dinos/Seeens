@@ -6,6 +6,7 @@ import { FAQ } from "@/lib/help/faq";
 export const metadata: Metadata = { title: "Help · Seeens" };
 
 const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
+const NO_STATUS_MEANING = "Not sorted yet. Everything starts here until your band picks a status, and you can clear one back to this.";
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
   lets_play: "You both want to. It just isn't booked yet.",
@@ -73,8 +74,7 @@ export default function HelpPage() {
         <p>
           Every connection can have one status from your band. The five never change, but the words fit what
           you&rsquo;re looking at: you play with a band, book a venue, and collab with a person. Statuses say how you
-          feel, not what happened; that&rsquo;s what Played Together is for. Anything you haven&rsquo;t sorted shows{" "}
-          {NO_STATUS}.
+          feel, not what happened; that&rsquo;s what Played Together is for.
         </p>
         <div className="overflow-x-auto">
           <table className="about-table status-table">
@@ -95,6 +95,12 @@ export default function HelpPage() {
                   <td>{STATUS_MEANING[s]}</td>
                 </tr>
               ))}
+              <tr>
+                <th scope="row">{NO_STATUS}</th>
+                <td>{NO_STATUS}</td>
+                <td>{NO_STATUS}</td>
+                <td>{NO_STATUS_MEANING}</td>
+              </tr>
             </tbody>
           </table>
         </div>

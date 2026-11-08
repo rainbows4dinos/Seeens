@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { STATUS_HINT_WORDS, STATUS_WORDS } from "@/lib/connections/status-words";
+import { NO_STATUS, STATUS_HINT_WORDS, STATUS_WORDS } from "@/lib/connections/status-words";
 import { ABOUT_FAQ } from "@/lib/help/faq";
 
 export const metadata: Metadata = {
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const SCREENSHOT: { src: string; alt: string } | null = null;
 
 const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
+const NO_STATUS_MEANING = "Not sorted yet. Everything starts here, and most of the shared directory will stay here, which is fine.";
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
   lets_play: "You both want to play together; it just isn't booked.",
@@ -85,7 +86,7 @@ export default function AboutPage() {
           How you feel about them
         </h2>
         <p>
-          Every record gets one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
+          Every record can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
           outside your band sees it.
         </p>
         <div className="overflow-x-auto">
@@ -107,10 +108,15 @@ export default function AboutPage() {
                   <td>{STATUS_MEANING[s]}</td>
                 </tr>
               ))}
+              <tr>
+                <th scope="row">{NO_STATUS}</th>
+                <td>{NO_STATUS}</td>
+                <td>{NO_STATUS}</td>
+                <td>{NO_STATUS_MEANING}</td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <p>Anything your band hasn&rsquo;t given a status yet has none. Most of the shared directory will be new to you, and that&rsquo;s fine.</p>
       </section>
 
       <section aria-labelledby="do" className="about-prose">
