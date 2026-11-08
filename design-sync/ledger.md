@@ -2,7 +2,7 @@
 
 - Figma file: Seeens (QKSF4MTanGHlnbNvmUKDX0)
 - Inventory read: 2026-11-08 (components and variables re-read; no token, text, or effect drift)
-- Code baseline: e8b6635 (2026-11-08)
+- Code baseline: f085c94 (2026-11-08)
 - Rendered 2026-11-08 by scripts/ledger.py from ledger.json. Edit the JSON (or use ledger.py set), not this file.
 - Direction: Figma to code
 
@@ -15,9 +15,9 @@
 | Effect styles | 6 | 6 | 4 | 0 |
 | Paint styles | 0 | 0 | 0 | 0 |
 | Components | 37 | 37 | 20 | 12 |
-| Figma hygiene | - | 9 | 0 | 3 |
+| Figma hygiene | - | 9 | 0 | 2 |
 
-Status totals: fixed-in-figma 7, needs-decision 1, needs-figma-fix 2, pending 12, skipped 8, synced 44
+Status totals: fixed-in-figma 8, needs-figma-fix 2, pending 12, skipped 8, synced 44
 
 ## Log
 
@@ -60,10 +60,10 @@ Status totals: fixed-in-figma 7, needs-decision 1, needs-figma-fix 2, pending 12
 | E-05 | Effect styles | Texture/Rub-down on paper | effect style | `src/app/globals.css -` | missing-in-code | skipped | Same as Texture/Rub-down (#62) |
 | C-01 | Components | Avatar | 82:2229 | `-` | missing-in-code | skipped | Not built in code yet; part of account settings (#67). |
 | C-02 | Components | Button | 10:22 | `.button-primary, .button-secondary` | structure-drift | synced | Nov 5: Figma padding 8 + Label Frame 2 = text 10px from the outer edge; code 1px border + 9px. Icon L 8px in (border + 7), 6px to the label. Matches. |
-| C-03 | Components | Nav Chip | 10:8 | `.nav-chip, .logo` | structure-drift | synced | Re-audited Nov 5: pad 4/12, 1px ink border, UI/Nav (Hanken SemiBold 16/20). Matches .nav-chip. |
+| C-03 | Components | Nav Chip | 10:8 | `.nav-chip, .logo` | structure-drift | synced | Nov 8: BETA includes its border, 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3/5). |
 | C-04 | Components | Segment | 10:27 | `.segmented > *` | structure-drift | synced | Nov 5: pad 12, Mono/Body, 4px icon-to-label (type tabs: margin-right calc(4px - 1ch)). Phones keep 12px under 480px (code-owned). |
 | C-05 | Components | Segmented Control | 11:2 | `.segmented` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-06 | Components | Tag | 10:15 | `.tag` | structure-drift | synced | Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches. |
+| C-06 | Components | Tag | 10:15 | `.tag` | structure-drift | synced | Nov 8: Tag now includes its border in Figma, fixed 20 tall. Code: height 20, padding 0 8px (was 1px 7px). |
 | C-07 | Components | Date Line | 10:34 | `.date-line` | structure-drift | synced | Re-audited Nov 5: gap 6, arrow + label Mono/Small Strong (future) / Mono/Small (past). Matches .date-line. |
 | C-08 | Components | Window | 11:9 | `.window, .dialog-title` | structure-drift | synced | Nov 5: Shadow/Hard back to two drops (ink 5,5 under paper 1,1); 1.5px stroke on all sides; title bar 44, 20px fold box, Mono/Small Strong; content pad 24/16/32. Code edge is an inset shadow. |
 | C-09 | Components | Connection Card | 11:17 | `src/components/connection-card.tsx` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
@@ -71,7 +71,7 @@ Status totals: fixed-in-figma 7, needs-decision 1, needs-figma-fix 2, pending 12
 | C-11 | Components | Pattern/Dot Grid | 33:103 | `body background` | structure-drift | skipped | Code draws the dot grid as a CSS gradient on body, not a component. |
 | C-12 | Components | Field | 47:170 | `.field` | structure-drift | synced | Nov 5: 4px icon gap (space/xs); text 32px in beside an icon (.field-icon 31 + border, .combo-icon). Font size decision (14, 16 on touch) stands. |
 | C-13 | Components | Form Field | 47:172 | `label + .field` | structure-drift | pending | Layout, anatomy, and variants not re-audited in this pass. |
-| C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | synced | Nov 5: square box both sides. Figma's box is radius 0; code now draws the checkbox (paper, ink edge, ink check) instead of the rounded native one. Pad 8 from the outer edge (1 + 7). |
+| C-14 | Components | Choice | 47:187 | `.choice` | structure-drift | synced | Nov 8: Choice includes its border (padding 8). Checkbox now 16 square in Figma (was 18). Measured: box 9 in, 16 x 16. |
 | C-15 | Components | Disclosure | 47:197 | `-` | missing-in-code | skipped | No longer used in code: Add connection shows More details open since #76. |
 | C-16 | Components | App Header | 48:191 | `src/app/(app)/layout.tsx` | structure-drift | synced | Decided Nov 5: code keeps the page gutter for side padding (16/24/32) so the header lines up with the content; Figma's 16 stays as the component default. Fill, 2px rule, 16px top/bottom match. |
 | C-17 | Components | App Footer | 48:197 | `src/app/(app)/layout.tsx footer` | structure-drift | synced | Nov 5 (borders excluded): pad 16/32, 48 tall, top rule. Matches the footer (py-4, overlay rule). |
@@ -107,7 +107,7 @@ Status totals: fixed-in-figma 7, needs-decision 1, needs-figma-fix 2, pending 12
 | C-37 | Components | App Header Menu | 211:21700 | `src/components/account-menu.tsx .account-menu-panel` | new | pending | Not re-audited this pass. |
 | H-07 | Figma hygiene | Save Bar: fixed 60 tall with an included top border | 48:209 | `.save-bar` | hygiene | needs-figma-fix | With the 1px top border included, 1 + 12 + 36 + 12 = 61, but the frame is fixed at 60, so the Button is squeezed. Either 61 tall, or 11 top padding. Code keeps 60 with an inset line. |
 | H-08 | Figma hygiene | App Header: fixed 68 tall with an included 2px bottom border | 48:191 | `src/app/(app)/layout.tsx header` | hygiene | needs-figma-fix | 16 + 36 + 16 + 2 = 70, fixed at 68. Either 70 tall or 14 bottom padding. Code unchanged. |
-| H-09 | Figma hygiene | Frames that still exclude borders | 9:2 | `-` | hygiene | needs-decision | Tag, Keyboard Hint, BETA, Segmented Control outer border, Checkbox, Window Collapse, Date Line underline, Connection Card Meta and Dates, Directory Bar pinned, mobile Main Nav Menu and Account. Intended, or missed? Code matches Figma as it is (excluded) until decided. |
+| H-09 | Figma hygiene | Frames that still exclude borders | 9:2 | `-` | hygiene | fixed-in-figma | Larry switched Tag, BETA, Segmented Control, Checkbox, Collapse, Date Line, Card Dates, Directory Bar pinned, mobile menu to included (Nov 8). Still excluded: Keyboard Hint, Connection Card Meta, App Header Account (mobile) and an Account Nav Chip frame; code matches those as excluded. Directory Bar pinned keeps an inset line in code so pinning doesn't shift the bar by 1px. |
 
 ## Component checklists
 
@@ -122,7 +122,7 @@ Evidence: design-sync/evidence/audit-2026-11-05.md
 - [x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).
 - [x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-04 Segment
 
@@ -141,7 +141,7 @@ Evidence: -
 - [x] Typography: Mono/Caption 11px -> 12px
 - [x] Typography: Mono/Caption 11px -> 12px, weight pinned to 400 (it inherited 500 inside .label headings)
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-07 Date Line
 
@@ -177,7 +177,7 @@ Evidence: -
 
 - [x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)
 
-Evidence: design-sync/evidence/audit-2026-11-05.md
+Evidence: design-sync/evidence/borders-2026-11-08.md
 
 ### C-16 App Header
 

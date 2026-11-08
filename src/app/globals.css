@@ -591,8 +591,9 @@
   .choice input[type="checkbox"] {
     appearance: none;
     flex: none;
-    width: 1.125rem;
-    height: 1.125rem;
+    /* Figma Checkbox: 16 square, border included. */
+    width: 1rem;
+    height: 1rem;
     margin: 0;
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
@@ -1044,8 +1045,9 @@
     align-items: center;
     border: var(--stroke-hair) solid var(--color-border-strong);
     border-radius: 0;
-    /* 1 + 1 + 16 + 1 + 1 = 20px tall; sides 1 + 7 = 8 (space/sm) */
-    padding: 1px 7px;
+    /* Figma Tag: fixed 20 tall, 8px (space/sm) each side inside the border. */
+    height: 20px;
+    padding: 0 8px;
     /* Mono/Caption (Regular, even inside a .label heading) */
     font-family: var(--type-mono);
     font-size: 12px;
@@ -1653,8 +1655,8 @@
   }
 
   /* Figma Nav Chip, Style=Logo, Show Beta: a cyan plate pinned over the
-     chip's top-right corner, its border on the chip's. Figma pads 4 / 6
-     with borders excluded, so 3 / 5 here. */
+     chip's top-right corner, its border on the chip's. Figma: 16 tall,
+     4px each side inside the border. */
   .logo {
     position: relative;
   }
@@ -1665,7 +1667,10 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: color-mix(in srgb, var(--plate-cyan) 70%, transparent);
     backdrop-filter: blur(1px);
-    padding: 3px 5px;
+    display: flex;
+    align-items: center;
+    height: 16px;
+    padding: 0 4px;
     font-family: var(--type-mono);
     font-size: 10px;
     font-weight: 500;

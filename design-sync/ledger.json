@@ -272,12 +272,12 @@
   "cref": ".nav-chip, .logo",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Re-audited Nov 5: pad 4/12, 1px ink border, UI/Nav (Hanken SemiBold 16/20). Matches .nav-chip.",
+  "notes": "Nov 8: BETA includes its border, 16 tall, 4px sides. Code: height 16, padding 0 4px (was 3/5).",
   "checklist": [
    "[x] Typography: UI/Nav 15px -> 16px. Logo text is unstyled in Figma (see hygiene).",
    "[x] Logo variant uses the new Logo component; code .logo renders public/brand/seeens-logo.svg"
   ],
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "C-04",
@@ -314,12 +314,12 @@
   "cref": ".tag",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Re-audited Nov 5: pad 2/8 incl. 1px border (code 1px 7px + border), Mono/Caption, status fills. Matches.",
+  "notes": "Nov 8: Tag now includes its border in Figma, fixed 20 tall. Code: height 20, padding 0 8px (was 1px 7px).",
   "checklist": [
    "[x] Typography: Mono/Caption 11px -> 12px",
    "[x] Typography: Mono/Caption 11px -> 12px, weight pinned to 400 (it inherited 500 inside .label headings)"
   ],
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "C-07",
@@ -417,11 +417,11 @@
   "cref": ".choice",
   "cls": "structure-drift",
   "status": "synced",
-  "notes": "Nov 5: square box both sides. Figma's box is radius 0; code now draws the checkbox (paper, ink edge, ink check) instead of the rounded native one. Pad 8 from the outer edge (1 + 7).",
+  "notes": "Nov 8: Choice includes its border (padding 8). Checkbox now 16 square in Figma (was 18). Measured: box 9 in, 16 x 16.",
   "checklist": [
    "[x] Typography: 13px -> Mono/Body 14/20; checked weight 600 -> 500 (Mono/Label)"
   ],
-  "evidence": "design-sync/evidence/audit-2026-11-05.md"
+  "evidence": "design-sync/evidence/borders-2026-11-08.md"
  },
  {
   "id": "C-15",
@@ -837,7 +837,7 @@
   "fref": "9:2",
   "cref": "-",
   "cls": "hygiene",
-  "status": "needs-decision",
-  "notes": "Tag, Keyboard Hint, BETA, Segmented Control outer border, Checkbox, Window Collapse, Date Line underline, Connection Card Meta and Dates, Directory Bar pinned, mobile Main Nav Menu and Account. Intended, or missed? Code matches Figma as it is (excluded) until decided."
+  "status": "fixed-in-figma",
+  "notes": "Larry switched Tag, BETA, Segmented Control, Checkbox, Collapse, Date Line, Card Dates, Directory Bar pinned, mobile menu to included (Nov 8). Still excluded: Keyboard Hint, Connection Card Meta, App Header Account (mobile) and an Account Nav Chip frame; code matches those as excluded. Directory Bar pinned keeps an inset line in code so pinning doesn't shift the bar by 1px."
  }
 ]
