@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { offline } from "@/lib/offline";
 import { ProfilePanel } from "@/components/profile/panel";
-import { setKeepPrivate } from "@/lib/connections/sharing-actions";
+import { setKeepPrivate, type SharingResult } from "@/lib/connections/sharing-actions";
 import type { SharingSection } from "@/lib/connections/sharing";
 
 // The review page (phase 2): every record the band added, by section, each
@@ -27,11 +27,14 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
     setError("");
     setMessage("Saving…");
     startTransition(async () => {
-      const result = await setKeepPrivate(ids, keepPrivate).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
+      const result: SharingResult = await setKeepPrivate(ids, keepPrivate).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
       if (result.error) {
         setKept(before);
         setMessage("");
         setError(result.error);
+      } else if (result.refused) {
+        setMessage("");
+        setError(`${result.refused} couldn't change: someone else decides for them. Reload to see where they stand.`);
       } else {
         setMessage(done);
       }
@@ -50,7 +53,8 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
         .filter((s) => s.rows.length)
         .map((s) => {
           const priv = s.rows.filter((r) => kept.get(r.id)).length;
-          const canKeep = s.rows.filter((r) => !r.isUs);
+          // Only the ones this member may change (#195).
+          const open = s.rows.filter((r) => !r.locked);
           return (
             <ProfilePanel
               key={s.key}
@@ -62,10 +66,10 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
                 <button
                   type="button"
                   className="button-secondary"
-                  disabled={pending || priv === 0}
+                  disabled={pending || !open.some((r) => kept.get(r.id))}
                   onClick={() =>
                     save(
-                      s.rows.filter((r) => kept.get(r.id)).map((r) => r.id),
+                      open.filter((r) => kept.get(r.id)).map((r) => r.id),
                       false,
                       `Shared all ${s.title.toLowerCase()}.`,
                     )
@@ -76,10 +80,10 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
                 <button
                   type="button"
                   className="button-secondary"
-                  disabled={pending || canKeep.every((r) => kept.get(r.id))}
+                  disabled={pending || open.every((r) => kept.get(r.id))}
                   onClick={() =>
                     save(
-                      canKeep.filter((r) => !kept.get(r.id)).map((r) => r.id),
+                      open.filter((r) => !kept.get(r.id)).map((r) => r.id),
                       true,
                       `Kept all ${s.title.toLowerCase()} private.`,
                     )
@@ -103,8 +107,10 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
                           {r.archived ? " · Archived" : ""}
                         </p>
                       </div>
-                      {r.isUs ? (
-                        <p className="text-sm text-muted">Always shared</p>
+                      {r.locked ? (
+                        <p className="text-sm text-muted">
+                          {r.isUs ? r.locked : `${on ? "Private" : "Shared"} · ${r.locked}`}
+                        </p>
                       ) : (
                         <label className="choice shrink-0">
                           <input

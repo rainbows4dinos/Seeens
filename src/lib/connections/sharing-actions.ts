@@ -1,28 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 
-export type SharingResult = { error?: string };
+export type SharingResult = { error?: string; refused?: number };
 
-// Keep records private, or share them (phase 2). Only this band's records;
-// its own band page is always shared.
+// Keep records private, or share them (phase 2). The database decides who
+// may (#195): a group, an owner of its band or a moderator; a person, their
+// own account once linked, else their band. Records refused are counted.
 export async function setKeepPrivate(ids: string[], keepPrivate: boolean): Promise<SharingResult> {
   if (!ids.length) return {};
   if (ids.length > 5000) return { error: "Too many at once." };
-  const [supabase, ws] = await Promise.all([createClient(), requireWorkspaceId()]);
-  // A few hundred ids per request keeps the URL a sensible length.
+  const supabase = await createClient();
+  let refused = 0;
+  // A few hundred ids per call keeps each request a sensible size.
   for (let i = 0; i < ids.length; i += 200) {
-    let query = supabase
-      .from("connections")
-      .update({ keep_private: keepPrivate })
-      .eq("workspace_id", ws)
-      .in("id", ids.slice(i, i + 200));
-    if (keepPrivate) query = query.eq("is_us", false);
-    const { error } = await query;
+    const { data, error } = await supabase.rpc("set_keep_private", { p_ids: ids.slice(i, i + 200), p_keep: keepPrivate });
     if (error) return { error: "Couldn't save. Try again." };
+    refused += Number((data as { refused?: number } | null)?.refused ?? 0);
   }
   revalidatePath("/", "layout");
-  return {};
+  return refused ? { refused } : {};
 }

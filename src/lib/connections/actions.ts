@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getMembership } from "@/lib/auth/dal";
+import { getMembership, isModerator } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { STATUSES, type ConnectionStatus } from "./labels";
 import { loadPlayedOffer, type PlayedOffer } from "./played-together";
@@ -84,6 +84,27 @@ async function saveConnection(
   });
   if (error) throw error;
   return savedId;
+}
+
+// A moderator fixing another band's shared record (#195): its own details
+// only, logged by the database. Scenes and Our band stay each band's.
+async function moderateConnection(id: string, data: ValidConnection, expectedUpdatedAt: string, storedAttributes: unknown) {
+  const supabase = await createClient();
+  const locality = data.locality;
+  const { error } = await supabase.rpc("moderate_connection", {
+    p_id: id,
+    p_name: data.name,
+    p_kind: data.kind,
+    p_person_roles: data.person_roles,
+    p_group_type: data.group_type ?? null,
+    p_can_help_with: data.can_help_with,
+    p_links: data.links,
+    p_place_id: locality && "placeId" in locality ? locality.placeId : undefined,
+    p_keep_locality_id: locality && "keepLocalityId" in locality ? locality.keepLocalityId : undefined,
+    p_attributes: mergeAttributes(storedAttributes, data),
+    p_expected_updated_at: expectedUpdatedAt,
+  });
+  if (error) throw error;
 }
 
 export async function createConnection(
@@ -217,9 +238,6 @@ async function saveBandFields(
   groups: AutosaveGroup[],
   data: ValidConnection,
 ): Promise<AutosaveResult> {
-  if (groups.some((g) => !(g in BAND_GROUPS))) {
-    return { ok: false, errors: { form: "Only the band that shared this can change it." } };
-  }
   const patch: { email?: string | null; phone?: string | null; notes?: string | null } = {};
   for (const g of groups as (keyof typeof BAND_GROUPS)[]) patch[BAND_GROUPS[g]] = data[g] || null;
   const supabase = await createClient();
@@ -244,8 +262,26 @@ export async function autosaveConnection(id: string, groups: string[], formData:
     if (!stored) return { ok: false, errors: { form: "This connection isn't here anymore." } };
     const result = mergeForAutosave(stored.values, incoming, valid);
     if (!result.ok) return { ok: false, errors: result.errors };
-    // Another band's record (#185): only this band's own notes and contacts.
-    if (!stored.mine) return saveBandFields(workspaceId, id, valid, result.data);
+    // Another band's record (#185): this band's own notes and contacts, and,
+    // for a moderator (#195), the record's shared details.
+    if (!stored.mine) {
+      const own = valid.filter((g) => g in BAND_GROUPS);
+      const shared = valid.filter((g) => !(g in BAND_GROUPS));
+      if (shared.length) {
+        if (shared.some((g) => g === "scenes" || g === "isUs") || !(await isModerator())) {
+          return { ok: false, errors: { form: "Only the band that shared this can change it." } };
+        }
+        try {
+          await moderateConnection(id, result.data, stored.recordUpdatedAt, stored.attributes);
+        } catch (error) {
+          if ((error as { code?: string } | null)?.code === "PT409" && attempt === 0) continue;
+          return { ok: false, errors: saveErrors(error) };
+        }
+      }
+      if (own.length) return saveBandFields(workspaceId, id, own, result.data);
+      revalidatePath("/", "layout");
+      return { ok: true };
+    }
     try {
       await saveConnection(workspaceId, id, result.data, stored.updatedAt, stored.attributes);
     } catch (error) {

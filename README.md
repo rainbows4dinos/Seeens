@@ -31,7 +31,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png) | ![What You Share: people kept private, bands shared, with Keep Private on each](docs/screenshots/sharing.png) |
 | **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue. | **What You Share.** Choose what other bands see and what stays yours. People start private; everything else starts shared. |
 | ![The Brine Hall, shared by Moth Signal, with Merwulf's own status, plans, and notes on it](docs/screenshots/shared-record.png) | ![The Full Directory: venues from every band, with Moth Signal's under No Status](docs/screenshots/full-directory.png) |
-| **Another band's record.** Only the band that shared it can change it. Your status, plans, outreach, notes, and contacts on it are your band's own. | **Full Directory.** Every record other bands share, beside your own. What you haven't sorted sits under No Status. |
+| **Another band's record.** Only the band that shared it, or a moderator (shown here), can change its details. Your status, plans, outreach, notes, and contacts on it are your band's own. | **Full Directory.** Every record other bands share, beside your own. What you haven't sorted sits under No Status. |
 
 ## MVP
 
@@ -194,6 +194,14 @@ returning user_id;
 ```
 
 With email set up, each app admin gets an email for every new item (reply to answer the tester), and testers can be told when something they sent is done. "Draft an Issue" opens a new GitHub issue with the text filled in; nothing is posted until you post it, so check it for real names first.
+
+### Roles
+
+- **Members** add records, edit what their band added, and keep their band's own statuses and notes.
+- **Moderators** are trusted people an app admin picks under **Moderators** in the account menu (`/admin/moderators`). They can fix the details of any record other bands share: name, type, town, links, what someone can help with, and venue details. Every moderator edit is logged in `connection_edits`, and the record's band sees "Last fixed by a moderator" on it.
+- **App admins** can do everything moderators can, and make moderators.
+
+Keep Private follows roles too. A venue, band, or other group can only be kept private by an owner of its band, or a moderator. A person is their own call once they've linked Your Page; until then, the band that added them decides. Changes go through `set_keep_private`, which applies these rules.
 
 Password reset and email change links land on `/auth/callback`. Its URLs (`https://seeens.com/auth/callback`, `https://www.seeens.com/auth/callback`, and the preview and localhost ones) need to be allowed under Authentication > URL Configuration > Redirect URLs, or covered by a wildcard there.
 

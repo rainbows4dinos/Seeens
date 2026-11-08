@@ -11,7 +11,8 @@ import { NextActionPanel } from "@/components/next-action-panel";
 import { OutreachPanel } from "@/components/outreach-panel";
 import { Photo } from "@/components/photo";
 import { AutosaveForm, AutosaveProvider, SaveStatus } from "@/components/profile/autosave";
-import { BandNoteFields, FormError } from "@/components/profile/fields";
+import { BandNoteFields, FormError, ModeratorFields } from "@/components/profile/fields";
+import { KeepPrivate } from "@/components/keep-private";
 import { ProfilePanel } from "@/components/profile/panel";
 import { QuickStatus } from "@/components/quick-status";
 import { Facts } from "@/components/quick-view";
@@ -19,18 +20,21 @@ import { Facts } from "@/components/quick-view";
 // Another band's record (#185). The record itself is theirs: shown, not
 // edited. What this band thinks and plans is its own, here as anywhere:
 // status, played together, plans, outreach, notes, contacts, and archive.
+// A moderator (#195) can also fix its details and keep it private.
 export function SharedRecord({
   detail,
   band,
   me,
   today,
   tz,
+  moderator = false,
 }: {
   detail: ConnectionDetail;
   band: string;
   me: string;
   today: string;
   tz: string;
+  moderator?: boolean;
 }) {
   const { connection: c, nextAction, statusHistory } = detail;
   const place = formatLocality(c.localities);
@@ -43,6 +47,11 @@ export function SharedRecord({
         <BackButton
           href={directoryHrefFor(c.kind, c.group_type, archived)}
           name={{ text: c.name, headingId: "profile-name" }}
+          end={
+            moderator && !c.is_us ? (
+              <KeepPrivate key={String(c.keep_private)} id={c.id} band={detail.sharedBy ?? "their band"} initial={c.keep_private} />
+            ) : null
+          }
         />
 
         {archived ? (
@@ -72,7 +81,9 @@ export function SharedRecord({
         </header>
 
         <p className="text-sm text-muted">
-          {detail.sharedBy} shared this, so only they can change its details. Status, plans, outreach, notes, and
+          {moderator
+            ? `${detail.sharedBy} shared this. As a moderator you can fix its details; your changes are logged.`
+            : `${detail.sharedBy} shared this, so only they can change its details.`} Status, plans, outreach, notes, and
           contacts here are {band}&rsquo;s own. Nobody else sees them.
         </p>
 
@@ -120,10 +131,20 @@ export function SharedRecord({
         </ProfilePanel>
 
         <ProfilePanel id="shared-details" title="Details" summary={`From ${detail.sharedBy}`}>
-          <Facts detail={detail} place={place} recordOnly />
-          {!c.connection_links.length && !c.can_help_with.length && !(c.kind === "group" && c.group_type === "venue") ? (
-            <p className="text-sm text-muted">No details yet.</p>
-          ) : null}
+          {moderator ? (
+            // Its shared details, saved to the record and logged (#195).
+            <AutosaveForm connectionId={c.id} className="flex flex-col gap-5">
+              <ModeratorFields values={values} venue={c.kind === "group" && c.group_type === "venue"} />
+              <FormError />
+            </AutosaveForm>
+          ) : (
+            <>
+              <Facts detail={detail} place={place} recordOnly />
+              {!c.connection_links.length && !c.can_help_with.length && !(c.kind === "group" && c.group_type === "venue") ? (
+                <p className="text-sm text-muted">No details yet.</p>
+              ) : null}
+            </>
+          )}
         </ProfilePanel>
 
         <ProfilePanel id="shared-notes" title={`${band}'s Notes`} summary={c.notes ? c.notes.split("\n")[0] : null}>
@@ -136,6 +157,7 @@ export function SharedRecord({
         <footer className="flex flex-col gap-4 rule-top pt-6">
           <p className="text-sm text-muted">
             Shared by {detail.sharedBy}. Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
+            {detail.moderatedAt ? ` · Last fixed by a moderator ${formatDate(detail.moderatedAt, tz)}` : null}
           </p>
           <div className="flex flex-wrap items-start gap-3">
             <ArchiveControl id={c.id} name={c.name} archived={archived} />

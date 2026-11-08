@@ -117,9 +117,14 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           Account Settings
         </Link>
         {appAdmin ? (
-          <Link href="/admin/feedback" className="nav-chip menu-item">
-            Feedback Inbox
-          </Link>
+          <>
+            <Link href="/admin/feedback" className="nav-chip menu-item">
+              Feedback Inbox
+            </Link>
+            <Link href="/admin/moderators" className="nav-chip menu-item">
+              Moderators
+            </Link>
+          </>
         ) : null}
       </div>
       <form action="/auth/signout" method="post" className="menu-group">

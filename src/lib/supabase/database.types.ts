@@ -165,6 +165,12 @@ isOneToOne: false
                   Insert: { "created_at"?: string,"user_id": string }
                   Update: { "created_at"?: string,"user_id"?: string }
                   Relationships: []
+                },"connection_edits": {
+                  Row: { "changes": Json,"connection_id": string,"edited_at": string,"edited_by": string | null,"id": number }
+                  ComputedFields: never
+                  Insert: { "changes": Json,"connection_id": string,"edited_at"?: string,"edited_by"?: string | null,"id"?: never }
+                  Update: { "changes"?: Json,"connection_id"?: string,"edited_at"?: string,"edited_by"?: string | null,"id"?: never }
+                  Relationships: []
                 },"connections": {
                   Row: {
                     "attributes": Json,"can_help_with": (string)[],"catalog_no": number,"created_at": string,"created_by": string | null,"group_type": Database["public"]['Enums']["group_type"] | null,"id": string,"is_us": boolean,"keep_private": boolean,"kind": Database["public"]['Enums']["connection_kind"],"locality_id": string | null,"merged_at": string | null,"merged_into": string | null,"name": string,"person_roles": (Database["public"]['Enums']["person_role"])[],"photo_alt": string | null,"photo_original_path": string | null,"photo_path": string | null,"photo_settings": Json | null,"updated_at": string,"workspace_id": string
@@ -397,6 +403,18 @@ isOneToOne: false
 { Args: never; Returns: (string)[] },
             "is_app_admin":
 { Args: never; Returns: boolean },
+            "is_moderator":
+{ Args: never; Returns: boolean },
+            "list_moderators":
+{ Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"granted_at": string,"admin": boolean }[] },
+            "grant_moderator":
+{ Args: { "p_email": string }; Returns: string },
+            "revoke_moderator":
+{ Args: { "p_user_id": string }; Returns: undefined },
+            "set_keep_private":
+{ Args: { "p_ids": (string)[],"p_keep": boolean }; Returns: Json },
+            "moderate_connection":
+{ Args: { "p_id": string,"p_name": string,"p_kind": Database["public"]['Enums']["connection_kind"],"p_person_roles": (Database["public"]['Enums']["person_role"])[],"p_group_type": Database["public"]['Enums']["group_type"] | null,"p_can_help_with": (string)[],"p_links": Json,"p_place_id"?: number,"p_keep_locality_id"?: string,"p_attributes"?: Json,"p_expected_updated_at"?: string }; Returns: undefined },
             "link_me_to_person":
 { Args: { "p_workspace_id": string,"p_connection_id": string }; Returns: undefined },
             "unlink_me":

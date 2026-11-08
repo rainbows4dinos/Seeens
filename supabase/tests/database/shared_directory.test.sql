@@ -105,7 +105,7 @@ select throws_ok($$ select public.merge_connections('ce500000-0000-0000-0000-000
   '23514', null, 'a record another band keeps notes on can''t be merged away yet');
 
 -- Kept private later: B loses sight of it; its layer waits.
-update public.connections set keep_private = true where id = 'ce500000-0000-0000-0000-000000000001';
+select public.set_keep_private(array['ce500000-0000-0000-0000-000000000001'::uuid], true);
 select set_config('request.jwt.claims', '{"sub":"ce222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
 select is((select count(*)::int from public.connections where id = 'ce500000-0000-0000-0000-000000000001'),
   0, 'kept private, another band no longer sees it');
