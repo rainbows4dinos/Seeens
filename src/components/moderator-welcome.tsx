@@ -19,8 +19,8 @@ export function ModeratorWelcome() {
       <div className="window flex flex-col gap-3 p-4">
         <p className="font-medium">You’re a moderator now.</p>
         <p className="text-sm">
-          You can fix the details on any record another band shares, like its name, town, links, and venue details,
-          and keep a record private when it shouldn’t be shared. Every edit is logged. Each band’s statuses and notes
+          You can fix the details on any listing another band shares, like its name, town, links, and venue details,
+          and keep a listing private when it shouldn’t be shared. Every edit is logged. Each band’s statuses and notes
           stay their own.
         </p>
         <div className="flex flex-wrap items-center gap-3">

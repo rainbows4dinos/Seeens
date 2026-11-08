@@ -8,7 +8,7 @@ import { PageLoader } from "@/components/metronome";
 export default function QuickViewPage({ params }: PageProps<"/connections/[id]">) {
   return (
     <Suspense fallback={<div className="quick-view-body">
-          <PageLoader label="loading record" />
+          <PageLoader label="loading listing" />
         </div>}>
       <QuickView params={params} />
     </Suspense>

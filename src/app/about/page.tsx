@@ -69,7 +69,7 @@ export default function AboutPage() {
             played, your notes, contacts, and plans are only ever seen by your bandmates.
           </li>
           <li>
-            <strong>Keep Private hides a record from other bands.</strong> People start private; venues, bands, and
+            <strong>Keep Private hides a listing from other bands.</strong> People start private; venues, bands, and
             labels start shared. Flip any of them in Band Settings.
           </li>
         </ol>
@@ -86,7 +86,7 @@ export default function AboutPage() {
           How you feel about them
         </h2>
         <p>
-          Every record can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
+          Every listing can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
           outside your band sees it.
         </p>
         <div className="overflow-x-auto">
@@ -165,8 +165,8 @@ export default function AboutPage() {
           </table>
         </div>
         <p>
-          Only people in a band can see Seeens at all. The band that added a record is the one that can change it.
-          Nothing is sold or used for ads. You can export your band&rsquo;s records, and you can delete your account from
+          Only people in a band can see Seeens at all. The band that added a listing is the one that can change it.
+          Nothing is sold or used for ads. You can export your band&rsquo;s listings, and you can delete your account from
           Account Settings.
         </p>
       </section>
@@ -176,8 +176,8 @@ export default function AboutPage() {
           Who keeps it tidy
         </h2>
         <p>
-          Any band can add to Seeens, and the band that added a record looks after it. Moderators, trusted people from
-          the scene, can fix mistakes in any shared record. Every fix is logged.
+          Any band can add to Seeens, and the band that added a listing looks after it. Moderators, trusted people from
+          the scene, can fix mistakes in any shared listing. Every fix is logged.
         </p>
       </section>
 

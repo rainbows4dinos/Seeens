@@ -33,7 +33,7 @@ async function Sharing() {
         <p className="caption">Band Settings</p>
         <h1 className="display-l break-words">What You Share</h1>
         <p className="text-muted">
-          Seeens is one directory that every band shares. Other bands see the records {band} shares: names,
+          Seeens is one directory that every band shares. Other bands see the listings {band} shares: names,
           types, towns, links, photos, and venue details. Anything you keep private stays in {band}&rsquo;s
           directory only.
         </p>

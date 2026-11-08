@@ -37,7 +37,7 @@ async function emailNewModerator(to: string) {
     text: [
       `${admin} made you a moderator on Seeens.`,
       "",
-      "Moderators help keep the shared directory right. You can now fix the details on any record another band shares: name, type, town, links, what they can help with, and venue details. You can also keep a record private when it shouldn't be shared.",
+      "Moderators help keep the shared directory right. You can now fix the details on any listing another band shares: name, type, town, links, what they can help with, and venue details. You can also keep a listing private when it shouldn't be shared.",
       "",
       "Every edit you make is logged. Each band's statuses and notes stay their own: you can't see or change them.",
       "",

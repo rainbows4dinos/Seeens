@@ -80,7 +80,7 @@ async function Band() {
 
       <ProfilePanel id="band-sharing" title="What You Share" summary={sharingSummary(shared, kept)}>
         <p>
-          Other bands see the records {membership.workspaceName} shares. Status, notes, and contacts stay yours
+          Other bands see the listings {membership.workspaceName} shares. Status, notes, and contacts stay yours
           either way.
         </p>
         <p className="text-sm text-muted">{sharingSummary(shared, kept)}.</p>

@@ -139,14 +139,14 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
             </p>
           ) : (
             <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-              <p className="font-medium">No connections yet.</p>
+              <p className="font-medium">No listings yet.</p>
               <p className="text-muted">
                 Start with a band you&rsquo;ve shared a bill with, a venue
                 you&rsquo;ve played, or someone you&rsquo;d like to meet.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/add" className="button-secondary">
-                  Add Your First Connection
+                  Add Your First Listing
                 </Link>
                 <Link href="/import" className="button-secondary">
                   Import a Spreadsheet
@@ -277,7 +277,7 @@ function TypeTabs({ tab, counts, filters }: { tab: Tab; counts: TabCounts; filte
   const third: Tab = tab === "more" || tab === "all" ? tab : "venues";
   const overflow = TABS.filter((t) => !["bands", "people", third].includes(t.id));
   return (
-    <nav aria-label="Connection types" className="segmented bar-views type-tabs">
+    <nav aria-label="Listing types" className="segmented bar-views type-tabs">
       {TABS.map((t) => (
         <Link
           key={t.id}

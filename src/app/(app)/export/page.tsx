@@ -46,9 +46,9 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
     return (
       <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-line p-6">
         <p className="font-medium">Nothing to export yet.</p>
-        <p className="text-muted">Add a connection and it&rsquo;ll show up in the export.</p>
+        <p className="text-muted">Add a listing and it&rsquo;ll show up in the export.</p>
         <Link href="/add" className="button-secondary">
-          Add a Connection
+          Add a Listing
         </Link>
       </div>
     );
@@ -74,7 +74,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
       <form action="/api/export" method="get" className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <label htmlFor="export-archived" className="label">
-            Which connections?
+            Which listings?
           </label>
           <select
             id="export-archived"

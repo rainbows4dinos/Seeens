@@ -10,7 +10,7 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
 
 - **Workspace:** the Merwulf network; one workspace at launch.
 - **Membership:** an authenticated user's access to that workspace. Joining requires authorization; signing up alone must not grant access.
-- **Connection:** either a **person** or a **group**, with profile links, optional contact details, notes, and timestamps.
+- **Connection (on screen: Listing, #212):** either a **person** or a **group**, with profile links, optional contact details, notes, and timestamps. The app calls these listings, since most of the shared directory is bands and places a band hasn't connected with; "connections" on screen means the links between listings. Code and database keep `connections`.
   - A person can do several things at once: musician, DJ, promoter, booker, manager, label owner, producer, recording engineer, live sound engineer, photographer, videographer, artist/designer, writer, radio host, other.
   - A group is exactly one thing: band, venue, label, recording studio, production studio, radio station, press (zine, blog, mag), promoter or collective, other.
 - **Locality:** a verified town from the shared GeoNames place list (towns with 1,000+ people, with coordinates). Each workspace has at most one locality per town. Keep locality distinct from genre/community tags. Scenes and macro-scenes (for example Pacific Northwest) are Seeens' own records that group localities; GeoNames supplies the places, not the scenes.
