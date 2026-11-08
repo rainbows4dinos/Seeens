@@ -144,7 +144,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                 you&rsquo;ve played, or someone you&rsquo;d like to meet.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/connections/new" className="button-secondary">
+                <Link href="/add" className="button-secondary">
                   Add Your First Connection
                 </Link>
                 <Link href="/import" className="button-secondary">
@@ -552,7 +552,7 @@ function FilterForm({
 // Add, named for the tab and opening the form with its type set.
 function AddConnection({ tab, className, iconOnly = false }: { tab: Tab; className: string; iconOnly?: boolean }) {
   const t = TABS.find((x) => x.id === tab)!;
-  const href = t.addType ? `/connections/new?type=${t.addType}` : "/connections/new";
+  const href = t.addType ? `/add?type=${t.addType}` : "/add";
   return (
     <Link
       href={href}

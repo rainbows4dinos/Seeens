@@ -46,7 +46,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
       <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-line p-6">
         <p className="font-medium">Nothing to export yet.</p>
         <p className="text-muted">Add a connection and it&rsquo;ll show up in the export.</p>
-        <Link href="/connections/new" className="button-secondary">
+        <Link href="/add" className="button-secondary">
           Add a Connection
         </Link>
       </div>

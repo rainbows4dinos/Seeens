@@ -93,7 +93,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           {/* A full page load: a link from here to a connection would otherwise open
               the directory's quick view over an empty page. */}
           <a
-            href={us ? `/connections/${us.id}` : "/connections/new?us=1"}
+            href={us ? `/connections/${us.id}` : "/add?us=1"}
             className="nav-chip nav-chip-inverse menu-item"
             aria-label={us ? `${membership.workspaceName}, your band's page` : `${membership.workspaceName}: add your band's page`}
           >
