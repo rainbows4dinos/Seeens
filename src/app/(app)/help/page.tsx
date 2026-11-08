@@ -111,10 +111,21 @@ export default function HelpPage() {
           FAQ
         </h2>
         <div className="help-faq">
-          {FAQ.map(([q, a]) => (
+          {FAQ.map(([q, a, link]) => (
             <details key={q}>
               <summary>{q}</summary>
-              <p>{a}</p>
+              <p>
+                {a}
+                {link ? (
+                  <>
+                    {" "}
+                    <Link href={link.href} className="link">
+                      {link.label}
+                    </Link>
+                    .
+                  </>
+                ) : null}
+              </p>
             </details>
           ))}
         </div>

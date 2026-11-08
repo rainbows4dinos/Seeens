@@ -4,8 +4,8 @@ import { redirectWithCookies, updateSession } from "@/lib/supabase/proxy";
 // Signed out only: signed-in visitors go to the directory.
 const PUBLIC_PATHS = ["/login", "/forgot-password"];
 // Open either way: email links land here signed in or not (#67), and About
-// is for people who just got an invite.
-const OPEN_PATHS = ["/auth/callback", "/about"];
+// and How Seeens Uses AI are for people who just got an invite.
+const OPEN_PATHS = ["/auth/callback", "/about", "/ai"];
 
 export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);

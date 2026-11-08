@@ -186,10 +186,21 @@ export default function AboutPage() {
           FAQ
         </h2>
         <div className="help-faq">
-          {ABOUT_FAQ.map(([q, a]) => (
+          {ABOUT_FAQ.map(([q, a, link]) => (
             <details key={q} open>
               <summary>{q}</summary>
-              <p>{a}</p>
+              <p>
+                {a}
+                {link ? (
+                  <>
+                    {" "}
+                    <Link href={link.href} className="link">
+                      {link.label}
+                    </Link>
+                    .
+                  </>
+                ) : null}
+              </p>
             </details>
           ))}
         </div>
@@ -218,6 +229,9 @@ export default function AboutPage() {
       <footer className="flex flex-wrap gap-3">
         <Link href="/login" className="button-primary">
           Sign In
+        </Link>
+        <Link href="/ai" className="button-secondary">
+          How Seeens Uses AI
         </Link>
       </footer>
     </main>
