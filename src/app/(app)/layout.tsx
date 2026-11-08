@@ -12,6 +12,7 @@ import { FeedbackLink } from "@/components/feedback-link";
 import { ModeratorWelcome } from "@/components/moderator-welcome";
 import { BusyPointer } from "@/components/busy-pointer";
 import { createClient } from "@/lib/supabase/server";
+import { SignOutForm } from "@/components/sign-out-form";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -155,11 +156,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           </>
         ) : null}
       </div>
-      <form action="/auth/signout" method="post" className="menu-group">
-        <button type="submit" className="nav-chip menu-item">
-          Sign Out
-        </button>
-      </form>
+      <SignOutForm className="menu-group" buttonClassName="nav-chip menu-item" />
     </>
   );
 

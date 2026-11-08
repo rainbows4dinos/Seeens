@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AcceptForm, JoinForms, OptOutButton } from "./join-forms";
 import { PageLoader } from "@/components/metronome";
+import { SignOutForm } from "@/components/sign-out-form";
 
 // The token is the key: don't send it on to other sites.
 export const metadata: Metadata = { title: "You're invited · Seeens", referrer: "no-referrer" };
@@ -80,12 +81,7 @@ async function Invite({
               <p>
                 This invite is for <strong>{inv.email}</strong>, but you&rsquo;re signed in as {signedInEmail}. Sign out, and you&rsquo;ll come back here to join as {inv.email}.
               </p>
-              <form action="/auth/signout" method="post">
-                <input type="hidden" name="next" value={`/invite/${token}`} />
-                <button type="submit" className="button-secondary">
-                  Sign Out
-                </button>
-              </form>
+              <SignOutForm buttonClassName="button-secondary" next={`/invite/${token}`} />
             </div>
           ) : signedIn ? (
             <AcceptForm token={token} band={inv.band} email={signedInEmail} />

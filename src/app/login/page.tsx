@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center gap-10 px-4 py-16">
-      <header className="flex flex-col items-start gap-6">
+      <header className="flex flex-col items-center gap-6 text-center">
         <h1 className="logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
@@ -27,7 +27,7 @@ export default function LoginPage() {
 
       <section
         aria-labelledby="signin-heading"
-        className="window flex w-full max-w-sm flex-col"
+        className="window flex w-full max-w-sm flex-col self-center"
       >
         <h2
           id="signin-heading"
