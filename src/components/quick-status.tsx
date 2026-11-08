@@ -5,9 +5,9 @@ import { useRef, useState, useTransition } from "react";
 import { quickUpdate, type QuickState } from "@/lib/connections/actions";
 import type { PlayedOffer as Offer } from "@/lib/connections/played-together";
 import { PlayedOffer } from "@/components/played-offer";
-import { STATUSES, playedWords, statusHint, statusLabel, type ConnectionStatus, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
+import { NO_STATUS, STATUSES, playedWords, statusHint, statusLabel, type ConnectionStatus, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
 
-type Change = { status: ConnectionStatus } | { playedTogether: boolean };
+type Change = { status: ConnectionStatus | null } | { playedTogether: boolean };
 
 // Saves as soon as a choice changes. While saving, the control shows the
 // new choice; if the save fails it snaps back to what's actually saved and
@@ -106,11 +106,13 @@ export function QuickStatus({
         <div className="flex flex-wrap items-center gap-3">
           <select
             id="quick-status"
-            value={shown.status}
-            onChange={(e) => save({ status: e.target.value as ConnectionStatus })}
+            value={shown.status ?? ""}
+            onChange={(e) => save({ status: (e.target.value || null) as ConnectionStatus | null })}
             aria-describedby="quick-status-hint"
             className="field min-w-28 flex-1 basis-28 sm:max-w-80"
           >
+            {/* Clears it (#192): not sorted yet. */}
+            <option value="">{NO_STATUS}</option>
             {STATUSES.map((st) => (
               <option key={st} value={st}>
                 {statusLabel(st, type)}

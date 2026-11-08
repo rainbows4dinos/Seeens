@@ -37,7 +37,8 @@ export type DirectoryItem = {
   kind: ConnectionKind;
   person_roles: PersonRole[];
   group_type: GroupType | null;
-  status: ConnectionStatus;
+  /** Null: this band hasn't given it a status (#192). */
+  status: ConnectionStatus | null;
   is_us: boolean;
   played_together: boolean;
   catalog_no: number;
@@ -71,7 +72,8 @@ export type DirectoryItem = {
 };
 
 
-export type GroupCounts = Record<ConnectionStatus, number>;
+/** Per status, and `none` for no status (#192). */
+export type GroupCounts = Record<ConnectionStatus | "none", number>;
 export type TabCounts = Record<Tab, number>;
 
 export type DirectoryCounts = {
@@ -87,6 +89,8 @@ export type DirectoryCounts = {
   archived: number;
   /** Each tab's count under the other filters. */
   types: TabCounts;
+  /** My network and all scenes, under the other filters (#192). */
+  scopes: { network: number; all: number };
   /** Instruments people in this half play, for the Plays filter (#140). */
   instruments: Instrument[];
   towns: { id: string; name: string; region: string | null; region_code: string | null; country: string | null; country_code: string | null }[];
@@ -103,8 +107,8 @@ export function readDirectoryQuery(params: Params): DirectoryQuery {
 
 type RpcRow = {
   id: string;
-  /** For people who are Known (neutral), the closest status of their current bands (#140). */
-  status: ConnectionStatus;
+  /** For people who are Heard of or have none, the closest status of their current bands (#140). Null: no status (#192). */
+  status: ConnectionStatus | null;
   via: string | null;
   label_mate: boolean;
   shares_member: boolean;
@@ -120,6 +124,7 @@ type RpcResult = {
     hidden_avoid: number;
     archived: number;
     types: TabCounts;
+    scopes: { network: number; all: number };
     instruments: string[];
     towns: DirectoryCounts["towns"];
   } | null;
@@ -137,6 +142,9 @@ export async function loadDirectoryPage(
     p_archived: archived,
     p_q: filters.q,
     p_statuses: filters.statuses,
+    p_no_status: filters.noStatus,
+    // The archived view is this band's own either way.
+    p_scope: filters.archived ? "network" : filters.scope,
     p_type: tab,
     p_instrument: filters.instrument || undefined,
     p_ages: filters.ages || undefined,
@@ -231,6 +239,7 @@ export async function loadDirectoryPage(
           hiddenAvoid: c.hidden_avoid,
           archived: c.archived,
           types: c.types,
+          scopes: c.scopes,
           instruments: c.instruments.filter((i): i is Instrument => i in INSTRUMENTS),
           towns: c.towns,
         } satisfies DirectoryCounts)

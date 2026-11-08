@@ -9,7 +9,8 @@ import type { Database } from "@/lib/supabase/database.types";
 type Status = Database["public"]["Enums"]["connection_status"];
 
 export type BandDetails = {
-  status: Status;
+  /** Null: this band hasn't given it a status (#192). */
+  status: Status | null;
   played_together: boolean;
   notes: string | null;
   email: string | null;
@@ -18,7 +19,7 @@ export type BandDetails = {
 };
 
 export const NO_BAND_DETAILS: BandDetails = {
-  status: "neutral",
+  status: null,
   played_together: false,
   notes: null,
   email: null,

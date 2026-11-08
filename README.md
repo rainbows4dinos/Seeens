@@ -8,7 +8,7 @@ Seeens is in closed alpha at [www.seeens.com](https://www.seeens.com). Merwulf i
 
 Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
-![The Seeens directory: type tabs, then everyone grouped by status, as photocopied snapshots](docs/screenshots/directory.png)
+![My Network: type tabs, then everyone your band knows grouped by status, as photocopied snapshots](docs/screenshots/directory.png)
 
 ## Screenshots
 
@@ -30,17 +30,18 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | **Band Settings.** Everyone in the band, and invites by email or link. Owners manage roles. | **An invite.** Who invited you, to which band, and that Seeens is in beta. Make an account or sign in, and you're in. |
 | ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png) | ![What You Share: people kept private, bands shared, with Keep Private on each](docs/screenshots/sharing.png) |
 | **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue. | **What You Share.** Choose what other bands see and what stays yours. People start private; everything else starts shared. |
-| ![The Brine Hall, shared by Moth Signal, with Merwulf's own status, plans, and notes on it](docs/screenshots/shared-record.png) | |
-| **Another band's record.** Only the band that shared it can change it. Your status, plans, outreach, notes, and contacts on it are your band's own. | |
+| ![The Brine Hall, shared by Moth Signal, with Merwulf's own status, plans, and notes on it](docs/screenshots/shared-record.png) | ![The Full Directory: venues from every band, with Moth Signal's under No Status](docs/screenshots/full-directory.png) |
+| **Another band's record.** Only the band that shared it can change it. Your status, plans, outreach, notes, and contacts on it are your band's own. | **Full Directory.** Every record other bands share, beside your own. What you haven't sorted sits under No Status. |
 
 ## MVP
 
 - **Connections:** bands, promoters, venues, DJs, playlisters, and other people or organizations in the network.
 - **Scenes:** organize connections by locality and scene, with multiple memberships when useful.
-- **Status:** one band-wide choice per connection, in words that fit its type: Homies, Let's play, Eyeing, Known, or Avoid for bands; Favorite and Let's book for venues; Homie and Let's collab for people. Plus whether you've played together (or played here, been booked, been covered, and so on).
+- **My Network and Full Directory:** My Network (the home page) is what your band added or has touched; Full Directory, in the main nav, is every record other bands share too. Anything you haven't given a status sits under No Status, and the status filter can show just those. A search that finds nothing in My Network offers the Full Directory.
+- **Status:** one band-wide choice per connection, in words that fit its type: Homies, Let's play, Eyeing, Heard of, or Avoid for bands, or no status yet; Favorite and Let's book for venues; Homie and Let's collab for people. Plus whether you've played together (or played here, been booked, been covered, and so on).
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
 - **Venue details:** address, ages, capacity, DIY or licensed, PA, sound engineer, backline, how to book (pointing at the venue's email or links), accessibility, and special terms. Blank means not sure. Venue rows show "All ages · 50–150 cap · DIY", the Venues tab filters by ages and capacity, and details checked more than six months ago say so.
-- **What people play:** read from their band roles ("vocals, guitar"), current and former, on the person's page and in the People list, with a Plays filter. Someone who's only Known shows under the closest status of a band they're in, marked "via" that band; their own status wins, and an Avoid band never pulls them into Avoid.
+- **What people play:** read from their band roles ("vocals, guitar"), current and former, on the person's page and in the People list, with a Plays filter. Someone who's only Heard of, or has no status, shows under the closest status of a band they're in, marked "via" that band; their own status wins, and an Avoid band never pulls them into Avoid.
 - **By type:** the directory has a tab for Bands, People, Venues, and Labels & more, plus All, each with its count. Status is a filter: everyone but Avoid, or one status, like Eyeing (who you'd like to know) or Let's play (the booking backlog).
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.

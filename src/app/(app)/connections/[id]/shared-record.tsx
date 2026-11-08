@@ -1,6 +1,6 @@
 import { catalogNo, initials } from "@/lib/connections/card";
 import { directoryHrefFor } from "@/lib/connections/directory";
-import { formatDate, formatLocality, formatType, statusLabel } from "@/lib/connections/labels";
+import { formatDate, formatLocality, formatType, historyLine, statusLabel } from "@/lib/connections/labels";
 import type { ConnectionDetail } from "@/lib/connections/queries";
 import { toFormValues } from "@/lib/connections/queries";
 import { photoUrl } from "@/lib/photos/urls";
@@ -89,9 +89,7 @@ export function SharedRecord({
                 <ol className="flex flex-col gap-1 pt-2">
                   {statusHistory.map((h) => (
                     <li key={h.id}>
-                      {h.from_status
-                        ? `${statusLabel(h.from_status, c)} to ${statusLabel(h.to_status, c)}`
-                        : `Set to ${statusLabel(h.to_status, c)}`}
+                      {historyLine(h, c)}
                       <span className="text-muted">
                         {" · "}
                         {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}

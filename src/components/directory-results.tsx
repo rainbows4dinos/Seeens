@@ -11,7 +11,7 @@ import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
 import { detailFor, wordSetForTab, type Tab } from "@/lib/connections/tabs";
-import { STATUSES, STATUS_WORDS, formatLocality, formatType, playedWords } from "@/lib/connections/labels";
+import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality, formatType, playedWords } from "@/lib/connections/labels";
 import { catalogNo, initials } from "@/lib/connections/card";
 
 // The directory's rows or cards, grouped by status, a page at a time.
@@ -27,6 +27,7 @@ export function DirectoryResults({
   groups,
   matched,
   query,
+  basePath = "/",
   today,
   tab,
 }: {
@@ -36,6 +37,8 @@ export function DirectoryResults({
   matched: number;
   /** The directory URL's query string, without layout or after. */
   query: string;
+  /** / for My Network, /directory for the full directory (#192). */
+  basePath?: string;
   today: string;
   /** Which tab: decides the detail line and whether scenes show. */
   tab: Tab;
@@ -67,7 +70,7 @@ export function DirectoryResults({
     focusId.current = null;
   }, [items]);
 
-  const moreHref = next ? `/?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}` : null;
+  const moreHref = next ? `${basePath}?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}` : null;
 
   function loadMore(e: React.MouseEvent) {
     if (!next || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
@@ -90,13 +93,17 @@ export function DirectoryResults({
   }
 
   // Our own band isn't in the directory; the header's band chip opens it (#123).
-  const sections = STATUSES.map((status) => ({
-    id: status,
-    label: STATUS_WORDS[wordSetForTab(tab)][status],
-    tag: `tag-${status}`,
-    count: groups[status],
-    rows: items.filter((c) => c.status === status),
-  })).filter((s) => s.rows.length);
+  const sections = [
+    ...STATUSES.map((status) => ({
+      id: status as string,
+      label: STATUS_WORDS[wordSetForTab(tab)][status],
+      tag: `tag-${status}`,
+      count: groups[status],
+      rows: items.filter((c) => c.status === status),
+    })),
+    // Not sorted yet (#192), after the five.
+    { id: "none", label: NO_STATUS, tag: "", count: groups.none, rows: items.filter((c) => c.status === null) },
+  ].filter((s) => s.rows.length);
 
   return (
     <>

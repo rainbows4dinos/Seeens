@@ -23,15 +23,17 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
   - **Homies:** the ultimate band-to-band relationship. Love playing together, love each other's music, love hanging out, support each other, top tour-mate candidates.
   - **Let's play:** mutual "we should play together," not booked yet. The booking backlog of agreed admiration and opportunity.
   - **Eyeing:** we'd like to connect; not mutual yet. Stored as `prospect`. (Was Crush.)
-  - **Known:** we know of them, no particular plans. The default. Stored as `neutral`. (Was Heard of.)
+  - **Heard of:** we know of them, no particular plans. Where a record the band adds starts. Stored as `neutral`. (Was Known, and before that Heard of: Known read as "we know them".)
+  - **No status:** the band hasn't sorted it yet. Every record another band shares starts here, and a status can be cleared back to it (#192). Stored as null.
   - **Avoid:** the honest "nope" (cold shoulder, or played once and that was enough). Kept, not archived, and can change.
   Each type has its own words for the same five statuses (#139). Words say how we feel, never what happened; "played together" carries that.
-  - Venues and promoters: Favorite, Let's book, Eyeing, Known, Avoid.
-  - People: Homie, Let's collab, Eyeing, Known, Avoid.
-  - Labels, studios, radio, press: Homies, Let's collab, Eyeing, Known, Avoid.
+  - Venues and promoters: Favorite, Let's book, Eyeing, Heard of, Avoid.
+  - People: Homie, Let's collab, Eyeing, Heard of, Avoid.
+  - Labels, studios, radio, press: Homies, Let's collab, Eyeing, Heard of, Avoid.
   - "Played together" reads as played here (venues), booked us (promoters, bookers), recorded here (studios), been on (radio), covered us (press, writers), or worked together (everyone else). Musicians and DJs keep "played together".
   The All tab's status menu uses the band words.
-  A stored status is never changed through affiliations. A person left at Known is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Eyeing), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
+  A stored status is never changed through affiliations. A person left at Heard of, or with no status, is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Eyeing), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
+- **My Network and Full Directory (#192):** two pages in the main nav (My Network, Follow-ups, Scenes, Full Directory). My Network, at `/`, is what the band added or has touched (a status, notes, contacts, played together, an archive, a plan, or outreach); clearing a status alone doesn't drop a record that has anything else. Full Directory, at `/directory`, is every record the band can see. For now both group by status; the Full Directory should get its own organization (#194). Follow-ups may later fold into a Today home page.
 - **Played together:** a separate fact, what has already happened, versus how the band feels and what's next. Distinguishes warm leads from cold ones when planning a town.
 - **Outreach entry:** dated history with channel, notes, and author, linked to a connection.
 - **Next action:** current planned step, optional follow-up date, and responsible member. No priority; the date is enough.

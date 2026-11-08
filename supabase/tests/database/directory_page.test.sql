@@ -105,7 +105,8 @@ select ok((select r -> 'counts' from pages where k = 'p2') = 'null'::jsonb, 'cou
 -- Counts
 select is((select r -> 'counts' from pages where k = 'all') - 'towns' - 'types' - 'instruments',
   '{"view": 8, "total": 8, "matched": 7, "hidden_avoid": 1, "archived": 1,
-    "groups": {"homies": 3, "lets_play": 2, "prospect": 0, "neutral": 2, "avoid": 0}}'::jsonb,
+    "groups": {"homies": 3, "lets_play": 2, "prospect": 0, "neutral": 2, "avoid": 0, "none": 0},
+    "scopes": {"network": 7, "all": 7}}'::jsonb,
   'view, total, matched, per-group counts, the hidden Avoid count, and how many are archived; Us counted nowhere');
 select is((select jsonb_array_length(r -> 'counts' -> 'towns') from pages where k = 'all'), 2, 'towns in this half');
 
@@ -158,7 +159,8 @@ select is((select r -> 'counts' -> 'types' from pages where k = 'all'),
 select is(
   (public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'people') -> 'counts') - 'towns' - 'types' - 'instruments',
   '{"view": 8, "total": 1, "matched": 1, "hidden_avoid": 0, "archived": 0,
-    "groups": {"homies": 0, "lets_play": 1, "prospect": 0, "neutral": 0, "avoid": 0}}'::jsonb,
+    "groups": {"homies": 0, "lets_play": 1, "prospect": 0, "neutral": 0, "avoid": 0, "none": 0},
+    "scopes": {"network": 1, "all": 1}}'::jsonb,
   'a tab counts only its own rows (the empty workspace check still sees everyone)');
 select is((public.directory_page('d9aaaaaa-0000-0000-0000-0000000000a1', false, p_q => 'zzz', p_type => 'bands') -> 'counts' ->> 'archived')::int,
   1, 'the archived count is per tab and ignores the other filters');

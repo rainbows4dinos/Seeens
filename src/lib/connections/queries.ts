@@ -206,7 +206,7 @@ export function toFormValues(c: ConnectionDetail["connection"]): ConnectionFormV
     kind: c.kind,
     personRoles: c.person_roles,
     groupType: c.group_type ?? "",
-    status: c.status,
+    status: c.status ?? "",
     playedTogether: c.played_together,
     isUs: c.is_us,
     canHelpWith: c.can_help_with.join(", "),

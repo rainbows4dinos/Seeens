@@ -124,6 +124,10 @@ try {
   await page.goto(`${BASE_URL}/?type=all`);
   await shot(page, "directory.png");
 
+  // The Full Directory (#192): venues every band shares, Moth Signal's included.
+  await page.goto(`${BASE_URL}/directory?type=venues`);
+  await shot(page, "full-directory.png");
+
   // From 1280 the filter fields sit in the bar, so there's nothing to open.
   await page.goto(`${BASE_URL}/?type=all&status=lets_play`);
   await shot(page, "lets-play.png");

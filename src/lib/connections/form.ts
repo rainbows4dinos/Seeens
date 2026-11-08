@@ -61,7 +61,8 @@ export type ValidConnection = {
   kind: ConnectionKind;
   person_roles: PersonRole[];
   group_type: GroupType | null;
-  status: ConnectionStatus;
+  /** Null: no status (#192). */
+  status: ConnectionStatus | null;
   played_together: boolean;
   is_us: boolean;
   can_help_with: string[];
@@ -243,7 +244,8 @@ export function validate(
     errors.isUs = "Only a band can be ours. Change the type back to Band, or untick this.";
   }
 
-  if (!STATUSES.includes(values.status as ConnectionStatus)) errors.status = "Choose a status.";
+  // Empty is no status (#192); anything else must be one of the five.
+  if (values.status && !STATUSES.includes(values.status as ConnectionStatus)) errors.status = "Choose a status.";
 
   if (values.email && !EMAIL_RE.test(values.email)) errors.email = "That email doesn't look right.";
 
@@ -284,7 +286,7 @@ export function validate(
       kind: kind!,
       person_roles: kind === "person" ? personRoles : [],
       group_type: kind === "group" ? groupType : null,
-      status: values.status as ConnectionStatus,
+      status: (values.status || null) as ConnectionStatus | null,
       played_together: values.playedTogether,
       is_us: kind === "group" && values.isUs,
       can_help_with: values.canHelpWith

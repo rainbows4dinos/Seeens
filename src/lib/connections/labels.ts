@@ -53,6 +53,9 @@ export {
   wordSetFor,
   statusLabel,
   statusHint,
+  NO_STATUS,
+  NO_STATUS_HINT,
+  historyLine,
   playedWords,
   type WordSet,
 } from "./status-words";

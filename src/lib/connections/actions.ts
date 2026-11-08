@@ -137,7 +137,7 @@ export async function restoreConnection(id: string): Promise<ArchiveState> {
   return setArchived(id, false);
 }
 
-export type QuickState = { status: ConnectionStatus; playedTogether: boolean };
+export type QuickState = { status: ConnectionStatus | null; playedTogether: boolean };
 export type QuickResult =
   | { ok: true; saved: QuickState; offer?: PlayedOffer | null }
   | { ok: false; saved: QuickState | null };
@@ -146,13 +146,14 @@ export type QuickResult =
 // Status history is logged by a database trigger.
 export async function quickUpdate(
   id: string,
-  change: { status: ConnectionStatus } | { playedTogether: boolean },
+  change: { status: ConnectionStatus | null } | { playedTogether: boolean },
 ): Promise<QuickResult> {
   const workspaceId = await requireWorkspace();
   const supabase = await createClient();
   const patch =
     "status" in change
-      ? STATUSES.includes(change.status)
+      ? // null clears it back to no status (#192).
+        change.status === null || STATUSES.includes(change.status)
         ? { status: change.status }
         : null
       : { played_together: Boolean(change.playedTogether) };
@@ -164,8 +165,8 @@ export async function quickUpdate(
       .eq("connection_id", id)
       .eq("workspace_id", workspaceId)
       .maybeSingle();
-    // A record this band never touched reads as Known (#185).
-    return data ? { status: data.status, playedTogether: data.played_together } : { status: "neutral" as const, playedTogether: false };
+    // A record this band never touched has no status (#192).
+    return data ? { status: data.status, playedTogether: data.played_together } : { status: null, playedTogether: false };
   };
   if (!patch) return { ok: false, saved: await current() };
 

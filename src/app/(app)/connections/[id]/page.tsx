@@ -22,6 +22,7 @@ import { isStale, readVenueDetails, venueLine } from "@/lib/connections/venue-de
 import { createClient } from "@/lib/supabase/server";
 import {
   statusLabel,
+  historyLine,
   formatDate,
   formatLocality,
   formatType,
@@ -226,9 +227,9 @@ async function Connection({
               <details className="text-sm">
                 <summary className="cursor-pointer text-muted">Status history</summary>
                 <ol className="flex flex-col gap-1 pt-2">
-                  {statusHistory.map((h) => (
+                  {statusHistory.map((h, i) => (
                     <li key={h.id}>
-                      {h.from_status ? `${statusLabel(h.from_status, c)} to ${statusLabel(h.to_status, c)}` : `Added as ${statusLabel(h.to_status, c)}`}
+                      {historyLine(h, c, i === statusHistory.length - 1 ? "Added as" : "Set to")}
                       <span className="text-muted">
                         {" · "}
                         {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}

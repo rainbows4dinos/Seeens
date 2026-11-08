@@ -14,10 +14,10 @@ export type WordSet = "band" | "venue" | "people" | "collab";
 
 // Order matters: this is also the directory's grouping order.
 export const STATUS_WORDS: Record<WordSet, Record<ConnectionStatus, string>> = {
-  band: { homies: "Homies", lets_play: "Let's play", prospect: "Eyeing", neutral: "Known", avoid: "Avoid" },
-  venue: { homies: "Favorite", lets_play: "Let's book", prospect: "Eyeing", neutral: "Known", avoid: "Avoid" },
-  people: { homies: "Homie", lets_play: "Let's collab", prospect: "Eyeing", neutral: "Known", avoid: "Avoid" },
-  collab: { homies: "Homies", lets_play: "Let's collab", prospect: "Eyeing", neutral: "Known", avoid: "Avoid" },
+  band: { homies: "Homies", lets_play: "Let's play", prospect: "Eyeing", neutral: "Heard of", avoid: "Avoid" },
+  venue: { homies: "Favorite", lets_play: "Let's book", prospect: "Eyeing", neutral: "Heard of", avoid: "Avoid" },
+  people: { homies: "Homie", lets_play: "Let's collab", prospect: "Eyeing", neutral: "Heard of", avoid: "Avoid" },
+  collab: { homies: "Homies", lets_play: "Let's collab", prospect: "Eyeing", neutral: "Heard of", avoid: "Avoid" },
 };
 
 export const STATUS_HINT_WORDS: Record<WordSet, Record<ConnectionStatus, string>> = {
@@ -65,12 +65,27 @@ export function wordSetFor(c: Typed): WordSet {
   return "collab";
 }
 
-export function statusLabel(status: ConnectionStatus, c?: Typed | null) {
-  return STATUS_WORDS[c ? wordSetFor(c) : "band"][status];
+/** What a band calls a record it hasn't given a status (#192). */
+export const NO_STATUS = "No status";
+export const NO_STATUS_HINT = "Not sorted yet.";
+
+export function statusLabel(status: ConnectionStatus | null, c?: Typed | null) {
+  return status ? STATUS_WORDS[c ? wordSetFor(c) : "band"][status] : NO_STATUS;
 }
 
-export function statusHint(status: ConnectionStatus, c?: Typed | null) {
-  return STATUS_HINT_WORDS[c ? wordSetFor(c) : "band"][status];
+export function statusHint(status: ConnectionStatus | null, c?: Typed | null) {
+  return status ? STATUS_HINT_WORDS[c ? wordSetFor(c) : "band"][status] : NO_STATUS_HINT;
+}
+
+/** One line of status history (#192): a change, a first status, or a clear. */
+export function historyLine(
+  h: { from_status: ConnectionStatus | null; to_status: ConnectionStatus | null },
+  c: Typed | null,
+  first = "Set to",
+) {
+  if (!h.to_status) return `Cleared (was ${statusLabel(h.from_status, c)})`;
+  if (!h.from_status) return `${first} ${statusLabel(h.to_status, c)}`;
+  return `${statusLabel(h.from_status, c)} to ${statusLabel(h.to_status, c)}`;
 }
 
 // "Played together", by what it means for each type: the checkbox label and

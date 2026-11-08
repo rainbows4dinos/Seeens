@@ -28,7 +28,8 @@ export type CardConnection = {
   kind: ConnectionKind;
   person_roles: PersonRole[];
   group_type: GroupType | null;
-  status: ConnectionStatus;
+  /** Null: no status (#192). */
+  status: ConnectionStatus | null;
   is_us: boolean;
   played_together: boolean;
   catalog_no: number;
@@ -101,7 +102,7 @@ export function ConnectionCard({
           />
         ) : null}
       </span>
-      <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
+      <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status ?? "neutral"]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
       <span className="card-meta">
         {/* Name first for screen readers; the caption row sits above it visually. */}
         <span className="flex flex-col-reverse gap-2">
