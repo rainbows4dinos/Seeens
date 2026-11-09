@@ -36,7 +36,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 ## MVP
 
 - **Listings:** bands, promoters, venues, DJs, playlisters, and other people or organizations in the directory. "Listing" is the word on screen; the code and database say `connections`. "Connections" on screen means the links between listings (who plays in a band, who books a venue).
-- **Scenes:** organize connections by locality and scene, with multiple memberships when useful.
+- **Scenes:** organize listings by locality and scene, with multiple memberships when useful. Scenes named with a town or its nickname (LA Punk, PDX Garage, Sactown Hardcore) find their town and go inside that town's scene; older ones get suggestions to confirm on the Scenes page. Town Nicknames lists the nicknames (moderators keep it), and town search knows them too.
 - **My Network and Full Directory:** My Network (the home page) is what your band added or has touched; Full Directory, in the main nav, is every record other bands share too. Anything you haven't given a status sits under No Status, and the status filter can show just those. A search that finds nothing in My Network offers the Full Directory.
 - **Status:** one band-wide choice per connection, in words that fit its type: Homies, Let's play, Want to play, Heard of, or Avoid for bands, or no status yet; Favorite, Let's book, and Want to book for venues; Homie, Let's collab, and Want to collab for people. Plus whether you've played together (or played here, been booked, been covered, and so on).
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
