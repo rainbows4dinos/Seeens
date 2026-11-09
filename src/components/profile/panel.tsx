@@ -22,16 +22,19 @@ export function ProfilePanel({
   const key = `seeens:panel:${id}`;
 
   useEffect(() => {
+    // A link straight to this panel (#band-invite) opens it, folded or not.
+    if (location.hash === `#${id}`) return;
     try {
       if (localStorage.getItem(key) === "closed" && ref.current) ref.current.open = false;
     } catch {
       // Storage blocked: everything starts open.
     }
-  }, [key]);
+  }, [key, id]);
 
   return (
     <details
       ref={ref}
+      id={id}
       open
       className="profile-panel"
       onToggle={(e) => {

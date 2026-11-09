@@ -89,6 +89,10 @@ async function Band() {
         </Link>
       </ProfilePanel>
 
+      <ProfilePanel id="band-invite" title="Invite a Bandmate">
+        <InviteForm canInviteOwners={owner} bandName={membership.workspaceName} />
+      </ProfilePanel>
+
       <ProfilePanel id="band-members" title={`Members (${members?.length ?? 0})`}>
         <ul className="rows flex flex-col">
           {(members ?? []).map((m) => {
@@ -120,10 +124,6 @@ async function Band() {
           </Link>
           .
         </p>
-      </ProfilePanel>
-
-      <ProfilePanel id="band-invite" title="Invite a Bandmate">
-        <InviteForm canInviteOwners={owner} bandName={membership.workspaceName} />
       </ProfilePanel>
 
       <ProfilePanel id="band-pending" title={`Pending Invites (${invites.length})`}>

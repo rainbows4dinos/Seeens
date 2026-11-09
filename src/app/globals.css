@@ -2026,6 +2026,10 @@
       white-space: nowrap;
     }
   }
+  /* Linked to from elsewhere (#band-invite): clear of the pinned header. */
+  .profile-panel {
+    scroll-margin-top: 96px;
+  }
   /* Getting Started (#68): numbered steps that check themselves off. */
   .getting-started > li + li {
     border-top: var(--stroke-hair) solid var(--color-border-subtle);

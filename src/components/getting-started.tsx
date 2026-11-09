@@ -9,7 +9,7 @@ import { ProfilePanel } from "@/components/profile/panel";
 // it's done or put away. Each step checks itself off. Per person, per band.
 
 // A network this size has something to look at.
-const NETWORK_GOAL = 5;
+const NETWORK_GOAL = 3;
 
 type Progress = {
   dismissed: boolean;
@@ -52,13 +52,13 @@ export async function GettingStarted() {
         p.members > 1
           ? `${p.members} of you are in ${band}.`
           : "From Band Settings, by email or with a link you send them.",
-      links: [{ href: "/band", label: "Invite Bandmates" }],
+      links: [{ href: "/band#band-invite", label: "Invite Bandmates" }],
     },
     {
       done: p.network >= NETWORK_GOAL,
-      title: "Build your network",
+      title: `Add ${NETWORK_GOAL} to your network`,
       body: `The Full Directory already has bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play, and they show up here. Or add your own.${
-        p.network ? ` ${p.network} so far.` : ""
+        p.network ? ` ${p.network} of ${NETWORK_GOAL} so far.` : ""
       }`,
       links: [
         { href: "/directory", label: "Browse the Full Directory" },
