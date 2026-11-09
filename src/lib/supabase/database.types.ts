@@ -287,6 +287,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"place_aliases": {
+                  Row: {
+                    "alias": string,"created_at": string,"created_by": string | null,"place_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "alias": string,"created_at"?: string,"created_by"?: string | null,"place_id": number
+                  }
+                  Update: {
+                    "alias"?: string,"created_at"?: string,"created_by"?: string | null,"place_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "place_aliases_place_id_fkey"
+      columns: ["place_id"]
+isOneToOne: false
+      referencedRelation: "places"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"places": {
                   Row: {
                     "ascii_name": string,"country_code": string,"country_name": string,"id": number,"latitude": number,"longitude": number,"name": string,"population": number,"region_code": string | null,"region_name": string | null
@@ -303,7 +323,7 @@ isOneToOne: false
                   ]
                 },"scenes": {
                   Row: {
-                    "created_at": string,"description": string | null,"id": string,"locality_id": string | null,"name": string,"parent_id": string | null,"updated_at": string,"workspace_id": string
+                    "created_at": string,"description": string | null,"id": string,"locality_id": string | null,"name": string,"parent_id": string | null,"town_suggestion_dismissed_at": string | null,"updated_at": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
@@ -411,6 +431,16 @@ isOneToOne: false
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
             "findable_people":
 { Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"name": string,"added_by": string,"in_band": boolean }[] },
+            "add_place_alias":
+{ Args: { "p_alias": string,"p_place_id": number }; Returns: undefined },
+            "remove_place_alias":
+{ Args: { "p_alias": string }; Returns: undefined },
+            "scene_suggestions":
+{ Args: { "p_workspace_id": string }; Returns: { "scene_id": string,"scene_name": string,"place_id": number | null,"town": string | null,"parent_id": string | null,"parent_name": string | null }[] },
+            "apply_scene_suggestion":
+{ Args: { "p_scene_id": string }; Returns: undefined },
+            "dismiss_scene_suggestion":
+{ Args: { "p_scene_id": string }; Returns: undefined },
             "getting_started":
 { Args: { "p_workspace_id": string }; Returns: Json },
             "dismiss_getting_started":

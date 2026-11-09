@@ -41,6 +41,8 @@ const MOBILE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, is
 async function settle(page) {
   await page.waitForLoadState("networkidle");
   await page.evaluate(() => document.fonts.ready);
+  // The busy pointer (a metronome on the mouse) lingers a beat after a load.
+  await page.waitForFunction(() => !document.documentElement.hasAttribute("data-busy-pointer-on"));
 }
 
 async function shot(page, name, options = {}) {

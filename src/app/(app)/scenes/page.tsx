@@ -6,6 +6,8 @@ import { listScenes, nestScenes, type SceneItem } from "@/lib/scenes/queries";
 import { formatLocality } from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 import { PageLoader } from "@/components/metronome";
+import { createClient } from "@/lib/supabase/server";
+import { applySceneSuggestion, dismissSceneSuggestion } from "@/lib/scenes/nickname-actions";
 
 export const metadata: Metadata = { title: "Scenes · Seeens" };
 
@@ -14,9 +16,14 @@ export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
     <div className="page-measure flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="display-l sm:display-xl">Scenes</h1>
-        <Link href="/scenes/new" className="button-primary">
-          New Scene
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/scenes/nicknames" className="button-secondary">
+            Town Nicknames
+          </Link>
+          <Link href="/scenes/new" className="button-primary">
+            New Scene
+          </Link>
+        </div>
       </div>
       <Suspense fallback={<PageLoader label="loading scenes" />}>
         <Scenes searchParams={searchParams} />
@@ -28,7 +35,12 @@ export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
 async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["searchParams"] }) {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
-  const [scenes, { saved }] = await Promise.all([listScenes(), searchParams]);
+  const supabase = await createClient();
+  const [scenes, { saved }, { data: suggestions }] = await Promise.all([
+    listScenes(),
+    searchParams,
+    supabase.rpc("scene_suggestions", { p_workspace_id: membership.workspaceId }),
+  ]);
   const savedName = scenes.find((s) => s.id === saved)?.name;
 
   if (!scenes.length) {
@@ -52,6 +64,7 @@ async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["se
     <p role="status" className="text-sm font-medium empty:hidden">
       {savedName ? `Saved ${savedName}.` : ""}
     </p>
+    {suggestions?.length ? <Suggestions items={suggestions} /> : null}
     <ul className="panel rows flex flex-col">
       {nestScenes(scenes).map(({ scene, children }) => (
         <li key={scene.id} className="px-3 py-3">
@@ -75,6 +88,65 @@ async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["se
       ))}
     </ul>
     </div>
+  );
+}
+
+// Scenes whose names point at a town (#234): "LA Punk" → Los Angeles, inside
+// "LA". Nothing moves until someone takes it.
+function Suggestions({
+  items,
+}: {
+  items: { scene_id: string; scene_name: string; town: string | null; parent_name: string | null }[];
+}) {
+  return (
+    <section aria-labelledby="scene-suggestions" className="flex flex-col gap-3 border border-dashed border-strong bg-surface p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 id="scene-suggestions" className="font-medium">
+            {items.length === 1 ? "A scene that looks local" : `${items.length} scenes that look local`}
+          </h2>
+          <p className="text-sm text-muted">
+            Their names point at a town, by name or nickname (PDX, LA, Sactown). Place them to keep them with the
+            town&rsquo;s scene.
+          </p>
+        </div>
+        {items.length > 1 ? (
+          <form action={applySceneSuggestion}>
+            <input type="hidden" name="scene_id" value="all" />
+            <button type="submit" className="button-primary">
+              Place All
+            </button>
+          </form>
+        ) : null}
+      </div>
+      <ul className="rows flex flex-col">
+        {items.map((s) => (
+          <li key={s.scene_id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+            <p className="min-w-0">
+              <span className="font-medium">{s.scene_name}</span>
+              <span className="text-sm text-muted">
+                {" → "}
+                {[s.town, s.parent_name ? `inside ${s.parent_name}` : null].filter(Boolean).join(", ")}
+              </span>
+            </p>
+            <div className="flex gap-2">
+              <form action={applySceneSuggestion}>
+                <input type="hidden" name="scene_id" value={s.scene_id} />
+                <button type="submit" className="button-secondary">
+                  Place<span className="sr-only"> {s.scene_name}</span>
+                </button>
+              </form>
+              <form action={dismissSceneSuggestion}>
+                <input type="hidden" name="scene_id" value={s.scene_id} />
+                <button type="submit" className="button-secondary">
+                  Not This One<span className="sr-only">: {s.scene_name}</span>
+                </button>
+              </form>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
