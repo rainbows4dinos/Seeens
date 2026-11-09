@@ -15,7 +15,7 @@ Read [README.md](README.md) for current scope and delivery targets. For schema, 
 ## Working process
 
 - Keep scope aligned with the README. Historical material in `docs/archive/` is reference only and does not define current requirements.
-- Use the repository's scripts (`npm run lint`, `npm run typecheck`, `npm run build`, and `npm run db:test` for database changes) and keep setup docs in the README current. There is no app test runner yet.
+- Use the repository's scripts (`npm run lint`, `npm run format` then `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`, and `npm run db:test` for database changes) and keep setup docs in the README current.
 - Validate behavior affected by a change. For deployment changes, check production and preview environment configuration and Supabase auth redirect behavior. For UI changes, check mobile layout, keyboard operation, and loading/empty/error states.
 - In handoffs, state what changed, what was checked, and what remains unverified.
 

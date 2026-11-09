@@ -65,7 +65,7 @@ Search by name and filter by status, scene (a bigger scene includes the scenes i
 | Authentication | Supabase Auth |
 | Authorization | Workspace membership enforced through Row Level Security |
 | Fonts | Hanken Grotesk and IBM Plex Mono, self-hosted with Fontsource |
-| CI | GitHub Actions: lint, typecheck, and unit tests on every PR and push to main |
+| CI | GitHub Actions: lint, formatting, typecheck, unit tests, a production build, and the pgTAP database tests on every PR and push to main |
 
 Design tokens live in `src/app/globals.css` and mirror the [Seeens Figma file](https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2). See the [design system rules](docs/design-system/rules.md).
 
@@ -130,6 +130,7 @@ npm run dev                  # http://localhost:3000
 | `npm run dev` | Dev server |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
+| `npm run format` | Prettier, 120 characters (`format:check` is what CI runs). Editors with Prettier format on save the same way. |
 | `npm run typecheck` | Route types + TypeScript |
 | `npm test` | Unit tests (CSV export round-trip, paging past 1,000 rows) |
 | `npm run db:start` / `db:stop` | Local Supabase via the CLI (Docker) |
