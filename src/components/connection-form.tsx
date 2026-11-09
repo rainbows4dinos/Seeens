@@ -14,14 +14,22 @@ import { LinksEditor } from "@/components/links-editor";
 import { ProfilePanel } from "@/components/profile/panel";
 import { BasicInfoFields } from "@/components/profile/basic-info";
 import { Field, invalid } from "@/components/form-field";
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import { GROUP_TYPES, type GroupType } from "@/lib/connections/labels";
 
 type SceneOption = { id: string; name: string; parent_id: string | null };
 type Action = (prev: ConnectionFormState, formData: FormData) => Promise<ConnectionFormState>;
 
-export function ConnectionForm({
+// Next keeps a page you've left alive and reruns its effects when you come
+// back. The Add form starts fresh after each save, so going back to it
+// can't replay the last one's links or reopen it.
+export function ConnectionForm(props: Omit<ComponentProps<typeof FormState>, "onFinished">) {
+  const [round, setRound] = useState(0);
+  return <FormState key={round} {...props} onFinished={() => setRound((r) => r + 1)} />;
+}
+
+function FormState({
   action,
   initial,
   scenes,
@@ -29,6 +37,7 @@ export function ConnectionForm({
   cancelHref,
   photoSlot,
   create,
+  onFinished,
 }: {
   action: Action;
   initial: ConnectionFormValues;
@@ -40,6 +49,7 @@ export function ConnectionForm({
   // The Add page: a photo and links can be picked before the connection
   // exists. They wait here and are added right after it's saved.
   create?: { workspaceId: string; candidates: Candidate[]; photoDefaults: CopierSettings };
+  onFinished: () => void;
 }) {
   const router = useRouter();
   const [photo, setPhoto] = useState<CapturedPhoto | null>(null);
@@ -72,8 +82,10 @@ export function ConnectionForm({
   const created = state.createdId;
   // Saved, and adding the photo and links: keep Save disabled until the page opens.
   const finishing = Boolean(created);
+  const replayed = useRef<string | null>(null);
   useEffect(() => {
-    if (!created || !create) return;
+    if (!created || !create || replayed.current === created) return;
+    replayed.current = created;
     let missedPhoto = false;
     let missedLinks = 0;
     (async () => {
@@ -88,7 +100,11 @@ export function ConnectionForm({
       const q = new URLSearchParams({ saved: "1" });
       if (missedPhoto) q.set("missed_photo", "1");
       if (missedLinks) q.set("missed_links", String(missedLinks));
-      router.push(`/connections/${created}?${q}`);
+      // Open the new page and clear this form together.
+      startTransition(() => {
+        router.push(`/connections/${created}?${q}`);
+        onFinished();
+      });
     })();
     // Runs once per new connection.
     // eslint-disable-next-line react-hooks/exhaustive-deps
