@@ -1174,7 +1174,8 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 16px;
-    background: transparent;
+    /* Neutral tags (Heard of, Not sorted) sit on white, so they read over cards. */
+    background: var(--color-bg-surface);
   }
   .tag-homies {
     background: var(--color-status-homie);
