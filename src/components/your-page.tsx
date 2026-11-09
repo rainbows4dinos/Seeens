@@ -45,8 +45,8 @@ export function YourPage({
       ) : (
         <>
           <p className="-mt-1 text-sm text-muted">
-            Link yourself to your person in {band}&rsquo;s directory, so bandmates know it&rsquo;s you and you can find your
-            page from the menu.
+            Link yourself to your person in the directory, so bandmates know it&rsquo;s you and you can find your page
+            from the menu. If another band already added you, pick that one: you&rsquo;re one person everywhere.
           </p>
           {people.length ? (
             <div className="flex flex-wrap items-end gap-3">

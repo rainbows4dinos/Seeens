@@ -42,6 +42,7 @@ function saveErrors(error: unknown): ConnectionFormState["errors"] {
     return { isUs: "Another connection is already marked as your band." };
   }
   if (e?.message?.includes("a claimed band stays a band")) return { form: "This is your band's listing, so it stays a band." };
+  if (e?.message?.includes("you stay a person")) return { form: "This is you, so it stays a person." };
   return { form: SAVE_FAILED };
 }
 
@@ -270,7 +271,10 @@ export async function autosaveConnection(id: string, groups: string[], formData:
       const own = valid.filter((g) => g in BAND_GROUPS);
       const shared = valid.filter((g) => !(g in BAND_GROUPS));
       if (shared.length) {
-        const canFix = (await isModerator()) || Boolean((await getListingClaim(id))?.mine);
+        const canFix =
+          (await isModerator()) ||
+          Boolean((await getListingClaim(id))?.mine) ||
+          (await getMembership())?.connectionId === id;
         if (shared.some((g) => g === "scenes" || g === "isUs") || !canFix) {
           return { ok: false, errors: { form: "Only the band that shared this can change it." } };
         }

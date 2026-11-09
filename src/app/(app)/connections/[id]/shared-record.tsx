@@ -47,6 +47,7 @@ export function SharedRecord({
   moderator = false,
   claim = null,
   admin = false,
+  you = false,
 }: {
   detail: ConnectionDetail;
   band: string;
@@ -56,9 +57,11 @@ export function SharedRecord({
   moderator?: boolean;
   claim?: ListingClaim | null;
   admin?: boolean;
+  /** Your own person, linked from this band (#68). */
+  you?: boolean;
 }) {
   const ours = Boolean(claim?.mine);
-  const canFix = moderator || ours;
+  const canFix = moderator || ours || you;
   const { connection: c, nextAction, statusHistory } = detail;
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
@@ -125,6 +128,7 @@ export function SharedRecord({
               {ours ? (
                 <span className="tag font-semibold">This is us</span>
               ) : null}
+              {you ? <span className="tag font-semibold">This is you</span> : null}
               {claim?.joined && !ours ? (
                 <span className="tag">Uses Seeens</span>
               ) : null}
@@ -136,6 +140,8 @@ export function SharedRecord({
         <p className="text-sm text-muted">
           {ours
             ? `This is ${band}'s listing. ${detail.sharedBy} added it, and you keep its details up to date; changes are logged.`
+            : you
+              ? `This is you. ${detail.sharedBy} added you, and you keep your details up to date; changes are logged.`
             : moderator
               ? `${detail.sharedBy} shared this. As a moderator you can fix its details; your changes are logged.`
               : `${detail.sharedBy} shared this, so only they can change its details.`}{" "}
@@ -144,7 +150,7 @@ export function SharedRecord({
         </p>
 
         {/* Your own band: no status or outreach with yourself. */}
-        {ours ? null : (
+        {ours || you ? null : (
           <>
             <ProfilePanel
               id="shared-status"
