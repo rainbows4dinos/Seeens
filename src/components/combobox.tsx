@@ -72,6 +72,12 @@ export function Combobox({
     setPrevKey(defaultKey);
     setSelected(defaultValue);
     if (keepPick) setQuery(labelOf(defaultValue[0]));
+    // A new one that's been saved comes back as a real option: drop its
+    // "(new)" chip so it isn't shown, or sent, twice.
+    const saved = new Set(
+      defaultValue.map((v) => options.find((o) => o.value === v)?.label.toLowerCase()).filter(Boolean),
+    );
+    setCreated((c) => c.filter((n) => !saved.has(n.toLowerCase())));
   }
 
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
