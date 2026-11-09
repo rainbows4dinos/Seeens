@@ -43,6 +43,19 @@ const WORDS: [string, string, string][] = [
   ["Send Feedback", "Tell the people building Seeens what broke, confused you, or could be better. Private, never public.", "Header"],
 ];
 
+// In the quick view (#244).
+const SHORTCUTS: [string, string][] = [
+  ["J", "Next listing"],
+  ["K", "Previous listing"],
+  ["1", `Status: ${STATUS_WORDS.band.homies}`],
+  ["2", `Status: ${STATUS_WORDS.band.lets_play}`],
+  ["3", `Status: ${STATUS_WORDS.band.prospect}`],
+  ["4", `Status: ${STATUS_WORDS.band.neutral}`],
+  ["5", `Status: ${STATUS_WORDS.band.avoid}`],
+  ["6", `Status: ${NO_STATUS}`],
+  ["Esc", "Close the quick view"],
+];
+
 // Help (#72's companion, copy from the About and Help doc): statuses, the
 // FAQ, then the rest of the words.
 export default function HelpPage() {
@@ -51,7 +64,7 @@ export default function HelpPage() {
       <div className="flex flex-col gap-2">
         <h1 className="display-l">Help</h1>
         <p className="text-muted">
-          The statuses, common questions, then the words Seeens uses. New here? <Link href="/about" className="link">About Seeens</Link>{" "}
+          The statuses, common questions, the words Seeens uses, then keyboard shortcuts. New here? <Link href="/about" className="link">About Seeens</Link>{" "}
           has the big picture. Still stuck? <Link href="/feedback?kind=confusing" className="link">Tell us what confused you</Link>.
         </p>
         <nav aria-label="On this page" className="flex flex-wrap gap-2 pt-2">
@@ -63,6 +76,9 @@ export default function HelpPage() {
           </a>
           <a href="#words" className="button-secondary">
             Words
+          </a>
+          <a href="#shortcuts" className="button-secondary">
+            Shortcuts
           </a>
         </nav>
       </div>
@@ -147,6 +163,35 @@ export default function HelpPage() {
         </dl>
       </section>
 
+      <section aria-labelledby="shortcuts" className="about-prose">
+        <h2 id="shortcuts" className="display-m">
+          Keyboard shortcuts
+        </h2>
+        <p>
+          For sorting a lot of listings at once. They work while the quick view is open, except when you&rsquo;re
+          typing in a field.
+        </p>
+        <table className="about-table">
+          <thead>
+            <tr>
+              <th scope="col" className="w-24">
+                Key
+              </th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SHORTCUTS.map(([key, what]) => (
+              <tr key={what}>
+                <th scope="row">
+                  <kbd className="keycap">{key}</kbd>
+                </th>
+                <td>{what}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }

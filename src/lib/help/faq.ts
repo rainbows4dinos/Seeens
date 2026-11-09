@@ -13,7 +13,7 @@ export const FAQ: [string, string, FaqLink?][] = [
   ["What's the difference between Homies and Let's Play?", "Homies are your people already. Let's Play means you both want to play together and haven't booked it yet. The table above has all five."],
   ["We've played with them. Why isn't that a status?", "Status is how you feel; Played Together is what happened. You can have played with a band and still mark them Avoid."],
   ["I added someone twice.", "Open one of them and use Merge With, or follow “possible duplicates” in the directory. You pick what to keep, and you can undo for 30 days."],
-  ["Are there keyboard shortcuts?", "In the quick view: J and K go to the next and previous listing, 1 to 6 set the status (Homies through Avoid, then No status), and Esc closes it."],
+  ["Are there keyboard shortcuts?", "Yes, in the quick view: J and K step through listings, 1 to 6 set the status, and Esc closes it.", { href: "/help#shortcuts", label: "All the shortcuts" }],
   ["Can I delete a listing?", "Archive it instead, at the bottom of its page. It leaves the directory but keeps its history, and you can restore it."],
   ["Why can't I edit my bandmate's outreach?", "Outreach is a record of what someone did, so only the person who logged it can change it. Add your own entry instead."],
   ["How do I add my bandmates?", "Band Settings, then Invite a Bandmate. Send it by email or copy a link to text them. Links work once, for 7 days."],
