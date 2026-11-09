@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getMembership, isModerator } from "@/lib/auth/dal";
+import { getListingClaim } from "@/lib/connections/claim";
 import { createClient } from "@/lib/supabase/server";
 import { STATUSES, type ConnectionStatus } from "./labels";
 import { loadPlayedOffer, type PlayedOffer } from "./played-together";
@@ -40,6 +41,7 @@ function saveErrors(error: unknown): ConnectionFormState["errors"] {
   if (e?.code === "23505" && e.message?.includes("connections_one_us_per_workspace")) {
     return { isUs: "Another connection is already marked as your band." };
   }
+  if (e?.message?.includes("a claimed band stays a band")) return { form: "This is your band's listing, so it stays a band." };
   return { form: SAVE_FAILED };
 }
 
@@ -268,7 +270,8 @@ export async function autosaveConnection(id: string, groups: string[], formData:
       const own = valid.filter((g) => g in BAND_GROUPS);
       const shared = valid.filter((g) => !(g in BAND_GROUPS));
       if (shared.length) {
-        if (shared.some((g) => g === "scenes" || g === "isUs") || !(await isModerator())) {
+        const canFix = (await isModerator()) || Boolean((await getListingClaim(id))?.mine);
+        if (shared.some((g) => g === "scenes" || g === "isUs") || !canFix) {
           return { ok: false, errors: { form: "Only the band that shared this can change it." } };
         }
         try {

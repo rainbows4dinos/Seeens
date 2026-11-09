@@ -154,6 +154,9 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
             <Link href="/admin/feedback" className="nav-chip menu-item">
               Feedback Inbox
             </Link>
+            <Link href="/admin/bands" className="nav-chip menu-item">
+              Invite Bands
+            </Link>
             <Link href="/admin/moderators" className="nav-chip menu-item">
               Moderators
             </Link>

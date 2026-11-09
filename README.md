@@ -161,20 +161,9 @@ npx supabase link --project-ref <project-id>
 npx supabase db push --linked
 ```
 
-### Creating the workspace and inviting members
+### Inviting bands and members
 
-Create the band once in the SQL editor, then add its first owner (their account comes from Authentication > Users > Add user, with auto-confirm on):
-
-```sql
-insert into public.workspaces (name) values ('Merwulf') returning id;
-
-insert into public.workspace_members (workspace_id, user_id, role, display_name)
-select '<workspace-id>', id, 'owner', 'Display Name'
-from auth.users where email = 'owner@example.com'
-returning display_name, role;
-```
-
-Without `returning`, the Supabase SQL editor reports 0 rows even when the insert worked.
+Seeens is invite only. App admins invite each band from **Invite Bands** in the account menu (`/admin/bands`), or with the **Invite to Seeens** button on any band listing nobody has claimed yet: pick the band's listing in the directory, or type its name if nobody's added it yet, and add its first owner's email. The owner gets an invite (emailed when email is set up, otherwise a link to send yourself), makes their account on the invite page, and their band claims the listing. A claimed listing shows "Uses Seeens"; the band that added it keeps its own notes and history on it, and the claimed band's members can fix its details (name, town, links, what they can help with), logged as theirs. It stays shared. Bands still waiting on their owner show on the Bands page, with a New Link button if the first one runs out. Someone already in a band can't be invited to another, since Seeens shows one band per person for now.
 
 Everyone else joins from **Band Settings** (account menu > Band Settings). Any member can invite by email or copy a link; only owners can invite owners. Links work once, for 7 days. Someone new makes their account on the invite page, so public sign-ups stay turned off in the Supabase auth settings. Owners change roles, remove members, and rename the band there too, and a band always keeps an owner. Members leave from Account Settings. Each member can link their login to their person in the directory (Account Settings > You > Your Page): pick themselves, or make a page that's added to the band. Linked people show "Uses Seeens" on the band's page, and Your Page appears in the account menu.
 
@@ -201,7 +190,7 @@ With email set up, each app admin gets an email for every new item (reply to ans
 
 - **Members** add records, edit what their band added, and keep their band's own statuses and notes.
 - **Moderators** are trusted people an app admin picks by name under **Moderators** in the account menu (`/admin/moderators`). A new moderator gets an email (when email is set up) and a one-time note in the app explaining the role. They can fix the details of any record other bands share: name, type, town, links, what someone can help with, and venue details. Every moderator edit is logged in `connection_edits`, and the record's band sees "Last fixed by a moderator" on it.
-- **App admins** can do everything moderators can, and make moderators.
+- **App admins** can do everything moderators can, make moderators, and invite bands.
 
 Keep Private follows roles too. A venue, band, or other group can only be kept private by an owner of its band, or a moderator. A person is their own call once they've linked Your Page; until then, the band that added them decides. Changes go through `set_keep_private`, which applies these rules.
 
