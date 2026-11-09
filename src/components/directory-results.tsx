@@ -112,7 +112,9 @@ export function DirectoryResults({
       {sections.map((s) => (
         <section key={s.id} aria-labelledby={`group-${s.id}`} className="flex flex-col gap-2">
           <h2 id={`group-${s.id}`} className="label group-head">
-            <span className={`tag ${s.tag}`}>{s.label}</span> <span className="text-muted">({s.count})</span>
+            <span className="group-chip">
+              <span className={`tag ${s.tag}`}>{s.label}</span> <span className="group-count text-muted">({s.count})</span>
+            </span>
           </h2>
           {layout === "list" ? (
             <ConnectionRows connections={s.rows} today={today} tab={tab} />
