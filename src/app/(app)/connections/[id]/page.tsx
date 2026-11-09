@@ -189,21 +189,24 @@ async function Connection({
           href={directoryHrefFor(c.kind, c.group_type, archived)}
           name={{ text: c.name, headingId: "profile-name" }}
           end={
-            c.is_us ? null : (
-              <KeepPrivate
-                key={String(c.keep_private)}
-                id={c.id}
-                band={membership.workspaceName}
-                initial={c.keep_private}
-                // Groups: band owners; linked people: themselves (#195).
-                locked={keepPrivateLock(c, {
-                  owner: membership.role === "owner",
-                  moderator,
-                  me: user.id,
-                  linked: linkedPeople.get(c.id) ?? null,
-                })}
-              />
-            )
+            <>
+              {admin && !claim ? <InviteBandLink connection={c} /> : null}
+              {c.is_us ? null : (
+                <KeepPrivate
+                  key={String(c.keep_private)}
+                  id={c.id}
+                  band={membership.workspaceName}
+                  initial={c.keep_private}
+                  // Groups: band owners; linked people: themselves (#195).
+                  locked={keepPrivateLock(c, {
+                    owner: membership.role === "owner",
+                    moderator,
+                    me: user.id,
+                    linked: linkedPeople.get(c.id) ?? null,
+                  })}
+                />
+              )}
+            </>
           }
         />
 
@@ -291,7 +294,6 @@ async function Connection({
                 </span>
               ) : null}
             </div>
-            {admin && !claim ? <InviteBandLink connection={c} /> : null}
             {plays.length ? (
               <p className="text-sm">
                 <span className="text-muted">Plays: </span>

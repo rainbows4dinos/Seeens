@@ -20,10 +20,9 @@ export function InviteBandLink({ connection: c }: { connection: Listing }) {
   )
     return null;
   return (
-    <div className="pt-2">
-      <Link href={`/admin/bands?band=${c.id}`} className="button-secondary">
-        Invite to Seeens<span className="sr-only">: {c.name}</span>
-      </Link>
-    </div>
+    <Link href={`/admin/bands?band=${c.id}`} className="button-secondary">
+      Invite<span className="invite-band-more"> to Seeens</span>
+      <span className="sr-only">: {c.name}</span>
+    </Link>
   );
 }
