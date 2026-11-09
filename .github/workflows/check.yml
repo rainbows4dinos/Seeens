@@ -18,6 +18,13 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      # The production build, as Vercel runs it: prerendering catches what
+      # lint and types don't (a client hook reading the URL outside Suspense
+      # broke a deploy in #245). Placeholder values; nothing is fetched.
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
 
   # The pgTAP tests in supabase/tests/database: RLS, the database functions,
   # and what each band can see. They run against a local Supabase (Docker on

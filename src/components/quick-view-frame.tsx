@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, Close } from "@carbon/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import { LogForm } from "@/components/outreach-panel";
-import { createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 // The quick view's shell (#126): an ink title bar with Close, then the body
 // and footer the server renders. Not a dialog: the directory stays usable
@@ -45,37 +45,15 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
       else el.removeAttribute("data-closing");
     }, 150);
   }
-  // Previous and Next (#244): step through the list as it's shown.
-  const { prev, next } = useNeighbors();
-  function go(id: string | null) {
-    if (id) router.replace(`/connections/${id}`, { scroll: false });
-  }
-
   // The panel's status, for the number keys. QuickStatus registers it.
   const statusKeysRef = useRef<StatusSetter | null>(null);
 
-  const onKeyEvent = useEffectEvent((e: KeyboardEvent) => {
-    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
-    // Keys in a field or an open dialog belong to that field or dialog.
-    const t = e.target as HTMLElement | null;
-    if (t?.closest("input, textarea, select, [contenteditable], dialog[open]")) return;
-    if (e.key === "Escape") return close();
-    if (e.shiftKey) return;
-    const key = e.key.toLowerCase();
-    if (key === "j" && next) {
-      e.preventDefault();
-      go(next);
-    } else if (key === "k" && prev) {
-      e.preventDefault();
-      go(prev);
-    } else if (/^[1-6]$/.test(key) && statusKeysRef.current) {
-      e.preventDefault();
-      statusKeysRef.current(KEY_STATUSES[Number(key) - 1]);
-    }
-  });
-
+  const closeOnEscape = useEffectEvent(close);
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => onKeyEvent(e);
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape" || e.defaultPrevented || inField(e)) return;
+      closeOnEscape();
+    }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
@@ -87,28 +65,10 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
           <div className="quick-view-title">
             <span className="font-semibold">Quick view</span>
             <span className="quick-view-buttons">
-              <button
-                type="button"
-                className="quick-view-close"
-                onClick={() => go(prev)}
-                disabled={!prev}
-                title="Previous (K)"
-                aria-keyshortcuts="K"
-              >
-                <ChevronUp size={16} aria-hidden="true" />
-                <span className="sr-only">Previous listing</span>
-              </button>
-              <button
-                type="button"
-                className="quick-view-close"
-                onClick={() => go(next)}
-                disabled={!next}
-                title="Next (J)"
-                aria-keyshortcuts="J"
-              >
-                <ChevronDown size={16} aria-hidden="true" />
-                <span className="sr-only">Next listing</span>
-              </button>
+              {/* It reads the URL, so it waits for the request (cacheComponents). */}
+              <Suspense fallback={<StepButtons />}>
+                <Steps statusKeysRef={statusKeysRef} />
+              </Suspense>
               <button type="button" className="quick-view-close" onClick={close} title="Close (Esc)" aria-keyshortcuts="Escape">
                 <Close size={16} aria-hidden="true" />
                 <span className="sr-only">Close quick view</span>
@@ -222,4 +182,57 @@ function useNeighbors() {
     prev: known.slice(0, was).reverse().find((id) => present.has(id)) ?? null,
     next: known.slice(was + 1).find((id) => present.has(id)) ?? null,
   };
+}
+
+// Keys in a field or an open dialog belong to that field or dialog.
+function inField(e: KeyboardEvent) {
+  const t = e.target as HTMLElement | null;
+  return Boolean(t?.closest("input, textarea, select, [contenteditable], dialog[open]"));
+}
+
+// Previous and Next (#244), with J and K, and 1 to 6 for the status.
+function Steps({ statusKeysRef }: { statusKeysRef: { current: StatusSetter | null } }) {
+  const router = useRouter();
+  const { prev, next } = useNeighbors();
+  function go(id: string | null) {
+    if (id) router.replace(`/connections/${id}`, { scroll: false });
+  }
+
+  const onKeyEvent = useEffectEvent((e: KeyboardEvent) => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || inField(e)) return;
+    const key = e.key.toLowerCase();
+    if (key === "j" && next) {
+      e.preventDefault();
+      go(next);
+    } else if (key === "k" && prev) {
+      e.preventDefault();
+      go(prev);
+    } else if (/^[1-6]$/.test(key) && statusKeysRef.current) {
+      e.preventDefault();
+      statusKeysRef.current(KEY_STATUSES[Number(key) - 1]);
+    }
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => onKeyEvent(e);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  return <StepButtons onPrev={prev ? () => go(prev) : undefined} onNext={next ? () => go(next) : undefined} />;
+}
+
+/** The two buttons; without handlers they're disabled (also the loading state). */
+function StepButtons({ onPrev, onNext }: { onPrev?: () => void; onNext?: () => void }) {
+  return (
+    <>
+      <button type="button" className="quick-view-close" onClick={onPrev} disabled={!onPrev} title="Previous (K)" aria-keyshortcuts="K">
+        <ChevronUp size={16} aria-hidden="true" />
+        <span className="sr-only">Previous listing</span>
+      </button>
+      <button type="button" className="quick-view-close" onClick={onNext} disabled={!onNext} title="Next (J)" aria-keyshortcuts="J">
+        <ChevronDown size={16} aria-hidden="true" />
+        <span className="sr-only">Next listing</span>
+      </button>
+    </>
+  );
 }
