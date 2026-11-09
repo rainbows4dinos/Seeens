@@ -2323,7 +2323,21 @@
     border: var(--stroke-hair) solid var(--color-border-inverse);
     cursor: pointer;
   }
-  .quick-view-close:hover {
+  .quick-view-buttons {
+    display: flex;
+    gap: var(--space-sm);
+  }
+  /* The heading takes focus when a listing opens, so screen readers land
+     there. It's not a control, so no ring. */
+  .quick-view h2[tabindex="-1"]:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .quick-view-close:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .quick-view-close:not(:disabled):hover {
     background: var(--color-bg-surface);
     color: var(--color-text-primary);
   }
