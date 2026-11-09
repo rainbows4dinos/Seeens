@@ -98,9 +98,14 @@ export function LinksPanel({
   usesSeeens?: string[];
 }) {
   const [adding, setAdding] = useState<string | null>(null);
-  // Bands can take a pasted lineup (once they exist).
-  const canPaste = !pending && Boolean(memberIds) && options.some((o) => o.id === "member");
+  // Bands can take a pasted lineup. On the Add form it waits with the other links.
+  const member = options.find((o) => o.id === "member");
+  const canPaste = Boolean(member) && (Boolean(pending) || Boolean(memberIds));
   const waiting = (pending?.items ?? []).filter((p) => options.some((o) => o.id === p.optionId));
+  const waitingMembers = waiting.flatMap((p) => {
+    const other = p.entries.find(([k]) => k === "other_id")?.[1];
+    return p.optionId === "member" && other && other !== "__new__" ? [other] : [];
+  });
   const sections = SECTION_ORDER.map((title) => ({
     title,
     rows: rows.filter((r) => r.section === title),
@@ -178,8 +183,28 @@ export function LinksPanel({
         <PasteLineup
           bandId={subjectId}
           people={candidates.filter((c) => c.kind === "person").map(({ id, name, catalog }) => ({ id, name, catalog }))}
-          memberIds={memberIds ?? []}
-          carry={carry ?? null}
+          memberIds={pending ? waitingMembers : (memberIds ?? [])}
+          carry={pending ? null : (carry ?? null)}
+          onPending={
+            pending && member
+              ? (rows) =>
+                  rows.forEach((r) =>
+                    pending.add({
+                      optionId: member.id,
+                      optionLabel: member.label.replace(/^Add /, ""),
+                      name: r.name,
+                      role: r.roles,
+                      former: r.former,
+                      entries: [
+                        ["other_id", r.personId ?? "__new__"],
+                        ["new_name", r.personId ? "" : r.name],
+                        ["role", r.roles],
+                        ...(r.former ? [["former", "on"] as [string, string]] : []),
+                      ],
+                    }),
+                  )
+              : undefined
+          }
           onDone={() => setAdding(null)}
         />
       ) : null}

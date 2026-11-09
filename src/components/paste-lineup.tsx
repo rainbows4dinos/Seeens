@@ -4,7 +4,7 @@ import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
 import { useId, useRef, useState, useTransition } from "react";
 import { DetachedForm } from "@/components/detached-form";
-import { addBandMembers, type AddMembersResult } from "@/lib/affiliations/actions";
+import { addBandMembers, type AddMembersResult, type MemberRowInput } from "@/lib/affiliations/actions";
 import { CarryFields, hasCarry, pickAll, type Carry } from "@/components/carry-fields";
 import { MAX_NAME_LENGTH, MAX_ROLE_LENGTH, MAX_ROWS, parseLineup } from "@/lib/affiliations/lineup";
 
@@ -30,6 +30,7 @@ export function PasteLineup({
   people,
   memberIds,
   carry = null,
+  onPending,
   onDone,
 }: {
   bandId: string;
@@ -37,6 +38,8 @@ export function PasteLineup({
   memberIds: string[];
   /** What new people can take from the band (#124). */
   carry?: Carry | null;
+  /** On the Add form: hand the rows back to save with the band. */
+  onPending?: (rows: MemberRowInput[]) => void;
   onDone: () => void;
 }) {
   const [pick, setPick] = useState(() => (hasCarry(carry) ? pickAll(carry) : null));
@@ -88,10 +91,21 @@ export function PasteLineup({
       return;
     }
     setError(undefined);
+    const input = picked.map((r) => ({
+      name: r.name.trim(),
+      roles: r.roles.trim(),
+      former: r.former,
+      personId: r.personId || null,
+    }));
+    if (onPending) {
+      onPending(input);
+      onDone();
+      return;
+    }
     startTransition(async () => {
       const result: AddMembersResult = await addBandMembers(
         bandId,
-        picked.map((r) => ({ name: r.name, roles: r.roles, former: r.former, personId: r.personId || null })),
+        input,
         pick,
       ).catch(offline({ ok: false, error: "Couldn't reach Seeens. Nothing was saved; try again." } as AddMembersResult));
       if (result.ok) onDone();
