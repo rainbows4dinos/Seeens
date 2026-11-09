@@ -85,7 +85,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </Link>{" "}
           ·{" "}
           <Link href="/ai" className="link">
-            How Seeens Uses AI
+            Seeens &amp; AI
           </Link>{" "}
           · Town data from{" "}
           <a

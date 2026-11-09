@@ -231,7 +231,7 @@ export default function AboutPage() {
           Sign In
         </Link>
         <Link href="/ai" className="button-secondary">
-          How Seeens Uses AI
+          Seeens &amp; AI
         </Link>
       </footer>
     </main>
