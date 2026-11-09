@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { Checkmark } from "@carbon/icons-react";
+import { ArrowsHorizontal, Checkmark } from "@carbon/icons-react";
 import {
   getCurrentUser,
   getMembership,
@@ -133,13 +133,14 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   const { data: appAdmin } = await (await createClient()).rpc("is_app_admin");
   const name = membership?.displayName ?? user.email ?? "you";
 
-  // Figma account menu (#67): the band, you, then signing out. The band item
+  // Figma account menu (#67): your bands, you, admin (app admins only), Seeens
+  // itself, then signing out. The band item
   // opens our own page, or offers to add it (#123).
   const groups = (
     <>
       {membership ? (
         <div className="menu-group">
-          <p className="caption">Band</p>
+          <p className="caption">{others.length ? "Bands" : "Band"}</p>
           {/* A full page load: a link from here to a connection would otherwise open
               the directory's quick view over an empty page. */}
           <a
@@ -159,19 +160,20 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           {others.map((m) => (
             <form key={m.workspaceId} action={switchBand}>
               <input type="hidden" name="workspace_id" value={m.workspaceId} />
-              <button type="submit" className="nav-chip menu-item w-full">
+              <button type="submit" className="menu-item menu-switch">
                 <span className="sr-only">Switch to </span>
                 {m.workspaceName}
+                <ArrowsHorizontal size={16} aria-hidden="true" />
               </button>
             </form>
           ))}
-          <Link href="/band" className="nav-chip menu-item">
+          <Link href="/band" className="nav-chip menu-item menu-item-after">
             Band Settings
           </Link>
         </div>
       ) : null}
       <div className="menu-group">
-        <p className="caption break-all">Signed in as {name}</p>
+        <p className="caption break-all">You · {name}</p>
         {membership?.connectionId ? (
           <a
             href={`/connections/${membership.connectionId}`}
@@ -183,25 +185,30 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
         <Link href="/account" className="nav-chip menu-item">
           Account Settings
         </Link>
+      </div>
+      {/* App admins only: running Seeens itself. */}
+      {appAdmin ? (
+        <div className="menu-group">
+          <p className="caption">Admin</p>
+          <Link href="/admin/bands" className="nav-chip menu-item">
+            Invite Bands
+          </Link>
+          <Link href="/admin/moderators" className="nav-chip menu-item">
+            Moderators
+          </Link>
+          <Link href="/admin/feedback" className="nav-chip menu-item">
+            Feedback Inbox
+          </Link>
+        </div>
+      ) : null}
+      <div className="menu-group">
+        <p className="caption">Seeens</p>
         <Link href="/help" className="nav-chip menu-item">
           Help
         </Link>
         <Link href="/about" className="nav-chip menu-item">
           About Seeens
         </Link>
-        {appAdmin ? (
-          <>
-            <Link href="/admin/feedback" className="nav-chip menu-item">
-              Feedback Inbox
-            </Link>
-            <Link href="/admin/bands" className="nav-chip menu-item">
-              Invite Bands
-            </Link>
-            <Link href="/admin/moderators" className="nav-chip menu-item">
-              Moderators
-            </Link>
-          </>
-        ) : null}
       </div>
       <SignOutForm
         className="menu-group"
