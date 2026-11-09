@@ -23,6 +23,18 @@ const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   avoid: "Not for you. Hidden from your directory unless you ask to see them.",
 };
 
+// The jump links, in page order: [section id, heading].
+const SECTIONS: [string, string][] = [
+  ["how", "How It Works"],
+  ["feel", "Statuses"],
+  ["do", "Features"],
+  ["shared", "Sharing and Privacy"],
+  ["tidy", "Moderation"],
+  ["faq", "FAQ"],
+  ["who", "Who Made It"],
+  ["beta", "Closed Beta"],
+];
+
 // About (#72's companion, copy from the About and Help doc): public, for
 // people who just got an invite. Three ideas: one shared directory, your
 // band's own layer on it, and Keep Private.
@@ -54,6 +66,13 @@ export default function AboutPage() {
         <Link href="/login" className="button-primary">
           Sign In
         </Link>
+        <nav aria-label="On this page" className="flex flex-wrap gap-2">
+          {SECTIONS.map(([id, label]) => (
+            <a key={id} href={`#${id}`} className="button-secondary">
+              {label}
+            </a>
+          ))}
+        </nav>
       </header>
 
       <section aria-labelledby="how" className="about-prose">

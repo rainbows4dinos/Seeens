@@ -9,6 +9,7 @@ import "@fontsource/ibm-plex-mono/latin-600.css";
 import "@fontsource/reenie-beanie/latin-400.css";
 import "./globals.css";
 import { RESTORE_POINTER_SCRIPT } from "@/lib/saved-pointer";
+import { PressedButton } from "@/components/pressed-button";
 
 export const metadata: Metadata = {
   title: "Seeens",
@@ -22,7 +23,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: RESTORE_POINTER_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <PressedButton />
+      </body>
     </html>
   );
 }

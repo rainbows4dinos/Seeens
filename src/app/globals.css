@@ -648,6 +648,11 @@
   .button-primary:disabled,
   .button-secondary:disabled {
     opacity: 0.6;
+    cursor: default;
+  }
+  /* Only the button you pressed is working (PressedButton). */
+  .button-primary:disabled[data-pressed],
+  .button-secondary:disabled[data-pressed] {
     cursor: progress;
   }
 
