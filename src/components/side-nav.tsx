@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type SideNavSection = { id: string; label: string };
 
@@ -9,6 +9,9 @@ export type SideNavSection = { id: string; label: string };
 export function SideNav({ sections }: { sections: SideNavSection[] }) {
   const [current, setCurrent] = useState<string | null>(null);
   const ids = sections.map((s) => s.id).join(" ");
+  // A clicked link stays marked until you scroll yourself: a short section
+  // near the end can't scroll up to the top, so scrolling alone can't tell.
+  const picked = useRef(false);
 
   useEffect(() => {
     const headings = ids
@@ -26,12 +29,22 @@ export function SideNav({ sections }: { sections: SideNavSection[] }) {
         at = headings.at(-1)?.id ?? at;
       setCurrent(at);
     };
+    const onScroll = () => {
+      if (!picked.current) update();
+    };
+    // Scrolling by hand (wheel, touch, keys, the scrollbar) lets go of a pick.
+    const letGo = () => {
+      picked.current = false;
+    };
     update();
-    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", update);
+    const hand = ["wheel", "touchmove", "keydown", "pointerdown"] as const;
+    for (const e of hand) window.addEventListener(e, letGo, { passive: true });
     return () => {
-      window.removeEventListener("scroll", update);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", update);
+      for (const e of hand) window.removeEventListener(e, letGo);
     };
   }, [ids]);
 
@@ -43,7 +56,15 @@ export function SideNav({ sections }: { sections: SideNavSection[] }) {
       <ul>
         {sections.map((s) => (
           <li key={s.id}>
-            <a href={`#${s.id}`} aria-current={current === s.id ? "location" : undefined}>
+            <a
+              href={`#${s.id}`}
+              aria-current={current === s.id ? "location" : undefined}
+              onClick={() => {
+                // After the pointerdown that let go of any earlier pick.
+                picked.current = true;
+                setCurrent(s.id);
+              }}
+            >
               {s.label}
             </a>
           </li>
