@@ -41,7 +41,7 @@ export default function AiPage() {
 
       <section aria-labelledby="today" className="about-prose">
         <h2 id="today" className="display-m">
-          Today
+          AI in Seeens Today
         </h2>
         <p>
           There&rsquo;s no AI in Seeens. Nothing in the app writes, makes, or guesses anything, and nothing you put in
@@ -52,7 +52,7 @@ export default function AiPage() {
 
       <section aria-labelledby="rules" className="about-prose">
         <h2 id="rules" className="display-m">
-          If that ever changes
+          Our AI Constitution
         </h2>
         <p>These are the rules. If Seeens breaks any of them, call it out.</p>
         <ol>
@@ -66,7 +66,7 @@ export default function AiPage() {
 
       <section aria-labelledby="where" className="about-prose">
         <h2 id="where" className="display-m">
-          What runs where
+          Providers
         </h2>
         <p>
           Nothing, yet. Before any AI feature ships, this section will name each provider, what&rsquo;s sent to it, how
