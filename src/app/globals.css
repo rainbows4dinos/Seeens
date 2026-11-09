@@ -2388,6 +2388,13 @@
       width: 4.5rem;
     }
   }
+  /* Your own listing's photo opens the copier, at the quick view's size. */
+  .quick-view .photo-thumb {
+    width: 5.5rem;
+  }
+  .quick-view .photo-thumb-empty .card-print-initials {
+    font-size: 32px;
+  }
   .quick-view-thumb .row-thumb-initials {
     font-size: 32px;
     line-height: 32px;
@@ -2456,6 +2463,11 @@
   }
   .field-pair > * > [id$="-hint"] {
     margin-top: 4px;
+  }
+  /* Town and scenes stack in the quick view; side by side they're cramped. */
+  .quick-edit .field-pair {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-lg);
   }
 }
 

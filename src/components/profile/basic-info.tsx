@@ -130,30 +130,7 @@ export function BasicInfoFields({
         </div>
       ) : null}
 
-      {/* Town and Scenes line up label, hint, and box (.field-pair). */}
-      <div className="field-pair grid gap-5">
-        <PlaceField
-          initialId={v.placeId ? Number(v.placeId) : null}
-          initialLabel={v.placeText}
-          keepLocalityId={v.keepLocalityId || null}
-          error={errors.placeText}
-        />
-        {sharedOnly ? null : (
-          <Combobox
-            label="Scenes (Optional)"
-            hint="Pick any, or type a new one."
-            name="scene_ids"
-            options={orderScenes(scenes).map((s) => ({
-              value: s.id,
-              label: s.name,
-              depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
-            }))}
-            defaultValue={v.sceneIds}
-            create={{ name: "new_scenes", defaultValue: splitList(v.newScenes), verb: "New Scene" }}
-            error={errors.newScenes}
-          />
-        )}
-      </div>
+      <PlaceAndScenes values={v} scenes={scenes} errors={errors} sharedOnly={sharedOnly} />
 
       {/* Add only. Status is how we relate to others; it doesn't apply to
           us. Hidden, not removed, so the default still submits. */}
@@ -188,6 +165,45 @@ export function BasicInfoFields({
           ) : null}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/** Town and scenes, lined up (.field-pair). Also in the quick view (#253). */
+export function PlaceAndScenes({
+  values: v,
+  scenes,
+  errors,
+  sharedOnly = false,
+}: {
+  values: ConnectionFormValues;
+  scenes: SceneOption[];
+  errors: ConnectionFormErrors;
+  sharedOnly?: boolean;
+}) {
+  return (
+    <div className="field-pair grid gap-5">
+      <PlaceField
+        initialId={v.placeId ? Number(v.placeId) : null}
+        initialLabel={v.placeText}
+        keepLocalityId={v.keepLocalityId || null}
+        error={errors.placeText}
+      />
+      {sharedOnly ? null : (
+        <Combobox
+          label="Scenes (Optional)"
+          hint="Pick any, or type a new one."
+          name="scene_ids"
+          options={orderScenes(scenes).map((s) => ({
+            value: s.id,
+            label: s.name,
+            depth: s.parent_id && scenes.some((p) => p.id === s.parent_id) ? 1 : 0,
+          }))}
+          defaultValue={v.sceneIds}
+          create={{ name: "new_scenes", defaultValue: splitList(v.newScenes), verb: "New Scene" }}
+          error={errors.newScenes}
+        />
+      )}
     </div>
   );
 }

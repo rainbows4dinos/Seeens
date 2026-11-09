@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
-import { getConnection } from "@/lib/connections/queries";
+import { getConnection, toFormValues } from "@/lib/connections/queries";
+import { listSceneOptions } from "@/lib/scenes/queries";
+import { defaultSettings, readSettings } from "@/lib/photos/settings";
+import { PhotoPanel } from "@/components/photo-panel";
+import { QuickPlaceEdit } from "@/components/quick-edit";
 import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { catalogNo, initials } from "@/lib/connections/card";
@@ -25,6 +29,8 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
   const { id } = await params;
   const [detail, user] = await Promise.all([getConnection(id), getCurrentUser()]);
   const { connection: c, nextAction } = detail;
+  // Your band's own listing: photo, town, and scenes change right here.
+  const sceneOptions = detail.mine ? await listSceneOptions() : [];
   const today = todayISO(new Date(), membership.timeZone);
   const place = formatLocality(c.localities);
   const lastEntry = detail.outreach[0];
@@ -33,10 +39,26 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
     <>
       <div className="quick-view-body">
         <header className="flex items-start gap-4">
-          <span className="quick-view-thumb" aria-hidden="true">
-            <span className="row-thumb-initials">{initials(c.name)}</span>
-            {c.photo_path ? <Photo src={photoUrl(c.photo_path, 320)!} alt="" decoding="async" /> : null}
-          </span>
+          {detail.mine ? (
+            <PhotoPanel
+              key={c.id}
+              connectionId={c.id}
+              workspaceId={membership.workspaceId}
+              name={c.name}
+              photoUrl={photoUrl(c.photo_path, 320)}
+              originalUrl={photoUrl(c.photo_original_path)}
+              photoPath={c.photo_path}
+              originalPath={c.photo_original_path}
+              settings={readSettings(c.photo_settings)}
+              alt={c.photo_alt}
+              defaults={defaultSettings(c.status, c.is_us)}
+            />
+          ) : (
+            <span className="quick-view-thumb" aria-hidden="true">
+              <span className="row-thumb-initials">{initials(c.name)}</span>
+              {c.photo_path ? <Photo src={photoUrl(c.photo_path, 320)!} alt="" decoding="async" /> : null}
+            </span>
+          )}
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <QuickViewHeading id={c.id}>{c.name}</QuickViewHeading>
             <p className="text-sm text-muted">{[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}</p>
@@ -57,6 +79,10 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
             ) : null}
           </div>
         </header>
+
+        {detail.mine ? (
+          <QuickPlaceEdit key={c.id} connectionId={c.id} values={toFormValues(c)} scenes={sceneOptions} />
+        ) : null}
 
         {/* Status, plans, and outreach are about other people, not us. */}
         {c.is_us ? null : (
