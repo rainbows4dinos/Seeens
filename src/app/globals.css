@@ -969,9 +969,13 @@
     top: 50%;
     right: 13px;
     translate: 0 -50%;
-    /* Figma Keyboard Hint: 16 tall, 4px each side inside the border, the
-       text trimmed to its cap height. */
-    display: flex;
+    pointer-events: none;
+  }
+  /* Figma Keyboard Hint: 16 tall, 4px each side inside the border, the
+     text trimmed to its cap height. Also the keys on Help. */
+  .search-hint,
+  .keycap {
+    display: inline-flex;
     align-items: center;
     height: 16px;
     padding: 0 4px;
@@ -985,7 +989,6 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--color-text-secondary);
-    pointer-events: none;
   }
 
   /* With a value, the keycap moves left and the clear button takes the edge. */
