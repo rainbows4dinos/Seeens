@@ -897,6 +897,20 @@
       }
     }
   }
+  /* Status headings (Homies, Let's play…) pin under the pinned bar, each
+     within its own section, so the next one pushes it away. --bar-h is the
+     bar's height (StickyGroups). Edge to edge like the bar; solid ground
+     only while pinned. The padding is taken back out of the layout. */
+  .group-head {
+    position: sticky;
+    top: calc(var(--header-h) - 1px + var(--bar-h, 0px));
+    z-index: 9;
+    margin: -8px calc(-1 * var(--gutter));
+    padding: 8px var(--gutter);
+  }
+  .group-head[data-pinned] {
+    background: var(--color-bg-ground);
+  }
   :is(.directory-bar, .bar-search)[data-pinned] {
     background: var(--color-bg-ground);
     box-shadow: inset 0 calc(-1 * var(--stroke-hair)) 0 var(--color-border-strong);

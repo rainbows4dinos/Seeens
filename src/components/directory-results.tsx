@@ -13,6 +13,7 @@ import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/direc
 import { detailFor, wordSetForTab, type Tab } from "@/lib/connections/tabs";
 import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality, formatType, playedWords } from "@/lib/connections/labels";
 import { catalogNo, initials } from "@/lib/connections/card";
+import { StickyGroups } from "@/components/sticky-groups";
 
 // The directory's rows or cards, grouped by status, a page at a time.
 // "Show More" fetches the next page and appends it in place; a group that
@@ -107,9 +108,10 @@ export function DirectoryResults({
 
   return (
     <>
+      <StickyGroups />
       {sections.map((s) => (
         <section key={s.id} aria-labelledby={`group-${s.id}`} className="flex flex-col gap-2">
-          <h2 id={`group-${s.id}`} className="label">
+          <h2 id={`group-${s.id}`} className="label group-head">
             <span className={`tag ${s.tag}`}>{s.label}</span> <span className="text-muted">({s.count})</span>
           </h2>
           {layout === "list" ? (
