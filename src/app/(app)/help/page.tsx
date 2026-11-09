@@ -57,28 +57,28 @@ const SHORTCUTS: [string, string][] = [
 ];
 
 // Help (#72's companion, copy from the About and Help doc): statuses, the
-// FAQ, then the rest of the words.
+// rest of the words, shortcuts, then the FAQ.
 export default function HelpPage() {
   return (
     <div className="page-measure flex flex-col gap-12">
       <div className="flex flex-col gap-2">
         <h1 className="display-l">Help</h1>
         <p className="text-muted">
-          The statuses, common questions, the words Seeens uses, then keyboard shortcuts. New here? <Link href="/about" className="link">About Seeens</Link>{" "}
+          The statuses, the words Seeens uses, keyboard shortcuts, then common questions. New here? <Link href="/about" className="link">About Seeens</Link>{" "}
           has the big picture. Still stuck? <Link href="/feedback?kind=confusing" className="link">Tell us what confused you</Link>.
         </p>
         <nav aria-label="On this page" className="flex flex-wrap gap-2 pt-2">
           <a href="#statuses" className="button-secondary">
             Statuses
           </a>
-          <a href="#faq" className="button-secondary">
-            FAQ
-          </a>
           <a href="#words" className="button-secondary">
             Words
           </a>
           <a href="#shortcuts" className="button-secondary">
             Shortcuts
+          </a>
+          <a href="#faq" className="button-secondary">
+            FAQ
           </a>
         </nav>
       </div>
@@ -119,31 +119,6 @@ export default function HelpPage() {
               </tr>
             </tbody>
           </table>
-        </div>
-      </section>
-
-      <section aria-labelledby="faq" className="about-prose">
-        <h2 id="faq" className="display-m">
-          FAQ
-        </h2>
-        <div className="help-faq">
-          {FAQ.map(([q, a, link]) => (
-            <details key={q}>
-              <summary>{q}</summary>
-              <p>
-                {a}
-                {link ? (
-                  <>
-                    {" "}
-                    <Link href={link.href} className="link">
-                      {link.label}
-                    </Link>
-                    .
-                  </>
-                ) : null}
-              </p>
-            </details>
-          ))}
         </div>
       </section>
 
@@ -191,6 +166,31 @@ export default function HelpPage() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section aria-labelledby="faq" className="about-prose">
+        <h2 id="faq" className="display-m">
+          FAQ
+        </h2>
+        <div className="help-faq">
+          {FAQ.map(([q, a, link]) => (
+            <details key={q}>
+              <summary>{q}</summary>
+              <p>
+                {a}
+                {link ? (
+                  <>
+                    {" "}
+                    <Link href={link.href} className="link">
+                      {link.label}
+                    </Link>
+                    .
+                  </>
+                ) : null}
+              </p>
+            </details>
+          ))}
+        </div>
       </section>
     </div>
   );
