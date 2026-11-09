@@ -11,8 +11,10 @@ export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);
   const { pathname, search } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.includes(pathname);
-  // Invite links (#69) work signed in or out.
-  if (OPEN_PATHS.includes(pathname) || pathname.startsWith("/invite/")) return response;
+  // Invite links (#69) work signed in or out, and so do the sign-in
+  // preview's photos (#255), which check each listing themselves.
+  if (OPEN_PATHS.includes(pathname) || pathname.startsWith("/invite/") || pathname.startsWith("/api/preview-photos/"))
+    return response;
 
   if (!userId && !isPublic) {
     const login = new URL("/login", request.url);

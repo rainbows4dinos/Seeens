@@ -2477,6 +2477,72 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Sign in (#255): the form, and from 64rem a wall of real cards drifting up
+   beside it (Figma Login / Desktop). Two columns, the second a touch slower.
+   --------------------------------------------------------------------------- */
+@layer components {
+  .login-page {
+    display: flex;
+    flex: 1;
+    width: 100%;
+  }
+  .login-side {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px var(--space-lg);
+  }
+  .preview-wall {
+    display: none;
+  }
+  @media (width >= 64rem) {
+    .login-page.has-preview .login-side {
+      flex: 0 0 50%;
+    }
+    .preview-wall {
+      position: sticky;
+      top: 0;
+      display: flex;
+      gap: 20px;
+      height: 100dvh;
+      overflow: hidden;
+      padding: 0 var(--space-xl);
+    }
+  }
+  .preview-column {
+    flex: none;
+    width: 200px;
+  }
+  /* Starts mid-card, so the two columns don't line up. */
+  .preview-column + .preview-column {
+    margin-top: -140px;
+  }
+  /* Each card carries its own gap below it, so half the track is exactly one
+     full set and the loop has no seam. */
+  .preview-track {
+    animation: preview-drift var(--preview-duration, 120s) linear infinite;
+  }
+  .preview-track > * {
+    margin-bottom: 28px;
+  }
+  @keyframes preview-drift {
+    to {
+      translate: 0 -50%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preview-track {
+      animation: none;
+    }
+  }
+  .preview-card {
+    pointer-events: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Busy: the metronome (Figma: Metronome Loader, Page Loader). The dial swings
    45° each way at 120 BPM; the dots keep time with it.
    --------------------------------------------------------------------------- */

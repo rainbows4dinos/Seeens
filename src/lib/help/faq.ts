@@ -12,7 +12,7 @@ export const FAQ: [string, string, FaqLink?][] = [
   ],
   [
     "Who can see what I add?",
-    "Bands, venues, labels, and the rest are seen by every band on Seeens (their name, type, town, links, and photo), unless you set them to Keep Private. People start private: only your band sees a person you add, until you share them. Your status, notes, contacts, and plans are only ever seen by your band.",
+    "Bands, venues, labels, and the rest are seen by every band on Seeens (their name, type, town, links, and photo), unless you set them to Keep Private. People start private: only your band sees a person you add, until you share them. Shared bands and venues with photos can also show up on the sign-in page, for anyone; Keep Private takes them off. Your status, notes, contacts, and plans are only ever seen by your band.",
   ],
   [
     "Can another band change something we added?",
