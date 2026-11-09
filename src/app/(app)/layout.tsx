@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { Checkmark } from "@carbon/icons-react";
-import { getCurrentUser, getMembership, getUsConnection } from "@/lib/auth/dal";
+import {
+  getCurrentUser,
+  getMembership,
+  getMemberships,
+  getUsConnection,
+} from "@/lib/auth/dal";
+import { switchBand } from "@/lib/auth/band-switch";
 import { initials } from "@/lib/connections/card";
 import { photoUrl } from "@/lib/photos/urls";
 import { AccountMenu } from "@/components/account-menu";
@@ -28,7 +34,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Link href="/" className="logo">
                 {/* Figma Logo component: the hand-set wordmark with its cyan misregister and rub-down. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
+                <img
+                  src="/brand/seeens-logo.svg"
+                  alt="Seeens"
+                  width={75}
+                  height={18}
+                />
                 {/* Everyone is a tester for now (#71). */}
                 <span className="logo-beta">Beta</span>
               </Link>
@@ -48,7 +59,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <MobileMenu>
             <MainNav layout="menu" />
             <FeedbackLink className="nav-chip w-full justify-end" />
-            <Suspense fallback={<span className="caption self-end">Loading…</span>}>
+            <Suspense
+              fallback={<span className="caption self-end">Loading…</span>}
+            >
               <Account layout="menu" />
             </Suspense>
           </MobileMenu>
@@ -75,7 +88,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             How Seeens Uses AI
           </Link>{" "}
           · Town data from{" "}
-          <a href="https://www.geonames.org/" className="link" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://www.geonames.org/"
+            className="link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             GeoNames
           </a>{" "}
           (
@@ -106,6 +124,11 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   // The header shouldn't take the page down if the workspace can't load;
   // the page's own error state explains what happened.
   const membership = await getMembership().catch(() => null);
+  const others = membership
+    ? (await getMemberships().catch(() => [])).filter(
+        (m) => m.workspaceId !== membership.workspaceId,
+      )
+    : [];
   const us = membership ? await getUsConnection() : null;
   const { data: appAdmin } = await (await createClient()).rpc("is_app_admin");
   const name = membership?.displayName ?? user.email ?? "you";
@@ -122,12 +145,26 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           <a
             href={us ? `/connections/${us.id}` : "/add?us=1"}
             className="nav-chip nav-chip-inverse menu-item"
-            aria-label={us ? `${membership.workspaceName}, your band's page` : `${membership.workspaceName}: add your band's page`}
+            aria-label={
+              us
+                ? `${membership.workspaceName}, your band's page`
+                : `${membership.workspaceName}: add your band's page`
+            }
           >
             {membership.workspaceName}
             <Checkmark size={16} aria-hidden="true" />
             <span className="sr-only"> (current band)</span>
           </a>
+          {/* Your other bands (#68): pick one to switch. */}
+          {others.map((m) => (
+            <form key={m.workspaceId} action={switchBand}>
+              <input type="hidden" name="workspace_id" value={m.workspaceId} />
+              <button type="submit" className="nav-chip menu-item w-full">
+                <span className="sr-only">Switch to </span>
+                {m.workspaceName}
+              </button>
+            </form>
+          ))}
           <Link href="/band" className="nav-chip menu-item">
             Band Settings
           </Link>
@@ -136,7 +173,10 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
       <div className="menu-group">
         <p className="caption break-all">Signed in as {name}</p>
         {membership?.connectionId ? (
-          <a href={`/connections/${membership.connectionId}`} className="nav-chip menu-item">
+          <a
+            href={`/connections/${membership.connectionId}`}
+            className="nav-chip menu-item"
+          >
             Your Page
           </a>
         ) : null}
@@ -163,7 +203,10 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           </>
         ) : null}
       </div>
-      <SignOutForm className="menu-group" buttonClassName="nav-chip menu-item" />
+      <SignOutForm
+        className="menu-group"
+        buttonClassName="nav-chip menu-item"
+      />
     </>
   );
 

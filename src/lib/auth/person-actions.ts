@@ -19,12 +19,20 @@ async function band() {
 
 export async function linkMe(connectionId: string): Promise<LinkState> {
   const m = await band();
-  if (!UUID.test(connectionId)) return { error: "Pick yourself from the list." };
+  if (!UUID.test(connectionId))
+    return { error: "Pick yourself from the list." };
   const supabase = await createClient();
-  const { error } = await supabase.rpc("link_me_to_person", { p_workspace_id: m.workspaceId, p_connection_id: connectionId });
+  const { error } = await supabase.rpc("link_me_to_person", {
+    p_workspace_id: m.workspaceId,
+    p_connection_id: connectionId,
+  });
   if (error) {
-    if (error.message?.includes("someone else")) return { error: "That person is already linked to a bandmate's account." };
-    if (error.message?.includes("not a person")) return { error: "Pick a person, not a band or venue." };
+    if (error.message?.includes("someone else"))
+      return {
+        error: "That person is already linked to a bandmate's account.",
+      };
+    if (error.message?.includes("not a person"))
+      return { error: "Pick a person, not a band or venue." };
     return { error: "Couldn't link it. Try again." };
   }
   revalidatePath("/", "layout");
@@ -34,7 +42,9 @@ export async function linkMe(connectionId: string): Promise<LinkState> {
 export async function unlinkMe(): Promise<LinkState> {
   const m = await band();
   const supabase = await createClient();
-  const { error } = await supabase.rpc("unlink_me", { p_workspace_id: m.workspaceId });
+  const { error } = await supabase.rpc("unlink_me", {
+    p_workspace_id: m.workspaceId,
+  });
   if (error) return { error: "Couldn't unlink it. Try again." };
   revalidatePath("/", "layout");
   return {};
@@ -44,9 +54,12 @@ export async function unlinkMe(): Promise<LinkState> {
 export async function makeMyPage(): Promise<LinkState> {
   const m = await band();
   const supabase = await createClient();
-  const { data: id, error } = await supabase.rpc("create_my_person", { p_workspace_id: m.workspaceId });
+  const { data: id, error } = await supabase.rpc("create_my_person", {
+    p_workspace_id: m.workspaceId,
+  });
   if (error || !id) {
-    if (error?.message?.includes("already linked")) return { error: "You already have a page. Unlink it first." };
+    if (error?.message?.includes("already linked"))
+      return { error: "You already have a page. Unlink it first." };
     return { error: "Couldn't make your page. Try again." };
   }
   revalidatePath("/", "layout");
