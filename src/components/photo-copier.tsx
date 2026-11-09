@@ -355,9 +355,9 @@ function CopierBody({
             </div>
           )}
           <p className="caption text-muted">
-            Not AI, just a shader effect.
-            <br />
             Photos of people: press shots, or ones taken with their OK. Location data is removed before upload.
+            <br />
+            Not AI, just a shader effect.
           </p>
         </div>
 
