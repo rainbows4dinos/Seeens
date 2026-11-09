@@ -66,8 +66,8 @@ select throws_ok($$ select * from public.invite_band(null, 'Another', 'not-an-em
   '22023', 'not an email address', 'a bad address');
 
 -- Before anyone joins, nobody has claimed it yet as far as others can tell.
-select is((select count(*)::int from public.listing_claim('5bcccccc-0000-0000-0000-000000000002')), 0,
-  'no "Uses Seeens" until the band has members');
+select is((select joined from public.listing_claim('5bcccccc-0000-0000-0000-000000000002')), false,
+  'claimed, but nobody has joined yet');
 
 -- A band that isn't listed gets a listing of its own.
 insert into t select 'b2', workspace_id || '|' || token from public.invite_band(null, ' Link Band ', null, null);
@@ -87,8 +87,8 @@ select is((select count(*)::int from public.invite_preview((select split_part(v,
 -- The owner joins.
 select set_config('request.jwt.claims', '{"sub":"5b333333-3333-3333-3333-333333333333","role":"authenticated"}', true);
 select lives_ok($$ select public.accept_invite((select v from t where k = 'r1'), 'Nell') $$, 'the owner accepts');
-select is((select band || ' ' || mine from public.listing_claim('5bcccccc-0000-0000-0000-000000000002')),
-  'Wet Paint true', 'their band claims the listing');
+select is((select band || ' ' || mine || ' ' || joined from public.listing_claim('5bcccccc-0000-0000-0000-000000000002')),
+  'Wet Paint true true', 'their band claims the listing');
 
 -- They fix their listing's details, logged as theirs.
 select lives_ok($$ select public.moderate_connection('5bcccccc-0000-0000-0000-000000000002', 'Wet Paint!', 'group', '{}', 'band',
@@ -102,8 +102,8 @@ select is((select (public.set_keep_private(array['5bcccccc-0000-0000-0000-000000
 
 -- Home Band sees who uses it, and who fixed it.
 select set_config('request.jwt.claims', '{"sub":"5b222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
-select is((select band || ' ' || mine from public.listing_claim('5bcccccc-0000-0000-0000-000000000002')),
-  'Wet Paint false', 'the band that added it sees it''s claimed');
+select is((select band || ' ' || mine || ' ' || joined from public.listing_claim('5bcccccc-0000-0000-0000-000000000002')),
+  'Wet Paint false true', 'the band that added it sees it''s claimed');
 select is((select by_band from public.connection_edits where connection_id = '5bcccccc-0000-0000-0000-000000000002'),
   'Wet Paint', 'the fix is logged as the band''s');
 select is((select name from public.connections where id = '5bcccccc-0000-0000-0000-000000000002'), 'Wet Paint!',

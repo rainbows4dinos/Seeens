@@ -30,6 +30,8 @@ import { KeepPrivate } from "@/components/keep-private";
 import { ProfilePanel } from "@/components/profile/panel";
 import { QuickStatus } from "@/components/quick-status";
 import { Facts } from "@/components/quick-view";
+import { InviteBandLink } from "@/components/invite-band-link";
+import type { ListingClaim } from "@/lib/connections/claim";
 
 // Another band's record (#185). The record itself is theirs: shown, not
 // edited. What this band thinks and plans is its own, here as anywhere:
@@ -44,6 +46,7 @@ export function SharedRecord({
   tz,
   moderator = false,
   claim = null,
+  admin = false,
 }: {
   detail: ConnectionDetail;
   band: string;
@@ -51,7 +54,8 @@ export function SharedRecord({
   today: string;
   tz: string;
   moderator?: boolean;
-  claim?: { band: string; mine: boolean } | null;
+  claim?: ListingClaim | null;
+  admin?: boolean;
 }) {
   const ours = Boolean(claim?.mine);
   const canFix = moderator || ours;
@@ -118,9 +122,12 @@ export function SharedRecord({
               {ours ? (
                 <span className="tag font-semibold">This is us</span>
               ) : null}
-              {claim && !ours ? <span className="tag">Uses Seeens</span> : null}
+              {claim?.joined && !ours ? (
+                <span className="tag">Uses Seeens</span>
+              ) : null}
               <span className="tag">From {detail.sharedBy}</span>
             </div>
+            {admin && !claim ? <InviteBandLink connection={c} /> : null}
           </div>
         </header>
 

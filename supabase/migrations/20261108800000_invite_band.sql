@@ -63,20 +63,20 @@ $$;
 revoke all on function private.my_claim_band from public;
 grant execute on function private.my_claim_band to authenticated;
 
--- Who has claimed a listing you can see: the band (once it has members),
--- and whether it's yours.
+-- Who has claimed a listing you can see: the band, whether it's yours, and
+-- whether anyone has joined it yet (until then, its invite is waiting).
 create function public.listing_claim(p_connection_id uuid)
-returns table (band text, mine boolean)
+returns table (band text, mine boolean, joined boolean)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select w.name, w.id in (select private.my_workspace_ids())
+  select w.name, w.id in (select private.my_workspace_ids()),
+    exists (select 1 from public.workspace_members m where m.workspace_id = w.id)
   from public.workspaces w
   where w.listing_id = p_connection_id
     and private.can_see_connection(p_connection_id)
-    and exists (select 1 from public.workspace_members m where m.workspace_id = w.id)
 $$;
 revoke all on function public.listing_claim from public, anon;
 grant execute on function public.listing_claim to authenticated;
