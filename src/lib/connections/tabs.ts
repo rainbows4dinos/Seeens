@@ -10,8 +10,8 @@ export const TABS: { id: Tab; label: string; one: string; many: string; add: str
   { id: "bands", label: "Bands", one: "band", many: "bands", add: "Add Band", addType: "band" },
   { id: "people", label: "People", one: "person", many: "people", add: "Add Person", addType: "person" },
   { id: "venues", label: "Venues", one: "venue", many: "venues", add: "Add Venue", addType: "venue" },
-  { id: "more", label: "Labels & more", one: "connection", many: "connections", add: "Add Label", addType: "label" },
-  { id: "all", label: "All", one: "connection", many: "connections", add: "Add Connection", addType: null },
+  { id: "more", label: "Labels & more", one: "listing", many: "listings", add: "Add Label", addType: "label" },
+  { id: "all", label: "All", one: "listing", many: "listings", add: "Add Listing", addType: null },
 ];
 export const DEFAULT_TAB: Tab = "bands";
 
