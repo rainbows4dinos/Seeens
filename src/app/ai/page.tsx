@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "How Seeens Uses AI · Seeens",
+  title: "Where Seeens Stands on AI · Seeens",
   description: "There's no AI in Seeens. If that ever changes, these are the rules.",
 };
 
@@ -29,7 +29,7 @@ export default function AiPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
         </Link>
-        <h1 className="display-l sm:display-xl">How Seeens uses AI</h1>
+        <h1 className="display-l sm:display-xl">Where Seeens Stands on AI</h1>
         <div className="about-prose">
           <p>
             A lot of the DIY scene wants nothing to do with AI, and for good reasons: slop, art taken without consent,
