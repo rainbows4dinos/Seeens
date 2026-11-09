@@ -297,3 +297,7 @@ delete from public.connection_status_changes where workspace_id = 'aaaaaaaa-0000
 
 -- Alex runs Seeens locally, so the feedback inbox (#71) has someone to show.
 insert into public.app_admins (user_id) values ('11111111-1111-1111-1111-111111111111');
+
+-- The seeded bands aren't new: Getting Started (#68) is put away for them.
+-- (Clear it for yourself to try the checklist.)
+update public.workspace_members set getting_started_dismissed_at = now();

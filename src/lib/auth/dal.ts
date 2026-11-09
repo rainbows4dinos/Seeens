@@ -90,9 +90,10 @@ export async function requireWorkspaceId(): Promise<string> {
   return membership.workspaceId;
 }
 
-// The connection marked "This is us" in the current workspace, if there is
-// one: the header's band item opens it (#123), and its photo is the account
-// menu's picture. Archived still counts.
+// The band's own page: the connection marked "This is us" in the current
+// workspace, or the listing it claimed (#68), if there is one. The header's
+// band item opens it (#123), and its photo is the account menu's picture.
+// Archived still counts.
 export const getUsConnection = cache(
   async (): Promise<{ id: string; photoPath: string | null } | null> => {
     const membership = await getMembership();
@@ -105,8 +106,20 @@ export const getUsConnection = cache(
       .eq("is_us", true)
       .limit(1)
       .maybeSingle();
-    if (error || !data) return null;
-    return { id: data.id, photoPath: data.photo_path };
+    if (!error && data) return { id: data.id, photoPath: data.photo_path };
+    // A band that claimed a listing another band added (#68): that's its page.
+    const { data: band } = await supabase
+      .from("workspaces")
+      .select("listing_id")
+      .eq("id", membership.workspaceId)
+      .maybeSingle();
+    if (!band?.listing_id) return null;
+    const { data: listing } = await supabase
+      .from("connections")
+      .select("id, photo_path")
+      .eq("id", band.listing_id)
+      .maybeSingle();
+    return listing ? { id: listing.id, photoPath: listing.photo_path } : null;
   },
 );
 
