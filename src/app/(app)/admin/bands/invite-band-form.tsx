@@ -33,6 +33,9 @@ export function InviteBandForm({
   const [fixed, setFixed] = useState(preset);
   const [listing, setListing] = useState(preset?.value ?? "");
   const [newBand, setNewBand] = useState("");
+  // What's typed in the picker: a band that isn't listed, without having to
+  // choose "New Band" (if it is listed, the server says to pick it).
+  const [typed, setTyped] = useState("");
   // A new picker after each invite, so the last pick doesn't linger.
   const [round, setRound] = useState(0);
   const [prevLink, setPrevLink] = useState(state.link);
@@ -40,10 +43,12 @@ export function InviteBandForm({
     setPrevLink(state.link);
     setListing("");
     setNewBand("");
+    setTyped("");
     setFixed(undefined);
     setRound((r) => r + 1);
   }
-  const picked = Boolean(listing || newBand);
+  const band = listing ? "" : newBand || typed.trim();
+  const picked = Boolean(listing || band);
 
   return (
     <form action={action} className="flex flex-col gap-4">
@@ -80,18 +85,25 @@ export function InviteBandForm({
             </div>
           </div>
         ) : (
-          <Combobox
-            key={round}
-            label="Band"
-            options={bands}
-            multiple={false}
-            placeholder="Find a band"
-            create={{ verb: "New Band" }}
-            onChange={(values, created) => {
-              setListing(values[0] ?? "");
-              setNewBand(values[0] ? "" : (created[0] ?? ""));
+          <div
+            onInput={(e) => {
+              const t = e.target as HTMLInputElement;
+              if (t.getAttribute("role") === "combobox") setTyped(t.value);
             }}
-          />
+          >
+            <Combobox
+              key={round}
+              label="Band"
+              options={bands}
+              multiple={false}
+              placeholder="Find a band"
+              create={{ verb: "New Band" }}
+              onChange={(values, created) => {
+                setListing(values[0] ?? "");
+                setNewBand(values[0] ? "" : (created[0] ?? ""));
+              }}
+            />
+          </div>
         )}
         <div className="flex flex-col gap-2">
           <label htmlFor="owner-email" className="label">
@@ -121,7 +133,7 @@ export function InviteBandForm({
         </div>
       </div>
       <input type="hidden" name="listing_id" value={listing} />
-      <input type="hidden" name="new_band" value={newBand} />
+      <input type="hidden" name="new_band" value={band} />
       <Note state={state} />
       {state.link ? <LinkBox link={state.link} /> : null}
       <div className="flex flex-wrap gap-3">
