@@ -223,7 +223,8 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   return (
     <AccountMenu
       band={membership?.workspaceName ?? null}
-      member={name}
+      // First name only, to keep the header short; the menu has the full name.
+      member={name.trim().split(/\s+/)[0] || name}
       picture={
         <span className="account-avatar" aria-hidden="true">
           <span>{initials(name)}</span>
