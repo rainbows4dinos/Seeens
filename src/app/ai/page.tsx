@@ -33,8 +33,8 @@ export default function AiPage() {
         <div className="about-prose">
           <p>
             A lot of the DIY scene wants nothing to do with AI, and for good reasons: slop, art taken without consent,
-            companies run by a few rich people, and data centers eating power and water. Seeens agrees with most of
-            that.
+            companies run by a few rich people, and data centers eating power and water. Seeens agrees with every one
+            of those. Seeens also believes that there are ethical, and even revolutionary, ways to use AI.
           </p>
         </div>
       </header>
