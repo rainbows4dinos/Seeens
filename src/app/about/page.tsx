@@ -57,7 +57,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="how" className="about-prose">
         <h2 id="how" className="display-m">
-          How it works
+          How It Works
         </h2>
         <ol>
           <li>
@@ -83,7 +83,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="feel" className="about-prose">
         <h2 id="feel" className="display-m">
-          How you feel about them
+          Statuses
         </h2>
         <p>
           Every listing can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
@@ -121,7 +121,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="do" className="about-prose">
         <h2 id="do" className="display-m">
-          What you can do with it
+          Features
         </h2>
         <ul>
           <li>Find the venues, bands, and people other bands already know, and add the ones you know.</li>
@@ -134,7 +134,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="shared" className="about-prose">
         <h2 id="shared" className="display-m">
-          What&rsquo;s shared, what&rsquo;s yours
+          Sharing and Privacy
         </h2>
         <div className="overflow-x-auto">
           <table className="about-table">
@@ -173,7 +173,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="tidy" className="about-prose">
         <h2 id="tidy" className="display-m">
-          Who keeps it tidy
+          Moderation
         </h2>
         <p>
           Any band can add to Seeens, and the band that added a listing looks after it. Moderators, trusted people from
@@ -208,7 +208,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="who" className="about-prose">
         <h2 id="who" className="display-m">
-          Who&rsquo;s behind it
+          Who Made It
         </h2>
         <p>
           Seeens was created by Larry Reynolds, a designer and developer who plays in Merwulf, a post-punk trio in
@@ -218,7 +218,7 @@ export default function AboutPage() {
 
       <section aria-labelledby="beta" className="about-prose">
         <h2 id="beta" className="display-m">
-          It&rsquo;s a beta
+          Closed Beta
         </h2>
         <p>
           Seeens is in a closed beta. Everyone using it is a tester, so things will change, and what you tell us
