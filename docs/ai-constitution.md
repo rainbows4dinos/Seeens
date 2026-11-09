@@ -4,7 +4,7 @@ Status: draft, November 1, 2026. Written to publish to users as a plain page, an
 
 ## Why this exists
 
-A lot of the DIY scene wants nothing to do with AI, and for good reasons: slop, art taken without consent, companies run by a few rich people, and data centers eating power and water. Seeens agrees with most of that.
+A lot of the DIY scene wants nothing to do with AI, and for good reasons: slop, art taken without consent, companies run by a few rich people, and data centers eating power and water. Seeens agrees with every one of those. Seeens also believes that there are ethical, and even revolutionary, ways to use AI.
 
 Seeens is a directory. It helps bands keep track of who they know. A few tasks, like reading a flyer or looking up a band, can use AI to save typing. This page lists what Seeens will and won't do with it. If we break any of these, call us on it.
 
