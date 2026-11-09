@@ -2508,16 +2508,30 @@
       gap: 20px;
       height: 100dvh;
       overflow: hidden;
+      flex: 1;
+      min-width: 0;
       padding: 0 var(--space-xl);
     }
   }
+  /* The two columns share the half they're in, so the cards grow and shrink
+     with the window instead of leaving a gap. */
   .preview-column {
-    flex: none;
-    width: 200px;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 400px;
   }
-  /* Starts mid-card, so the two columns don't line up. */
-  .preview-column + .preview-column {
+  /* Each starts mid-card, so the columns don't line up. */
+  .preview-column:nth-child(2) {
     margin-top: -140px;
+  }
+  .preview-column:nth-child(3) {
+    display: none;
+    margin-top: -60px;
+  }
+  @media (width >= 100rem) {
+    .preview-column:nth-child(3) {
+      display: block;
+    }
   }
   /* Each card carries its own gap below it, so half the track is exactly one
      full set and the loop has no seam. */
