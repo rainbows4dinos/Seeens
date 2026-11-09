@@ -335,7 +335,7 @@ isOneToOne: false
                   ]
                 },"workspace_members": {
                   Row: {
-                    "connection_id": string | null,"created_at": string,"display_name": string,"role": Database["public"]['Enums']["member_role"],"user_id": string,"workspace_id": string
+                    "connection_id": string | null,"created_at": string,"display_name": string,"getting_started_dismissed_at": string | null,"role": Database["public"]['Enums']["member_role"],"user_id": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
@@ -409,6 +409,10 @@ isOneToOne: false
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"granted_at": string,"admin": boolean }[] },
             "list_accounts":
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
+            "getting_started":
+{ Args: { "p_workspace_id": string }; Returns: Json },
+            "dismiss_getting_started":
+{ Args: { "p_workspace_id": string }; Returns: undefined },
             "invitable_bands":
 { Args: never; Returns: { "connection_id": string,"name": string,"town": string | null,"added_by": string }[] },
             "invite_band":

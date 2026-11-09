@@ -1,5 +1,6 @@
 import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
+import { GettingStarted } from "@/components/getting-started";
 import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
 import {
@@ -25,7 +26,11 @@ import { LayoutProvider, LayoutToggle } from "@/components/layout-toggle";
 import { PinWatch } from "@/components/pin-watch";
 import { SearchClear } from "@/components/search-clear";
 import { TypeMenu } from "@/components/type-menu";
-import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
+import {
+  LAYOUT_COOKIE,
+  readLayout,
+  type DirectoryLayout,
+} from "@/lib/connections/card";
 import { wordSetForTab } from "@/lib/connections/tabs";
 import { AGES, CAPACITY } from "@/lib/connections/venue-details";
 import { getMembership } from "@/lib/auth/dal";
@@ -38,7 +43,12 @@ import {
   type Tab,
   type TabCounts,
 } from "@/lib/connections/directory";
-import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality } from "@/lib/connections/labels";
+import {
+  NO_STATUS,
+  STATUSES,
+  STATUS_WORDS,
+  formatLocality,
+} from "@/lib/connections/labels";
 import { NoWorkspace } from "@/components/no-workspace";
 import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
@@ -53,15 +63,35 @@ export type Scope = "network" | "all";
 // Two pages share this view (#192): My Network at /, what this band added
 // or has touched, and the full Directory at /directory, every record the
 // band can see. The archived view is always My Network's.
-export function DirectoryView({ searchParams, scope }: { searchParams: Promise<Params>; scope: Scope }) {
+export function DirectoryView({
+  searchParams,
+  scope,
+}: {
+  searchParams: Promise<Params>;
+  scope: Scope;
+}) {
   return (
-    <Suspense fallback={<PageLoader label={scope === "network" ? "loading your network" : "loading directory"} />}>
+    <Suspense
+      fallback={
+        <PageLoader
+          label={
+            scope === "network" ? "loading your network" : "loading directory"
+          }
+        />
+      }
+    >
       <Directory searchParams={searchParams} scope={scope} />
     </Suspense>
   );
 }
 
-async function Directory({ searchParams, scope }: { searchParams: Promise<Params>; scope: Scope }) {
+async function Directory({
+  searchParams,
+  scope,
+}: {
+  searchParams: Promise<Params>;
+  scope: Scope;
+}) {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
   const today = todayISO(new Date(), membership.timeZone);
@@ -69,7 +99,9 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
   // Cards or list: the URL wins (shared links), then this device's last choice.
   const layout: DirectoryLayout =
-    readLayout(params.layout) ?? readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ?? "cards";
+    readLayout(params.layout) ??
+    readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ??
+    "cards";
   const base = scope === "all" ? "/directory" : "/";
   const layoutHrefs = {
     list: withLayout(base, params, "list"),
@@ -77,12 +109,20 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   };
   const read = readDirectoryQuery(params);
   const tab = read.tab;
-  const filters: DirectoryFilters = { ...read.filters, scope: read.filters.archived ? "network" : scope };
+  const filters: DirectoryFilters = {
+    ...read.filters,
+    scope: read.filters.archived ? "network" : scope,
+  };
   // Archived is My Network's; an old ?scope=all link goes to the Directory page.
-  if (scope === "all" && read.filters.archived) redirect(directoryHref(tab, filters));
-  if (scope === "network" && params.scope === "all") redirect(directoryHref(tab, { ...filters, scope: "all" }));
+  if (scope === "all" && read.filters.archived)
+    redirect(directoryHref(tab, filters));
+  if (scope === "network" && params.scope === "all")
+    redirect(directoryHref(tab, { ...filters, scope: "all" }));
   // Old links (?view=lets_play, ?type=group:venue) go to their tab and status.
-  if (params.view !== undefined || (typeof params.type === "string" && params.type.includes(":"))) {
+  if (
+    params.view !== undefined ||
+    (typeof params.type === "string" && params.type.includes(":"))
+  ) {
     redirect(directoryHref(tab, filters));
   }
   const current = TABS.find((t) => t.id === tab)!;
@@ -90,20 +130,39 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   const filtering = hasFilters(filters);
   // No-script "Show More" lands here with ?after=…; with script it loads in place.
   const after = readAfter(params.after);
-  const { items, next, counts, scenes } = await loadDirectoryPage({ tab, filters }, { after });
+  const { items, next, counts, scenes } = await loadDirectoryPage(
+    { tab, filters },
+    { after },
+  );
   const c = counts!;
   const towns = c.towns
     .map((t) => [t.id, formatLocality(t)!] as const)
     .sort((x, y) => x[1].localeCompare(y[1]));
   // The results' state resets whenever the filters change.
   const query = resultsQuery(params, scope);
-  const filtersOpen = Boolean(filters.statuses.length || filters.scene || filters.town || filters.instrument || filters.ages || filters.capacity);
+  const filtersOpen = Boolean(
+    filters.statuses.length ||
+    filters.scene ||
+    filters.town ||
+    filters.instrument ||
+    filters.ages ||
+    filters.capacity,
+  );
 
   return (
     // key: a server render with a different layout (a shared link) resets it.
     <LayoutProvider key={layout} initial={layout}>
       <div className="flex flex-col gap-6">
-        <h1 className="sr-only">{scope === "all" ? "Full Directory" : "My Network"}</h1>
+        <h1 className="sr-only">
+          {scope === "all" ? "Full Directory" : "My Network"}
+        </h1>
+
+        {/* A new member's first steps (#68), on My Network only. */}
+        {scope === "network" && !archived ? (
+          <Suspense fallback={null}>
+            <GettingStarted />
+          </Suspense>
+        ) : null}
 
         {/* Every directory control in one bar, pinned while the list scrolls.
             Phones pin only the search row. */}
@@ -122,7 +181,13 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               instruments={c.instruments}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
-              add={<AddConnection tab={tab} className="button-icon md:hidden" iconOnly />}
+              add={
+                <AddConnection
+                  tab={tab}
+                  className="button-icon md:hidden"
+                  iconOnly
+                />
+              }
             />
           ) : null}
 
@@ -153,7 +218,10 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                 </Link>
               </div>
               {c.archived ? (
-                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link text-sm">
+                <Link
+                  href={directoryHref(tab, { ...EMPTY, archived: true })}
+                  className="link text-sm"
+                >
                   {c.archived} archived
                 </Link>
               ) : null}
@@ -167,7 +235,9 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
             >
               {/* The archived view says so first, with the way back (Archived
                   lives here, not in the filter bar: it's a different half). */}
-              {archived ? <p className="font-medium text-primary">Archived</p> : null}
+              {archived ? (
+                <p className="font-medium text-primary">Archived</p>
+              ) : null}
               <p>
                 {/* How many match, never how many are loaded (that's under the list). */}
                 {filtering
@@ -175,12 +245,22 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   : `${c.matched} ${c.matched === 1 ? current.one : current.many}`}
               </p>
               {c.hiddenAvoid ? (
-                <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
+                <Link
+                  href={directoryHref(tab, { ...filters, statuses: ["avoid"] })}
+                  className="link"
+                >
                   {c.hiddenAvoid} in Avoid, hidden. Show them
                 </Link>
               ) : null}
               {filtering ? (
-                <Link href={directoryHref(tab, { ...EMPTY, archived, scope: filters.scope })} className="link">
+                <Link
+                  href={directoryHref(tab, {
+                    ...EMPTY,
+                    archived,
+                    scope: filters.scope,
+                  })}
+                  className="link"
+                >
                   Clear filters
                 </Link>
               ) : null}
@@ -194,7 +274,10 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   Back to the directory
                 </Link>
               ) : c.archived ? (
-                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
+                <Link
+                  href={directoryHref(tab, { ...EMPTY, archived: true })}
+                  className="link"
+                >
                   {c.archived} archived
                 </Link>
               ) : null}
@@ -207,17 +290,31 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
 
             {/* Not in My Network, but other bands have it (#192): look there
                 before adding a copy. */}
-            {c.matched === 0 && filtering && filters.scope === "network" && !archived && c.scopes.all > 0 ? (
+            {c.matched === 0 &&
+            filtering &&
+            filters.scope === "network" &&
+            !archived &&
+            c.scopes.all > 0 ? (
               <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
                 <p className="font-medium">Nothing in your network matches.</p>
                 <p className="text-muted">
-                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} in the full directory, shared by other bands.
+                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} in
+                  the full directory, shared by other bands.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <Link href={directoryHref(tab, { ...filters, scope: "all" })} className="button-primary">
+                  <Link
+                    href={directoryHref(tab, { ...filters, scope: "all" })}
+                    className="button-primary"
+                  >
                     Search the Full Directory
                   </Link>
-                  <Link href={directoryHref(tab, { ...EMPTY, scope: filters.scope })} className="button-secondary">
+                  <Link
+                    href={directoryHref(tab, {
+                      ...EMPTY,
+                      scope: filters.scope,
+                    })}
+                    className="button-secondary"
+                  >
                     Clear Filters
                   </Link>
                 </div>
@@ -228,13 +325,22 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                 <p className="text-muted">
                   Try fewer filters or a shorter search.
                 </p>
-                <Link href={directoryHref(tab, { ...EMPTY, archived, scope: filters.scope })} className="button-secondary">
+                <Link
+                  href={directoryHref(tab, {
+                    ...EMPTY,
+                    archived,
+                    scope: filters.scope,
+                  })}
+                  className="button-secondary"
+                >
                   Clear Filters
                 </Link>
               </div>
             ) : c.matched === 0 ? (
               <p className="text-muted">
-                {archived ? `No archived ${current.many}.` : `No ${current.many} yet.`}
+                {archived
+                  ? `No archived ${current.many}.`
+                  : `No ${current.many} yet.`}
               </p>
             ) : null}
 
@@ -268,14 +374,35 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   );
 }
 
-const EMPTY: DirectoryFilters = { q: "", statuses: [], scene: "", town: "", instrument: "", ages: "", capacity: "", archived: false, noStatus: false, scope: "network" };
+const EMPTY: DirectoryFilters = {
+  q: "",
+  statuses: [],
+  scene: "",
+  town: "",
+  instrument: "",
+  ages: "",
+  capacity: "",
+  archived: false,
+  noStatus: false,
+  scope: "network",
+};
 
 // One tab per kind of connection (#122), each with its count under the
 // other filters. Phones show Bands, People, and a third tab (Venues, or the
 // current one when it's Labels & more or All); the rest go behind ⋮.
-function TypeTabs({ tab, counts, filters }: { tab: Tab; counts: TabCounts; filters: DirectoryFilters }) {
+function TypeTabs({
+  tab,
+  counts,
+  filters,
+}: {
+  tab: Tab;
+  counts: TabCounts;
+  filters: DirectoryFilters;
+}) {
   const third: Tab = tab === "more" || tab === "all" ? tab : "venues";
-  const overflow = TABS.filter((t) => !["bands", "people", third].includes(t.id));
+  const overflow = TABS.filter(
+    (t) => !["bands", "people", third].includes(t.id),
+  );
   return (
     <nav aria-label="Listing types" className="segmented bar-views type-tabs">
       {TABS.map((t) => (
@@ -313,7 +440,9 @@ function TypeTabs({ tab, counts, filters }: { tab: Tab; counts: TabCounts; filte
 
 // An icon per type, so the tabs don't run together as one line of mono
 // text. All is everything, so it has none. Decorative: the words are read.
-const icon = (Icon: CarbonIconType) => <Icon size={16} aria-hidden="true" className="type-tab-icon" />;
+const icon = (Icon: CarbonIconType) => (
+  <Icon size={16} aria-hidden="true" className="type-tab-icon" />
+);
 const TAB_ICONS: Record<Tab, React.ReactNode> = {
   bands: icon(Events),
   people: icon(Person),
@@ -334,7 +463,8 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (f.scene) p.set("scene", f.scene);
   if (f.town) p.set("town", f.town);
   // Plays only means something where there are people.
-  if (f.instrument && (tab === "people" || tab === "all")) p.set("plays", f.instrument);
+  if (f.instrument && (tab === "people" || tab === "all"))
+    p.set("plays", f.instrument);
   // Ages and capacity are venue details (#48).
   if (tab === "venues" && f.ages) p.set("ages", f.ages);
   if (tab === "venues" && f.capacity) p.set("cap", f.capacity);
@@ -347,7 +477,13 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
 function resultsQuery(params: Params, scope: Scope) {
   const p = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (key === "layout" || key === "after" || key === "scope" || value === undefined) continue;
+    if (
+      key === "layout" ||
+      key === "after" ||
+      key === "scope" ||
+      value === undefined
+    )
+      continue;
     (Array.isArray(value) ? value : [value]).forEach((v) => p.append(key, v));
   }
   // Show More loads through a server action that reads only the query.
@@ -398,8 +534,17 @@ function FilterForm({
   add: React.ReactNode;
 }) {
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
-  const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
-  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument, f.ages, f.capacity].filter(Boolean).length;
+  const showPlays =
+    (tab === "people" || tab === "all") &&
+    (instruments.length > 0 || Boolean(f.instrument));
+  const active = [
+    f.statuses.length,
+    f.scene,
+    f.town,
+    showPlays && f.instrument,
+    f.ages,
+    f.capacity,
+  ].filter(Boolean).length;
   return (
     <AutoFilterForm
       action={f.scope === "all" && !f.archived ? "/directory" : "/"}
@@ -407,7 +552,9 @@ function FilterForm({
       aria-label="Search and filter the directory"
       className="bar-search"
     >
-      {tab !== DEFAULT_TAB ? <input type="hidden" name="type" value={tab} /> : null}
+      {tab !== DEFAULT_TAB ? (
+        <input type="hidden" name="type" value={tab} />
+      ) : null}
       {/* The archived view keeps its half while you search and filter. */}
       {f.archived ? <input type="hidden" name="archived" value="1" /> : null}
       <FilterDisclosure
@@ -426,7 +573,8 @@ function FilterForm({
                 Search by Name
               </label>
               <SearchIcon size={16} aria-hidden="true" />
-              <input {...noAutofill}
+              <input
+                {...noAutofill}
                 id="f-q"
                 name="q"
                 type="search"
@@ -443,7 +591,12 @@ function FilterForm({
             {/* Enter searches. The filter boxes are text inputs too, which
                 turns off a form's implicit submit unless it has a submit
                 button, so keep one, out of sight and out of the tab order. */}
-            <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
+            <button
+              type="submit"
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
+            >
               Search
             </button>
           </>
@@ -458,22 +611,30 @@ function FilterForm({
               once a value replaces its placeholder. */}
           <span className="field-icon filter-status">
             <Tag size={16} aria-hidden="true" />
-          <select
-            id="f-status"
-            name="status"
-            className="field"
-            defaultValue={f.noStatus ? "none" : f.statuses.length === 1 ? f.statuses[0] : ""}
-          >
-            {/* Archived ones keep Avoid in view (nothing's hidden there). */}
-            <option value="">{f.archived ? "Everyone" : "Everyone but Avoid"}</option>
-            {STATUSES.map((st) => (
-              <option key={st} value={st}>
-                {STATUS_WORDS[wordSetForTab(tab)][st]}
+            <select
+              id="f-status"
+              name="status"
+              className="field"
+              defaultValue={
+                f.noStatus
+                  ? "none"
+                  : f.statuses.length === 1
+                    ? f.statuses[0]
+                    : ""
+              }
+            >
+              {/* Archived ones keep Avoid in view (nothing's hidden there). */}
+              <option value="">
+                {f.archived ? "Everyone" : "Everyone but Avoid"}
               </option>
-            ))}
-            {/* Not sorted yet (#192). */}
-            <option value="none">{NO_STATUS}</option>
-          </select>
+              {STATUSES.map((st) => (
+                <option key={st} value={st}>
+                  {STATUS_WORDS[wordSetForTab(tab)][st]}
+                </option>
+              ))}
+              {/* Not sorted yet (#192). */}
+              <option value="none">{NO_STATUS}</option>
+            </select>
           </span>
           <Combobox
             label="Scene"
@@ -488,7 +649,11 @@ function FilterForm({
                 label: scene.name,
                 hint: children.length ? "and the scenes inside it" : undefined,
               },
-              ...children.map((c) => ({ value: c.id, label: c.name, depth: 1 })),
+              ...children.map((c) => ({
+                value: c.id,
+                label: c.name,
+                depth: 1,
+              })),
             ])}
             defaultValue={f.scene ? [f.scene] : []}
             autoSubmit
@@ -512,7 +677,10 @@ function FilterForm({
               name="plays"
               multiple={false}
               placeholder="Plays"
-              options={instruments.map((i) => ({ value: i, label: INSTRUMENTS[i] }))}
+              options={instruments.map((i) => ({
+                value: i,
+                label: INSTRUMENTS[i],
+              }))}
               defaultValue={f.instrument ? [f.instrument] : []}
               autoSubmit
             />
@@ -527,7 +695,10 @@ function FilterForm({
                 name="ages"
                 multiple={false}
                 placeholder="Ages"
-                options={Object.entries(AGES).map(([value, label]) => ({ value, label }))}
+                options={Object.entries(AGES).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
                 defaultValue={f.ages ? [f.ages] : []}
                 autoSubmit
               />
@@ -538,7 +709,10 @@ function FilterForm({
                 name="cap"
                 multiple={false}
                 placeholder="Capacity"
-                options={Object.entries(CAPACITY).map(([value, label]) => ({ value, label }))}
+                options={Object.entries(CAPACITY).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
                 defaultValue={f.capacity ? [f.capacity] : []}
                 autoSubmit
               />
@@ -551,7 +725,15 @@ function FilterForm({
 }
 
 // Add, named for the tab and opening the form with its type set.
-function AddConnection({ tab, className, iconOnly = false }: { tab: Tab; className: string; iconOnly?: boolean }) {
+function AddConnection({
+  tab,
+  className,
+  iconOnly = false,
+}: {
+  tab: Tab;
+  className: string;
+  iconOnly?: boolean;
+}) {
   const t = TABS.find((x) => x.id === tab)!;
   const href = t.addType ? `/add?type=${t.addType}` : "/add";
   return (
