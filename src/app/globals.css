@@ -207,8 +207,11 @@
     letter-spacing: -0.03em;
   }
 
-  /* Focus: ink outline (3:1 on every surface) with a magenta glow from Figma. */
-  :focus-visible {
+  /* Focus: ink outline (3:1 on every surface) with a magenta glow from Figma.
+     Keep it on an open select while focus is inside the list. (:where
+     ignores :open where it isn't supported, so focus-visible still holds.) */
+  :focus-visible,
+  :where(select.field:open) {
     outline: 2px solid var(--color-focus-outline);
     outline-offset: 2px;
     box-shadow: 0 0 0 5px var(--color-focus-glow);
