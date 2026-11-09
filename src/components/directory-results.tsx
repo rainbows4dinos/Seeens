@@ -206,6 +206,7 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
               replace={openId !== null}
               onClick={guard(c.id)}
               aria-current={c.id === openId ? "true" : undefined}
+              data-listing={c.id}
               className="flex flex-col gap-1 px-3 py-3 row-link @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:gap-4"
             >
               <span className="flex min-w-0 items-start gap-3">

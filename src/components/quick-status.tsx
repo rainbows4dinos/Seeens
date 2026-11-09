@@ -5,6 +5,7 @@ import { useRef, useState, useTransition } from "react";
 import { quickUpdate, type QuickState } from "@/lib/connections/actions";
 import type { PlayedOffer as Offer } from "@/lib/connections/played-together";
 import { PlayedOffer } from "@/components/played-offer";
+import { useStatusKeys } from "@/components/quick-view-frame";
 import { NO_STATUS, STATUSES, playedWords, statusHint, statusLabel, type ConnectionStatus, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
 
 type Change = { status: ConnectionStatus | null } | { playedTogether: boolean };
@@ -91,6 +92,11 @@ export function QuickStatus({
       }
     });
   }
+  // In the quick view, number keys set the status (#244).
+  useStatusKeys((status) => {
+    if (status !== shown.status) save({ status });
+  });
+
 
   return (
     <div className="flex flex-col gap-3">

@@ -1,7 +1,7 @@
 "use client";
 
-import { Close } from "@carbon/icons-react";
-import { useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, Close } from "@carbon/icons-react";
+import { usePathname, useRouter } from "next/navigation";
 import { LogForm } from "@/components/outreach-panel";
 import { createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
@@ -45,32 +45,79 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
       else el.removeAttribute("data-closing");
     }, 150);
   }
-  const closeOnEscape = useEffectEvent(close);
+  // Previous and Next (#244): step through the list as it's shown.
+  const { prev, next } = useNeighbors();
+  function go(id: string | null) {
+    if (id) router.replace(`/connections/${id}`, { scroll: false });
+  }
+
+  // The panel's status, for the number keys. QuickStatus registers it.
+  const statusKeysRef = useRef<StatusSetter | null>(null);
+
+  const onKeyEvent = useEffectEvent((e: KeyboardEvent) => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    // Keys in a field or an open dialog belong to that field or dialog.
+    const t = e.target as HTMLElement | null;
+    if (t?.closest("input, textarea, select, [contenteditable], dialog[open]")) return;
+    if (e.key === "Escape") return close();
+    if (e.shiftKey) return;
+    const key = e.key.toLowerCase();
+    if (key === "j" && next) {
+      e.preventDefault();
+      go(next);
+    } else if (key === "k" && prev) {
+      e.preventDefault();
+      go(prev);
+    } else if (/^[1-6]$/.test(key) && statusKeysRef.current) {
+      e.preventDefault();
+      statusKeysRef.current(KEY_STATUSES[Number(key) - 1]);
+    }
+  });
 
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key !== "Escape" || e.defaultPrevented) return;
-      // Escape in a field or an open dialog belongs to that field or dialog.
-      const t = e.target as HTMLElement | null;
-      if (t?.closest("input, textarea, select, dialog[open]")) return;
-      closeOnEscape();
-    }
+    const onKey = (e: KeyboardEvent) => onKeyEvent(e);
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
   return (
     <LogContext value={{ logging, setLogging }}>
-      <aside ref={aside} className="quick-view" aria-label="Quick view">
-        <div className="quick-view-title">
-          <span className="font-semibold">Quick view</span>
-          <button type="button" className="quick-view-close" onClick={close}>
-            <Close size={16} aria-hidden="true" />
-            <span className="sr-only">Close quick view</span>
-          </button>
-        </div>
-        {children}
-      </aside>
+      <StatusKeysContext value={statusKeysRef}>
+        <aside ref={aside} className="quick-view" aria-label="Quick view">
+          <div className="quick-view-title">
+            <span className="font-semibold">Quick view</span>
+            <span className="quick-view-buttons">
+              <button
+                type="button"
+                className="quick-view-close"
+                onClick={() => go(prev)}
+                disabled={!prev}
+                title="Previous (K)"
+                aria-keyshortcuts="K"
+              >
+                <ChevronUp size={16} aria-hidden="true" />
+                <span className="sr-only">Previous listing</span>
+              </button>
+              <button
+                type="button"
+                className="quick-view-close"
+                onClick={() => go(next)}
+                disabled={!next}
+                title="Next (J)"
+                aria-keyshortcuts="J"
+              >
+                <ChevronDown size={16} aria-hidden="true" />
+                <span className="sr-only">Next listing</span>
+              </button>
+              <button type="button" className="quick-view-close" onClick={close} title="Close (Esc)" aria-keyshortcuts="Escape">
+                <Close size={16} aria-hidden="true" />
+                <span className="sr-only">Close quick view</span>
+              </button>
+            </span>
+          </div>
+          {children}
+        </aside>
+      </StatusKeysContext>
     </LogContext>
   );
 }
@@ -112,4 +159,67 @@ export function QuickLog({ connectionId, today }: { connectionId: string; today:
   return logging === connectionId ? (
     <LogForm connectionId={connectionId} today={today} onClose={() => setLogging(null)} />
   ) : null;
+}
+
+// Number keys 1 to 6, in the dropdown's order with No status last (#244).
+type StatusSetter = (status: (typeof KEY_STATUSES)[number]) => void;
+const KEY_STATUSES = ["homies", "lets_play", "prospect", "neutral", "avoid", null] as const;
+const StatusKeysContext = createContext<{ current: StatusSetter | null } | null>(null);
+
+/** Lets the number keys set this status while it's in the quick view. */
+export function useStatusKeys(set: StatusSetter) {
+  const keysRef = useContext(StatusKeysContext);
+  const latest = useEffectEvent(set);
+  useEffect(() => {
+    if (!keysRef) return;
+    const mine: StatusSetter = (st) => latest(st);
+    keysRef.current = mine;
+    return () => {
+      if (keysRef.current === mine) keysRef.current = null;
+    };
+  }, [keysRef]);
+}
+
+// The listings before and after the open one, in the order the directory
+// shows them: whatever page, tab, filters, search, and groups are on screen.
+// Rows and cards carry data-listing. If the open one leaves the list (its
+// status moved it out of a filter), its old neighbors still count.
+function useNeighbors() {
+  const openId = usePathname().match(/^\/connections\/([^/]+)$/)?.[1] ?? null;
+  const [ids, setIds] = useState<string[]>([]);
+  // The last list the open one was in.
+  const [known, setKnown] = useState<string[]>([]);
+  if (openId && ids.includes(openId) && known !== ids) setKnown(ids);
+
+  useEffect(() => {
+    const shell = document.querySelector(".directory-shell");
+    if (!shell) return;
+    const read = () => {
+      const now = [...shell.querySelectorAll<HTMLElement>("[data-listing]")].map((el) => el.dataset.listing!);
+      setIds((was) => (was.join() === now.join() ? was : now));
+    };
+    read();
+    const watch = new MutationObserver(read);
+    watch.observe(shell, { childList: true, subtree: true });
+    return () => watch.disconnect();
+  }, []);
+
+  // Show the open one in the list.
+  useEffect(() => {
+    if (!openId) return;
+    const el = document.querySelector<HTMLElement>(`.directory-shell [data-listing="${CSS.escape(openId)}"]`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [openId]);
+
+  if (!openId) return { prev: null, next: null };
+  const i = ids.indexOf(openId);
+  if (i >= 0) return { prev: ids[i - 1] ?? null, next: ids[i + 1] ?? null };
+  // Gone from the list: step from where it was.
+  const was = known.indexOf(openId);
+  if (was < 0) return { prev: null, next: null };
+  const present = new Set(ids);
+  return {
+    prev: known.slice(0, was).reverse().find((id) => present.has(id)) ?? null,
+    next: known.slice(was + 1).find((id) => present.has(id)) ?? null,
+  };
 }

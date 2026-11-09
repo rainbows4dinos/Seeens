@@ -85,6 +85,7 @@ export function ConnectionCard({
       replace={replace}
       onClick={onClick}
       aria-current={open ? "true" : undefined}
+      data-listing={c.id}
       className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
       <span className="card-print" aria-hidden="true">
         {/* Initials sit under the photo, so a photo that fails to load never leaves a blank print. */}
