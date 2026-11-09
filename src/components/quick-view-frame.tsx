@@ -3,7 +3,17 @@
 import { ChevronDown, ChevronUp, Close } from "@carbon/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import { LogForm } from "@/components/outreach-panel";
-import { Suspense, createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Suspense,
+  createContext,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 // The quick view's shell (#126): an ink title bar with Close, then the body
 // and footer the server renders. Not a dialog: the directory stays usable
@@ -69,7 +79,13 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
               <Suspense fallback={<StepButtons />}>
                 <Steps statusKeysRef={statusKeysRef} />
               </Suspense>
-              <button type="button" className="quick-view-close" onClick={close} title="Close (Esc)" aria-keyshortcuts="Escape">
+              <button
+                type="button"
+                className="quick-view-close"
+                onClick={close}
+                title="Close (Esc)"
+                aria-keyshortcuts="Escape"
+              >
                 <Close size={16} aria-hidden="true" />
                 <span className="sr-only">Close quick view</span>
               </button>
@@ -107,7 +123,12 @@ export function LogOutreachButton({ connectionId }: { connectionId: string }) {
   const { logging, setLogging } = useContext(LogContext);
   const open = logging === connectionId;
   return (
-    <button type="button" className="button-secondary" aria-expanded={open} onClick={() => setLogging(open ? null : connectionId)}>
+    <button
+      type="button"
+      className="button-secondary"
+      aria-expanded={open}
+      onClick={() => setLogging(open ? null : connectionId)}
+    >
       Log Outreach
     </button>
   );
@@ -179,7 +200,11 @@ function useNeighbors() {
   if (was < 0) return { prev: null, next: null };
   const present = new Set(ids);
   return {
-    prev: known.slice(0, was).reverse().find((id) => present.has(id)) ?? null,
+    prev:
+      known
+        .slice(0, was)
+        .reverse()
+        .find((id) => present.has(id)) ?? null,
     next: known.slice(was + 1).find((id) => present.has(id)) ?? null,
   };
 }
@@ -225,11 +250,25 @@ function Steps({ statusKeysRef }: { statusKeysRef: { current: StatusSetter | nul
 function StepButtons({ onPrev, onNext }: { onPrev?: () => void; onNext?: () => void }) {
   return (
     <>
-      <button type="button" className="quick-view-close" onClick={onPrev} disabled={!onPrev} title="Previous (K)" aria-keyshortcuts="K">
+      <button
+        type="button"
+        className="quick-view-close"
+        onClick={onPrev}
+        disabled={!onPrev}
+        title="Previous (K)"
+        aria-keyshortcuts="K"
+      >
         <ChevronUp size={16} aria-hidden="true" />
         <span className="sr-only">Previous listing</span>
       </button>
-      <button type="button" className="quick-view-close" onClick={onNext} disabled={!onNext} title="Next (J)" aria-keyshortcuts="J">
+      <button
+        type="button"
+        className="quick-view-close"
+        onClick={onNext}
+        disabled={!onNext}
+        title="Next (J)"
+        aria-keyshortcuts="J"
+      >
         <ChevronDown size={16} aria-hidden="true" />
         <span className="sr-only">Next listing</span>
       </button>

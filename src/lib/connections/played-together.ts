@@ -13,10 +13,19 @@ export type PlayedOffer = { direction: "members" | "bands"; relatives: Relative[
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 type Other = { id: string; name: string; played_together: boolean; archived_at: string | null; is_us: boolean } | null;
 // As selected: this band's private layer (#181) still nested under `band`.
-type Raw = { id: string; name: string; is_us: boolean; band: { played_together: boolean; archived_at: string | null } | null } | null;
+type Raw = {
+  id: string;
+  name: string;
+  is_us: boolean;
+  band: { played_together: boolean; archived_at: string | null } | null;
+} | null;
 
 /** The offer for a connection that was just marked, or null when there's nobody left to mark. */
-export async function loadPlayedOffer(supabase: Supabase, workspaceId: string, id: string): Promise<PlayedOffer | null> {
+export async function loadPlayedOffer(
+  supabase: Supabase,
+  workspaceId: string,
+  id: string,
+): Promise<PlayedOffer | null> {
   const { data: subject } = await supabase
     .from("connections")
     .select("kind")
@@ -30,14 +39,18 @@ export async function loadPlayedOffer(supabase: Supabase, workspaceId: string, i
   const { data } = members
     ? await supabase
         .from("affiliations")
-        .select("other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, is_us, band:connection_band_details ( played_together, archived_at ) )")
+        .select(
+          "other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, is_us, band:connection_band_details ( played_together, archived_at ) )",
+        )
         .eq("workspace_id", workspaceId)
         .eq("to_connection_id", id)
         .eq("kind", "member")
         .eq("is_current", true)
     : await supabase
         .from("affiliations")
-        .select("other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, is_us, band:connection_band_details ( played_together, archived_at ) )")
+        .select(
+          "other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, is_us, band:connection_band_details ( played_together, archived_at ) )",
+        )
         .eq("workspace_id", workspaceId)
         .eq("from_connection_id", id)
         .eq("kind", "member")

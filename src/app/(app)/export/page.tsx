@@ -57,8 +57,8 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
   return (
     <div className="flex flex-col gap-6">
       <p className="text-muted">
-        A spreadsheet copy of {membership.workspaceName}&rsquo;s directory, as a CSV file. It opens in Excel,
-        Numbers, or Google Sheets.
+        A spreadsheet copy of {membership.workspaceName}&rsquo;s directory, as a CSV file. It opens in Excel, Numbers,
+        or Google Sheets.
       </p>
 
       {problem === "failed" ? (
@@ -98,13 +98,13 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
           What&rsquo;s in it
         </h2>
         <p>
-          One row per listing: who they are, status, town, scenes, contact info, links, notes, and their current
-          next action. <strong>Outreach history isn&rsquo;t included.</strong>
+          One row per listing: who they are, status, town, scenes, contact info, links, notes, and their current next
+          action. <strong>Outreach history isn&rsquo;t included.</strong>
         </p>
         <p className="text-muted">
-          Dates are written as year-month-day (2026-11-03), Pacific time. Lists like scenes and links are separated
-          by semicolons. Cells that start with =, +, -, or @ get a leading apostrophe so spreadsheets show them as
-          text instead of running them.
+          Dates are written as year-month-day (2026-11-03), Pacific time. Lists like scenes and links are separated by
+          semicolons. Cells that start with =, +, -, or @ get a leading apostrophe so spreadsheets show them as text
+          instead of running them.
         </p>
         <details>
           <summary className="cursor-pointer text-muted">Column Names</summary>

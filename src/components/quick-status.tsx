@@ -6,7 +6,17 @@ import { quickUpdate, type QuickState } from "@/lib/connections/actions";
 import type { PlayedOffer as Offer } from "@/lib/connections/played-together";
 import { PlayedOffer } from "@/components/played-offer";
 import { useStatusKeys } from "@/components/quick-view-frame";
-import { NO_STATUS, STATUSES, playedWords, statusHint, statusLabel, type ConnectionStatus, type ConnectionKind, type GroupType, type PersonRole } from "@/lib/connections/labels";
+import {
+  NO_STATUS,
+  STATUSES,
+  playedWords,
+  statusHint,
+  statusLabel,
+  type ConnectionStatus,
+  type ConnectionKind,
+  type GroupType,
+  type PersonRole,
+} from "@/lib/connections/labels";
 
 type Change = { status: ConnectionStatus | null } | { playedTogether: boolean };
 
@@ -46,10 +56,7 @@ export function QuickStatus({
 
   // Pick up changes from the server (another member, a refresh).
   const [prevInitial, setPrevInitial] = useState(initial);
-  if (
-    !pending &&
-    (initial.status !== prevInitial.status || initial.playedTogether !== prevInitial.playedTogether)
-  ) {
+  if (!pending && (initial.status !== prevInitial.status || initial.playedTogether !== prevInitial.playedTogether)) {
     setPrevInitial(initial);
     setSaved(initial);
     setShown(initial);
@@ -96,7 +103,6 @@ export function QuickStatus({
   useStatusKeys((status) => {
     if (status !== shown.status) save({ status });
   });
-
 
   return (
     <div className="flex flex-col gap-3">

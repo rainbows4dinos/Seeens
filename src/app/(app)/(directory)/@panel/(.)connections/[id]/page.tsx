@@ -7,9 +7,13 @@ import { PageLoader } from "@/components/metronome";
 // link), /connections/[id] shows the full page instead.
 export default function QuickViewPage({ params }: PageProps<"/connections/[id]">) {
   return (
-    <Suspense fallback={<div className="quick-view-body">
+    <Suspense
+      fallback={
+        <div className="quick-view-body">
           <PageLoader label="loading listing" />
-        </div>}>
+        </div>
+      }
+    >
       <QuickView params={params} />
     </Suspense>
   );

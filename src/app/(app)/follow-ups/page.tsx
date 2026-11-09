@@ -120,9 +120,7 @@ type Action = {
   description: string;
   due_on: string | null;
   assignee: { display_name: string } | null;
-  connection:
-    | (Parameters<typeof catalogNo>[0] & { id: string; name: string })
-    | null;
+  connection: (Parameters<typeof catalogNo>[0] & { id: string; name: string }) | null;
 };
 
 function ActionList({ title, actions, today }: { title: string; actions: Action[]; today: string }) {

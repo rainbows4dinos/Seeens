@@ -10,10 +10,7 @@ export function LoginForm() {
   const next = params.get("next") ?? "/";
   const expired = params.get("link") === "expired";
   const deleted = params.get("deleted") === "1";
-  const [state, action, pending] = useActionState<SignInState | undefined, FormData>(
-    signIn,
-    undefined,
-  );
+  const [state, action, pending] = useActionState<SignInState | undefined, FormData>(signIn, undefined);
 
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
@@ -63,12 +60,7 @@ export function LoginForm() {
         />
       </div>
 
-      <p
-        id="signin-error"
-        role="alert"
-        aria-live="assertive"
-        className="min-h-6 text-sm font-medium text-error"
-      >
+      <p id="signin-error" role="alert" aria-live="assertive" className="min-h-6 text-sm font-medium text-error">
         {state?.error ? <>Error: {state.error}</> : null}
       </p>
 

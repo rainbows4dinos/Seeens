@@ -22,11 +22,7 @@ export function toLocalityChoice(v: { placeId: string; keepLocalityId: string })
 }
 
 // Each workspace has one locality per GeoNames place; reuse it or add it.
-export async function resolveLocality(
-  supabase: Supabase,
-  workspaceId: string,
-  locality: LocalityChoice,
-) {
+export async function resolveLocality(supabase: Supabase, workspaceId: string, locality: LocalityChoice) {
   if (!locality) return null;
   if ("keepLocalityId" in locality) return locality.keepLocalityId;
 
@@ -75,4 +71,3 @@ export async function resolveLocality(
   if (error) throw error;
   return data.id;
 }
-

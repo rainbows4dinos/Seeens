@@ -1,12 +1,6 @@
 import { catalogNo, initials } from "@/lib/connections/card";
 import { directoryHrefFor } from "@/lib/connections/directory";
-import {
-  formatDate,
-  formatLocality,
-  formatType,
-  historyLine,
-  statusLabel,
-} from "@/lib/connections/labels";
+import { formatDate, formatLocality, formatType, historyLine, statusLabel } from "@/lib/connections/labels";
 import type { ConnectionDetail } from "@/lib/connections/queries";
 import { toFormValues } from "@/lib/connections/queries";
 import { photoUrl } from "@/lib/photos/urls";
@@ -16,16 +10,8 @@ import { DateLines } from "@/components/date-line";
 import { NextActionPanel } from "@/components/next-action-panel";
 import { OutreachPanel } from "@/components/outreach-panel";
 import { Photo } from "@/components/photo";
-import {
-  AutosaveForm,
-  AutosaveProvider,
-  SaveStatus,
-} from "@/components/profile/autosave";
-import {
-  BandNoteFields,
-  FormError,
-  ModeratorFields,
-} from "@/components/profile/fields";
+import { AutosaveForm, AutosaveProvider, SaveStatus } from "@/components/profile/autosave";
+import { BandNoteFields, FormError, ModeratorFields } from "@/components/profile/fields";
 import { KeepPrivate } from "@/components/keep-private";
 import { ProfilePanel } from "@/components/profile/panel";
 import { QuickStatus } from "@/components/quick-status";
@@ -98,40 +84,21 @@ export function SharedRecord({
         <header className="flex items-start gap-4">
           <span className="quick-view-thumb" aria-hidden="true">
             <span className="row-thumb-initials">{initials(c.name)}</span>
-            {c.photo_path ? (
-              <Photo
-                src={photoUrl(c.photo_path, 320)!}
-                alt=""
-                decoding="async"
-              />
-            ) : null}
+            {c.photo_path ? <Photo src={photoUrl(c.photo_path, 320)!} alt="" decoding="async" /> : null}
           </span>
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h1
-                id="profile-name"
-                className="min-w-0 display-l sm:display-xl break-words"
-              >
+              <h1 id="profile-name" className="min-w-0 display-l sm:display-xl break-words">
                 {c.name}
               </h1>
               <SaveStatus />
             </div>
-            <p className="text-muted">
-              {[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}
-            </p>
-            <DateLines
-              lastOutreach={detail.outreach[0]}
-              nextAction={nextAction}
-              today={today}
-            />
+            <p className="text-muted">{[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}</p>
+            <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
             <div className="flex flex-wrap gap-2 pt-1">
-              {ours ? (
-                <span className="tag font-semibold">This is us</span>
-              ) : null}
+              {ours ? <span className="tag font-semibold">This is us</span> : null}
               {you ? <span className="tag font-semibold">This is you</span> : null}
-              {claim?.joined && !ours ? (
-                <span className="tag">Uses Seeens</span>
-              ) : null}
+              {claim?.joined && !ours ? <span className="tag">Uses Seeens</span> : null}
               <span className="tag">From {detail.sharedBy}</span>
             </div>
           </div>
@@ -142,21 +109,16 @@ export function SharedRecord({
             ? `This is ${band}'s listing. ${detail.sharedBy} added it, and you keep its details up to date; changes are logged.`
             : you
               ? `This is you. ${detail.sharedBy} added you, and you keep your details up to date; changes are logged.`
-            : moderator
-              ? `${detail.sharedBy} shared this. As a moderator you can fix its details; your changes are logged.`
-              : `${detail.sharedBy} shared this, so only they can change its details.`}{" "}
-          Status, plans, outreach, notes, and contacts here are {band}&rsquo;s
-          own. Nobody else sees them.
+              : moderator
+                ? `${detail.sharedBy} shared this. As a moderator you can fix its details; your changes are logged.`
+                : `${detail.sharedBy} shared this, so only they can change its details.`}{" "}
+          Status, plans, outreach, notes, and contacts here are {band}&rsquo;s own. Nobody else sees them.
         </p>
 
         {/* Your own band: no status or outreach with yourself. */}
         {ours || you ? null : (
           <>
-            <ProfilePanel
-              id="shared-status"
-              title="Status"
-              summary={statusLabel(c.status, c)}
-            >
+            <ProfilePanel id="shared-status" title="Status" summary={statusLabel(c.status, c)}>
               <div className="flex flex-col gap-2">
                 <QuickStatus
                   id={c.id}
@@ -172,18 +134,14 @@ export function SharedRecord({
                 />
                 {statusHistory.length > 1 ? (
                   <details className="text-sm">
-                    <summary className="cursor-pointer text-muted">
-                      Status history
-                    </summary>
+                    <summary className="cursor-pointer text-muted">Status history</summary>
                     <ol className="flex flex-col gap-1 pt-2">
                       {statusHistory.map((h) => (
                         <li key={h.id}>
                           {historyLine(h, c)}
                           <span className="text-muted">
                             {" · "}
-                            {[formatDate(h.changed_at, tz), h.by]
-                              .filter(Boolean)
-                              .join(" · ")}
+                            {[formatDate(h.changed_at, tz), h.by].filter(Boolean).join(" · ")}
                           </span>
                         </li>
                       ))}
@@ -199,10 +157,7 @@ export function SharedRecord({
               summary={nextAction ? nextAction.description : "Nothing planned"}
             >
               <div className="flex flex-col gap-6">
-                <section
-                  aria-labelledby="next-heading"
-                  className="flex flex-col gap-2"
-                >
+                <section aria-labelledby="next-heading" className="flex flex-col gap-2">
                   <h2 id="next-heading" className="label text-muted">
                     Next action
                   </h2>
@@ -214,37 +169,22 @@ export function SharedRecord({
                     today={today}
                   />
                 </section>
-                <section
-                  aria-labelledby="log-heading"
-                  className="flex flex-col gap-2"
-                >
+                <section aria-labelledby="log-heading" className="flex flex-col gap-2">
                   <h2 id="log-heading" className="label text-muted">
                     Outreach log
                   </h2>
-                  <OutreachPanel
-                    connectionId={c.id}
-                    entries={detail.outreach}
-                    me={me}
-                    today={today}
-                  />
+                  <OutreachPanel connectionId={c.id} entries={detail.outreach} me={me} today={today} />
                 </section>
               </div>
             </ProfilePanel>
           </>
         )}
 
-        <ProfilePanel
-          id="shared-details"
-          title="Details"
-          summary={`From ${detail.sharedBy}`}
-        >
+        <ProfilePanel id="shared-details" title="Details" summary={`From ${detail.sharedBy}`}>
           {canFix ? (
             // Its shared details, saved to the record and logged (#195, #68).
             <AutosaveForm connectionId={c.id} className="flex flex-col gap-5">
-              <ModeratorFields
-                values={values}
-                venue={c.kind === "group" && c.group_type === "venue"}
-              />
+              <ModeratorFields values={values} venue={c.kind === "group" && c.group_type === "venue"} />
               <FormError />
             </AutosaveForm>
           ) : (
@@ -259,11 +199,7 @@ export function SharedRecord({
           )}
         </ProfilePanel>
 
-        <ProfilePanel
-          id="shared-notes"
-          title={`${band}'s Notes`}
-          summary={c.notes ? c.notes.split("\n")[0] : null}
-        >
+        <ProfilePanel id="shared-notes" title={`${band}'s Notes`} summary={c.notes ? c.notes.split("\n")[0] : null}>
           <AutosaveForm connectionId={c.id} className="flex flex-col gap-5">
             <BandNoteFields values={values} />
             <FormError />
@@ -272,8 +208,7 @@ export function SharedRecord({
 
         <footer className="flex flex-col gap-4 rule-top pt-6">
           <p className="text-sm text-muted">
-            Shared by {detail.sharedBy}. Added {formatDate(c.created_at, tz)} ·
-            Updated {formatDate(c.updated_at, tz)}
+            Shared by {detail.sharedBy}. Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
             {detail.moderatedAt
               ? ` · Last fixed by ${detail.moderatedBy ?? "a moderator"} ${formatDate(detail.moderatedAt, tz)}`
               : null}

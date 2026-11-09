@@ -37,7 +37,14 @@ const STATUS_PLATE: Record<ConnectionStatus, Plate> = {
 
 export function defaultSettings(status: ConnectionStatus | null, isUs: boolean): CopierSettings {
   // No status (#192) takes Heard of's plate.
-  return { exposure: 0, contrast: 2.4, grit: 0.5, plate: isUs ? "none" : STATUS_PLATE[status ?? "neutral"], offset: DEFAULT_OFFSET, seed: 3 };
+  return {
+    exposure: 0,
+    contrast: 2.4,
+    grit: 0.5,
+    plate: isUs ? "none" : STATUS_PLATE[status ?? "neutral"],
+    offset: DEFAULT_OFFSET,
+    seed: 3,
+  };
 }
 
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));

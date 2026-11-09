@@ -149,7 +149,12 @@ export const isUnsure = (v: string) => UNSURE.test(v);
 
 /** "Barf Bags, The" -> "The Barf Bags"; spaces tidied; "(sp?)" dropped. */
 export function cleanName(raw: string): string {
-  let n = raw.replace(/\(\s*sp\s*\??\s*\)/gi, "").replace(/\s+/g, " ").trim().replace(/\?+$/, "").trim();
+  let n = raw
+    .replace(/\(\s*sp\s*\??\s*\)/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\?+$/, "")
+    .trim();
   const flipped = /^(.*),\s*(the|a|an)$/i.exec(n);
   if (flipped) n = `${flipped[2].charAt(0).toUpperCase()}${flipped[2].slice(1).toLowerCase()} ${flipped[1]}`;
   return n;

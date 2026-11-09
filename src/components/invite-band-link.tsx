@@ -12,13 +12,7 @@ type Listing = {
 // For app admins (#68): invite a band straight from its listing, when
 // nobody's claimed it yet. Opens the Bands page with it picked.
 export function InviteBandLink({ connection: c }: { connection: Listing }) {
-  if (
-    c.kind !== "group" ||
-    c.group_type !== "band" ||
-    c.is_us ||
-    c.keep_private
-  )
-    return null;
+  if (c.kind !== "group" || c.group_type !== "band" || c.is_us || c.keep_private) return null;
   return (
     <Link href={`/admin/bands?band=${c.id}`} className="button-secondary">
       Invite<span className="invite-band-more"> to Seeens</span>

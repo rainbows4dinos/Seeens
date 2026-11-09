@@ -25,7 +25,9 @@ export function KeepPrivate({
     setOn(next);
     setError("");
     startTransition(async () => {
-      const result: SharingResult = await setKeepPrivate([id], next).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
+      const result: SharingResult = await setKeepPrivate([id], next).catch(
+        offline({ error: "Couldn't reach Seeens. Try again." }),
+      );
       if (result.error) {
         setOn(!next);
         setError(result.error);
@@ -39,12 +41,20 @@ export function KeepPrivate({
   // Pinned beside the back button: the explanation is read with the box,
   // and shows on hover.
   const hint =
-    (on ? `Only ${band} sees this record.` : `Shared: other bands see this record. Status, notes, and contacts stay ${band}'s.`) +
+    (on
+      ? `Only ${band} sees this record.`
+      : `Shared: other bands see this record. Status, notes, and contacts stay ${band}'s.`) +
     (locked ? ` ${locked}.` : "");
   return (
     <>
       <label className="choice" title={hint}>
-        <input type="checkbox" checked={on} disabled={pending || Boolean(locked)} onChange={(e) => change(e.target.checked)} aria-describedby="keep-private-hint" />
+        <input
+          type="checkbox"
+          checked={on}
+          disabled={pending || Boolean(locked)}
+          onChange={(e) => change(e.target.checked)}
+          aria-describedby="keep-private-hint"
+        />
         <span>Keep Private</span>
       </label>
       <span id="keep-private-hint" className="sr-only">

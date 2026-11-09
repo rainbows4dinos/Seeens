@@ -1,9 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
-import type {
-  ConnectionKind,
-  GroupType,
-  PersonRole,
-} from "@/lib/connections/labels";
+import type { ConnectionKind, GroupType, PersonRole } from "@/lib/connections/labels";
 
 export type AffiliationKind = Database["public"]["Enums"]["affiliation_kind"];
 
@@ -11,9 +7,7 @@ type Subject = { kind: ConnectionKind; group_type: GroupType | null };
 type Candidate = { kind: ConnectionKind; group_type: GroupType | null };
 
 // What kind of connection can sit on the other end of a link.
-export type Target =
-  | { kind: "person" }
-  | { kind: "group"; only?: GroupType[]; except?: GroupType[] };
+export type Target = { kind: "person" } | { kind: "group"; only?: GroupType[]; except?: GroupType[] };
 
 // One "add a link" choice offered on a detail page. Direction is from the
 // page's point of view: "out" means this connection -> other.
@@ -147,8 +141,7 @@ export function addOptionsFor(subject: Subject): AddOption[] {
     ];
   }
 
-  if (subject.group_type === "promoter_collective")
-    return [BOOKS_A_VENUE, ...OTHER_GROUP_OPTIONS];
+  if (subject.group_type === "promoter_collective") return [BOOKS_A_VENUE, ...OTHER_GROUP_OPTIONS];
 
   return OTHER_GROUP_OPTIONS;
 }
@@ -190,10 +183,7 @@ export function newGroupTypes(target: Target): GroupType[] {
 }
 
 // How a link reads from this page: which section it lands in.
-export function sectionFor(
-  subject: Subject,
-  link: { kind: AffiliationKind; direction: "out" | "in" },
-): string {
+export function sectionFor(subject: Subject, link: { kind: AffiliationKind; direction: "out" | "in" }): string {
   const { kind, direction } = link;
   if (subject.kind === "person") {
     if (direction === "out" && kind === "member") return "Bands";
@@ -201,8 +191,7 @@ export function sectionFor(
     if (direction === "out" && kind === "works_with") return "Works With";
     return "Other Links";
   }
-  if (kind === "related")
-    return subject.group_type === "band" ? "Related Bands" : "Related";
+  if (kind === "related") return subject.group_type === "band" ? "Related Bands" : "Related";
   if (direction === "in" && kind === "member") return "Members";
   if (direction === "in" && kind === "books") return "Booked By";
   if (direction === "out" && kind === "books") return "Books";

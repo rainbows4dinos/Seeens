@@ -1,13 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import {
-  acceptInvite,
-  optOut,
-  signInAndJoin,
-  signUpAndJoin,
-  type JoinState,
-} from "@/lib/band/actions";
+import { acceptInvite, optOut, signInAndJoin, signUpAndJoin, type JoinState } from "@/lib/band/actions";
 import { offline } from "@/lib/offline";
 
 function Err({ state, id }: { state: JoinState; id: string }) {
@@ -82,13 +76,24 @@ export function JoinForms({
       <form key="existing" action={inAction} className="flex flex-col gap-4" noValidate>
         <input type="hidden" name="token" value={token} />
         <p className="text-sm text-muted">Sign in, and you&rsquo;ll join {band} with the account you have.</p>
-        {up.mode === "existing" && up.error ? <p role="status" className="text-sm font-medium">{up.error}</p> : null}
+        {up.mode === "existing" && up.error ? (
+          <p role="status" className="text-sm font-medium">
+            {up.error}
+          </p>
+        ) : null}
         {emailField("in-email")}
         <div className="flex flex-col gap-2">
           <label htmlFor="in-password" className="label">
             Password
           </label>
-          <input id="in-password" name="password" type="password" autoComplete="current-password" required className="field" />
+          <input
+            id="in-password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            className="field"
+          />
         </div>
         <Err state={inState} id="in-error" />
         <button type="submit" className="button-primary" disabled={inPending}>

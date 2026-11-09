@@ -41,7 +41,8 @@ const ROLE_SEPARATOR = /\s*(?:\/|,|&|\+|;|\band\b)\s*/i;
 // Marks a single line as a former member: "(former)", "[ex]", "- ex-member".
 const FORMER_MARK = /\s*[([]\s*(?:former|ex|ex-member|past|formerly)\s*[)\]]\s*/i;
 // A heading line: "Lineup", "Members:", "Current lineup", "Past members".
-const HEADING = /^\s*(?:the\s+)?(?:(current|present|past|former|previous|original)\s+)?(?:line[\s-]?up|members?|band|personnel)\s*:?\s*$/i;
+const HEADING =
+  /^\s*(?:the\s+)?(?:(current|present|past|former|previous|original)\s+)?(?:line[\s-]?up|members?|band|personnel)\s*:?\s*$/i;
 const FORMER_HEADING_WORDS = new Set(["past", "former", "previous", "original"]);
 
 export function parseLineup(text: string): LineupRow[] {
@@ -81,7 +82,10 @@ export function parseLineup(text: string): LineupRow[] {
 // "TYLER RACHAL" -> "Tyler Rachal". Mixed-case names are left alone, so
 // "DeAndre McKay" stays as typed.
 export function cleanName(raw: string) {
-  const name = raw.replace(/\s+/g, " ").replace(/^[\s,.;:–—-]+|[\s,.;:–—-]+$/g, "").trim();
+  const name = raw
+    .replace(/\s+/g, " ")
+    .replace(/^[\s,.;:–—-]+|[\s,.;:–—-]+$/g, "")
+    .trim();
   const letters = name.replace(/[^\p{L}]/gu, "");
   const shouting = letters.length > 1 && letters === letters.toUpperCase() && letters !== letters.toLowerCase();
   // In names, a letter after an apostrophe starts a new word: O'Sample.
@@ -94,7 +98,10 @@ export function cleanRoles(raw: string) {
   const seen = new Set<string>();
   const roles: string[] = [];
   for (const part of raw.split(ROLE_SEPARATOR)) {
-    const key = part.replace(/[.\s]+$/, "").trim().toLowerCase();
+    const key = part
+      .replace(/[.\s]+$/, "")
+      .trim()
+      .toLowerCase();
     if (!key) continue;
     const role = ROLE_ALIASES[key] ?? titleCase(key);
     if (!seen.has(role.toLowerCase())) {

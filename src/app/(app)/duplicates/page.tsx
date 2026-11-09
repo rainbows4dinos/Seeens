@@ -56,7 +56,10 @@ async function Groups() {
           <li key={ids.join(",")} className="panel flex flex-col">
             <ul className="rows flex flex-col">
               {g.map((c) => (
-                <li key={c.id} className="flex flex-col gap-1 p-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                <li
+                  key={c.id}
+                  className="flex flex-col gap-1 p-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                >
                   <div className="flex min-w-0 flex-col gap-1">
                     <p className="text-xs uppercase tracking-wide text-muted">
                       {c.type} · {c.catalog}

@@ -34,7 +34,11 @@ export async function GET(request: Request) {
     return back(request, "failed", includeArchived);
   }
 
-  const slug = membership.workspaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "band";
+  const slug =
+    membership.workspaceName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "band";
   const filename = `seeens-${slug}-${todayISO(new Date(), membership.timeZone)}${includeArchived ? "-with-archived" : ""}.csv`;
   // UTF-8 byte order mark so Excel reads accents and emoji correctly.
   return new Response(`﻿${csv}\r\n`, {

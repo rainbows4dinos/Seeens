@@ -65,11 +65,7 @@ export const GROUP_TYPES = Object.keys(GROUP_TYPE_LABELS) as GroupType[];
 export const STATUSES = Object.keys(STATUS_LABELS) as ConnectionStatus[];
 
 // "Band" for a group; "Musician, DJ" for a person.
-export function formatType(c: {
-  kind: ConnectionKind;
-  person_roles: PersonRole[];
-  group_type: GroupType | null;
-}) {
+export function formatType(c: { kind: ConnectionKind; person_roles: PersonRole[]; group_type: GroupType | null }) {
   if (c.kind === "group") return c.group_type ? GROUP_TYPE_LABELS[c.group_type] : "Group";
   return c.person_roles.map((r) => PERSON_ROLE_LABELS[r]).join(", ") || "Person";
 }

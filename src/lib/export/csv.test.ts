@@ -13,12 +13,12 @@ const tricky: ExportRow[] = [
     name: 'The "Quoted", Band',
     types: "Musician; DJ",
     scenes: "Portland DIY; Pacific Northwest",
-    notes: "Line one\nLine two, with a comma\r\nand \"quotes\"",
+    notes: 'Line one\nLine two, with a comma\r\nand "quotes"',
     links: "Bandcamp: https://example.com/a?b=1,2; https://example.com/c",
   },
   { ...blank, name: "Café Ñoño 🎸 Ünïcode", town: "Zürich", notes: "日本語のメモ" },
   // Formula-looking values get a leading apostrophe.
-  { ...blank, name: "=HYPERLINK(\"http://example.com\",\"x\")", notes: "+1 555 0100", phone: "-5", email: "@handle" },
+  { ...blank, name: '=HYPERLINK("http://example.com","x")', notes: "+1 555 0100", phone: "-5", email: "@handle" },
   { ...blank, name: "\tTabbed", notes: "\rCarriage", can_help_with: "=SUM(A1)\nsecond line" },
   // Not formulas: these must come back exactly.
   { ...blank, name: "A-Side", notes: "email@example.com", phone: "555-0100", next_action_date: "2026-11-03" },

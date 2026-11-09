@@ -28,7 +28,13 @@ export async function GET(request: NextRequest) {
   // A reset link lets you set a password without the old one, once, for a
   // few minutes. Only a link that just worked can open that page.
   if (next === "/reset-password") {
-    res.cookies.set(RECOVERY_COOKIE, "1", { httpOnly: true, sameSite: "lax", secure: url.protocol === "https:", maxAge: 15 * 60, path: "/" });
+    res.cookies.set(RECOVERY_COOKIE, "1", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: url.protocol === "https:",
+      maxAge: 15 * 60,
+      path: "/",
+    });
   }
   return res;
 }

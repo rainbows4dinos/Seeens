@@ -50,7 +50,12 @@ export async function savePhoto(
 
   const { error } = await supabase
     .from("connections")
-    .update({ photo_path: photo.path, photo_original_path: photo.originalPath, photo_settings: settings, photo_alt: alt })
+    .update({
+      photo_path: photo.path,
+      photo_original_path: photo.originalPath,
+      photo_settings: settings,
+      photo_alt: alt,
+    })
     .eq("id", row.id)
     .eq("workspace_id", row.workspace_id);
   if (error) return { error: SAVE_FAILED };

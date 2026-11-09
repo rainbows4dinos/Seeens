@@ -14,7 +14,11 @@ const band = (id: string, extra: Partial<NetworkConnection> = {}): NetworkConnec
   ...extra,
 });
 const person = (id: string): NetworkConnection => ({ ...band(id), kind: "person", group_type: null });
-const edge = (from: string, kind: string, to: string): Edge => ({ from_connection_id: from, to_connection_id: to, kind });
+const edge = (from: string, kind: string, to: string): Edge => ({
+  from_connection_id: from,
+  to_connection_id: to,
+  kind,
+});
 
 test("label mates, shared members, and us", () => {
   const net = buildNetwork(
@@ -38,7 +42,10 @@ test("label mates, shared members, and us", () => {
   );
   assert.equal(net.usId, "Us");
   assert.deepEqual(
-    net.labelMatesOf("Mates").map((c) => c.id).sort(),
+    net
+      .labelMatesOf("Mates")
+      .map((c) => c.id)
+      .sort(),
     ["Us"],
     "archived bands aren't label mates",
   );

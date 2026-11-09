@@ -16,7 +16,10 @@ test("matches names the way the import does, within one type", () => {
     band("g", "Someone Else"),
   ];
   const groups = duplicateGroups(rows, []).map((g) => g.map((r) => r.id));
-  assert.deepEqual(groups, [["a", "b", "c"], ["d", "e"]]);
+  assert.deepEqual(groups, [
+    ["a", "b", "c"],
+    ["d", "e"],
+  ]);
 });
 
 test("a pair marked not the same drops out", () => {

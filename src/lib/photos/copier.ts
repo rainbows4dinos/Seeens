@@ -95,7 +95,8 @@ function setup(): Gl | null {
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const u: Gl["u"] = {};
-    for (const n of ["t", "res", "exposure", "contrast", "toner", "mis", "seed", "plateOn", "plate"]) u[n] = gl.getUniformLocation(prog, n);
+    for (const n of ["t", "res", "exposure", "contrast", "toner", "mis", "seed", "plateOn", "plate"])
+      u[n] = gl.getUniformLocation(prog, n);
     const tex = gl.createTexture()!;
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -201,8 +202,7 @@ export function resize(source: HTMLCanvasElement, max: number) {
 
 /** WebP where the browser can write it, otherwise JPEG. */
 export async function encode(canvas: HTMLCanvasElement, quality: number): Promise<{ blob: Blob; ext: "webp" | "jpg" }> {
-  const toBlob = (type: string) =>
-    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+  const toBlob = (type: string) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
   const webp = await toBlob("image/webp");
   if (webp && webp.type === "image/webp") return { blob: webp, ext: "webp" };
   const jpeg = await toBlob("image/jpeg");

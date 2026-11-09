@@ -86,7 +86,9 @@ export function ConnectionCard({
       onClick={onClick}
       aria-current={open ? "true" : undefined}
       data-listing={c.id}
-      className="connection-card" style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}>
+      className="connection-card"
+      style={{ "--card-tilt": `${cardTilt}deg` } as React.CSSProperties}
+    >
       <span className="card-print" aria-hidden="true">
         {/* Initials sit under the photo, so a photo that fails to load never leaves a blank print. */}
         <span className="card-print-initials">{initials(c.name)}</span>
@@ -103,7 +105,11 @@ export function ConnectionCard({
           />
         ) : null}
       </span>
-      <span className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status ?? "neutral"]} card-tape`} style={{ rotate: `${tilt}deg` }} aria-hidden="true" />
+      <span
+        className={`tape ${c.is_us ? "tape-clear" : TAPE[c.status ?? "neutral"]} card-tape`}
+        style={{ rotate: `${tilt}deg` }}
+        aria-hidden="true"
+      />
       <span className="card-meta">
         {/* Name first for screen readers; the caption row sits above it visually. */}
         <span className="flex flex-col-reverse gap-2">

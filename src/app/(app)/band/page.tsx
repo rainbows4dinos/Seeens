@@ -34,8 +34,16 @@ async function Band() {
   const [{ data: members }, invites, { count: shared }, { count: kept }] = await Promise.all([
     supabase.rpc("band_members", { p_workspace_id: ws }),
     loadPendingInvites(ws),
-    supabase.from("connections").select("id", { count: "exact", head: true }).eq("workspace_id", ws).eq("keep_private", false),
-    supabase.from("connections").select("id", { count: "exact", head: true }).eq("workspace_id", ws).eq("keep_private", true),
+    supabase
+      .from("connections")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", ws)
+      .eq("keep_private", false),
+    supabase
+      .from("connections")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", ws)
+      .eq("keep_private", true),
   ]);
   const tz = membership.timeZone;
 
@@ -46,7 +54,9 @@ async function Band() {
         <h1 className="display-l break-words">{membership.workspaceName}</h1>
         <p className="text-muted">
           Shared with everyone in {membership.workspaceName}.{" "}
-          {owner ? "As an owner, you can rename the band and change roles." : "Owners can rename the band and change roles."}
+          {owner
+            ? "As an owner, you can rename the band and change roles."
+            : "Owners can rename the band and change roles."}
         </p>
       </div>
 
@@ -80,8 +90,8 @@ async function Band() {
 
       <ProfilePanel id="band-sharing" title="What You Share" summary={sharingSummary(shared, kept)}>
         <p>
-          Other bands see the listings {membership.workspaceName} shares. Status, notes, and contacts stay yours
-          either way.
+          Other bands see the listings {membership.workspaceName} shares. Status, notes, and contacts stay yours either
+          way.
         </p>
         <p className="text-sm text-muted">{sharingSummary(shared, kept)}.</p>
         <Link href="/band/sharing" className="button-secondary self-start">
@@ -141,8 +151,8 @@ async function Band() {
                     </p>
                     <p className="text-sm text-muted">
                       {i.role === "owner" ? "Owner · " : ""}
-                      {i.email ? "Invited" : "Made"} by {mine ? "you" : i.invited_by_name}, {formatDate(i.created_at, tz)} ·
-                      expires {formatDate(i.expires_at, tz)}
+                      {i.email ? "Invited" : "Made"} by {mine ? "you" : i.invited_by_name},{" "}
+                      {formatDate(i.created_at, tz)} · expires {formatDate(i.expires_at, tz)}
                       {i.email && !i.sent_at ? " · not emailed" : ""}
                     </p>
                   </div>

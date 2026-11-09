@@ -13,8 +13,16 @@ import {
 } from "./venue-details.ts";
 
 const blank = {
-  ages: "", capacity: "", space: "", pa: "", sound: "", backline: "",
-  book_via: "", accessibility: "", special_terms: "", address: "",
+  ages: "",
+  capacity: "",
+  space: "",
+  pa: "",
+  sound: "",
+  backline: "",
+  book_via: "",
+  accessibility: "",
+  special_terms: "",
+  address: "",
 };
 
 test("reading stored details keeps only what's valid", () => {
@@ -22,14 +30,31 @@ test("reading stored details keeps only what's valid", () => {
     ages: "all_ages",
   });
   assert.deepEqual(readVenueDetails(null), {});
-  assert.deepEqual(readVenueDetails({ checked_on: "2026-11-04", sound: false }), { sound: false, checked_on: "2026-11-04" });
+  assert.deepEqual(readVenueDetails({ checked_on: "2026-11-04", sound: false }), {
+    sound: false,
+    checked_on: "2026-11-04",
+  });
 });
 
 test("the form round-trips, and blank means not sure", () => {
-  const r = venueDetailsFromForm({ ...blank, ages: "varies", pa: "yes", sound: "no", book_via: "instagram", address: " 12 Oak St " });
+  const r = venueDetailsFromForm({
+    ...blank,
+    ages: "varies",
+    pa: "yes",
+    sound: "no",
+    book_via: "instagram",
+    address: " 12 Oak St ",
+  });
   assert.ok(r.ok);
   assert.deepEqual(r.details, { address: "12 Oak St", ages: "varies", pa: true, sound: false, book_via: "instagram" });
-  assert.deepEqual(venueDetailsToForm(r.details), { ...blank, address: "12 Oak St", ages: "varies", pa: "yes", sound: "no", book_via: "instagram" });
+  assert.deepEqual(venueDetailsToForm(r.details), {
+    ...blank,
+    address: "12 Oak St",
+    ages: "varies",
+    pa: "yes",
+    sound: "no",
+    book_via: "instagram",
+  });
   const empty = venueDetailsFromForm(blank);
   assert.ok(empty.ok);
   assert.deepEqual(empty.details, {});
@@ -58,9 +83,21 @@ test("booking points at the contact the venue already has", () => {
       { label: "Website", url: "https://room.example.com/book" },
     ],
   };
-  assert.deepEqual(bookLine({ book_via: "email" }, c), { text: "Email", contact: "booking@example.com", href: "mailto:booking@example.com" });
-  assert.deepEqual(bookLine({ book_via: "instagram" }, c), { text: "Instagram", contact: "instagram.com/room", href: "https://instagram.com/room" });
-  assert.equal(bookLine({ book_via: "facebook" }, c)?.contact, "facebook.com/room", "found by its address when unlabeled");
+  assert.deepEqual(bookLine({ book_via: "email" }, c), {
+    text: "Email",
+    contact: "booking@example.com",
+    href: "mailto:booking@example.com",
+  });
+  assert.deepEqual(bookLine({ book_via: "instagram" }, c), {
+    text: "Instagram",
+    contact: "instagram.com/room",
+    href: "https://instagram.com/room",
+  });
+  assert.equal(
+    bookLine({ book_via: "facebook" }, c)?.contact,
+    "facebook.com/room",
+    "found by its address when unlabeled",
+  );
   assert.equal(bookLine({ book_via: "form" }, c)?.href, "https://room.example.com/book");
   assert.deepEqual(bookLine({ book_via: "email" }, { email: null, links: [] }), { text: "Email" });
   assert.deepEqual(bookLine({ book_via: "in_person" }, c), { text: "In person" });
@@ -74,7 +111,10 @@ test("details go stale after six months", () => {
 });
 
 test("a street address gets a map link; a quiet one doesn't", () => {
-  assert.equal(mapHref("123 Main St", "Portland, OR"), "https://www.openstreetmap.org/search?query=123%20Main%20St%2C%20Portland%2C%20OR");
+  assert.equal(
+    mapHref("123 Main St", "Portland, OR"),
+    "https://www.openstreetmap.org/search?query=123%20Main%20St%2C%20Portland%2C%20OR",
+  );
   assert.equal(mapHref("Ask a punk", "Portland, OR"), null);
   assert.equal(mapHref(undefined, null), null);
 });

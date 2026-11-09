@@ -39,9 +39,7 @@ async function Merge({ searchParams }: { searchParams: PageProps<"/merge">["sear
     return (
       <div className="flex flex-col items-start gap-3">
         <h1 className="display-l">Nothing to merge</h1>
-        <p className="text-muted">
-          Pick at least two. Some of these may have been merged or removed already.
-        </p>
+        <p className="text-muted">Pick at least two. Some of these may have been merged or removed already.</p>
         <Link href="/duplicates" className="button-secondary">
           See Possible Duplicates
         </Link>

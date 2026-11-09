@@ -93,7 +93,9 @@ export function PasteLineup({
         bandId,
         picked.map((r) => ({ name: r.name, roles: r.roles, former: r.former, personId: r.personId || null })),
         pick,
-      ).catch(offline({ ok: false, error: "Couldn't reach Seeens. Nothing was saved; try again." } as AddMembersResult));
+      ).catch(
+        offline({ ok: false, error: "Couldn't reach Seeens. Nothing was saved; try again." } as AddMembersResult),
+      );
       if (result.ok) onDone();
       else setError(result.error);
     });
@@ -113,8 +115,8 @@ export function PasteLineup({
               Lineup
             </label>
             <p id={`${id}-hint`} className="-mt-1 text-sm text-muted">
-              Paste it from their site, Bandcamp, or a press kit. One person per line, with roles after a dash.
-              Nothing is saved until you check it.
+              Paste it from their site, Bandcamp, or a press kit. One person per line, with roles after a dash. Nothing
+              is saved until you check it.
             </p>
             <textarea
               {...noAutofill}
@@ -266,7 +268,9 @@ function PreviewRow({
               ))}
               <option value="">Add as a New Person</option>
             </select>
-            {r.alreadyMember ? <p className="text-muted">Already a member of this band, so they&rsquo;ll be skipped.</p> : null}
+            {r.alreadyMember ? (
+              <p className="text-muted">Already a member of this band, so they&rsquo;ll be skipped.</p>
+            ) : null}
           </div>
         ) : (
           <p className="text-muted">New to your directory. They&rsquo;ll be added as a musician.</p>

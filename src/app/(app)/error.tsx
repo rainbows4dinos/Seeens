@@ -30,8 +30,8 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         That didn&rsquo;t load.
       </h1>
       <p className="text-muted">
-        Seeens couldn&rsquo;t reach your band&rsquo;s data just now. It&rsquo;s usually a dropped connection.
-        Nothing saved is lost.
+        Seeens couldn&rsquo;t reach your band&rsquo;s data just now. It&rsquo;s usually a dropped connection. Nothing
+        saved is lost.
       </p>
       <div className="flex flex-wrap gap-3">
         <button type="button" className="button-primary" onClick={retry}>

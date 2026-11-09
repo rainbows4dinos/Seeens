@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { ArrowsHorizontal, Checkmark } from "@carbon/icons-react";
-import {
-  getCurrentUser,
-  getMembership,
-  getMemberships,
-  getUsConnection,
-} from "@/lib/auth/dal";
+import { getCurrentUser, getMembership, getMemberships, getUsConnection } from "@/lib/auth/dal";
 import { switchBand } from "@/lib/auth/band-switch";
 import { initials } from "@/lib/connections/card";
 import { photoUrl } from "@/lib/photos/urls";
@@ -34,12 +29,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Link href="/" className="logo">
                 {/* Figma Logo component: the hand-set wordmark with its cyan misregister and rub-down. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/brand/seeens-logo.svg"
-                  alt="Seeens"
-                  width={75}
-                  height={18}
-                />
+                <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
                 {/* Everyone is a tester for now (#71). */}
                 <span className="logo-beta">Beta</span>
               </Link>
@@ -59,9 +49,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <MobileMenu>
             <MainNav layout="menu" />
             <FeedbackLink className="nav-chip w-full justify-end" />
-            <Suspense
-              fallback={<span className="caption self-end">Loading…</span>}
-            >
+            <Suspense fallback={<span className="caption self-end">Loading…</span>}>
               <Account layout="menu" />
             </Suspense>
           </MobileMenu>
@@ -88,12 +76,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             Seeens &amp; AI
           </Link>{" "}
           · Town data from{" "}
-          <a
-            href="https://www.geonames.org/"
-            className="link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://www.geonames.org/" className="link" target="_blank" rel="noopener noreferrer">
             GeoNames
           </a>{" "}
           (
@@ -125,9 +108,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   // the page's own error state explains what happened.
   const membership = await getMembership().catch(() => null);
   const others = membership
-    ? (await getMemberships().catch(() => [])).filter(
-        (m) => m.workspaceId !== membership.workspaceId,
-      )
+    ? (await getMemberships().catch(() => [])).filter((m) => m.workspaceId !== membership.workspaceId)
     : [];
   const us = membership ? await getUsConnection() : null;
   const { data: appAdmin } = await (await createClient()).rpc("is_app_admin");
@@ -147,9 +128,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
             href={us ? `/connections/${us.id}` : "/add?us=1"}
             className="nav-chip nav-chip-inverse menu-item"
             aria-label={
-              us
-                ? `${membership.workspaceName}, your band's page`
-                : `${membership.workspaceName}: add your band's page`
+              us ? `${membership.workspaceName}, your band's page` : `${membership.workspaceName}: add your band's page`
             }
           >
             {membership.workspaceName}
@@ -175,10 +154,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
       <div className="menu-group">
         <p className="caption break-all">You · {name}</p>
         {membership?.connectionId ? (
-          <a
-            href={`/connections/${membership.connectionId}`}
-            className="nav-chip menu-item"
-          >
+          <a href={`/connections/${membership.connectionId}`} className="nav-chip menu-item">
             Your Page
           </a>
         ) : null}
@@ -210,10 +186,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           About Seeens
         </Link>
       </div>
-      <SignOutForm
-        className="menu-group"
-        buttonClassName="nav-chip menu-item"
-      />
+      <SignOutForm className="menu-group" buttonClassName="nav-chip menu-item" />
     </>
   );
 

@@ -81,7 +81,14 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
 
   function toTowns() {
     if (!built) return;
-    const texts = [...new Set(built.rows.map((r) => r.town ?? defaultTown).map((t) => t.trim()).filter(Boolean))];
+    const texts = [
+      ...new Set(
+        built.rows
+          .map((r) => r.town ?? defaultTown)
+          .map((t) => t.trim())
+          .filter(Boolean),
+      ),
+    ];
     if (!texts.length) {
       setTowns([]);
       setStep("review");
@@ -122,7 +129,11 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
     <div className="flex flex-col gap-6">
       <ol className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted" aria-label="Steps">
         {(["file", "columns", "towns", "review"] as const).map((s, i) => (
-          <li key={s} aria-current={step === s ? "step" : undefined} className={step === s ? "font-semibold text-primary" : ""}>
+          <li
+            key={s}
+            aria-current={step === s ? "step" : undefined}
+            className={step === s ? "font-semibold text-primary" : ""}
+          >
             {i + 1}. {{ file: "File", columns: "Columns", towns: "Towns", review: "Review" }[s]}
           </li>
         ))}
@@ -152,8 +163,8 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
             Where each column goes
           </h2>
           <p className="text-sm text-muted">
-            Guessed from the headers. Anything Seeens can&rsquo;t read, or marked with a ? (&ldquo;Chris?&rdquo;),
-            goes into notes instead of a field.
+            Guessed from the headers. Anything Seeens can&rsquo;t read, or marked with a ? (&ldquo;Chris?&rdquo;), goes
+            into notes instead of a field.
           </p>
           <div className="flex flex-col divide-y divide-[var(--color-border-subtle)] border border-strong bg-surface">
             {sheet.headers.map((h, i) => {
@@ -204,7 +215,12 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
             />
           </div>
           <div className="flex flex-wrap gap-3">
-            <button type="button" className="button-primary" disabled={!mapping.includes("name") || pending} onClick={toTowns}>
+            <button
+              type="button"
+              className="button-primary"
+              disabled={!mapping.includes("name") || pending}
+              onClick={toTowns}
+            >
               {pending ? "Looking up towns…" : "Next"}
             </button>
             <button type="button" className="button-secondary" onClick={() => setStep("file")}>
@@ -230,7 +246,9 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
                   id={`town-${i}`}
                   className="field"
                   value={placeFor[t.text] ?? ""}
-                  onChange={(e) => setPlaceFor((p) => ({ ...p, [t.text]: e.target.value ? Number(e.target.value) : null }))}
+                  onChange={(e) =>
+                    setPlaceFor((p) => ({ ...p, [t.text]: e.target.value ? Number(e.target.value) : null }))
+                  }
                 >
                   {t.options.map((o) => (
                     <option key={o.id} value={o.id}>
@@ -303,7 +321,11 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
             <button type="button" className="button-primary" disabled={pending || !included.length} onClick={save}>
               {pending ? "Importing…" : `Import ${included.length}`}
             </button>
-            <button type="button" className="button-secondary" onClick={() => setStep(towns.length ? "towns" : "columns")}>
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={() => setStep(towns.length ? "towns" : "columns")}
+            >
               Back
             </button>
           </div>
@@ -315,10 +337,16 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
           <p className="font-medium">
             Added {result.added}
             {result.filled ? `, filled in ${result.filled}` : ""}
-            {result.bookersAdded ? `, and ${result.bookersAdded} new ${result.bookersAdded === 1 ? "booker" : "bookers"}` : ""}.
+            {result.bookersAdded
+              ? `, and ${result.bookersAdded} new ${result.bookersAdded === 1 ? "booker" : "bookers"}`
+              : ""}
+            .
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href={`/?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}`} className="button-primary">
+            <Link
+              href={`/?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}`}
+              className="button-primary"
+            >
               See Them in the Directory
             </Link>
             <button
@@ -457,11 +485,7 @@ function ReviewRow({
       <div className="flex min-w-0 flex-col gap-1">
         <p className="flex flex-wrap items-baseline gap-x-2">
           <span className="font-medium break-words">{r.name}</span>
-          {match ? (
-            <span className="tag">Already here: fill blanks</span>
-          ) : (
-            <span className="tag">New</span>
-          )}
+          {match ? <span className="tag">Already here: fill blanks</span> : <span className="tag">New</span>}
           <span className="text-sm text-muted">line {r.line}</span>
         </p>
         <p className="text-sm text-muted break-words">{details.join(" · ")}</p>

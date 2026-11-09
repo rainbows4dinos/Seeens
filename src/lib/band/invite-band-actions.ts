@@ -13,24 +13,18 @@ import { siteOrigin } from "@/lib/origin";
 export type InviteBandState = { error?: string; done?: string; link?: string };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const inviteLink = async (token: string) =>
-  `${await siteOrigin()}/invite/${token}`;
+const inviteLink = async (token: string) => `${await siteOrigin()}/invite/${token}`;
 
-export async function inviteBand(
-  _prev: InviteBandState,
-  formData: FormData,
-): Promise<InviteBandState> {
+export async function inviteBand(_prev: InviteBandState, formData: FormData): Promise<InviteBandState> {
   const listingId = String(formData.get("listing_id") ?? "");
   const newBand = String(formData.get("new_band") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const asLink = formData.get("mode") === "link";
-  if (!UUID.test(listingId) && !newBand)
-    return { error: "Pick the band, or type its name if it isn't listed." };
+  if (!UUID.test(listingId) && !newBand) return { error: "Pick the band, or type its name if it isn't listed." };
   if (!asLink && !email)
     return {
-      error:
-        "Add the owner's email, like sam@example.com. Or copy a link instead.",
+      error: "Add the owner's email, like sam@example.com. Or copy a link instead.",
     };
 
   const supabase = await createClient();
@@ -43,20 +37,15 @@ export async function inviteBand(
   const row = data?.[0];
   if (error || !row) {
     const msg = error?.message ?? "";
-    if (msg.includes("already claimed"))
-      return { error: "That band's already been invited. Refresh the page." };
+    if (msg.includes("already claimed")) return { error: "That band's already been invited. Refresh the page." };
     if (msg.includes("already listed"))
       return {
         error: `${newBand} is already in the directory. Pick it from the list.`,
       };
-    if (msg.includes("not a band listing"))
-      return { error: "That listing can't be invited. Refresh the page." };
-    if (msg.includes("not an email"))
-      return { error: "That doesn't look like an email address." };
-    if (msg.includes("opted out"))
-      return { error: `${email} asked not to get email from Seeens.` };
-    if (msg.includes("1 to 80"))
-      return { error: "Keep the band's name under 80 characters." };
+    if (msg.includes("not a band listing")) return { error: "That listing can't be invited. Refresh the page." };
+    if (msg.includes("not an email")) return { error: "That doesn't look like an email address." };
+    if (msg.includes("opted out")) return { error: `${email} asked not to get email from Seeens.` };
+    if (msg.includes("1 to 80")) return { error: "Keep the band's name under 80 characters." };
     return { error: "Couldn't invite the band. Try again." };
   }
   revalidatePath("/admin/bands");
@@ -84,17 +73,13 @@ export async function inviteBand(
 }
 
 /** A fresh link for a band's waiting owner; the old one stops working. */
-export async function renewBandInvite(
-  inviteId: string,
-): Promise<InviteBandState> {
-  if (!UUID.test(inviteId))
-    return { error: "Couldn't make a link. Try again." };
+export async function renewBandInvite(inviteId: string): Promise<InviteBandState> {
+  if (!UUID.test(inviteId)) return { error: "Couldn't make a link. Try again." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("renew_band_invite", {
     p_invite_id: inviteId,
   });
-  if (error || !data)
-    return { error: "That invite was used or closed. Refresh the page." };
+  if (error || !data) return { error: "That invite was used or closed. Refresh the page." };
   revalidatePath("/admin/bands");
   return {
     done: "New link ready. The old one no longer works.",
@@ -102,16 +87,8 @@ export async function renewBandInvite(
   };
 }
 
-async function emailOwner(
-  to: string,
-  link: string,
-  band: string,
-  name: string,
-) {
-  const [me, membership] = await Promise.all([
-    getCurrentUser(),
-    getMembership(),
-  ]);
+async function emailOwner(to: string, link: string, band: string, name: string) {
+  const [me, membership] = await Promise.all([getCurrentUser(), getMembership()]);
   const admin = membership?.displayName || "Seeens";
   return sendEmail({
     to,

@@ -10,10 +10,7 @@ export type ModeratorFormState = { error?: string; done?: string };
 
 // Admins make and remove moderators (#195), picked by name. The database checks it's an
 // admin asking; these only turn its answers into words.
-export async function grantModerator(
-  _prev: ModeratorFormState,
-  formData: FormData,
-): Promise<ModeratorFormState> {
+export async function grantModerator(_prev: ModeratorFormState, formData: FormData): Promise<ModeratorFormState> {
   const userId = String(formData.get("user_id") ?? "");
   const name = String(formData.get("user_name") ?? "").trim();
   if (!userId) return { error: "Pick someone first." };
@@ -21,8 +18,7 @@ export async function grantModerator(
   const { data, error } = await supabase.rpc("grant_moderator_user", {
     p_user_id: userId,
   });
-  if (error?.code === "P0002")
-    return { error: "That account isn't here anymore." };
+  if (error?.code === "P0002") return { error: "That account isn't here anymore." };
   if (error) return { error: "Couldn't save. Try again." };
   revalidatePath("/admin/moderators");
   const who = name || "They";
@@ -38,10 +34,7 @@ export async function grantModerator(
 }
 
 async function emailNewModerator(to: string) {
-  const [me, membership] = await Promise.all([
-    getCurrentUser(),
-    getMembership(),
-  ]);
+  const [me, membership] = await Promise.all([getCurrentUser(), getMembership()]);
   const admin = membership?.displayName || "An admin";
   return sendEmail({
     to,

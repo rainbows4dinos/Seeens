@@ -23,7 +23,9 @@ export async function loadDuplicateGroups() {
     fetchAll((from, to) =>
       supabase
         .from("connections")
-        .select(`id, name, kind, group_type, person_roles, catalog_no, created_at, band:connection_band_details!inner ( archived_at ), ${LOCALITY}`)
+        .select(
+          `id, name, kind, group_type, person_roles, catalog_no, created_at, band:connection_band_details!inner ( archived_at ), ${LOCALITY}`,
+        )
         .eq("workspace_id", ws)
         .is("band.archived_at", null)
         .order("name")

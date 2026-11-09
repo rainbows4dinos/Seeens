@@ -77,23 +77,14 @@ export async function GettingStarted() {
   if (doneCount === steps.length) return null;
 
   return (
-    <ProfilePanel
-      id="getting-started"
-      title="Getting Started"
-      summary={`${doneCount} of ${steps.length} done`}
-    >
+    <ProfilePanel id="getting-started" title="Getting Started" summary={`${doneCount} of ${steps.length} done`}>
       <div className="flex flex-col gap-5">
         <p className="text-muted">
-          Welcome to {band} on Seeens. A few things to do first, in any order.
-          They check themselves off.
+          Welcome to {band} on Seeens. A few things to do first, in any order. They check themselves off.
         </p>
         <ol className="getting-started flex flex-col">
           {steps.map((s, i) => (
-            <li
-              key={s.title}
-              className="flex gap-4 py-4"
-              data-done={s.done ? "" : undefined}
-            >
+            <li key={s.title} className="flex gap-4 py-4" data-done={s.done ? "" : undefined}>
               <span className="getting-started-mark" aria-hidden="true">
                 {s.done ? <Checkmark size={16} /> : i + 1}
               </span>
@@ -107,23 +98,11 @@ export async function GettingStarted() {
                   <div className="flex flex-wrap gap-3 pt-1">
                     {s.links.map((l, j) =>
                       "plain" in l ? (
-                        <a
-                          key={l.href}
-                          href={l.href}
-                          className={
-                            j === 0 ? "button-primary" : "button-secondary"
-                          }
-                        >
+                        <a key={l.href} href={l.href} className={j === 0 ? "button-primary" : "button-secondary"}>
                           {l.label}
                         </a>
                       ) : (
-                        <Link
-                          key={l.href}
-                          href={l.href}
-                          className={
-                            j === 0 ? "button-primary" : "button-secondary"
-                          }
-                        >
+                        <Link key={l.href} href={l.href} className={j === 0 ? "button-primary" : "button-secondary"}>
                           {l.label}
                         </Link>
                       ),

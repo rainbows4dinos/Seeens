@@ -26,14 +26,8 @@ export function linksPanelProps(detail: ConnectionDetail) {
   };
 }
 
-function linkRows(
-  subject: ConnectionDetail["connection"],
-  affiliations: ConnectionDetail["affiliations"],
-): LinkRow[] {
-  const make = (
-    a: ConnectionDetail["affiliations"]["outgoing"][number],
-    direction: "out" | "in",
-  ): LinkRow | null =>
+function linkRows(subject: ConnectionDetail["connection"], affiliations: ConnectionDetail["affiliations"]): LinkRow[] {
+  const make = (a: ConnectionDetail["affiliations"]["outgoing"][number], direction: "out" | "in"): LinkRow | null =>
     a.other
       ? {
           id: a.id,

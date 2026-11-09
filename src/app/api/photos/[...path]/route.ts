@@ -28,7 +28,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
   let body: ArrayBuffer | Buffer = await file.arrayBuffer();
   let type = file.type || "image/webp";
   if ((PHOTO_WIDTHS as readonly number[]).includes(w)) {
-    body = await sharp(Buffer.from(body)).resize({ width: w, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+    body = await sharp(Buffer.from(body))
+      .resize({ width: w, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
     type = "image/webp";
   }
   return new Response(new Uint8Array(body), {

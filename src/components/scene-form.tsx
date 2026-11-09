@@ -67,7 +67,8 @@ export function SceneForm({
           <p id="s-name-hint" className="-mt-1 text-sm text-muted">
             Like &ldquo;Portland DIY&rdquo; or, for a bigger region, &ldquo;Pacific Northwest.&rdquo;
           </p>
-          <input {...noAutofill}
+          <input
+            {...noAutofill}
             id="s-name"
             name="name"
             defaultValue={v.name}
@@ -121,7 +122,14 @@ export function SceneForm({
           <label htmlFor="s-description" className="label">
             Description <span className="font-normal text-muted">(Optional)</span>
           </label>
-          <textarea {...noAutofill} id="s-description" name="description" rows={3} defaultValue={v.description} className="field" />
+          <textarea
+            {...noAutofill}
+            id="s-description"
+            name="description"
+            rows={3}
+            defaultValue={v.description}
+            className="field"
+          />
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -154,8 +162,7 @@ function RemoveScene({ id, name }: { id: string; name: string }) {
         <div role="group" aria-label={`Remove ${name}`} className="flex flex-col gap-3 panel p-4">
           <p className="font-medium">Remove {name}?</p>
           <p className="text-sm text-muted">
-            Listings in it stay in the directory; they just lose this scene tag. Scenes inside it become
-            stand-alone.
+            Listings in it stay in the directory; they just lose this scene tag. Scenes inside it become stand-alone.
           </p>
           <div className="flex flex-wrap gap-3">
             <button

@@ -18,9 +18,7 @@ const MIN_PASSWORD = 8;
 
 function rateLimited(error: { status?: number; code?: string }) {
   return (
-    error.status === 429 ||
-    error.code === "over_email_send_rate_limit" ||
-    error.code === "over_request_rate_limit"
+    error.status === 429 || error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit"
   );
 }
 
@@ -38,18 +36,13 @@ export async function updateDisplayName(name: string): Promise<FormState> {
   return { done: "Saved" };
 }
 
-export async function changeEmail(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
+export async function changeEmail(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await getCurrentUser();
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    return { error: "Enter an email address, like you@example.com." };
-  if (email === user.email?.toLowerCase())
-    return { error: "That's already your email." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter an email address, like you@example.com." };
+  if (email === user.email?.toLowerCase()) return { error: "That's already your email." };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser(
@@ -59,8 +52,7 @@ export async function changeEmail(
     },
   );
   if (error) {
-    if (error.code === "email_exists")
-      return { error: "Another account already uses that email." };
+    if (error.code === "email_exists") return { error: "Another account already uses that email." };
     if (rateLimited(error))
       return {
         error: "Too many emails just now. Wait a few minutes and try again.",
@@ -74,17 +66,13 @@ export async function changeEmail(
   };
 }
 
-export async function changePassword(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
+export async function changePassword(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await getCurrentUser();
   const current = String(formData.get("current_password") ?? "");
   const next = String(formData.get("new_password") ?? "");
   const confirm = String(formData.get("confirm_password") ?? "");
   if (!current) return { error: "Enter your current password." };
-  if (next.length < MIN_PASSWORD)
-    return { error: `Use at least ${MIN_PASSWORD} characters.` };
+  if (next.length < MIN_PASSWORD) return { error: `Use at least ${MIN_PASSWORD} characters.` };
   if (next !== confirm) return { error: "The new passwords don't match." };
   if (!user.email) return { error: "Couldn't change it. Try again." };
 
@@ -96,16 +84,13 @@ export async function changePassword(
     password: current,
   });
   if (check.error) {
-    if (rateLimited(check.error))
-      return { error: "Too many tries. Wait a minute and try again." };
+    if (rateLimited(check.error)) return { error: "Too many tries. Wait a minute and try again." };
     return { error: "That's not your current password." };
   }
   const { error } = await supabase.auth.updateUser({ password: next });
   if (error) {
-    if (error.code === "same_password")
-      return { error: "That's your current password. Pick a new one." };
-    if (error.code === "weak_password")
-      return { error: "Pick a stronger password." };
+    if (error.code === "same_password") return { error: "That's your current password. Pick a new one." };
+    if (error.code === "weak_password") return { error: "Pick a stronger password." };
     return { error: "Couldn't change it. Try again." };
   }
   return { done: "Password changed." };
@@ -141,20 +126,15 @@ export async function leaveBand(workspaceId: string): Promise<FormState> {
 // that every band you own keeps an owner. Then the auth user is deleted with
 // the admin API, your memberships go with it, and what you added stays with
 // each band.
-export async function deleteAccount(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
+export async function deleteAccount(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await getCurrentUser();
   const password = String(formData.get("password") ?? "");
-  if (String(formData.get("confirm") ?? "").trim() !== "DELETE")
-    return { error: "Type DELETE to confirm." };
+  if (String(formData.get("confirm") ?? "").trim() !== "DELETE") return { error: "Type DELETE to confirm." };
   if (!password) return { error: "Enter your password." };
   if (!user.email) return { error: "Couldn't delete it. Try again." };
 
   const admin = createAdminClient();
-  if (!admin)
-    return { error: "Accounts can't be deleted right now. Try again later." };
+  if (!admin) return { error: "Accounts can't be deleted right now. Try again later." };
 
   const supabase = await createClient();
   const check = await supabase.auth.signInWithPassword({
@@ -162,13 +142,10 @@ export async function deleteAccount(
     password,
   });
   if (check.error) {
-    if (rateLimited(check.error))
-      return { error: "Too many tries. Wait a minute and try again." };
+    if (rateLimited(check.error)) return { error: "Too many tries. Wait a minute and try again." };
     return { error: "That's not your password." };
   }
-  const { data: blocking, error } = await supabase.rpc(
-    "prepare_account_deletion",
-  );
+  const { data: blocking, error } = await supabase.rpc("prepare_account_deletion");
   if (error) return { error: "Couldn't delete it. Try again." };
   if (blocking?.length) {
     return {
@@ -185,15 +162,11 @@ export async function deleteAccount(
 
 // Forgot password, from Sign In. Says the same thing whether or not there's
 // an account, so it can't be used to find out who has one.
-export async function requestPasswordReset(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
+export async function requestPasswordReset(_prev: FormState, formData: FormData): Promise<FormState> {
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    return { error: "Enter your email address." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter your email address." };
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${await siteOrigin()}/auth/callback?next=/reset-password`,
@@ -208,24 +181,18 @@ export async function requestPasswordReset(
 }
 
 // The page a reset link lands on: a new password, no old one needed.
-export async function resetPassword(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
+export async function resetPassword(_prev: FormState, formData: FormData): Promise<FormState> {
   await getCurrentUser();
   const jar = await cookies();
-  if (!jar.get(RECOVERY_COOKIE))
-    return { error: "This link has run out. Ask for a new one from Sign In." };
+  if (!jar.get(RECOVERY_COOKIE)) return { error: "This link has run out. Ask for a new one from Sign In." };
   const next = String(formData.get("new_password") ?? "");
   const confirm = String(formData.get("confirm_password") ?? "");
-  if (next.length < MIN_PASSWORD)
-    return { error: `Use at least ${MIN_PASSWORD} characters.` };
+  if (next.length < MIN_PASSWORD) return { error: `Use at least ${MIN_PASSWORD} characters.` };
   if (next !== confirm) return { error: "The passwords don't match." };
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: next });
   if (error) {
-    if (error.code === "weak_password")
-      return { error: "Pick a stronger password." };
+    if (error.code === "weak_password") return { error: "Pick a stronger password." };
     return { error: "Couldn't set it. Open the link from your email again." };
   }
   jar.delete(RECOVERY_COOKIE);

@@ -32,5 +32,8 @@ test("date line labels stay short", () => {
   assert.ok(long.length <= 40, long);
   assert.ok(long.endsWith("…"));
   assert.equal(long, "Talked after their set about a split…");
-  assert.equal(shortLabel("Supercalifragilisticexpialidocious-and-then-some-more-words"), "Supercalifragilisticexpialidocious-and…");
+  assert.equal(
+    shortLabel("Supercalifragilisticexpialidocious-and-then-some-more-words"),
+    "Supercalifragilisticexpialidocious-and…",
+  );
 });

@@ -83,12 +83,9 @@ export function issueDraftUrl(f: DraftSource): string {
   ].filter(Boolean);
   // Long feedback is cut so the link stays under browser limits.
   const text = f.body.trim().length > 3000 ? `${f.body.trim().slice(0, 3000)}…` : f.body.trim();
-  const body = [
-    "From beta feedback.",
-    "",
-    text.replace(/^/gm, "> "),
-    ...(context.length ? ["", ...context] : []),
-  ].join("\n");
+  const body = ["From beta feedback.", "", text.replace(/^/gm, "> "), ...(context.length ? ["", ...context] : [])].join(
+    "\n",
+  );
   const labels = f.kind === "bug" ? "bug" : f.kind === "idea" ? "enhancement" : "";
   const params = new URLSearchParams({ title, body, ...(labels ? { labels } : {}) });
   return `${REPO}/issues/new?${params.toString()}`;

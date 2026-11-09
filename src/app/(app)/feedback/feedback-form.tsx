@@ -38,7 +38,9 @@ export function FeedbackForm({ userId, from, band, path, version, digest, initia
       if (error) return { error: "Couldn't upload the screenshot. Remove it, or try again." };
       fd.set("screenshot_path", p);
     }
-    return sendFeedback(prev, fd).catch(() => ({ error: "Couldn't reach Seeens. Your text is still here; try again." }));
+    return sendFeedback(prev, fd).catch(() => ({
+      error: "Couldn't reach Seeens. Your text is still here; try again.",
+    }));
   }, {});
 
   // Browser details and any saved draft, once in the browser.

@@ -145,10 +145,12 @@ export function MemberControls({ userId, name, role }: { userId: string; name: s
         )}
       </div>
       {confirming ? (
-        <div role="group" aria-label={`Remove ${name}?`} className="flex flex-col gap-2 border border-dashed border-strong p-3 text-sm">
-          <p>
-            Remove {name}? They lose access right away. Everything they added stays, and you can invite them back.
-          </p>
+        <div
+          role="group"
+          aria-label={`Remove ${name}?`}
+          className="flex flex-col gap-2 border border-dashed border-strong p-3 text-sm"
+        >
+          <p>Remove {name}? They lose access right away. Everything they added stays, and you can invite them back.</p>
           <div className="flex flex-wrap justify-end gap-3">
             <button
               type="button"
@@ -187,7 +189,14 @@ export function InviteForm({ canInviteOwners, bandName }: { canInviteOwners: boo
           <label htmlFor="invite-email" className="label">
             Email
           </label>
-          <input {...noAutofill} id="invite-email" name="email" type="email" className="field" placeholder="sam@example.com" />
+          <input
+            {...noAutofill}
+            id="invite-email"
+            name="email"
+            type="email"
+            className="field"
+            placeholder="sam@example.com"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="invite-name" className="label">
@@ -230,14 +239,29 @@ export function PendingInviteActions({ id, hasEmail, label }: { id: string; hasE
     <div className="flex basis-full flex-col gap-2 sm:basis-auto sm:items-end">
       <div className="flex flex-wrap gap-3 sm:justify-end">
         {hasEmail ? (
-          <button type="button" className="button-secondary" disabled={pending} onClick={() => run(() => resendInvite(id))}>
+          <button
+            type="button"
+            className="button-secondary"
+            disabled={pending}
+            onClick={() => run(() => resendInvite(id))}
+          >
             Resend<span className="sr-only"> to {label}</span>
           </button>
         ) : null}
-        <button type="button" className="button-secondary" disabled={pending} onClick={() => run(() => renewInviteLink(id))}>
+        <button
+          type="button"
+          className="button-secondary"
+          disabled={pending}
+          onClick={() => run(() => renewInviteLink(id))}
+        >
           New Link<span className="sr-only"> for {label}</span>
         </button>
-        <button type="button" className="button-secondary" disabled={pending} onClick={() => run(() => revokeInvite(id))}>
+        <button
+          type="button"
+          className="button-secondary"
+          disabled={pending}
+          onClick={() => run(() => revokeInvite(id))}
+        >
           Revoke<span className="sr-only"> {label}</span>
         </button>
       </div>

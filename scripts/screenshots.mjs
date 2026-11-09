@@ -65,7 +65,10 @@ await mkdir(OUT, { recursive: true });
 // Loads a connection's full page. Clicking a directory row opens the quick
 // view instead (#126), so go to the row's address directly.
 async function openFullPage(page, name) {
-  const href = await page.getByRole("link", { name: new RegExp(name) }).first().getAttribute("href");
+  const href = await page
+    .getByRole("link", { name: new RegExp(name) })
+    .first()
+    .getAttribute("href");
   await page.goto(`${BASE_URL}${href}`);
 }
 
@@ -136,8 +139,14 @@ try {
 
   // A row opens the quick view beside the list.
   await page.goto(`${BASE_URL}/?type=bands`);
-  await page.getByRole("link", { name: /The Tin Hollows/ }).first().click();
-  await page.getByRole("complementary", { name: "Quick view" }).getByRole("heading", { name: "The Tin Hollows" }).waitFor();
+  await page
+    .getByRole("link", { name: /The Tin Hollows/ })
+    .first()
+    .click();
+  await page
+    .getByRole("complementary", { name: "Quick view" })
+    .getByRole("heading", { name: "The Tin Hollows" })
+    .waitFor();
   await shot(page, "quick-view.png");
 
   await page.goto(`${BASE_URL}/`);
@@ -174,7 +183,9 @@ try {
   // Send Feedback, filled in, from the Scenes page.
   await page.goto(`${BASE_URL}/feedback?from=%2Fscenes`);
   await page.getByLabel("Idea").check();
-  await page.getByLabel("What Happened").fill("Could scenes show which venues book which genres? I'd use that to plan a run.");
+  await page
+    .getByLabel("What Happened")
+    .fill("Could scenes show which venues book which genres? I'd use that to plan a run.");
   await shot(page, "feedback.png", { fullPage: true });
   await desktop.close();
 
@@ -192,8 +203,14 @@ try {
 
   // On a phone the quick view is a sheet under the header.
   await phone.goto(`${BASE_URL}/?type=venues`);
-  await phone.getByRole("link", { name: /The Lantern Room/ }).first().click();
-  await phone.getByRole("complementary", { name: "Quick view" }).getByRole("heading", { name: "The Lantern Room" }).waitFor();
+  await phone
+    .getByRole("link", { name: /The Lantern Room/ })
+    .first()
+    .click();
+  await phone
+    .getByRole("complementary", { name: "Quick view" })
+    .getByRole("heading", { name: "The Lantern Room" })
+    .waitFor();
   await shot(phone, "mobile-quick-view.png");
   await mobile.close();
 } finally {

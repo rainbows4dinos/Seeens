@@ -19,8 +19,7 @@ export function pairKey(a: string, b: string) {
 export function pairsOf(ids: string[]): [string, string][] {
   const out: [string, string][] = [];
   const sorted = [...new Set(ids)].sort();
-  for (let i = 0; i < sorted.length; i++)
-    for (let j = i + 1; j < sorted.length; j++) out.push([sorted[i], sorted[j]]);
+  for (let i = 0; i < sorted.length; i++) for (let j = i + 1; j < sorted.length; j++) out.push([sorted[i], sorted[j]]);
   return out;
 }
 
@@ -51,7 +50,13 @@ export function nameKeys(name: string): string[] {
     .split(/[\s-]+/)
     .map((w) => w.replace(/[^\p{L}\p{N}]/gu, ""))
     .filter(Boolean);
-  if (words.length >= 3) add(`spells:${words.map((w) => w[0]).join("").toLowerCase()}`);
+  if (words.length >= 3)
+    add(
+      `spells:${words
+        .map((w) => w[0])
+        .join("")
+        .toLowerCase()}`,
+    );
   return [...keys];
 }
 

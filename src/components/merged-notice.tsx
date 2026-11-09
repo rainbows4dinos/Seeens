@@ -61,12 +61,7 @@ export function MergedNotice({
         here now.
       </p>
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          className="button-secondary"
-          disabled={pending}
-          onClick={undo}
-        >
+        <button type="button" className="button-secondary" disabled={pending} onClick={undo}>
           {pending ? "Undoing…" : "Undo Merge"}
         </button>
         <span className="text-sm text-muted">Until {until}</span>

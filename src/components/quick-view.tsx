@@ -120,7 +120,15 @@ type Detail = Awaited<ReturnType<typeof getConnection>>;
 // (members, labels, who books it), how to reach them, and the start of the notes.
 // recordOnly leaves out this band's own contacts and notes (another band's
 // record page edits those below it, #185).
-export function Facts({ detail, place, recordOnly = false }: { detail: Detail; place: string | null; recordOnly?: boolean }) {
+export function Facts({
+  detail,
+  place,
+  recordOnly = false,
+}: {
+  detail: Detail;
+  place: string | null;
+  recordOnly?: boolean;
+}) {
   const c = detail.connection;
   const rows: [string, ReactNode][] = [];
 
@@ -215,7 +223,13 @@ export function Facts({ detail, place, recordOnly = false }: { detail: Detail; p
       </a>,
     ]);
   if (c.can_help_with.length) rows.push(["Can help with", c.can_help_with.join(", ")]);
-  if (c.notes && !recordOnly) rows.push(["Notes", <span key="n" className="quick-view-notes">{c.notes}</span>]);
+  if (c.notes && !recordOnly)
+    rows.push([
+      "Notes",
+      <span key="n" className="quick-view-notes">
+        {c.notes}
+      </span>,
+    ]);
 
   if (!rows.length) return null;
   return (

@@ -53,7 +53,9 @@ export function DateLines({
       {lastOutreach ? (
         <DateLine kind="past" label={lastOutreach.summary} date={lastOutreach.occurred_on} today={today} />
       ) : null}
-      {nextAction ? <DateLine kind="future" label={nextAction.description} date={nextAction.due_on} today={today} /> : null}
+      {nextAction ? (
+        <DateLine kind="future" label={nextAction.description} date={nextAction.due_on} today={today} />
+      ) : null}
     </span>
   );
 }

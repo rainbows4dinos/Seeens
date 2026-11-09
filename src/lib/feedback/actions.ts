@@ -44,7 +44,8 @@ export async function sendFeedback(_prev: SendState, formData: FormData): Promis
     p_screenshot_path: shot,
   });
   if (error || !id) {
-    if (error?.message?.includes("too many")) return { error: "That's a lot of feedback in an hour. Try again a bit later." };
+    if (error?.message?.includes("too many"))
+      return { error: "That's a lot of feedback in an hour. Try again a bit later." };
     return { error: "Couldn't send it. Your text is still here; try again." };
   }
 
@@ -122,7 +123,8 @@ export async function updateFeedback(id: string, status: Status, githubUrl: stri
   if (!supabase) return { error: "Only app admins can do that." };
   if (!UUID.test(id) || !isStatus(status)) return { error: "Couldn't save. Try again." };
   const url = githubUrl.trim();
-  if (url && !/^https:\/\/github\.com\/\S+$/.test(url)) return { error: "Paste a GitHub link, like https://github.com/…/issues/12." };
+  if (url && !/^https:\/\/github\.com\/\S+$/.test(url))
+    return { error: "Paste a GitHub link, like https://github.com/…/issues/12." };
   const { error } = await supabase.rpc("update_feedback", { p_id: id, p_status: status, p_github_url: url || null });
   if (error) return { error: "Couldn't save. Try again." };
   revalidatePath("/admin/feedback");
