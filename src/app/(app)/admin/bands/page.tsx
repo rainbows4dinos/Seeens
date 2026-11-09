@@ -61,7 +61,7 @@ async function Bands() {
               <li key={b.workspace_id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="flex min-w-0 flex-col gap-1">
                   <p className="font-medium break-words">{b.name}</p>
-                  <p className="text-sm text-muted break-all">
+                  <p className="text-sm text-muted [overflow-wrap:anywhere]">
                     {waiting
                       ? `Waiting on ${b.invite_email ?? "a link invite"} · ${
                           expired ? "Invite ran out" : `Invite runs out ${formatDate(b.invite_expires_at!, tz)}`
