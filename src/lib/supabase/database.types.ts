@@ -409,6 +409,8 @@ isOneToOne: false
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"granted_at": string,"admin": boolean }[] },
             "list_accounts":
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
+            "findable_people":
+{ Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"name": string,"added_by": string,"in_band": boolean }[] },
             "getting_started":
 { Args: { "p_workspace_id": string }; Returns: Json },
             "dismiss_getting_started":

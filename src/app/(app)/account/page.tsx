@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { getCurrentUser, getMembership, getLinkedPeople, getUsConnection } from "@/lib/auth/dal";
+import { getCurrentUser, getMembership, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
@@ -143,33 +143,21 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
   );
 }
 
-// Your person in the band's directory, and the people you could be (#44):
-// those not linked to anyone yet, your band's members first.
+// Your person in the directory, and the people you could be (#44): anyone
+// not linked to someone else, from any band (#68), your band's members first.
 async function loadYourPage(workspaceId: string, connectionId: string | null) {
   const supabase = await createClient();
-  const [us, linkedPeople] = await Promise.all([getUsConnection(), getLinkedPeople()]);
+  const [us, membership] = await Promise.all([getUsConnection(), getMembership()]);
   if (connectionId) {
     const { data } = await supabase.from("connections").select("id, name").eq("id", connectionId).maybeSingle();
     return { linked: data ? { id: data.id, name: data.name } : null, people: [], hasBandPage: Boolean(us) };
   }
-  const [{ data: people }, { data: ours }] = await Promise.all([
-    supabase
-      .from("connections")
-      .select("id, name, band:connection_band_details!inner ( archived_at )")
-      .eq("workspace_id", workspaceId)
-      .eq("kind", "person")
-      .is("merged_into", null)
-      .is("band.archived_at", null)
-      .order("name")
-      .limit(2000),
-    us
-      ? supabase.from("affiliations").select("from_connection_id").eq("to_connection_id", us.id).eq("kind", "member")
-      : Promise.resolve({ data: [] as { from_connection_id: string }[] }),
-  ]);
-  const inBand = new Set((ours ?? []).map((a) => a.from_connection_id));
-  const options = (people ?? [])
-    .filter((p) => !linkedPeople.has(p.id))
-    .map((p) => ({ value: p.id, label: p.name, hint: inBand.has(p.id) ? "In the band" : undefined }))
-    .sort((a, b) => Number(Boolean(b.hint)) - Number(Boolean(a.hint)));
+  const { data: people } = await supabase.rpc("findable_people", { p_workspace_id: workspaceId });
+  const inBandFirst = [...(people ?? [])].sort((a, b) => Number(b.in_band) - Number(a.in_band));
+  const options = inBandFirst.map((p) => ({
+    value: p.connection_id,
+    label: p.name,
+    hint: p.in_band ? "In the band" : p.added_by !== membership?.workspaceName ? `Added by ${p.added_by}` : undefined,
+  }));
   return { linked: null, people: options, hasBandPage: Boolean(us) };
 }

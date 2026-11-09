@@ -124,6 +124,7 @@ async function Connection({
         moderator={moderator}
         claim={claim}
         admin={admin}
+        you={membership.connectionId === id}
       />
     );
   }
