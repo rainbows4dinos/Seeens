@@ -59,8 +59,8 @@ select throws_ok($$ select * from public.invite_band('5bcccccc-0000-0000-0000-00
   '23514', 'not a band listing', 'not a venue');
 select throws_ok($$ select * from public.invite_band(null, 'wet paint', null, null) $$,
   '23505', 'already listed', 'typing a listed band''s name says to pick it');
-select throws_ok($$ select * from public.invite_band(null, 'Another', 'ib-member@example.com', null) $$,
-  '23505', 'already in a band', 'someone already in a band can''t start another');
+select lives_ok($$ select * from public.invite_band(null, 'Another', 'ib-member@example.com', null) $$,
+  'someone already in a band can be invited to another');
 select throws_ok($$ select * from public.invite_band(null, '', null, null) $$, '23514', null, 'a new band needs a name');
 select throws_ok($$ select * from public.invite_band(null, 'Another', 'not-an-email', null) $$,
   '22023', 'not an email address', 'a bad address');

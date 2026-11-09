@@ -11,7 +11,11 @@ export type SignInState = {
 // Only allow redirects to paths inside this app.
 function safeNext(value: FormDataEntryValue | null) {
   if (typeof value !== "string") return "/";
-  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
+  if (
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.startsWith("/\\")
+  ) {
     return "/";
   }
   return value;
