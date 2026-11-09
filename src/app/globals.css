@@ -1791,6 +1791,26 @@
     justify-content: flex-end;
     gap: var(--space-xs);
   }
+  /* Your other bands (#68): lighter than pages, so they read as choices. */
+  .menu-switch {
+    display: flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0 10px;
+    color: var(--color-text-secondary);
+    font-family: var(--type-display);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .menu-switch:hover,
+  .menu-switch:focus-visible {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+  }
+  .menu-item-after {
+    margin-top: var(--space-xs);
+  }
 
   /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):
      the full header row needs about 740px. A <details>, so it
