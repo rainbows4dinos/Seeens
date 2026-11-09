@@ -6,9 +6,7 @@ export async function loadPendingInvites(workspaceId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("invites")
-    .select(
-      "id, email, name, role, invited_by, invited_by_name, created_at, expires_at, sent_at",
-    )
+    .select("id, email, name, role, invited_by, invited_by_name, created_at, expires_at, sent_at")
     .eq("workspace_id", workspaceId)
     .is("accepted_at", null)
     .is("revoked_at", null)

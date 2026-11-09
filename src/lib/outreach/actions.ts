@@ -20,11 +20,7 @@ export type OutreachState = {
   savedAt?: number;
 };
 
-export async function logOutreach(
-  connectionId: string,
-  _prev: OutreachState,
-  fd: FormData,
-): Promise<OutreachState> {
+export async function logOutreach(connectionId: string, _prev: OutreachState, fd: FormData): Promise<OutreachState> {
   const values: OutreachValues = {
     occurredOn: str(fd, "occurred_on"),
     channel: str(fd, "channel"),

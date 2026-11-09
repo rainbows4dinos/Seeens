@@ -28,7 +28,11 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
 const all = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
 
 // Old directory views (?view=) from before the tabs still land on the right list.
-const VIEW_STATUS: Record<string, ConnectionStatus> = { lets_play: "lets_play", crushes: "prospect", prospects: "prospect" };
+const VIEW_STATUS: Record<string, ConnectionStatus> = {
+  lets_play: "lets_play",
+  crushes: "prospect",
+  prospects: "prospect",
+};
 
 export function readFilters(params: Params): DirectoryFilters {
   const view = first(params.view);

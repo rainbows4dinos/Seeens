@@ -24,9 +24,15 @@ export async function lookupTowns(texts: string[]): Promise<TownMatches[]> {
         max_results: 6,
         workspace_id: membership.workspaceId,
       });
-      const options = (data ?? []).map((p) => ({ id: p.id, label: formatPlace(p), region: p.region_code, country: p.country_code }));
+      const options = (data ?? []).map((p) => ({
+        id: p.id,
+        label: formatPlace(p),
+        region: p.region_code,
+        country: p.country_code,
+      }));
       const h = hint?.toUpperCase();
-      if (h) options.sort((a, b) => Number(b.region === h || b.country === h) - Number(a.region === h || a.country === h));
+      if (h)
+        options.sort((a, b) => Number(b.region === h || b.country === h) - Number(a.region === h || a.country === h));
       return { text, options: options.map(({ id, label }) => ({ id, label })) };
     }),
   );
@@ -36,8 +42,7 @@ export async function lookupTowns(texts: string[]): Promise<TownMatches[]> {
 export type ImportRow = Omit<DraftRow, "line" | "town"> & { place_id: number | null; match_id: string | null };
 
 export type ImportResult =
-  | { ok: true; added: number; filled: number; bookersAdded: number }
-  | { ok: false; error: string };
+  { ok: true; added: number; filled: number; bookersAdded: number } | { ok: false; error: string };
 
 export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
   const membership = await getMembership();

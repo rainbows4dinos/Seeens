@@ -33,13 +33,12 @@ async function Sharing() {
         <p className="caption">Band Settings</p>
         <h1 className="display-l break-words">What You Share</h1>
         <p className="text-muted">
-          Seeens is one directory that every band shares. Other bands see the listings {band} shares: names,
-          types, towns, links, photos, and venue details. Anything you keep private stays in {band}&rsquo;s
-          directory only.
+          Seeens is one directory that every band shares. Other bands see the listings {band} shares: names, types,
+          towns, links, photos, and venue details. Anything you keep private stays in {band}&rsquo;s directory only.
         </p>
         <p className="text-muted">
-          Status, notes, contacts, plans, outreach, played together, and archiving are always {band}&rsquo;s
-          own, shared or not. People start private; everything else starts shared.
+          Status, notes, contacts, plans, outreach, played together, and archiving are always {band}&rsquo;s own, shared
+          or not. People start private; everything else starts shared.
         </p>
       </div>
       <SharingList sections={sections} band={band} />

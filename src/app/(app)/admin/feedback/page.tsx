@@ -39,7 +39,11 @@ const UUID = /^[0-9a-f-]{36}$/;
 
 async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedback">["searchParams"] }) {
   const supabase = await createClient();
-  const [{ data: admin }, membership, sp] = await Promise.all([supabase.rpc("is_app_admin"), getMembership(), searchParams]);
+  const [{ data: admin }, membership, sp] = await Promise.all([
+    supabase.rpc("is_app_admin"),
+    getMembership(),
+    searchParams,
+  ]);
   if (!admin) notFound();
   const tz = membership?.timeZone ?? "America/Los_Angeles";
 
@@ -72,7 +76,8 @@ async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedbac
         <p className="caption">App Admin</p>
         <h1 className="display-l">Feedback Inbox</h1>
         <p className="text-muted">
-          {open?.length ?? 0} new. Everything testers sent, newest first; open one to sort it. Only app admins see this page.
+          {open?.length ?? 0} new. Everything testers sent, newest first; open one to sort it. Only app admins see this
+          page.
         </p>
       </div>
 
@@ -137,7 +142,9 @@ async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedbac
                     <span className="tag shrink-0">{statusLabel(f.status)}</span>
                     <span className="shrink-0 font-medium">{kindLabel(f.kind)}</span>
                     <span className="min-w-0 flex-1 basis-40 truncate">{f.body.split("\n")[0]}</span>
-                    {f.screenshot_path ? <Camera size={16} aria-label="With a screenshot" className="shrink-0" /> : null}
+                    {f.screenshot_path ? (
+                      <Camera size={16} aria-label="With a screenshot" className="shrink-0" />
+                    ) : null}
                     <span className="shrink-0 text-sm text-muted">
                       {f.sender_name} · {formatDate(f.created_at, tz)}
                     </span>
@@ -152,7 +159,12 @@ async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedbac
                 </p>
                 <p className="break-words whitespace-pre-line">{f.body}</p>
                 {f.screenshot_path ? (
-                  <a href={`/api/feedback-screenshots/${f.screenshot_path}`} target="_blank" rel="noopener" className="self-start">
+                  <a
+                    href={`/api/feedback-screenshots/${f.screenshot_path}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="self-start"
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element -- private, served by our own route */}
                     <img
                       src={`/api/feedback-screenshots/${f.screenshot_path}`}

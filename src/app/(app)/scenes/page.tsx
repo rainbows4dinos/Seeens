@@ -48,9 +48,8 @@ async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["se
       <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
         <p className="font-medium">No scenes yet.</p>
         <p className="text-muted">
-          Scenes group listings by local community, like &ldquo;Portland
-          DIY.&rdquo; Put local scenes inside a bigger one, like &ldquo;Pacific
-          Northwest,&rdquo; to see a whole region at once.
+          Scenes group listings by local community, like &ldquo;Portland DIY.&rdquo; Put local scenes inside a bigger
+          one, like &ldquo;Pacific Northwest,&rdquo; to see a whole region at once.
         </p>
         <Link href="/scenes/new" className="button-secondary">
           Add Your First Scene
@@ -61,32 +60,30 @@ async function Scenes({ searchParams }: { searchParams: PageProps<"/scenes">["se
 
   return (
     <div className="flex flex-col gap-3">
-    <p role="status" className="text-sm font-medium empty:hidden">
-      {savedName ? `Saved ${savedName}.` : ""}
-    </p>
-    {suggestions?.length ? <Suggestions items={suggestions} /> : null}
-    <ul className="panel rows flex flex-col">
-      {nestScenes(scenes).map(({ scene, children }) => (
-        <li key={scene.id} className="px-3 py-3">
-          <SceneRow
-            scene={scene}
-            total={
-              new Set([scene, ...children].flatMap((s) => s.connectionIds)).size
-            }
-            hasChildren={children.length > 0}
-          />
-          {children.length ? (
-            <ul className="mt-2 flex flex-col gap-2 border-l-2 border-line pl-4">
-              {children.map((c) => (
-                <li key={c.id}>
-                  <SceneRow scene={c} total={c.count} hasChildren={false} />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </li>
-      ))}
-    </ul>
+      <p role="status" className="text-sm font-medium empty:hidden">
+        {savedName ? `Saved ${savedName}.` : ""}
+      </p>
+      {suggestions?.length ? <Suggestions items={suggestions} /> : null}
+      <ul className="panel rows flex flex-col">
+        {nestScenes(scenes).map(({ scene, children }) => (
+          <li key={scene.id} className="px-3 py-3">
+            <SceneRow
+              scene={scene}
+              total={new Set([scene, ...children].flatMap((s) => s.connectionIds)).size}
+              hasChildren={children.length > 0}
+            />
+            {children.length ? (
+              <ul className="mt-2 flex flex-col gap-2 border-l-2 border-line pl-4">
+                {children.map((c) => (
+                  <li key={c.id}>
+                    <SceneRow scene={c} total={c.count} hasChildren={false} />
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -99,7 +96,10 @@ function Suggestions({
   items: { scene_id: string; scene_name: string; town: string | null; parent_name: string | null }[];
 }) {
   return (
-    <section aria-labelledby="scene-suggestions" className="flex flex-col gap-3 border border-dashed border-strong bg-surface p-4">
+    <section
+      aria-labelledby="scene-suggestions"
+      className="flex flex-col gap-3 border border-dashed border-strong bg-surface p-4"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h2 id="scene-suggestions" className="font-medium">
@@ -150,15 +150,7 @@ function Suggestions({
   );
 }
 
-function SceneRow({
-  scene,
-  total,
-  hasChildren,
-}: {
-  scene: SceneItem;
-  total: number;
-  hasChildren: boolean;
-}) {
+function SceneRow({ scene, total, hasChildren }: { scene: SceneItem; total: number; hasChildren: boolean }) {
   const place = formatLocality(scene.localities);
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
@@ -167,17 +159,12 @@ function SceneRow({
           {scene.name}
         </Link>
         <span className="text-sm text-muted">
-          {[
-            place,
-            `${total} ${total === 1 ? "listing" : "listings"}${hasChildren ? " across its scenes" : ""}`,
-          ]
+          {[place, `${total} ${total === 1 ? "listing" : "listings"}${hasChildren ? " across its scenes" : ""}`]
             .filter(Boolean)
             .map((t) => ` · ${t}`)
             .join("")}
         </span>
-        {scene.description ? (
-          <span className="block text-sm text-muted">{scene.description}</span>
-        ) : null}
+        {scene.description ? <span className="block text-sm text-muted">{scene.description}</span> : null}
       </p>
       <Link href={`/scenes/${scene.id}`} className="action-link text-sm">
         Edit<span className="sr-only"> {scene.name}</span>

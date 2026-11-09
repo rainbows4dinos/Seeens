@@ -9,7 +9,6 @@ import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
 import { liftBand } from "@/lib/connections/band-details";
 
-
 // Everything in the current workspace. Outreach history is
 // not included.
 export async function buildExportRows({ includeArchived }: { includeArchived: boolean }) {

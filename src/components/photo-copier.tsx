@@ -3,7 +3,17 @@
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { offline } from "@/lib/offline";
-import { COPY_MAX, ORIGINAL_MAX, copy, encode, hasWebGL, isBlank, loadImage, resetCopier, resize } from "@/lib/photos/copier";
+import {
+  COPY_MAX,
+  ORIGINAL_MAX,
+  copy,
+  encode,
+  hasWebGL,
+  isBlank,
+  loadImage,
+  resetCopier,
+  resize,
+} from "@/lib/photos/copier";
 import { discardUpload, removePhoto, savePhoto } from "@/lib/photos/actions";
 import { CONTRAST, EXPOSURE, GRIT, OFFSET, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
 
@@ -229,7 +239,9 @@ function CopierBody({
           });
           onClose();
         } catch (e) {
-          setError(e instanceof Error && e.message.startsWith("Couldn") ? e.message : "Couldn't make the copy. Try again.");
+          setError(
+            e instanceof Error && e.message.startsWith("Couldn") ? e.message : "Couldn't make the copy. Try again.",
+          );
         }
       });
       return;
@@ -278,7 +290,9 @@ function CopierBody({
       } catch (e) {
         if (uploaded.length) await discardUpload(connectionId, uploaded).catch(() => {});
         setMessage("");
-        setError(e instanceof Error && e.message.startsWith("Couldn") ? e.message : "Couldn't save the photo. Try again.");
+        setError(
+          e instanceof Error && e.message.startsWith("Couldn") ? e.message : "Couldn't save the photo. Try again.",
+        );
       }
     });
   }

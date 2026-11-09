@@ -64,7 +64,13 @@ export async function loadSharing(): Promise<SharingSection[]> {
       locked: keepPrivateLock(c, { owner, moderator, me: user.id, linked: linked.get(c.id) ?? null }),
     };
     const key =
-      c.kind === "person" ? "people" : c.group_type === "band" ? "bands" : c.group_type === "venue" ? "venues" : "others";
+      c.kind === "person"
+        ? "people"
+        : c.group_type === "band"
+          ? "bands"
+          : c.group_type === "venue"
+            ? "venues"
+            : "others";
     sections.find((s) => s.key === key)!.rows.push(row);
   }
   return sections;

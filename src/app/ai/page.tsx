@@ -3,17 +3,13 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Where Seeens Stands on AI · Seeens",
-  description:
-    "There's no AI in Seeens. If that ever changes, these are the rules.",
+  description: "There's no AI in Seeens. If that ever changes, these are the rules.",
 };
 
 // The public AI commitments, trimmed from the AI Constitution draft (copy in
 // the About and Help doc). Linked from About and the FAQ's AI answer.
 const RULES: [string, string][] = [
-  [
-    "Seeens never makes art.",
-    "No generated images, music, flyers, bios, or posts. Ever.",
-  ],
+  ["Seeens never makes art.", "No generated images, music, flyers, bios, or posts. Ever."],
   [
     "Seeens never speaks for you.",
     "It doesn't write your messages, and it doesn't send or post anything on your behalf.",
@@ -55,21 +51,14 @@ export default function AiPage() {
       <header className="flex flex-col items-start gap-6">
         <Link href="/about" className="logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/seeens-logo.svg"
-            alt="Seeens"
-            width={75}
-            height={18}
-          />
+          <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
         </Link>
         <h1 className="display-l sm:display-xl">Where Seeens Stands on AI</h1>
         <div className="about-prose">
           <p>
-            A lot of the DIY scene wants nothing to do with AI, and for good
-            reasons: slop, art taken without consent, companies run by a few
-            rich people, and data centers eating power and water. Seeens agrees
-            with every one of those. Seeens also believes that there are
-            ethical, and even revolutionary, ways to use AI.
+            A lot of the DIY scene wants nothing to do with AI, and for good reasons: slop, art taken without consent,
+            companies run by a few rich people, and data centers eating power and water. Seeens agrees with every one of
+            those. Seeens also believes that there are ethical, and even revolutionary, ways to use AI.
           </p>
         </div>
       </header>
@@ -79,10 +68,9 @@ export default function AiPage() {
           AI in Seeens Today
         </h2>
         <p>
-          <strong>There&rsquo;s no AI in Seeens.</strong> Nothing in the app
-          writes, makes, or guesses anything, and nothing you put in it is sent
-          to an AI service. Larry builds Seeens with an AI coding helper, since
-          it&rsquo;s one person working nights and weekends.
+          <strong>There&rsquo;s no AI in Seeens.</strong> Nothing in the app writes, makes, or guesses anything, and
+          nothing you put in it is sent to an AI service. Larry builds Seeens with an AI coding helper, since it&rsquo;s
+          one person working nights and weekends.
         </p>
       </section>
 
@@ -105,9 +93,8 @@ export default function AiPage() {
           Providers
         </h2>
         <p>
-          Nothing, yet. Before any AI feature ships, this section will name each
-          provider, what&rsquo;s sent to it, how long it&rsquo;s kept, and link
-          to its no-training terms.
+          Nothing, yet. Before any AI feature ships, this section will name each provider, what&rsquo;s sent to it, how
+          long it&rsquo;s kept, and link to its no-training terms.
         </p>
       </section>
 

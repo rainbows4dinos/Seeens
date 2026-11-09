@@ -63,7 +63,7 @@ export const INSTRUMENT_ALIASES: Record<string, Instrument> = {
   synths: "synth",
   synthesizer: "synth",
   synthesizers: "synth",
-  "electronic": "electronics",
+  electronic: "electronics",
   programming: "electronics",
   samples: "electronics",
   laptop: "electronics",
@@ -87,7 +87,11 @@ export const ROLE_SEPARATOR = /\s*(?:\/|,|&|\+|;|\band\b)\s*/i;
 export function instrumentsFromRole(role: string | null | undefined): Instrument[] {
   const out: Instrument[] = [];
   for (const part of (role ?? "").split(ROLE_SEPARATOR)) {
-    const key = part.toLowerCase().replace(/[.\s]+$/, "").replace(/\s+/g, " ").trim();
+    const key = part
+      .toLowerCase()
+      .replace(/[.\s]+$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
     if (!key) continue;
     const found = key in INSTRUMENTS ? (key as Instrument) : (INSTRUMENT_ALIASES[key] ?? null);
     if (found && !out.includes(found)) out.push(found);

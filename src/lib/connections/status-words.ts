@@ -16,8 +16,20 @@ export type WordSet = "band" | "venue" | "people" | "collab";
 export const STATUS_WORDS: Record<WordSet, Record<ConnectionStatus, string>> = {
   band: { homies: "Homies", lets_play: "Let's play", prospect: "Want to play", neutral: "Heard of", avoid: "Avoid" },
   venue: { homies: "Favorite", lets_play: "Let's book", prospect: "Want to book", neutral: "Heard of", avoid: "Avoid" },
-  people: { homies: "Homie", lets_play: "Let's collab", prospect: "Want to collab", neutral: "Heard of", avoid: "Avoid" },
-  collab: { homies: "Homies", lets_play: "Let's collab", prospect: "Want to collab", neutral: "Heard of", avoid: "Avoid" },
+  people: {
+    homies: "Homie",
+    lets_play: "Let's collab",
+    prospect: "Want to collab",
+    neutral: "Heard of",
+    avoid: "Avoid",
+  },
+  collab: {
+    homies: "Homies",
+    lets_play: "Let's collab",
+    prospect: "Want to collab",
+    neutral: "Heard of",
+    avoid: "Avoid",
+  },
 };
 
 export const STATUS_HINT_WORDS: Record<WordSet, Record<ConnectionStatus, string>> = {

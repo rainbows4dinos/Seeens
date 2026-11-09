@@ -110,19 +110,29 @@ export async function undoMerge(mergeId: string): Promise<UndoState> {
   if (!UUID.test(mergeId)) return { error: "Couldn't undo. Try again." };
   const supabase = await createClient();
   // A photo the merge copied in, to delete if undo takes it off.
-  const { data: merge } = await supabase.from("connection_merges").select("keep_id, log").eq("id", mergeId).maybeSingle();
+  const { data: merge } = await supabase
+    .from("connection_merges")
+    .select("keep_id, log")
+    .eq("id", mergeId)
+    .maybeSingle();
   const copied = Array.isArray(merge?.log)
     ? (merge.log as { op?: string; path?: string; original_path?: string }[]).find((s) => s?.op === "photo")
     : undefined;
   const { error } = await supabase.rpc("undo_merge", { p_merge: mergeId });
   if (error) {
-    if (error.message?.includes("later merge")) return { error: "This one was merged again since. Undo that merge first." };
+    if (error.message?.includes("later merge"))
+      return { error: "This one was merged again since. Undo that merge first." };
     if (error.message?.includes("30 days")) return { error: "It's been more than 30 days, so this can't be undone." };
-    if (error.message?.includes("already undone") && merge) redirect(`/connections/${merge.keep_id}?unmerged=${mergeId}`);
+    if (error.message?.includes("already undone") && merge)
+      redirect(`/connections/${merge.keep_id}?unmerged=${mergeId}`);
     return { error: "Couldn't undo. Nothing changed; try again." };
   }
   if (copied?.path && copied.original_path && merge) {
-    const { data: kept } = await supabase.from("connections").select("photo_path").eq("id", merge.keep_id).maybeSingle();
+    const { data: kept } = await supabase
+      .from("connections")
+      .select("photo_path")
+      .eq("id", merge.keep_id)
+      .maybeSingle();
     if (kept && kept.photo_path !== copied.path) {
       await supabase.storage.from(PHOTO_BUCKET).remove([copied.path, copied.original_path]);
     }
@@ -149,7 +159,8 @@ export async function markNotDuplicates(ids: string[]): Promise<{ error?: string
 /** Takes one connection out of a group: not the same as any of the others. */
 export async function markNotDuplicateOf(id: string, others: string[]): Promise<{ error?: string }> {
   const workspaceId = await requireWorkspace();
-  if (!UUID.test(id) || !others.length || !others.every((o) => UUID.test(o))) return { error: "Couldn't save. Try again." };
+  if (!UUID.test(id) || !others.length || !others.every((o) => UUID.test(o)))
+    return { error: "Couldn't save. Try again." };
   const supabase = await createClient();
   const { error } = await supabase.from("connection_not_duplicates").upsert(
     others

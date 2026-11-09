@@ -27,7 +27,9 @@ export function SharingList({ sections, band }: { sections: SharingSection[]; ba
     setError("");
     setMessage("Saving…");
     startTransition(async () => {
-      const result: SharingResult = await setKeepPrivate(ids, keepPrivate).catch(offline({ error: "Couldn't reach Seeens. Try again." }));
+      const result: SharingResult = await setKeepPrivate(ids, keepPrivate).catch(
+        offline({ error: "Couldn't reach Seeens. Try again." }),
+      );
       if (result.error) {
         setKept(before);
         setMessage("");

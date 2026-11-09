@@ -7,7 +7,11 @@ type Patch = Omit<
   Database["public"]["Tables"]["connection_band_details"]["Update"],
   "workspace_id" | "connection_id" | "updated_at"
 >;
-type Row = { connection_id: string; status: Database["public"]["Enums"]["connection_status"] | null; played_together: boolean };
+type Row = {
+  connection_id: string;
+  status: Database["public"]["Enums"]["connection_status"] | null;
+  played_together: boolean;
+};
 
 // Writes this band's private layer on records (#185). A band has a row on
 // every record it added, but none on another band's until it first sets

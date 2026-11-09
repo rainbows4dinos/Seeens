@@ -14,7 +14,15 @@ import { LinksEditor } from "@/components/links-editor";
 import { ProfilePanel } from "@/components/profile/panel";
 import { BasicInfoFields } from "@/components/profile/basic-info";
 import { Field, invalid } from "@/components/form-field";
-import { startTransition, useActionState, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
 import { GROUP_TYPES, type GroupType } from "@/lib/connections/labels";
 
@@ -90,7 +98,8 @@ function FormState({
     let missedLinks = 0;
     (async () => {
       const name = state.values.name;
-      if (photo) missedPhoto = Boolean(await uploadCaptured(create.workspaceId, created, photo, name).catch(() => "failed"));
+      if (photo)
+        missedPhoto = Boolean(await uploadCaptured(create.workspaceId, created, photo, name).catch(() => "failed"));
       for (const l of links) {
         const fd = new FormData();
         for (const [k, v] of l.entries) fd.append(k, v);
@@ -118,11 +127,7 @@ function FormState({
       formAction={formAction}
       pending={pending || finishing}
       photoSlot={
-        create ? (
-          <NewPhotoPanel photo={photo} defaults={create.photoDefaults} onChange={setPhoto} />
-        ) : (
-          photoSlot
-        )
+        create ? <NewPhotoPanel photo={photo} defaults={create.photoDefaults} onChange={setPhoto} /> : photoSlot
       }
       newLinks={create ? { candidates: create.candidates, pending: pendingLinks } : undefined}
       returnId={Boolean(create && (photo || links.length))}
@@ -171,7 +176,8 @@ function FormBody({
       {errors.form || errorCount > 0 ? (
         <div role="alert" className="border-2 border-error bg-surface p-3 text-sm">
           <p className="font-semibold text-error">
-            {errors.form ?? `Couldn't save yet. Fix ${errorCount === 1 ? "the field" : `${errorCount} fields`} marked below.`}
+            {errors.form ??
+              `Couldn't save yet. Fix ${errorCount === 1 ? "the field" : `${errorCount} fields`} marked below.`}
           </p>
         </div>
       ) : null}
@@ -195,7 +201,10 @@ function FormBody({
           <LinksPanel
             subjectId=""
             rows={[]}
-            options={addOptionsFor({ kind: person ? "person" : "group", group_type: person ? null : (groupType as GroupType) })}
+            options={addOptionsFor({
+              kind: person ? "person" : "group",
+              group_type: person ? null : (groupType as GroupType),
+            })}
             candidates={newLinks.candidates}
             pending={newLinks.pending}
             heading={false}
@@ -207,7 +216,8 @@ function FormBody({
         <div className="flex flex-col gap-5">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field id="c-email" label="Email" error={errors.email}>
-              <input {...noAutofill}
+              <input
+                {...noAutofill}
                 id="c-email"
                 name="email"
                 type="email"
@@ -227,8 +237,13 @@ function FormBody({
 
       <ProfilePanel id="add-notes" title="Notes">
         <div className="flex flex-col gap-5">
-          <Field id="c-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
-            <input {...noAutofill}
+          <Field
+            id="c-can_help_with"
+            label="Can Help With"
+            hint="Separate with commas, like: music videos, DJ sets, gear."
+          >
+            <input
+              {...noAutofill}
               id="c-can_help_with"
               name="can_help_with"
               defaultValue={v.canHelpWith}

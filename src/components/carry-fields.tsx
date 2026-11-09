@@ -8,8 +8,7 @@
 export type Carry = { town: string | null; scenes: { id: string; name: string }[]; playedTogether: boolean };
 export type CarryPick = { town: boolean; sceneIds: string[]; played: boolean };
 
-export const hasCarry = (c?: Carry | null): c is Carry =>
-  Boolean(c && (c.town || c.scenes.length || c.playedTogether));
+export const hasCarry = (c?: Carry | null): c is Carry => Boolean(c && (c.town || c.scenes.length || c.playedTogether));
 export const pickAll = (c: Carry): CarryPick => ({
   town: Boolean(c.town),
   sceneIds: c.scenes.map((s) => s.id),
@@ -36,7 +35,11 @@ export function CarryFields({
         {carry.town ? (
           <li>
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={value.town} onChange={(e) => onChange({ ...value, town: e.target.checked })} />
+              <input
+                type="checkbox"
+                checked={value.town}
+                onChange={(e) => onChange({ ...value, town: e.target.checked })}
+              />
               <span>
                 <span className="text-muted">Town: </span>
                 {carry.town}
@@ -67,7 +70,11 @@ export function CarryFields({
         {carry.playedTogether ? (
           <li>
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={value.played} onChange={(e) => onChange({ ...value, played: e.target.checked })} />
+              <input
+                type="checkbox"
+                checked={value.played}
+                onChange={(e) => onChange({ ...value, played: e.target.checked })}
+              />
               <span>We&rsquo;ve played together</span>
             </label>
           </li>

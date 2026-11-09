@@ -23,10 +23,12 @@ export function PhotoPanel(props: PhotoProps) {
       >
         <span className="photo-thumb-empty" aria-hidden="true">
           <span className="card-print-initials">{initials(name)}</span>
-          {photoUrl ? null : <span className="photo-thumb-add">
-            <Add size={12} />
-            Photo
-          </span>}
+          {photoUrl ? null : (
+            <span className="photo-thumb-add">
+              <Add size={12} />
+              Photo
+            </span>
+          )}
         </span>
         {/* A photo that fails to load steps aside, leaving the initials. */}
         {photoUrl ? <Photo key={photoUrl} src={photoUrl} alt={alt ?? ""} /> : null}
@@ -58,10 +60,12 @@ export function NewPhotoPanel({
         aria-haspopup="dialog"
       >
         <span className="photo-thumb-empty" aria-hidden="true">
-          {photo ? null : <span className="photo-thumb-add">
-            <Add size={12} />
-            Photo
-          </span>}
+          {photo ? null : (
+            <span className="photo-thumb-add">
+              <Add size={12} />
+              Photo
+            </span>
+          )}
         </span>
         {photo ? (
           // A local preview of the copy; it uploads with the save.
@@ -69,7 +73,9 @@ export function NewPhotoPanel({
           <img src={photo.copyUrl} alt={photo.alt} />
         ) : null}
       </button>
-      <p className="text-sm text-muted">{photo ? "Uploads when you save." : "Optional. Run it through the copier now; it uploads when you save."}</p>
+      <p className="text-sm text-muted">
+        {photo ? "Uploads when you save." : "Optional. Run it through the copier now; it uploads when you save."}
+      </p>
       <PhotoCopier
         connectionId=""
         workspaceId=""

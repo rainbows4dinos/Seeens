@@ -5,11 +5,7 @@ import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
 import { Combobox, type ComboOption } from "@/components/combobox";
 import { LinkBox, Note } from "@/components/band-settings";
-import {
-  inviteBand,
-  renewBandInvite,
-  type InviteBandState,
-} from "@/lib/band/invite-band-actions";
+import { inviteBand, renewBandInvite, type InviteBandState } from "@/lib/band/invite-band-actions";
 
 const unreachable = offline<InviteBandState>({
   error: "Couldn't reach Seeens. Try again.",
@@ -53,13 +49,10 @@ export function InviteBandForm({
   return (
     <form action={action} className="flex flex-col gap-4">
       <p className="text-muted">
-        Pick the band from the directory, or type its name if nobody&rsquo;s
-        added it yet. Its owner gets an invite, makes their account, and the
-        band&rsquo;s listing becomes theirs to keep up to date. They invite
-        their bandmates from Band Settings.
-        {emailReady
-          ? ""
-          : " Email isn’t set up yet, so you’ll get a link to send them yourself."}
+        Pick the band from the directory, or type its name if nobody&rsquo;s added it yet. Its owner gets an invite,
+        makes their account, and the band&rsquo;s listing becomes theirs to keep up to date. They invite their bandmates
+        from Band Settings.
+        {emailReady ? "" : " Email isn’t set up yet, so you’ll get a link to send them yourself."}
       </p>
       <div className="grid gap-5 sm:grid-cols-3">
         {fixed ? (
@@ -68,9 +61,7 @@ export function InviteBandForm({
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-col">
                 <p className="font-medium break-words">{fixed.label}</p>
-                {fixed.hint ? (
-                  <p className="text-sm text-muted">{fixed.hint}</p>
-                ) : null}
+                {fixed.hint ? <p className="text-sm text-muted">{fixed.hint}</p> : null}
               </div>
               <button
                 type="button"
@@ -122,14 +113,7 @@ export function InviteBandForm({
           <label htmlFor="owner-name" className="label">
             Owner&rsquo;s Name (Optional)
           </label>
-          <input
-            {...noAutofill}
-            id="owner-name"
-            name="name"
-            className="field"
-            placeholder="Sam"
-            maxLength={80}
-          />
+          <input {...noAutofill} id="owner-name" name="name" className="field" placeholder="Sam" maxLength={80} />
         </div>
       </div>
       <input type="hidden" name="listing_id" value={listing} />
@@ -137,13 +121,7 @@ export function InviteBandForm({
       <Note state={state} />
       {state.link ? <LinkBox link={state.link} /> : null}
       <div className="flex flex-wrap gap-3">
-        <button
-          type="submit"
-          name="mode"
-          value="email"
-          className="button-primary"
-          disabled={pending || !picked}
-        >
+        <button type="submit" name="mode" value="email" className="button-primary" disabled={pending || !picked}>
           {pending ? "Working…" : "Send Invite"}
         </button>
         <button
@@ -170,11 +148,7 @@ export function NewLinkButton({ id, band }: { id: string; band: string }) {
         type="button"
         className="button-secondary"
         disabled={pending}
-        onClick={() =>
-          start(async () =>
-            setState(await renewBandInvite(id).catch(unreachable)),
-          )
-        }
+        onClick={() => start(async () => setState(await renewBandInvite(id).catch(unreachable)))}
       >
         New Link<span className="sr-only"> for {band}</span>
       </button>

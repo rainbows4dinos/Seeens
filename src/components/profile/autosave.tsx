@@ -29,13 +29,10 @@ export function SaveStatus() {
       : status.state === "saved"
         ? "Saved"
         : status.state === "failed"
-          ? status.message ?? "Couldn't save."
+          ? (status.message ?? "Couldn't save.")
           : "Saves as you go";
   return (
-    <p
-      aria-live="polite"
-      className={`text-sm ${status.state === "failed" ? "font-medium text-error" : "text-muted"}`}
-    >
+    <p aria-live="polite" className={`text-sm ${status.state === "failed" ? "font-medium text-error" : "text-muted"}`}>
       {text}
     </p>
   );
@@ -131,7 +128,10 @@ export function AutosaveForm({
         });
       }
     } catch {
-      set({ state: "failed", message: "Couldn't reach Seeens. Your changes are still here; they'll save when you edit again." });
+      set({
+        state: "failed",
+        message: "Couldn't reach Seeens. Your changes are still here; they'll save when you edit again.",
+      });
     } finally {
       busy.current = false;
       if (again.current) {
@@ -162,7 +162,9 @@ export function AutosaveForm({
         records.some(
           (r) =>
             (r.type === "attributes" && hidden(r.target)) ||
-            [...r.addedNodes, ...r.removedNodes].some((n) => hidden(n) || (n instanceof Element && n.querySelector('input[type="hidden"]'))),
+            [...r.addedNodes, ...r.removedNodes].some(
+              (n) => hidden(n) || (n instanceof Element && n.querySelector('input[type="hidden"]')),
+            ),
         )
       ) {
         schedule(300);

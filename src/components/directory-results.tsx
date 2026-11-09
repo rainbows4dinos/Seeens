@@ -71,7 +71,9 @@ export function DirectoryResults({
     focusId.current = null;
   }, [items]);
 
-  const moreHref = next ? `${basePath}?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}` : null;
+  const moreHref = next
+    ? `${basePath}?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}`
+    : null;
 
   function loadMore(e: React.MouseEvent) {
     if (!next || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
@@ -113,7 +115,8 @@ export function DirectoryResults({
         <section key={s.id} aria-labelledby={`group-${s.id}`} className="flex flex-col gap-2">
           <h2 id={`group-${s.id}`} className="label group-head">
             <span className="group-chip">
-              <span className={`tag ${s.tag}`}>{s.label}</span> <span className="group-count text-muted">({s.count})</span>
+              <span className={`tag ${s.tag}`}>{s.label}</span>{" "}
+              <span className="group-count text-muted">({s.count})</span>
             </span>
           </h2>
           {layout === "list" ? (
@@ -155,9 +158,7 @@ function tagsFor(c: DirectoryItem, tab: Tab) {
       // Another band's record (#185).
       c.sharedBy ? `From ${c.sharedBy}` : null,
     ]),
-  ].filter(
-    (t): t is string => Boolean(t),
-  );
+  ].filter((t): t is string => Boolean(t));
 }
 
 // The connection open in the quick view (#126), from the URL: the panel's
@@ -210,27 +211,25 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
               className="flex flex-col gap-1 px-3 py-3 row-link @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:gap-4"
             >
               <span className="flex min-w-0 items-start gap-3">
-              {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
-              <span className="row-thumb" aria-hidden="true">
-                <span className="row-thumb-initials">{initials(c.name)}</span>
-                {c.photo_path ? (
-                  // A small copy at a stable, cached address.
-                  <Photo src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
-                ) : null}
-              </span>
-              <span className="flex min-w-0 flex-col gap-2">
-                {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
-                <span className="flex flex-col-reverse gap-1">
-                  <span className="display-s break-words">
-                    {c.name}
-                  </span>
-                  <span className="caption">
-                    {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
-                  </span>
+                {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
+                <span className="row-thumb" aria-hidden="true">
+                  <span className="row-thumb-initials">{initials(c.name)}</span>
+                  {c.photo_path ? (
+                    // A small copy at a stable, cached address.
+                    <Photo src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
+                  ) : null}
                 </span>
-                {detail ? <span className="detail-line">{detail}</span> : null}
-                <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
-              </span>
+                <span className="flex min-w-0 flex-col gap-2">
+                  {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
+                  <span className="flex flex-col-reverse gap-1">
+                    <span className="display-s break-words">{c.name}</span>
+                    <span className="caption">
+                      {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
+                    </span>
+                  </span>
+                  {detail ? <span className="detail-line">{detail}</span> : null}
+                  <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
+                </span>
               </span>
               {/* Narrow lists (phones, or beside the quick view): town on the
                   left, tags on the right (Figma Directory Row, Mobile). */}

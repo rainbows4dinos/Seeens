@@ -77,7 +77,8 @@ export function PlaceField({
       <p id={`${id}-hint`} className="-mt-1 text-sm text-muted">
         {hint}
       </p>
-      <input {...noAutofill}
+      <input
+        {...noAutofill}
         id="c-place"
         role="combobox"
         aria-expanded={open}

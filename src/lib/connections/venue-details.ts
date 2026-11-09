@@ -86,9 +86,9 @@ export function readVenueDetails(attributes: unknown): VenueDetails {
 }
 
 /** Form strings (the select values are "", "yes", "no", or a key) -> details, or field errors. */
-export function venueDetailsFromForm(raw: Record<(typeof VENUE_KEYS)[number], string>):
-  | { ok: true; details: VenueDetails }
-  | { ok: false; errors: Partial<Record<(typeof VENUE_KEYS)[number], string>> } {
+export function venueDetailsFromForm(
+  raw: Record<(typeof VENUE_KEYS)[number], string>,
+): { ok: true; details: VenueDetails } | { ok: false; errors: Partial<Record<(typeof VENUE_KEYS)[number], string>> } {
   const errors: Partial<Record<(typeof VENUE_KEYS)[number], string>> = {};
   for (const [key, max] of Object.entries(TEXT_LIMITS) as [keyof typeof TEXT_LIMITS, number][]) {
     if (raw[key].trim().length > max) errors[key] = `Keep it under ${max} characters.`;

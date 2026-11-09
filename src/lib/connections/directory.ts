@@ -25,7 +25,9 @@ export type Cursor = { rank: number; name: string; id: string };
 export function readCursor(value: unknown): Cursor | null {
   if (!value || typeof value !== "object") return null;
   const c = value as Record<string, unknown>;
-  return typeof c.rank === "number" && typeof c.name === "string" && typeof c.id === "string" &&
+  return typeof c.rank === "number" &&
+    typeof c.name === "string" &&
+    typeof c.id === "string" &&
     /^[0-9a-f-]{36}$/i.test(c.id)
     ? { rank: c.rank, name: c.name, id: c.id }
     : null;
@@ -71,7 +73,6 @@ export type DirectoryItem = {
   sharedBy: string | null;
 };
 
-
 /** Per status, and `none` for no status (#192). */
 export type GroupCounts = Record<ConnectionStatus | "none", number>;
 export type TabCounts = Record<Tab, number>;
@@ -93,7 +94,14 @@ export type DirectoryCounts = {
   scopes: { network: number; all: number };
   /** Instruments people in this half play, for the Plays filter (#140). */
   instruments: Instrument[];
-  towns: { id: string; name: string; region: string | null; region_code: string | null; country: string | null; country_code: string | null }[];
+  towns: {
+    id: string;
+    name: string;
+    region: string | null;
+    region_code: string | null;
+    country: string | null;
+    country_code: string | null;
+  }[];
 };
 
 export type DirectoryQuery = { tab: Tab; filters: DirectoryFilters };
@@ -195,7 +203,9 @@ export async function loadDirectoryPage(
     if (!d) return []; // deleted between the two reads
     const { connection_scenes, notes, incoming, outgoing, attributes, workspace_id, added_by, ...rest } = d;
     // Current, unarchived members only, in name order.
-    const names = (links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[]) =>
+    const names = (
+      links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[],
+    ) =>
       links
         .filter((a) => a.kind === "member" && a.is_current && a.other && !a.other.archived_at)
         .map((a) => a.other!.name)
@@ -220,7 +230,11 @@ export async function loadDirectoryPage(
               )
             : null,
         venue: rest.group_type === "venue" ? venueLine(readVenueDetails(attributes)) : null,
-        note: notes?.split("\n").find((line) => line.trim())?.trim() ?? null,
+        note:
+          notes
+            ?.split("\n")
+            .find((line) => line.trim())
+            ?.trim() ?? null,
         sharedBy: workspace_id === ws ? null : (added_by?.name ?? "another band"),
       },
     ];

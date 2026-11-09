@@ -78,17 +78,14 @@
   --menu-motion: 300ms ease-in-out;
 
   /* Type families (Figma text styles: Display/*, UI/Nav, Mono/*, Hand/Note) */
-  --type-display:
-    "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --type-display: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --type-mono: "IBM Plex Mono", ui-monospace, monospace;
   --type-hand: "Reenie Beanie", cursive;
 
   /* Effects */
   /* Shadow/Hard: the ink shadow, with a 1px sliver of paper between it and
      the box so the two read as separate (Figma's second drop). */
-  --shadow-hard:
-    1px 1px 0 0 var(--paper-photo),
-    5px 5px 0 0 var(--ink-900);
+  --shadow-hard: 1px 1px 0 0 var(--paper-photo), 5px 5px 0 0 var(--ink-900);
   --shadow-photo: 0 3px 6px 0 rgb(0 0 0 / 0.22);
   /* Shadow/Soft: a lighter Shadow/Hard for lifted rows. */
   --shadow-soft: 4px 4px 0 0 rgb(20 20 20 / 0.3);
@@ -1249,13 +1246,22 @@
     pointer-events: none;
     mix-blend-mode: multiply;
     background:
-      linear-gradient(104deg, transparent 25%, rgb(255 255 255 / 0.2) 46%, transparent 66%),
-      var(--tape-color);
+      linear-gradient(104deg, transparent 25%, rgb(255 255 255 / 0.2) 46%, transparent 66%), var(--tape-color);
     clip-path: polygon(
-      0 0, 100% 0,
-      calc(100% - 3px) 16.67%, 100% 33.33%, calc(100% - 3px) 50%, 100% 66.67%, calc(100% - 3px) 83.33%,
-      100% 100%, 0 100%,
-      3px 83.33%, 0 66.67%, 3px 50%, 0 33.33%, 3px 16.67%
+      0 0,
+      100% 0,
+      calc(100% - 3px) 16.67%,
+      100% 33.33%,
+      calc(100% - 3px) 50%,
+      100% 66.67%,
+      calc(100% - 3px) 83.33%,
+      100% 100%,
+      0 100%,
+      3px 83.33%,
+      0 66.67%,
+      3px 50%,
+      0 33.33%,
+      3px 16.67%
     );
   }
   /* Clear tape: a faint gray, so it still shows over white paper. */
@@ -2560,19 +2566,42 @@
   }
 }
 @keyframes metronome-dot-1 {
-  0% { opacity: 0; }
-  22%, 80% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  22%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes metronome-dot-2 {
-  0%, 19% { opacity: 0; }
-  41%, 80% { opacity: 1; }
-  100% { opacity: 0; }
+  0%,
+  19% {
+    opacity: 0;
+  }
+  41%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes metronome-dot-3 {
-  0%, 38% { opacity: 0; }
-  60%, 80% { opacity: 1; }
-  100% { opacity: 0; }
+  0%,
+  38% {
+    opacity: 0;
+  }
+  60%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

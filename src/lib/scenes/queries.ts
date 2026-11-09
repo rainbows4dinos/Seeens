@@ -12,7 +12,10 @@ const SCENE_FIELDS =
 function withCount<
   T extends {
     // Archived is this band's own (#181).
-    connection_scenes: { connection_id: string; connection: { band: { archived_at: string | null } | { archived_at: string | null }[] | null } | null }[];
+    connection_scenes: {
+      connection_id: string;
+      connection: { band: { archived_at: string | null } | { archived_at: string | null }[] | null } | null;
+    }[];
   },
 >(s: T) {
   const ids = s.connection_scenes
@@ -65,12 +68,8 @@ export async function getScene(id: string) {
 }
 
 // Top-level scenes first, each followed by the scenes inside it.
-export function nestScenes<T extends { id: string; parent_id: string | null }>(
-  scenes: T[],
-) {
-  const top = scenes.filter(
-    (s) => !s.parent_id || !scenes.some((p) => p.id === s.parent_id),
-  );
+export function nestScenes<T extends { id: string; parent_id: string | null }>(scenes: T[]) {
+  const top = scenes.filter((s) => !s.parent_id || !scenes.some((p) => p.id === s.parent_id));
   return top.map((s) => ({
     scene: s,
     children: scenes.filter((c) => c.parent_id === s.id),
@@ -78,12 +77,6 @@ export function nestScenes<T extends { id: string; parent_id: string | null }>(
 }
 
 // A scene plus everything inside it, for "show me the Pacific Northwest".
-export function sceneAndChildren(
-  scenes: { id: string; parent_id: string | null }[],
-  id: string,
-) {
-  return new Set([
-    id,
-    ...scenes.filter((s) => s.parent_id === id).map((s) => s.id),
-  ]);
+export function sceneAndChildren(scenes: { id: string; parent_id: string | null }[], id: string) {
+  return new Set([id, ...scenes.filter((s) => s.parent_id === id).map((s) => s.id)]);
 }

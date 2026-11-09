@@ -52,7 +52,9 @@ export function MergeReview({
     <form action={action} className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
         <h1 className="display-l break-words">
-          {candidates.length === 2 ? `Merge ${candidates[0].name} and ${candidates[1].name}` : `Merge ${candidates.length} duplicates`}
+          {candidates.length === 2
+            ? `Merge ${candidates[0].name} and ${candidates[1].name}`
+            : `Merge ${candidates.length} duplicates`}
         </h1>
         <p className="text-muted">
           Pick the one to keep. Its details stay as they are; the others only fill in what&rsquo;s blank, the most
@@ -71,7 +73,12 @@ export function MergeReview({
       >
         <legend className="sr-only">Keep which one?</legend>
         {candidates.map((c) => (
-          <section key={c.id} className="profile-panel merge-card" aria-labelledby={`m-${c.id}`} data-kept={c.id === kept.id || undefined}>
+          <section
+            key={c.id}
+            className="profile-panel merge-card"
+            aria-labelledby={`m-${c.id}`}
+            data-kept={c.id === kept.id || undefined}
+          >
             <div className="profile-panel-title merge-card-title">
               <span>{c.catalog}</span>
               {c.id === kept.id ? <span className="font-normal">Keeping</span> : null}

@@ -162,7 +162,8 @@ function PlanForm({
         <label htmlFor="na-description" className="label">
           Next Step
         </label>
-        <input {...noAutofill}
+        <input
+          {...noAutofill}
           ref={firstRef}
           id="na-description"
           name="description"

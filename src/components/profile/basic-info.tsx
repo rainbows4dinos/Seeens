@@ -71,7 +71,15 @@ export function BasicInfoFields({
     <div className="flex flex-col gap-5">
       <div className="grid gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Field id="p-name" label="Name" error={errors.name}>
-          <input {...noAutofill} id="p-name" name="name" required defaultValue={v.name} className="field" {...invalid("p-name", errors.name)} />
+          <input
+            {...noAutofill}
+            id="p-name"
+            name="name"
+            required
+            defaultValue={v.name}
+            className="field"
+            {...invalid("p-name", errors.name)}
+          />
         </Field>
         <Field id="p-type" label="Type" error={typeError}>
           <select
@@ -189,4 +197,3 @@ function orderScenes(scenes: SceneOption[]) {
   const top = scenes.filter((s) => !s.parent_id || !scenes.some((p) => p.id === s.parent_id));
   return top.flatMap((t) => [t, ...scenes.filter((c) => c.parent_id === t.id)]);
 }
-

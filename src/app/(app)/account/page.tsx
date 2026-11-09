@@ -103,7 +103,10 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
       <ProfilePanel
         id="account-bands"
         title="Your Bands"
-        summary={bands?.map((b) => b.workspaces?.name).filter(Boolean).join(", ")}
+        summary={bands
+          ?.map((b) => b.workspaces?.name)
+          .filter(Boolean)
+          .join(", ")}
       >
         {bands?.length ? (
           <ul className="rows flex flex-col">

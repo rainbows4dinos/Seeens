@@ -80,7 +80,9 @@ export function Combobox({
     const q = query.trim().toLowerCase();
     const singlePicked = !multiple && selected[0] && byValue.get(selected[0])?.label === query;
     const list: Item[] = options
-      .filter((o) => !q || singlePicked || o.label.toLowerCase().includes(q) || Boolean(o.search?.toLowerCase().includes(q)))
+      .filter(
+        (o) => !q || singlePicked || o.label.toLowerCase().includes(q) || Boolean(o.search?.toLowerCase().includes(q)),
+      )
       .map((option) => ({ kind: "option", option }));
     const exists =
       options.some((o) => o.label.toLowerCase() === q || o.search?.toLowerCase() === q) ||
@@ -208,145 +210,153 @@ export function Combobox({
       ) : null}
 
       <div className="relative">
-      <div className="combo field" data-invalid={error ? true : undefined}>
-        {icon ? (
-          <span className="combo-icon" aria-hidden="true">
-            {icon}
-          </span>
-        ) : null}
-        {hasTags ? (
-          <ul className="contents" aria-label={`${label}: picked`}>
-            {selected.map((v) => (
-              <li key={v} className="combo-tag">
-                {byValue.get(v)?.label ?? v}
-                <button type="button" onClick={() => removeValue(v)} aria-label={`Remove ${byValue.get(v)?.label ?? v}`}>
-                  ×
-                </button>
-              </li>
-            ))}
-            {created.map((n) => (
-              <li key={`new:${n}`} className="combo-tag">
-                <span>
-                  {n} <span className="font-normal opacity-70">(new)</span>
-                </span>
-                <button type="button" onClick={() => removeCreated(n)} aria-label={`Remove ${n}`}>
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        <input
-          {...noAutofill}
-          ref={inputRef}
-          id={`${id}-input`}
-          type="text"
-          role="combobox"
-          form={form}
-          aria-expanded={open}
-          aria-controls={listId}
-          aria-autocomplete="list"
-          aria-activedescendant={activeId}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy || undefined}
-          autoFocus={autoFocus}
-          value={query}
-          placeholder={hasTags ? "" : (placeholder ?? (multiple ? "Type or pick" : "Type a name"))}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-            setActive(e.target.value.trim() ? 0 : -1);
-            if (!keepPick && !multiple && (selected.length || created.length)) {
-              setSelected([]);
-              setCreated([]);
-            }
-          }}
-          onFocus={(e) => {
-            setOpen(true);
-            if (keepPick) e.currentTarget.select();
-          }}
-          onClick={() => setOpen(true)}
-          onKeyDown={onKeyDown}
-        />
-        {keepPick && selected[0] ? (
-          <button
-            type="button"
-            className="combo-clear"
-            aria-label={`Clear ${label}`}
-            onClick={() => {
-              setAnnounce(`${label} cleared.`);
-              setSelected([]);
-              setQuery("");
-              inputRef.current?.focus();
+        <div className="combo field" data-invalid={error ? true : undefined}>
+          {icon ? (
+            <span className="combo-icon" aria-hidden="true">
+              {icon}
+            </span>
+          ) : null}
+          {hasTags ? (
+            <ul className="contents" aria-label={`${label}: picked`}>
+              {selected.map((v) => (
+                <li key={v} className="combo-tag">
+                  {byValue.get(v)?.label ?? v}
+                  <button
+                    type="button"
+                    onClick={() => removeValue(v)}
+                    aria-label={`Remove ${byValue.get(v)?.label ?? v}`}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+              {created.map((n) => (
+                <li key={`new:${n}`} className="combo-tag">
+                  <span>
+                    {n} <span className="font-normal opacity-70">(new)</span>
+                  </span>
+                  <button type="button" onClick={() => removeCreated(n)} aria-label={`Remove ${n}`}>
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <input
+            {...noAutofill}
+            ref={inputRef}
+            id={`${id}-input`}
+            type="text"
+            role="combobox"
+            form={form}
+            aria-expanded={open}
+            aria-controls={listId}
+            aria-autocomplete="list"
+            aria-activedescendant={activeId}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy || undefined}
+            autoFocus={autoFocus}
+            value={query}
+            placeholder={hasTags ? "" : (placeholder ?? (multiple ? "Type or pick" : "Type a name"))}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setOpen(true);
+              setActive(e.target.value.trim() ? 0 : -1);
+              if (!keepPick && !multiple && (selected.length || created.length)) {
+                setSelected([]);
+                setCreated([]);
+              }
+            }}
+            onFocus={(e) => {
+              setOpen(true);
+              if (keepPick) e.currentTarget.select();
+            }}
+            onClick={() => setOpen(true)}
+            onKeyDown={onKeyDown}
+          />
+          {keepPick && selected[0] ? (
+            <button
+              type="button"
+              className="combo-clear"
+              aria-label={`Clear ${label}`}
+              onClick={() => {
+                setAnnounce(`${label} cleared.`);
+                setSelected([]);
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+            >
+              ×
+            </button>
+          ) : null}
+          {/* The select's chevron, so it reads as a list to pick from. Mouse
+            only: the keyboard opens it with the arrow keys. */}
+          <span
+            className="combo-chevron"
+            aria-hidden="true"
+            data-open={open ? "" : undefined}
+            onMouseDown={(e) => {
+              // Keep focus in the box. Focusing it opens the list; already
+              // there, the chevron flips it.
+              e.preventDefault();
+              const input = inputRef.current;
+              if (input && document.activeElement !== input) input.focus();
+              else setOpen((o) => !o);
             }}
           >
-            ×
-          </button>
-        ) : null}
-        {/* The select's chevron, so it reads as a list to pick from. Mouse
-            only: the keyboard opens it with the arrow keys. */}
-        <span
-          className="combo-chevron"
-          aria-hidden="true"
-          data-open={open ? "" : undefined}
-          onMouseDown={(e) => {
-            // Keep focus in the box. Focusing it opens the list; already
-            // there, the chevron flips it.
-            e.preventDefault();
-            const input = inputRef.current;
-            if (input && document.activeElement !== input) input.focus();
-            else setOpen((o) => !o);
-          }}
-        >
-          <svg width="12" height="8" viewBox="0 0 12 8">
-            <path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          </svg>
-        </span>
-      </div>
+            <svg width="12" height="8" viewBox="0 0 12 8">
+              <path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </span>
+        </div>
 
-      <ul
-        id={listId}
-        role="listbox"
-        aria-label={label}
-        aria-multiselectable={multiple || undefined}
-        hidden={!open || items.length === 0}
-        className="combo-list"
-      >
-        {items.map((item, i) => {
-          const isSel =
-            item.kind === "option" &&
-            (multiple ? selected.includes(item.option.value) : selected[0] === item.option.value);
-          return (
-            <li
-              key={item.kind === "option" ? item.option.value : "__create__"}
-              id={`${id}-opt-${i}`}
-              role="option"
-              aria-selected={isSel}
-              data-active={i === active || undefined}
-              className="combo-option"
-              style={item.kind === "option" && item.option.depth ? { paddingLeft: `${0.625 + item.option.depth}rem` } : undefined}
-              // Keep focus in the text box.
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => choose(item)}
-              onMouseMove={() => setActive(i)}
-            >
-              <span aria-hidden="true" className="combo-check">
-                {isSel ? "✓" : item.kind === "create" ? "+" : ""}
-              </span>
-              {item.kind === "option" ? (
-                <span>
-                  {item.option.label}
-                  {item.option.hint ? <span className="text-muted"> · {item.option.hint}</span> : null}
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label={label}
+          aria-multiselectable={multiple || undefined}
+          hidden={!open || items.length === 0}
+          className="combo-list"
+        >
+          {items.map((item, i) => {
+            const isSel =
+              item.kind === "option" &&
+              (multiple ? selected.includes(item.option.value) : selected[0] === item.option.value);
+            return (
+              <li
+                key={item.kind === "option" ? item.option.value : "__create__"}
+                id={`${id}-opt-${i}`}
+                role="option"
+                aria-selected={isSel}
+                data-active={i === active || undefined}
+                className="combo-option"
+                style={
+                  item.kind === "option" && item.option.depth
+                    ? { paddingLeft: `${0.625 + item.option.depth}rem` }
+                    : undefined
+                }
+                // Keep focus in the text box.
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => choose(item)}
+                onMouseMove={() => setActive(i)}
+              >
+                <span aria-hidden="true" className="combo-check">
+                  {isSel ? "✓" : item.kind === "create" ? "+" : ""}
                 </span>
-              ) : (
-                <span>
-                  {create?.verb ?? "Add new"}: {item.label}
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                {item.kind === "option" ? (
+                  <span>
+                    {item.option.label}
+                    {item.option.hint ? <span className="text-muted"> · {item.option.hint}</span> : null}
+                  </span>
+                ) : (
+                  <span>
+                    {create?.verb ?? "Add new"}: {item.label}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       <p className="sr-only" aria-live="polite">

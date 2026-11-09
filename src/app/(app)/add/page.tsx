@@ -53,7 +53,14 @@ async function NewConnection({ searchParams }: { searchParams: PageProps<"/add">
   // Who links can point at, as on a connection's page.
   const candidates = network.connections
     .filter((c) => !c.archived_at)
-    .map((c) => ({ id: c.id, name: c.name, kind: c.kind, group_type: c.group_type, person_roles: c.person_roles, catalog: catalogNo(c) }));
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      kind: c.kind,
+      group_type: c.group_type,
+      person_roles: c.person_roles,
+      catalog: catalogNo(c),
+    }));
   // From the header's band chip when there's no Us yet: start our own band.
   // From a directory tab's Add (#122): start with that type set.
   const preset = PRESETS[String(params.type ?? "")];

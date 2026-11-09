@@ -144,98 +144,99 @@ export function LogForm({
 
   return (
     <>
-    <form
-      key={state.attempt ?? state.savedAt ?? 0}
-      action={formAction}
-      noValidate
-      className="flex flex-col gap-4 panel p-4"
-    >
-      {errors.form ? (
-        <p role="alert" className="text-sm font-semibold text-error">
-          {errors.form}
-        </p>
-      ) : null}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="o-date" className="label">
-            When
-          </label>
-          <input
-            id="o-date"
-            name="occurred_on"
-            type="date"
-            max={today}
-            defaultValue={v.occurredOn}
-            className="field"
-            autoFocus
-            aria-invalid={errors.occurredOn ? true : undefined}
-            aria-describedby={errors.occurredOn ? "o-date-error" : undefined}
-          />
-          {errors.occurredOn ? (
-            <p id="o-date-error" className="text-sm font-medium text-error">
-              Error: {errors.occurredOn}
-            </p>
-          ) : null}
-        </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="o-channel" className="label">
-            How
-          </label>
-          <select
-            id="o-channel"
-            name="channel"
-            defaultValue={v.channel}
-            className="field"
-            aria-invalid={errors.channel ? true : undefined}
-            aria-describedby={errors.channel ? "o-channel-error" : undefined}
-          >
-            <option value="" disabled>
-              Choose one
-            </option>
-            {CHANNELS.map((c) => (
-              <option key={c} value={c}>
-                {CHANNEL_LABELS[c]}
-              </option>
-            ))}
-          </select>
-          {errors.channel ? (
-            <p id="o-channel-error" className="text-sm font-medium text-error">
-              Error: {errors.channel}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="o-summary" className="label">
-          What happened
-        </label>
-        <textarea {...noAutofill}
-          id="o-summary"
-          name="summary"
-          rows={3}
-          defaultValue={v.summary}
-          className="field"
-          aria-invalid={errors.summary ? true : undefined}
-          aria-describedby={errors.summary ? "o-summary-error" : undefined}
-        />
-        {errors.summary ? (
-          <p id="o-summary-error" className="text-sm font-medium text-error">
-            Error: {errors.summary}
+      <form
+        key={state.attempt ?? state.savedAt ?? 0}
+        action={formAction}
+        noValidate
+        className="flex flex-col gap-4 panel p-4"
+      >
+        {errors.form ? (
+          <p role="alert" className="text-sm font-semibold text-error">
+            {errors.form}
           </p>
         ) : null}
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <button type="submit" className="button-primary" disabled={pending}>
-          {pending ? "Saving…" : "Save to Log"}
-        </button>
-        <button type="button" className="button-secondary" onClick={onClose}>
-          Close
-        </button>
-      </div>
-    </form>
-    <p aria-live="polite" className="text-sm text-muted empty:hidden">
-      {state.savedAt && !pending ? "Logged. Add another or close." : ""}
-    </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="o-date" className="label">
+              When
+            </label>
+            <input
+              id="o-date"
+              name="occurred_on"
+              type="date"
+              max={today}
+              defaultValue={v.occurredOn}
+              className="field"
+              autoFocus
+              aria-invalid={errors.occurredOn ? true : undefined}
+              aria-describedby={errors.occurredOn ? "o-date-error" : undefined}
+            />
+            {errors.occurredOn ? (
+              <p id="o-date-error" className="text-sm font-medium text-error">
+                Error: {errors.occurredOn}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="o-channel" className="label">
+              How
+            </label>
+            <select
+              id="o-channel"
+              name="channel"
+              defaultValue={v.channel}
+              className="field"
+              aria-invalid={errors.channel ? true : undefined}
+              aria-describedby={errors.channel ? "o-channel-error" : undefined}
+            >
+              <option value="" disabled>
+                Choose one
+              </option>
+              {CHANNELS.map((c) => (
+                <option key={c} value={c}>
+                  {CHANNEL_LABELS[c]}
+                </option>
+              ))}
+            </select>
+            {errors.channel ? (
+              <p id="o-channel-error" className="text-sm font-medium text-error">
+                Error: {errors.channel}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="o-summary" className="label">
+            What happened
+          </label>
+          <textarea
+            {...noAutofill}
+            id="o-summary"
+            name="summary"
+            rows={3}
+            defaultValue={v.summary}
+            className="field"
+            aria-invalid={errors.summary ? true : undefined}
+            aria-describedby={errors.summary ? "o-summary-error" : undefined}
+          />
+          {errors.summary ? (
+            <p id="o-summary-error" className="text-sm font-medium text-error">
+              Error: {errors.summary}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="submit" className="button-primary" disabled={pending}>
+            {pending ? "Saving…" : "Save to Log"}
+          </button>
+          <button type="button" className="button-secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </form>
+      <p aria-live="polite" className="text-sm text-muted empty:hidden">
+        {state.savedAt && !pending ? "Logged. Add another or close." : ""}
+      </p>
     </>
   );
 }

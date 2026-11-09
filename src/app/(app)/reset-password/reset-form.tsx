@@ -26,7 +26,14 @@ export function ResetForm() {
         <label htmlFor="confirm-password" className="label">
           Confirm New Password
         </label>
-        <input id="confirm-password" name="confirm_password" type="password" autoComplete="new-password" className="field" required />
+        <input
+          id="confirm-password"
+          name="confirm_password"
+          type="password"
+          autoComplete="new-password"
+          className="field"
+          required
+        />
       </div>
       <p role="alert" className="min-h-6 text-sm font-medium text-error">
         {state.error ? <>Error: {state.error}</> : null}

@@ -222,9 +222,7 @@ export function validate(
   values: ConnectionFormValues,
   // Autosave: only these errors count; the rest are left as stored.
   counts: (key: string) => boolean = () => true,
-):
-  | { ok: true; data: ValidConnection }
-  | { ok: false; errors: ConnectionFormErrors } {
+): { ok: true; data: ValidConnection } | { ok: false; errors: ConnectionFormErrors } {
   const errors: ConnectionFormErrors = {};
 
   if (!values.name) errors.name = "Add a name.";
@@ -232,12 +230,8 @@ export function validate(
 
   const kind = KINDS.includes(values.kind as ConnectionKind) ? (values.kind as ConnectionKind) : null;
   if (!kind) errors.kind = "Choose person or band, venue, or org.";
-  const personRoles = values.personRoles.filter((r): r is PersonRole =>
-    PERSON_ROLES.includes(r as PersonRole),
-  );
-  const groupType = GROUP_TYPES.includes(values.groupType as GroupType)
-    ? (values.groupType as GroupType)
-    : null;
+  const personRoles = values.personRoles.filter((r): r is PersonRole => PERSON_ROLES.includes(r as PersonRole));
+  const groupType = GROUP_TYPES.includes(values.groupType as GroupType) ? (values.groupType as GroupType) : null;
   if (kind === "person" && personRoles.length === 0) errors.personRoles = "Pick at least one.";
   if (kind === "group" && !groupType) errors.groupType = "Pick one.";
   if (kind === "group" && values.isUs && groupType && groupType !== "band") {
@@ -293,11 +287,7 @@ export function validate(
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
-      locality: placeId
-        ? { placeId }
-        : values.keepLocalityId
-          ? { keepLocalityId: values.keepLocalityId }
-          : null,
+      locality: placeId ? { placeId } : values.keepLocalityId ? { keepLocalityId: values.keepLocalityId } : null,
       scene_ids: [...new Set(values.sceneIds.filter((id) => UUID_RE.test(id)))],
       new_scenes: newScenes,
       email: optional(values.email),

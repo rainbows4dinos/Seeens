@@ -46,8 +46,8 @@ async function Moderators() {
         <p className="caption">App Admin</p>
         <h1 className="display-l">Moderators</h1>
         <p className="text-muted">
-          Moderators can fix any listing other bands share (name, type, town, links, venue details) and keep any
-          listing private. Every edit they make is logged. Bands&rsquo; statuses and notes stay their own.
+          Moderators can fix any listing other bands share (name, type, town, links, venue details) and keep any listing
+          private. Every edit they make is logged. Bands&rsquo; statuses and notes stay their own.
         </p>
       </div>
 

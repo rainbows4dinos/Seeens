@@ -25,10 +25,12 @@ export function AutoFilterForm({
     const form = ref.current;
     if (!form) return;
     const now = new URLSearchParams(query);
-    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input[type=search][name], select[name]").forEach((el) => {
-      const want = now.get(el.name) ?? "";
-      if (el.value !== want) el.value = want;
-    });
+    form
+      .querySelectorAll<HTMLInputElement | HTMLSelectElement>("input[type=search][name], select[name]")
+      .forEach((el) => {
+        const want = now.get(el.name) ?? "";
+        if (el.value !== want) el.value = want;
+      });
     form.querySelectorAll<HTMLInputElement>("input[type=checkbox][name]").forEach((el) => {
       el.checked = now.getAll(el.name).includes(el.value);
     });

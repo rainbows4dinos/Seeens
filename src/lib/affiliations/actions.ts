@@ -83,11 +83,13 @@ export async function addLink(
       is_current: isCurrent,
     }));
   } else if (picked === "__new__" && newName) {
-    let shape: { kind: "person"; person_roles: PersonRole[]; group_type?: undefined } | {
-      kind: "group";
-      person_roles: [];
-      group_type: GroupType;
-    };
+    let shape:
+      | { kind: "person"; person_roles: PersonRole[]; group_type?: undefined }
+      | {
+          kind: "group";
+          person_roles: [];
+          group_type: GroupType;
+        };
     if (option.target.kind === "person") {
       shape = { kind: "person", person_roles: option.newPersonRoles ?? ["other"] };
     } else {
@@ -139,11 +141,7 @@ export async function addLink(
   return { ok: true, attempt: Date.now() };
 }
 
-export async function updateLink(
-  linkId: string,
-  _prev: LinkState,
-  formData: FormData,
-): Promise<LinkState> {
+export async function updateLink(linkId: string, _prev: LinkState, formData: FormData): Promise<LinkState> {
   const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);
   const { data, error } = await supabase
     .from("affiliations")
@@ -199,12 +197,15 @@ export async function addBandMembers(
 
   const clean = [];
   for (const r of rows) {
-    const name = String(r?.name ?? "").replace(/\s+/g, " ").trim();
+    const name = String(r?.name ?? "")
+      .replace(/\s+/g, " ")
+      .trim();
     const roles = String(r?.roles ?? "").trim();
     const personId = r?.personId && UUID_RE.test(r.personId) ? r.personId : null;
     if (!personId && !name) return { ok: false, error: "Every new person needs a name." };
     if (name.length > MAX_NAME_LENGTH) return { ok: false, error: `Keep names under ${MAX_NAME_LENGTH} characters.` };
-    if (roles.length > MAX_ROLE_LENGTH) return { ok: false, error: `Keep roles under ${MAX_ROLE_LENGTH} characters: ${name}.` };
+    if (roles.length > MAX_ROLE_LENGTH)
+      return { ok: false, error: `Keep roles under ${MAX_ROLE_LENGTH} characters: ${name}.` };
     clean.push({ name, roles, former: Boolean(r?.former), person_id: personId });
   }
 

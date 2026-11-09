@@ -56,9 +56,7 @@ export const getMemberships = cache(async (): Promise<Membership[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("workspace_members")
-    .select(
-      "workspace_id, display_name, role, connection_id, workspaces ( name, time_zone )",
-    )
+    .select("workspace_id, display_name, role, connection_id, workspaces ( name, time_zone )")
     .eq("user_id", user.id)
     .order("created_at");
   if (error) throw new Error("Couldn't load your workspace.");
@@ -94,34 +92,32 @@ export async function requireWorkspaceId(): Promise<string> {
 // workspace, or the listing it claimed (#68), if there is one. The header's
 // band item opens it (#123), and its photo is the account menu's picture.
 // Archived still counts.
-export const getUsConnection = cache(
-  async (): Promise<{ id: string; photoPath: string | null } | null> => {
-    const membership = await getMembership();
-    if (!membership) return null;
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("connections")
-      .select("id, photo_path")
-      .eq("workspace_id", membership.workspaceId)
-      .eq("is_us", true)
-      .limit(1)
-      .maybeSingle();
-    if (!error && data) return { id: data.id, photoPath: data.photo_path };
-    // A band that claimed a listing another band added (#68): that's its page.
-    const { data: band } = await supabase
-      .from("workspaces")
-      .select("listing_id")
-      .eq("id", membership.workspaceId)
-      .maybeSingle();
-    if (!band?.listing_id) return null;
-    const { data: listing } = await supabase
-      .from("connections")
-      .select("id, photo_path")
-      .eq("id", band.listing_id)
-      .maybeSingle();
-    return listing ? { id: listing.id, photoPath: listing.photo_path } : null;
-  },
-);
+export const getUsConnection = cache(async (): Promise<{ id: string; photoPath: string | null } | null> => {
+  const membership = await getMembership();
+  if (!membership) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("connections")
+    .select("id, photo_path")
+    .eq("workspace_id", membership.workspaceId)
+    .eq("is_us", true)
+    .limit(1)
+    .maybeSingle();
+  if (!error && data) return { id: data.id, photoPath: data.photo_path };
+  // A band that claimed a listing another band added (#68): that's its page.
+  const { data: band } = await supabase
+    .from("workspaces")
+    .select("listing_id")
+    .eq("id", membership.workspaceId)
+    .maybeSingle();
+  if (!band?.listing_id) return null;
+  const { data: listing } = await supabase
+    .from("connections")
+    .select("id, photo_path")
+    .eq("id", band.listing_id)
+    .maybeSingle();
+  return listing ? { id: listing.id, photoPath: listing.photo_path } : null;
+});
 
 // A moderator or an admin (#195): can fix any shared record and keep any
 // record private.
@@ -131,21 +127,14 @@ export const isModerator = cache(async (): Promise<boolean> => {
 });
 
 // Who in the band's directory has a login (#44): person id -> their account.
-export const getLinkedPeople = cache(
-  async (): Promise<Map<string, { userId: string; displayName: string }>> => {
-    const membership = await getMembership();
-    if (!membership) return new Map();
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("workspace_members")
-      .select("user_id, display_name, connection_id")
-      .eq("workspace_id", membership.workspaceId)
-      .not("connection_id", "is", null);
-    return new Map(
-      (data ?? []).map((m) => [
-        m.connection_id!,
-        { userId: m.user_id, displayName: m.display_name },
-      ]),
-    );
-  },
-);
+export const getLinkedPeople = cache(async (): Promise<Map<string, { userId: string; displayName: string }>> => {
+  const membership = await getMembership();
+  if (!membership) return new Map();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("workspace_members")
+    .select("user_id, display_name, connection_id")
+    .eq("workspace_id", membership.workspaceId)
+    .not("connection_id", "is", null);
+  return new Map((data ?? []).map((m) => [m.connection_id!, { userId: m.user_id, displayName: m.display_name }]));
+});

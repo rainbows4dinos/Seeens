@@ -41,7 +41,8 @@ function saveErrors(error: unknown): ConnectionFormState["errors"] {
   if (e?.code === "23505" && e.message?.includes("connections_one_us_per_workspace")) {
     return { isUs: "Another connection is already marked as your band." };
   }
-  if (e?.message?.includes("a claimed band stays a band")) return { form: "This is your band's listing, so it stays a band." };
+  if (e?.message?.includes("a claimed band stays a band"))
+    return { form: "This is your band's listing, so it stays a band." };
   if (e?.message?.includes("you stay a person")) return { form: "This is you, so it stays a person." };
   return { form: SAVE_FAILED };
 }
@@ -91,7 +92,12 @@ async function saveConnection(
 
 // A moderator fixing another band's shared record (#195): its own details
 // only, logged by the database. Scenes and Our band stay each band's.
-async function moderateConnection(id: string, data: ValidConnection, expectedUpdatedAt: string, storedAttributes: unknown) {
+async function moderateConnection(
+  id: string,
+  data: ValidConnection,
+  expectedUpdatedAt: string,
+  storedAttributes: unknown,
+) {
   const supabase = await createClient();
   const locality = data.locality;
   const { error } = await supabase.rpc("moderate_connection", {
@@ -110,10 +116,7 @@ async function moderateConnection(id: string, data: ValidConnection, expectedUpd
   if (error) throw error;
 }
 
-export async function createConnection(
-  _prev: ConnectionFormState,
-  formData: FormData,
-): Promise<ConnectionFormState> {
+export async function createConnection(_prev: ConnectionFormState, formData: FormData): Promise<ConnectionFormState> {
   const values = readForm(formData);
   const result = validate(values);
   if (!result.ok) return { values, errors: result.errors, attempt: Date.now() };
@@ -163,8 +166,7 @@ export async function restoreConnection(id: string): Promise<ArchiveState> {
 
 export type QuickState = { status: ConnectionStatus | null; playedTogether: boolean };
 export type QuickResult =
-  | { ok: true; saved: QuickState; offer?: PlayedOffer | null }
-  | { ok: false; saved: QuickState | null };
+  { ok: true; saved: QuickState; offer?: PlayedOffer | null } | { ok: false; saved: QuickState | null };
 
 // One-tap status and "played together" changes from the detail page.
 // Status history is logged by a database trigger.
@@ -190,7 +192,9 @@ export async function quickUpdate(
       .eq("workspace_id", workspaceId)
       .maybeSingle();
     // A record this band never touched has no status (#192).
-    return data ? { status: data.status, playedTogether: data.played_together } : { status: null, playedTogether: false };
+    return data
+      ? { status: data.status, playedTogether: data.played_together }
+      : { status: null, playedTogether: false };
   };
   if (!patch) return { ok: false, saved: await current() };
 

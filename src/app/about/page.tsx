@@ -13,7 +13,8 @@ export const metadata: Metadata = {
 const SCREENSHOT: { src: string; alt: string } | null = null;
 
 const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
-const NO_STATUS_MEANING = "Not sorted yet. Everything starts here, and most of the shared directory will stay here, which is fine.";
+const NO_STATUS_MEANING =
+  "Not sorted yet. Everything starts here, and most of the shared directory will stay here, which is fine.";
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
   lets_play: "You both want to play together; it just isn't booked.",
@@ -61,8 +62,8 @@ export default function AboutPage() {
         </h2>
         <ol>
           <li>
-            <strong>One directory, shared by every band.</strong> Anyone in a band can add a venue, band, or person.
-            Add something and every band on Seeens can see it, so nobody types in the same venue twice.
+            <strong>One directory, shared by every band.</strong> Anyone in a band can add a venue, band, or person. Add
+            something and every band on Seeens can see it, so nobody types in the same venue twice.
           </li>
           <li>
             <strong>Your band&rsquo;s notes are your band&rsquo;s.</strong> What you think of someone, what you&rsquo;ve
@@ -86,8 +87,8 @@ export default function AboutPage() {
           Statuses
         </h2>
         <p>
-          Every listing can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and nobody
-          outside your band sees it.
+          Every listing can get one status from your band. It&rsquo;s how you feel, not what&rsquo;s happened, and
+          nobody outside your band sees it.
         </p>
         <div className="overflow-x-auto">
           <table className="about-table status-table">
@@ -166,8 +167,8 @@ export default function AboutPage() {
         </div>
         <p>
           Only people in a band can see Seeens at all. The band that added a listing is the one that can change it.
-          Nothing is sold or used for ads. You can export your band&rsquo;s listings, and you can delete your account from
-          Account Settings.
+          Nothing is sold or used for ads. You can export your band&rsquo;s listings, and you can delete your account
+          from Account Settings.
         </p>
       </section>
 
@@ -221,8 +222,8 @@ export default function AboutPage() {
           Closed Beta
         </h2>
         <p>
-          Seeens is in a closed beta. Everyone using it is a tester, so things will change, and what you tell us
-          decides what changes. Once you&rsquo;re in, Send Feedback is in the header.
+          Seeens is in a closed beta. Everyone using it is a tester, so things will change, and what you tell us decides
+          what changes. Once you&rsquo;re in, Send Feedback is in the header.
         </p>
       </section>
 

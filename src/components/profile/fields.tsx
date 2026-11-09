@@ -17,7 +17,16 @@ export function ContactFields({ values: v }: { values: ConnectionFormValues }) {
     <>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field id="p-email" label="Email" error={errors.email}>
-          <input {...noAutofill} id="p-email" name="email" type="email" inputMode="email" defaultValue={v.email} className="field" {...invalid("p-email", errors.email)} />
+          <input
+            {...noAutofill}
+            id="p-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            defaultValue={v.email}
+            className="field"
+            {...invalid("p-email", errors.email)}
+          />
         </Field>
         <Field id="p-phone" label="Phone">
           <input {...noAutofill} id="p-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
@@ -35,7 +44,16 @@ export function BandNoteFields({ values: v }: { values: ConnectionFormValues }) 
     <>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field id="p-email" label="Email" error={errors.email}>
-          <input {...noAutofill} id="p-email" name="email" type="email" inputMode="email" defaultValue={v.email} className="field" {...invalid("p-email", errors.email)} />
+          <input
+            {...noAutofill}
+            id="p-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            defaultValue={v.email}
+            className="field"
+            {...invalid("p-email", errors.email)}
+          />
         </Field>
         <Field id="p-phone" label="Phone">
           <input {...noAutofill} id="p-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
@@ -55,7 +73,14 @@ export function ModeratorFields({ values: v, venue }: { values: ConnectionFormVa
     <>
       <BasicInfoFields values={v} scenes={[]} sharedOnly />
       <Field id="p-can_help_with" label="Can Help With" hint="Separate with commas, like: music videos, DJ sets, gear.">
-        <input {...noAutofill} id="p-can_help_with" name="can_help_with" defaultValue={v.canHelpWith} className="field" aria-describedby="p-can_help_with-hint" />
+        <input
+          {...noAutofill}
+          id="p-can_help_with"
+          name="can_help_with"
+          defaultValue={v.canHelpWith}
+          className="field"
+          aria-describedby="p-can_help_with-hint"
+        />
       </Field>
       <LinksEditor initial={v.links} errors={errors.linkUrls} />
       {venue ? <VenueDetailFields values={v.venue} /> : null}

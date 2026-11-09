@@ -15,12 +15,7 @@ export default function LoginPage() {
         <header className="flex flex-col items-start gap-6">
           <h1 className="logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/seeens-logo.svg"
-              alt="Seeens"
-              width={75}
-              height={18}
-            />
+            <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
           </h1>
           <p className="font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:display-xxl">
             Your people.
@@ -32,10 +27,7 @@ export default function LoginPage() {
           </Link>
         </header>
 
-        <section
-          aria-labelledby="signin-heading"
-          className="window flex w-full max-w-sm flex-col"
-        >
+        <section aria-labelledby="signin-heading" className="window flex w-full max-w-sm flex-col">
           <h2
             id="signin-heading"
             className="bg-inverse px-2 py-1 font-mono text-xs font-normal tracking-normal text-[var(--color-text-inverse)]"
@@ -47,8 +39,7 @@ export default function LoginPage() {
               <LoginForm />
             </Suspense>
             <p className="text-sm text-muted">
-              Seeens is invite-only. Ask a bandmate to add you if you
-              don&rsquo;t have an account.
+              Seeens is invite-only. Ask a bandmate to add you if you don&rsquo;t have an account.
             </p>
           </div>
         </section>

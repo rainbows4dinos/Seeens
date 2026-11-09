@@ -81,7 +81,9 @@ export function FeedbackControls({
         <a href={draftUrl} target="_blank" rel="noopener noreferrer" className="button-secondary">
           Draft an Issue
         </a>
-        <p className="text-sm text-muted">Opens GitHub with the text filled in. Check it for real names before you post.</p>
+        <p className="text-sm text-muted">
+          Opens GitHub with the text filled in. Check it for real names before you post.
+        </p>
       </div>
 
       {status === "done" && canTell ? (

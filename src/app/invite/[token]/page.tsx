@@ -35,7 +35,11 @@ async function Invite({
 }) {
   const [{ token }, sp] = await Promise.all([params, searchParams]);
   if (sp.stopped) {
-    return <Closed title="Got it.">Seeens won&rsquo;t email you again. If you change your mind, ask for an invite link instead.</Closed>;
+    return (
+      <Closed title="Got it.">
+        Seeens won&rsquo;t email you again. If you change your mind, ask for an invite link instead.
+      </Closed>
+    );
   }
   const supabase = await createClient();
   const [{ data }, { data: auth }] = await Promise.all([
@@ -43,10 +47,24 @@ async function Invite({
     supabase.auth.getClaims(),
   ]);
   const inv = data?.[0];
-  if (!inv) return <Closed title="This invite link doesn't work.">Check that you copied all of it, or ask for a new one.</Closed>;
-  if (inv.status === "used") return <Closed title="This invite was already used.">If that was you, <Link href="/login" className="link">sign in</Link>. Otherwise, ask for a new one.</Closed>;
-  if (inv.status === "revoked") return <Closed title="This invite was cancelled.">Ask {inv.invited_by} for a new one if you still want in.</Closed>;
-  if (inv.status === "expired") return <Closed title="This invite ran out.">Invites work for 7 days. Ask {inv.invited_by} for a new one.</Closed>;
+  if (!inv)
+    return (
+      <Closed title="This invite link doesn't work.">Check that you copied all of it, or ask for a new one.</Closed>
+    );
+  if (inv.status === "used")
+    return (
+      <Closed title="This invite was already used.">
+        If that was you,{" "}
+        <Link href="/login" className="link">
+          sign in
+        </Link>
+        . Otherwise, ask for a new one.
+      </Closed>
+    );
+  if (inv.status === "revoked")
+    return <Closed title="This invite was cancelled.">Ask {inv.invited_by} for a new one if you still want in.</Closed>;
+  if (inv.status === "expired")
+    return <Closed title="This invite ran out.">Invites work for 7 days. Ask {inv.invited_by} for a new one.</Closed>;
 
   const signedInEmail = typeof auth?.claims?.email === "string" ? auth.claims.email.toLowerCase() : null;
   const signedIn = Boolean(auth?.claims?.sub);
@@ -79,7 +97,8 @@ async function Invite({
           {signedIn && inv.email && signedInEmail !== inv.email ? (
             <div className="flex flex-col gap-3">
               <p>
-                This invite is for <strong>{inv.email}</strong>, but you&rsquo;re signed in as {signedInEmail}. Sign out, and you&rsquo;ll come back here to join as {inv.email}.
+                This invite is for <strong>{inv.email}</strong>, but you&rsquo;re signed in as {signedInEmail}. Sign
+                out, and you&rsquo;ll come back here to join as {inv.email}.
               </p>
               <SignOutForm buttonClassName="button-secondary" next={`/invite/${token}`} />
             </div>

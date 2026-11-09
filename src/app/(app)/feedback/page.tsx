@@ -21,8 +21,8 @@ export default function FeedbackPage({ searchParams }: PageProps<"/feedback">) {
         <p className="caption">Beta</p>
         <h1 className="display-l">Send Feedback</h1>
         <p className="text-muted">
-          Seeens is in beta, and you&rsquo;re testing it. Anything helps: what broke, what confused you, what you wish it
-          did. It goes straight to the people building Seeens, not anywhere public.
+          Seeens is in beta, and you&rsquo;re testing it. Anything helps: what broke, what confused you, what you wish
+          it did. It goes straight to the people building Seeens, not anywhere public.
         </p>
       </div>
       <Suspense fallback={<PageLoader />}>

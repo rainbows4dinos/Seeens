@@ -201,7 +201,11 @@ export function LeaveBand({ workspaceId, name }: { workspaceId: string; name: st
       </button>
     );
   return (
-    <div className="flex basis-full flex-col gap-3 border border-dashed border-strong p-3" role="group" aria-label={`Leave ${name}?`}>
+    <div
+      className="flex basis-full flex-col gap-3 border border-dashed border-strong p-3"
+      role="group"
+      aria-label={`Leave ${name}?`}
+    >
       <p className="text-sm">
         Leave {name}? You&rsquo;ll lose access to its directory. Everything you added stays with the band, and a
         bandmate can invite you back.

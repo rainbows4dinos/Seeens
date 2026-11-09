@@ -12,12 +12,7 @@ import { INSTRUMENTS, instrumentsFromRole, type Instrument } from "@/lib/affilia
 
 const QUICK_INSTRUMENTS: Instrument[] = ["vocals", "guitar", "bass", "drums", "keyboards", "synth"];
 import { addLink, removeLink, updateLink, type LinkState } from "@/lib/affiliations/actions";
-import {
-  SECTION_ORDER,
-  fitsTarget,
-  newGroupTypes,
-  type AddOption,
-} from "@/lib/affiliations/options";
+import { SECTION_ORDER, fitsTarget, newGroupTypes, type AddOption } from "@/lib/affiliations/options";
 import {
   GROUP_TYPE_LABELS,
   formatType,
@@ -206,7 +201,9 @@ function LinkItem({ row, usesSeeens }: { row: LinkRow; usesSeeens: boolean }) {
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
   const [state, action, saving] = useActionState<LinkState, FormData>(async (prev, fd) => {
-    const result = await updateLink(row.id, prev, fd).catch(offline({ error: "Couldn't reach Seeens. Try again.", attempt: Date.now() } as LinkState));
+    const result = await updateLink(row.id, prev, fd).catch(
+      offline({ error: "Couldn't reach Seeens. Try again.", attempt: Date.now() } as LinkState),
+    );
     if (result.ok) setMode("view");
     return result;
   }, {});
@@ -246,7 +243,15 @@ function LinkItem({ row, usesSeeens }: { row: LinkRow; usesSeeens: boolean }) {
             <label htmlFor={`${formId}-role`} className="label">
               Role or Detail
             </label>
-            <input {...noAutofill} id={`${formId}-role`} form={formId} name="role" defaultValue={row.role ?? ""} className="field" autoFocus />
+            <input
+              {...noAutofill}
+              id={`${formId}-role`}
+              form={formId}
+              name="role"
+              defaultValue={row.role ?? ""}
+              className="field"
+              autoFocus
+            />
           </div>
           <label className="choice self-start">
             <input type="checkbox" form={formId} name="former" defaultChecked={!row.isCurrent} />
@@ -275,9 +280,7 @@ function LinkItem({ row, usesSeeens }: { row: LinkRow; usesSeeens: boolean }) {
 
       {mode === "remove" ? (
         <div role="group" aria-label={`Remove link to ${row.otherName}`} className="flex flex-col gap-2 panel p-3">
-          <p className="text-sm">
-            Remove the link to {row.otherName}? Both listings stay in the directory.
-          </p>
+          <p className="text-sm">Remove the link to {row.otherName}? Both listings stay in the directory.</p>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
@@ -325,7 +328,8 @@ function AddLinkForm({
     // Not saved yet: keep the fields, and add the link with the connection.
     if (onPending) {
       const other = String(fd.get("other_id") ?? "");
-      const name = other === "__new__" ? String(fd.get("new_name") ?? "") : (candidates.find((c) => c.id === other)?.name ?? "");
+      const name =
+        other === "__new__" ? String(fd.get("new_name") ?? "") : (candidates.find((c) => c.id === other)?.name ?? "");
       if (!other || !name) return { error: "Pick someone, or type a name to add someone new.", attempt: Date.now() };
       onPending({
         optionId: option.id,
@@ -338,7 +342,9 @@ function AddLinkForm({
       onDone();
       return { ok: true, attempt: Date.now() };
     }
-    const result = await addLink(subjectId, option.id, prev, fd).catch(offline({ error: "Couldn't reach Seeens. Try again.", attempt: Date.now() } as LinkState));
+    const result = await addLink(subjectId, option.id, prev, fd).catch(
+      offline({ error: "Couldn't reach Seeens. Try again.", attempt: Date.now() } as LinkState),
+    );
     if (result.ok) onDone();
     return result;
   }, {});
@@ -353,7 +359,9 @@ function AddLinkForm({
   return (
     <div role="group" aria-labelledby={`${id}-title`} className="flex flex-col gap-4 panel p-4">
       <DetachedForm id={id} action={action} />
-      <h3 id={`${id}-title`} className="font-semibold">{option.label}</h3>
+      <h3 id={`${id}-title`} className="font-semibold">
+        {option.label}
+      </h3>
 
       <Combobox
         label="Find in your directory, or type a new name"
@@ -431,7 +439,10 @@ function AddLinkForm({
                   className="tag tag-button"
                   aria-pressed={on}
                   onClick={() => {
-                    const parts = role.split(",").map((p) => p.trim()).filter(Boolean);
+                    const parts = role
+                      .split(",")
+                      .map((p) => p.trim())
+                      .filter(Boolean);
                     const next = on
                       ? parts.filter((p) => !instrumentsFromRole(p).includes(i))
                       : [...parts, INSTRUMENTS[i]];
