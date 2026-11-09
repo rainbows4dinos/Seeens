@@ -7,12 +7,12 @@ import { emailConfigured } from "@/lib/email/send";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
 import { PageLoader } from "@/components/metronome";
-import { NewLinkButton, StartBandForm } from "./start-band-form";
+import { InviteBandForm, NewLinkButton } from "./invite-band-form";
 
 export const metadata: Metadata = { title: "Bands · Seeens" };
 
-// Bands (#68), for app admins: start a new band and invite its first owner,
-// and see which bands are still waiting on theirs.
+// Bands (#68), for app admins: invite a band's first owner, and see which
+// bands are still waiting on theirs.
 export default function BandsPage() {
   return (
     <div className="page-measure flex flex-col gap-8">
@@ -28,7 +28,15 @@ async function Bands() {
   const [{ data: admin }, membership] = await Promise.all([supabase.rpc("is_app_admin"), getMembership()]);
   if (!admin) notFound();
   const tz = membership?.timeZone ?? "America/Los_Angeles";
-  const { data: bands } = await supabase.rpc("list_bands");
+  const [{ data: bands }, { data: invitable }] = await Promise.all([
+    supabase.rpc("list_bands"),
+    supabase.rpc("invitable_bands"),
+  ]);
+  const options = (invitable ?? []).map((b) => ({
+    value: b.connection_id,
+    label: b.name,
+    hint: [b.town, `Added by ${b.added_by}`].filter(Boolean).join(" · "),
+  }));
 
   return (
     <>
@@ -36,12 +44,12 @@ async function Bands() {
         <p className="caption">App Admin</p>
         <h1 className="display-l">Bands</h1>
         <p className="text-muted">
-          Seeens is invite only. Start a band here and invite its first owner; they bring in the rest.
+          Seeens is invite only. Invite a band&rsquo;s first owner here; they bring in the rest.
         </p>
       </div>
 
-      <ProfilePanel id="start-band" title="Start a Band">
-        <StartBandForm emailReady={emailConfigured()} />
+      <ProfilePanel id="invite-band" title="Invite a Band">
+        <InviteBandForm bands={options} emailReady={emailConfigured()} />
       </ProfilePanel>
 
       <ProfilePanel id="bands" title={`Bands (${bands?.length ?? 0})`}>
@@ -58,7 +66,13 @@ async function Bands() {
                       ? `Waiting on ${b.invite_email ?? "a link invite"} · ${
                           expired ? "Invite ran out" : `Invite runs out ${formatDate(b.invite_expires_at!, tz)}`
                         }`
-                      : `${b.members} ${b.members === 1 ? "member" : "members"} · Started ${formatDate(b.created_at, tz)}`}
+                      : [
+                          `${b.members} ${b.members === 1 ? "member" : "members"}`,
+                          `Joined ${formatDate(b.created_at, tz)}`,
+                          b.listing_from ? `Listing from ${b.listing_from}` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
                   </p>
                 </div>
                 {waiting ? <NewLinkButton id={b.invite_id!} band={b.name} /> : null}

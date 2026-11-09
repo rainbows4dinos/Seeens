@@ -2,6 +2,7 @@ import Link from "next/link";
 import { catalogNo } from "@/lib/connections/card";
 import { Suspense } from "react";
 import { getCurrentUser, getLinkedPeople, getMembership, isModerator } from "@/lib/auth/dal";
+import { getListingClaim } from "@/lib/connections/claim";
 import { keepPrivateLock } from "@/lib/connections/sharing";
 import { todayISO } from "@/lib/outreach/labels";
 import { NextActionPanel } from "@/components/next-action-panel";
@@ -65,7 +66,7 @@ async function Connection({
 
   const [{ id }, { saved, offer, missed_photo, missed_links, merged, unmerged, mine }] = await Promise.all([params, searchParams]);
   const tz = membership.timeZone;
-  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople, moderator] = await Promise.all([
+  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople, moderator, claim] = await Promise.all([
     getConnection(id),
     getCurrentUser(),
     listSceneOptions(),
@@ -73,12 +74,21 @@ async function Connection({
     typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
     getLinkedPeople(),
     isModerator(),
+    getListingClaim(id),
   ]);
   const today = todayISO(new Date(), tz);
   // Another band's record (#185): theirs to change, ours to keep notes on.
   if (!detail.mine) {
     return (
-      <SharedRecord detail={detail} band={membership.workspaceName} me={user.id} today={today} tz={tz} moderator={moderator} />
+      <SharedRecord
+        detail={detail}
+        band={membership.workspaceName}
+        me={user.id}
+        today={today}
+        tz={tz}
+        moderator={moderator}
+        claim={claim}
+      />
     );
   }
   const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
@@ -191,6 +201,7 @@ async function Connection({
           <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
             {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
             {isYou ? <span className="tag font-semibold">This is you</span> : account ? <span className="tag">Uses Seeens</span> : null}
+            {claim && !claim.mine ? <span className="tag">Uses Seeens</span> : null}
             {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}
             {ourLabel ? <span className="tag font-semibold">Our label</span> : null}
             {sharedWithUs.length ? (
@@ -377,7 +388,9 @@ async function Connection({
       <footer className="flex flex-col gap-4 rule-top pt-6">
         <p className="text-sm text-muted">
           Added {formatDate(c.created_at, tz)} · Updated {formatDate(c.updated_at, tz)}
-          {detail.moderatedAt ? ` · Last fixed by a moderator ${formatDate(detail.moderatedAt, tz)}` : null}
+          {detail.moderatedAt
+            ? ` · Last fixed by ${detail.moderatedBy ?? "a moderator"} ${formatDate(detail.moderatedAt, tz)}`
+            : null}
         </p>
         {lastMerge && merged !== "1" ? (
           <MergedNotice key={lastMerge.id} mergeId={lastMerge.id} keepName={c.name} merged={lastMerge.merged} until={lastMerge.until} quiet />

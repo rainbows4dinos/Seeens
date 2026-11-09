@@ -146,7 +146,7 @@ export async function getConnection(id: string) {
     // A moderator's last fix (#195), when this band or a moderator can see it.
     supabase
       .from("connection_edits")
-      .select("edited_at")
+      .select("edited_at, by_band")
       .eq("connection_id", id)
       .order("edited_at", { ascending: false })
       .limit(1)
@@ -181,6 +181,8 @@ export async function getConnection(id: string) {
     mine: shaped.workspace_id === ws,
     /** When a moderator last changed it (#195), or null. */
     moderatedAt: lastEdit.data?.edited_at ?? null,
+    /** Who last fixed it from outside: the band that claimed it (#68), or null for a moderator. */
+    moderatedBy: lastEdit.data?.by_band ?? null,
     /** The band that shared it, when it's another band's. */
     sharedBy: shaped.workspace_id === ws ? null : (shaped.added_by?.name ?? "another band"),
     affiliations: {

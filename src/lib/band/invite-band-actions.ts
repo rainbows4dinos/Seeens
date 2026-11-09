@@ -6,52 +6,57 @@ import { createClient } from "@/lib/supabase/server";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { siteOrigin } from "@/lib/origin";
 
-// Start a band (#68), for app admins: name the band, invite its first
-// owner. The database checks it's an admin asking; these turn its answers
-// into words.
+// Invite a band (#68), for app admins: its first owner gets an invite, and
+// the band claims its listing in the directory (or gets a new one). The
+// database checks it's an admin asking; these turn its answers into words.
 
-export type StartBandState = { error?: string; done?: string; link?: string };
+export type InviteBandState = { error?: string; done?: string; link?: string };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const inviteLink = async (token: string) => `${await siteOrigin()}/invite/${token}`;
 
-export async function startBand(_prev: StartBandState, formData: FormData): Promise<StartBandState> {
-  const band = String(formData.get("band") ?? "").trim();
+export async function inviteBand(_prev: InviteBandState, formData: FormData): Promise<InviteBandState> {
+  const listingId = String(formData.get("listing_id") ?? "");
+  const newBand = String(formData.get("new_band") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const asLink = formData.get("mode") === "link";
-  if (!band) return { error: "Add the band's name." };
-  if (!asLink && !email) return { error: "Add the owner's email, like sam@example.com. Or make a link instead." };
+  if (!UUID.test(listingId) && !newBand) return { error: "Pick the band, or type its name if it isn't listed." };
+  if (!asLink && !email) return { error: "Add the owner's email, like sam@example.com. Or copy a link instead." };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("start_band", {
-    p_band: band,
+  const { data, error } = await supabase.rpc("invite_band", {
+    p_listing_id: UUID.test(listingId) ? listingId : null,
+    p_band: newBand || null,
     p_email: asLink ? null : email,
     p_name: name || null,
   });
   const row = data?.[0];
   if (error || !row) {
     const msg = error?.message ?? "";
-    if (msg.includes("a band with that name")) return { error: `There's already a band called ${band}.` };
+    if (msg.includes("already claimed")) return { error: "That band's already been invited. Refresh the page." };
+    if (msg.includes("already listed")) return { error: `${newBand} is already in the directory. Pick it from the list.` };
+    if (msg.includes("not a band listing")) return { error: "That listing can't be invited. Refresh the page." };
     if (msg.includes("already in a band")) return { error: `${email} is already in a band. Seeens shows one band per person for now.` };
     if (msg.includes("not an email")) return { error: "That doesn't look like an email address." };
     if (msg.includes("opted out")) return { error: `${email} asked not to get email from Seeens.` };
     if (msg.includes("1 to 80")) return { error: "Keep the band's name under 80 characters." };
-    return { error: "Couldn't start the band. Try again." };
+    return { error: "Couldn't invite the band. Try again." };
   }
   revalidatePath("/admin/bands");
+  const band = row.band;
   const link = await inviteLink(row.token);
-  if (asLink) return { done: `${band} is ready. Send this link to its owner. It works once, for 7 days.`, link };
+  if (asLink) return { done: `Invite ready for ${band}. Send this link to its owner. It works once, for 7 days.`, link };
 
-  if (!emailConfigured()) return { done: `${band} is ready. Email isn't set up, so send this link to ${email} yourself.`, link };
+  if (!emailConfigured()) return { done: `Invite ready for ${band}. Email isn't set up, so send this link to ${email} yourself.`, link };
   const sent = await emailOwner(email, link, band, name).catch(() => false);
-  if (!sent) return { done: `${band} is ready, but the email didn't go out. Send this link to ${email} yourself.`, link };
+  if (!sent) return { done: `Invite ready for ${band}, but the email didn't go out. Send this link to ${email} yourself.`, link };
   await supabase.rpc("mark_invite_sent", { p_invite_id: row.invite_id });
-  return { done: `${band} is ready. We emailed ${email} their invite.`, link };
+  return { done: `Invited ${band}. We emailed ${email}.`, link };
 }
 
 /** A fresh link for a band's waiting owner; the old one stops working. */
-export async function renewBandInvite(inviteId: string): Promise<StartBandState> {
+export async function renewBandInvite(inviteId: string): Promise<InviteBandState> {
   if (!UUID.test(inviteId)) return { error: "Couldn't make a link. Try again." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("renew_band_invite", { p_invite_id: inviteId });
@@ -70,13 +75,13 @@ async function emailOwner(to: string, link: string, band: string, name: string) 
     text: [
       name ? `Hi ${name},` : "Hi,",
       "",
-      `${admin} set up a place for ${band} on Seeens, and you're its owner.`,
+      `${admin} invited ${band} to Seeens, with you as its owner.`,
       "",
-      "Seeens is where a band keeps track of the people, venues, labels, and scenes it knows, and finds out who else knows them. It's in beta, invite only, so you'd be one of the first bands on it. Your feedback shapes it.",
+      "Seeens is where a band keeps track of the people, venues, labels, and scenes it knows, and finds out who else knows them. It's in beta and invite only, so you'd be one of the first bands on it. Your feedback shapes it.",
       "",
       `Make your account and join: ${link}`,
       "",
-      "Then invite your bandmates from Band Settings. The link works for 7 days and only once.",
+      `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite your bandmates from Band Settings. The link works for 7 days and only once.`,
       "",
       `Questions? Reply to this email and it goes to ${admin}.`,
       "",

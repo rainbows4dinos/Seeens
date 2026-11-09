@@ -166,10 +166,10 @@ isOneToOne: false
                   Update: { "created_at"?: string,"user_id"?: string }
                   Relationships: []
                 },"connection_edits": {
-                  Row: { "changes": Json,"connection_id": string,"edited_at": string,"edited_by": string | null,"id": number }
+                  Row: { "by_band": string | null,"changes": Json,"connection_id": string,"edited_at": string,"edited_by": string | null,"id": number }
                   ComputedFields: never
-                  Insert: { "changes": Json,"connection_id": string,"edited_at"?: string,"edited_by"?: string | null,"id"?: never }
-                  Update: { "changes"?: Json,"connection_id"?: string,"edited_at"?: string,"edited_by"?: string | null,"id"?: never }
+                  Insert: { "changes": Json,"connection_id": string,"edited_at"?: string,"by_band"?: string | null,"edited_by"?: string | null,"id"?: never }
+                  Update: { "changes"?: Json,"connection_id"?: string,"edited_at"?: string,"by_band"?: string | null,"edited_by"?: string | null,"id"?: never }
                   Relationships: []
                 },"connections": {
                   Row: {
@@ -355,11 +355,11 @@ isOneToOne: false
                   ]
                 },"workspaces": {
                   Row: {
-                    "created_at": string,"id": string,"name": string,"time_zone": string
+                    "created_at": string,"id": string,"listing_id": string | null,"name": string,"time_zone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string,"time_zone"?: string
+                    "created_at"?: string,"id"?: string,"listing_id"?: string | null,"name": string,"time_zone"?: string
                   }
                   Update: {
                     "created_at"?: string,"id"?: string,"name"?: string,"time_zone"?: string
@@ -409,10 +409,14 @@ isOneToOne: false
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"granted_at": string,"admin": boolean }[] },
             "list_accounts":
 { Args: never; Returns: { "user_id": string,"email": string,"display_name": string | null,"bands": string | null,"moderator": boolean,"admin": boolean }[] },
-            "start_band":
-{ Args: { "p_band": string,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string }[] },
+            "invitable_bands":
+{ Args: never; Returns: { "connection_id": string,"name": string,"town": string | null,"added_by": string }[] },
+            "invite_band":
+{ Args: { "p_listing_id": string | null,"p_band": string | null,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
             "list_bands":
-{ Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null }[] },
+{ Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null }[] },
+            "listing_claim":
+{ Args: { "p_connection_id": string }; Returns: { "band": string,"mine": boolean }[] },
             "renew_band_invite":
 { Args: { "p_invite_id": string }; Returns: string },
             "grant_moderator_user":
