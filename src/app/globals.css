@@ -1045,9 +1045,6 @@
       flex-direction: column;
       gap: var(--space-md);
     }
-    .inline-nav {
-      display: none;
-    }
   }
   .side-nav ul {
     display: flex;
@@ -1080,6 +1077,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-sm) var(--space-lg);
+  }
+  /* The side nav takes over from 64rem. After the rules above, so it wins. */
+  @media (width >= 64rem) {
+    .inline-nav {
+      display: none;
+    }
   }
   /* In the app, below the sticky header. */
   .side-nav-layout.in-app {
