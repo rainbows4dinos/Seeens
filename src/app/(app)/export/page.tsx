@@ -67,7 +67,7 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
         </p>
       ) : problem === "empty" ? (
         <p role="status" className="rounded-md border border-line p-3 text-sm font-medium">
-          No connections matched, so there was nothing to download. Try including archived connections.
+          No listings matched, so there was nothing to download. Try including archived listings.
         </p>
       ) : null}
 

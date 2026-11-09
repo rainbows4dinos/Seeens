@@ -283,6 +283,25 @@ export function Combobox({
             ×
           </button>
         ) : null}
+        {/* The select's chevron, so it reads as a list to pick from. Mouse
+            only: the keyboard opens it with the arrow keys. */}
+        <span
+          className="combo-chevron"
+          aria-hidden="true"
+          data-open={open ? "" : undefined}
+          onMouseDown={(e) => {
+            // Keep focus in the box. Focusing it opens the list; already
+            // there, the chevron flips it.
+            e.preventDefault();
+            const input = inputRef.current;
+            if (input && document.activeElement !== input) input.focus();
+            else setOpen((o) => !o);
+          }}
+        >
+          <svg width="12" height="8" viewBox="0 0 12 8">
+            <path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+        </span>
       </div>
 
       <ul

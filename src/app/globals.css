@@ -434,6 +434,23 @@
   .combo-tag button:hover {
     background: var(--color-text-secondary);
   }
+  /* The chevron, last in the box: 12px in from the border, like a select's
+     (4px box padding + 8). Flips while the list is open. */
+  .combo-chevron {
+    display: grid;
+    flex: none;
+    place-items: center;
+    align-self: center;
+    width: 12px;
+    height: 28px;
+    margin-left: auto;
+    margin-right: 8px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+  .combo-chevron[data-open] svg {
+    rotate: 180deg;
+  }
   .combo-clear {
     width: 28px;
     height: 28px;
