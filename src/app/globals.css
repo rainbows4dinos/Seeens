@@ -899,17 +899,33 @@
   }
   /* Status headings (Homies, Let's play…) pin under the pinned bar, each
      within its own section, so the next one pushes it away. --bar-h is the
-     bar's height (StickyGroups). Edge to edge like the bar; solid ground
-     only while pinned. The padding is taken back out of the layout. */
+     bar's height (StickyGroups). Pinned, they float like a detail page's
+     pinned actions: 12px under the bar, lifted (Shadow/Soft), with the
+     count joined on as a box so it reads over the cards. No strip. */
   .group-head {
     position: sticky;
-    top: calc(var(--header-h) - 1px + var(--bar-h, 0px));
+    top: calc(var(--header-h) - 1px + var(--bar-h, 0px) + var(--space-md));
     z-index: 9;
-    margin: -8px calc(-1 * var(--gutter));
-    padding: 8px var(--gutter);
+    align-self: flex-start;
   }
-  .group-head[data-pinned] {
-    background: var(--color-bg-ground);
+  .group-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+  }
+  .group-head[data-pinned] .group-chip {
+    gap: 0;
+    box-shadow: var(--shadow-soft);
+  }
+  .group-head[data-pinned] .group-count {
+    display: inline-flex;
+    align-items: center;
+    height: 20px; /* the tag's */
+    line-height: 1;
+    padding-inline: 8px;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    border-left: 0;
+    background: var(--color-bg-surface);
   }
   :is(.directory-bar, .bar-search)[data-pinned] {
     background: var(--color-bg-ground);
