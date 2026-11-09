@@ -1022,6 +1022,70 @@
     margin-inline: auto;
   }
 
+  /* Long pages (About, Help) with "On this page" beside them from 64rem. */
+  .side-nav-layout {
+    width: 100%;
+    max-width: calc(56rem + 14rem);
+    margin-inline: auto;
+  }
+  .side-nav {
+    display: none;
+  }
+  @media (width >= 64rem) {
+    .side-nav-layout {
+      display: grid;
+      grid-template-columns: 11rem minmax(0, 56rem);
+      column-gap: 3rem;
+      align-items: start;
+    }
+    .side-nav {
+      position: sticky;
+      top: var(--side-nav-top, 32px);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .inline-nav {
+      display: none;
+    }
+  }
+  .side-nav ul {
+    display: flex;
+    flex-direction: column;
+    border-left: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .side-nav a {
+    display: block;
+    margin-left: -1px;
+    padding: 6px 0 6px var(--space-md);
+    border-left: 2px solid transparent;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-text-secondary);
+  }
+  .side-nav a:hover {
+    color: var(--color-text-primary);
+  }
+  .side-nav a[aria-current] {
+    border-left-color: var(--color-text-primary);
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+  .inline-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .inline-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+  }
+  /* In the app, below the sticky header. */
+  .side-nav-layout.in-app {
+    --side-nav-top: calc(var(--header-h) + 32px);
+  }
+
   /* Cards fill the row: as many 280px-minimum columns as fit. */
   .card-grid {
     display: grid;

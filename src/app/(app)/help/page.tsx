@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { InlineNav, SideNav, type SideNavSection } from "@/components/side-nav";
 import { NO_STATUS, STATUS_WORDS } from "@/lib/connections/status-words";
 import { FAQ } from "@/lib/help/faq";
 
@@ -116,6 +117,14 @@ const WORDS: [string, string, string][] = [
   ],
 ];
 
+// The page's sections, for the side nav.
+const SECTIONS: SideNavSection[] = [
+  { id: "statuses", label: "Statuses" },
+  { id: "words", label: "Glossary" },
+  { id: "shortcuts", label: "Keyboard Shortcuts" },
+  { id: "faq", label: "FAQ" },
+];
+
 // In the quick view (#244).
 const SHORTCUTS: [string, string][] = [
   ["J", "Next listing"],
@@ -133,145 +142,135 @@ const SHORTCUTS: [string, string][] = [
 // glossary, shortcuts, then the FAQ.
 export default function HelpPage() {
   return (
-    <div className="page-measure flex flex-col gap-12">
-      <div className="flex flex-col gap-2">
-        <h1 className="display-l">Help</h1>
-        <p className="text-muted">
-          The statuses, a glossary of the words Seeens uses, keyboard shortcuts, then common questions. New here?{" "}
-          <Link href="/about" className="link">
-            About Seeens
-          </Link>{" "}
-          has the big picture. Still stuck?{" "}
-          <Link href="/feedback?kind=confusing" className="link">
-            Tell us what confused you
-          </Link>
-          .
-        </p>
-        <nav aria-label="On this page" className="flex flex-wrap gap-2 pt-2">
-          <a href="#statuses" className="button-secondary">
-            Statuses
-          </a>
-          <a href="#words" className="button-secondary">
-            Glossary
-          </a>
-          <a href="#shortcuts" className="button-secondary">
-            Shortcuts
-          </a>
-          <a href="#faq" className="button-secondary">
-            FAQ
-          </a>
-        </nav>
-      </div>
+    <div className="side-nav-layout in-app">
+      <SideNav sections={SECTIONS} />
+      <div className="page-measure flex flex-col gap-12">
+        <div className="flex flex-col gap-2">
+          <h1 className="display-l">Help</h1>
+          <p className="text-muted">
+            The statuses, a glossary of the words Seeens uses, keyboard shortcuts, then common questions. New here?{" "}
+            <Link href="/about" className="link">
+              About Seeens
+            </Link>{" "}
+            has the big picture. Still stuck?{" "}
+            <Link href="/feedback?kind=confusing" className="link">
+              Tell us what confused you
+            </Link>
+            .
+          </p>
+          <InlineNav sections={SECTIONS} />
+        </div>
 
-      <section aria-labelledby="statuses" className="about-prose">
-        <h2 id="statuses" className="display-m">
-          Statuses
-        </h2>
-        <p>
-          Every listing can have one status from your band. The five never change, but the words fit what you&rsquo;re
-          looking at: you play with a band, book a venue, and collab with a person. Statuses say how you feel, not what
-          happened; that&rsquo;s what Played Together is for.
-        </p>
-        <div className="overflow-x-auto">
-          <table className="about-table status-table">
+        <section aria-labelledby="statuses" className="about-prose">
+          <h2 id="statuses" className="display-m">
+            Statuses
+          </h2>
+          <p>
+            Every listing can have one status from your band. The five never change, but the words fit what you&rsquo;re
+            looking at: you play with a band, book a venue, and collab with a person. Statuses say how you feel, not
+            what happened; that&rsquo;s what Played Together is for.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="about-table status-table">
+              <thead>
+                <tr>
+                  <th scope="col">Bands</th>
+                  <th scope="col">Venues and promoters</th>
+                  <th scope="col">People and orgs</th>
+                  <th scope="col">What it means</th>
+                </tr>
+              </thead>
+              <tbody>
+                {STATUS_ORDER.map((s) => (
+                  <tr key={s}>
+                    <th scope="row">{STATUS_WORDS.band[s]}</th>
+                    <td>{STATUS_WORDS.venue[s]}</td>
+                    <td>{STATUS_WORDS.people[s]}</td>
+                    <td>{STATUS_MEANING[s]}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <th scope="row">{NO_STATUS}</th>
+                  <td>{NO_STATUS}</td>
+                  <td>{NO_STATUS}</td>
+                  <td>{NO_STATUS_MEANING}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="words" className="about-prose">
+          <h2 id="words" className="display-m">
+            Glossary
+          </h2>
+          <dl className="help-words">
+            {WORDS.map(([word, meaning, where]) => (
+              <div key={word}>
+                <dt>{word}</dt>
+                <dd>
+                  {meaning} <span className="caption">{where}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section aria-labelledby="shortcuts" className="about-prose">
+          <h2 id="shortcuts" className="display-m">
+            Keyboard Shortcuts
+          </h2>
+          <p>
+            For sorting a lot of listings at once. They work while the quick view is open, except when you&rsquo;re
+            typing in a field.
+          </p>
+          <table className="about-table">
             <thead>
               <tr>
-                <th scope="col">Bands</th>
-                <th scope="col">Venues and promoters</th>
-                <th scope="col">People and orgs</th>
-                <th scope="col">What it means</th>
+                <th scope="col" className="w-24">
+                  Key
+                </th>
+                <th scope="col">What it does</th>
               </tr>
             </thead>
             <tbody>
-              {STATUS_ORDER.map((s) => (
-                <tr key={s}>
-                  <th scope="row">{STATUS_WORDS.band[s]}</th>
-                  <td>{STATUS_WORDS.venue[s]}</td>
-                  <td>{STATUS_WORDS.people[s]}</td>
-                  <td>{STATUS_MEANING[s]}</td>
+              {SHORTCUTS.map(([key, what]) => (
+                <tr key={what}>
+                  <th scope="row">
+                    <kbd className="keycap">{key}</kbd>
+                  </th>
+                  <td>{what}</td>
                 </tr>
               ))}
-              <tr>
-                <th scope="row">{NO_STATUS}</th>
-                <td>{NO_STATUS}</td>
-                <td>{NO_STATUS}</td>
-                <td>{NO_STATUS_MEANING}</td>
-              </tr>
             </tbody>
           </table>
-        </div>
-      </section>
+        </section>
 
-      <section aria-labelledby="words" className="about-prose">
-        <h2 id="words" className="display-m">
-          Glossary
-        </h2>
-        <dl className="help-words">
-          {WORDS.map(([word, meaning, where]) => (
-            <div key={word}>
-              <dt>{word}</dt>
-              <dd>
-                {meaning} <span className="caption">{where}</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <section aria-labelledby="shortcuts" className="about-prose">
-        <h2 id="shortcuts" className="display-m">
-          Keyboard Shortcuts
-        </h2>
-        <p>
-          For sorting a lot of listings at once. They work while the quick view is open, except when you&rsquo;re typing
-          in a field.
-        </p>
-        <table className="about-table">
-          <thead>
-            <tr>
-              <th scope="col" className="w-24">
-                Key
-              </th>
-              <th scope="col">What it does</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SHORTCUTS.map(([key, what]) => (
-              <tr key={what}>
-                <th scope="row">
-                  <kbd className="keycap">{key}</kbd>
-                </th>
-                <td>{what}</td>
-              </tr>
+        <section aria-labelledby="faq" className="about-prose">
+          <h2 id="faq" className="display-m">
+            FAQ
+          </h2>
+          <div className="help-faq">
+            {FAQ.map(([q, a, link]) => (
+              <details key={q}>
+                <summary>{q}</summary>
+                <p>
+                  {a}
+                  {link ? (
+                    <>
+                      {" "}
+                      <Link href={link.href} className="link">
+                        {link.label}
+                      </Link>
+                      .
+                    </>
+                  ) : null}
+                </p>
+              </details>
             ))}
-          </tbody>
-        </table>
-      </section>
-
-      <section aria-labelledby="faq" className="about-prose">
-        <h2 id="faq" className="display-m">
-          FAQ
-        </h2>
-        <div className="help-faq">
-          {FAQ.map(([q, a, link]) => (
-            <details key={q}>
-              <summary>{q}</summary>
-              <p>
-                {a}
-                {link ? (
-                  <>
-                    {" "}
-                    <Link href={link.href} className="link">
-                      {link.label}
-                    </Link>
-                    .
-                  </>
-                ) : null}
-              </p>
-            </details>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
