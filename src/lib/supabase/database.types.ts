@@ -435,6 +435,10 @@ isOneToOne: false
 { Args: { "p_alias": string,"p_place_id": number }; Returns: undefined },
             "remove_place_alias":
 { Args: { "p_alias": string }; Returns: undefined },
+            "preview_cards":
+{ Args: { "p_limit"?: number }; Returns: { "id": string,"name": string,"group_type": Database["public"]["Enums"]["group_type"],"catalog_no": number,"town": string | null,"scenes": string[],"photo_path": string }[] },
+            "preview_photo_path":
+{ Args: { "p_id": string }; Returns: string | null },
             "scene_suggestions":
 { Args: { "p_workspace_id": string }; Returns: { "scene_id": string,"scene_name": string,"place_id": number | null,"town": string | null,"parent_id": string | null,"parent_name": string | null }[] },
             "apply_scene_suggestion":
