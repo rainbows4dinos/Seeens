@@ -15,7 +15,7 @@ const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   avoid: "Not for you. Hidden from the directory unless you ask to see them.",
 };
 
-// The rest of the words, each line readable on its own. [word, meaning, where]
+// The glossary, each line readable on its own. [word, meaning, where]
 const WORDS: [string, string, string][] = [
   ["Listing", "Anyone or anything in the directory: a person, or a band, venue, label, studio, radio station, zine, or collective. Your band's own, or shared by another band.", "My Network, Full Directory"],
   ["From (a band)", "A listing another band added and shared. Its details are theirs to edit; your status and notes on it are yours.", "Top of a listing's page"],
@@ -57,14 +57,14 @@ const SHORTCUTS: [string, string][] = [
 ];
 
 // Help (#72's companion, copy from the About and Help doc): statuses, the
-// rest of the words, shortcuts, then the FAQ.
+// glossary, shortcuts, then the FAQ.
 export default function HelpPage() {
   return (
     <div className="page-measure flex flex-col gap-12">
       <div className="flex flex-col gap-2">
         <h1 className="display-l">Help</h1>
         <p className="text-muted">
-          The statuses, the words Seeens uses, keyboard shortcuts, then common questions. New here? <Link href="/about" className="link">About Seeens</Link>{" "}
+          The statuses, a glossary of the words Seeens uses, keyboard shortcuts, then common questions. New here? <Link href="/about" className="link">About Seeens</Link>{" "}
           has the big picture. Still stuck? <Link href="/feedback?kind=confusing" className="link">Tell us what confused you</Link>.
         </p>
         <nav aria-label="On this page" className="flex flex-wrap gap-2 pt-2">
@@ -72,7 +72,7 @@ export default function HelpPage() {
             Statuses
           </a>
           <a href="#words" className="button-secondary">
-            Words
+            Glossary
           </a>
           <a href="#shortcuts" className="button-secondary">
             Shortcuts
@@ -85,7 +85,7 @@ export default function HelpPage() {
 
       <section aria-labelledby="statuses" className="about-prose">
         <h2 id="statuses" className="display-m">
-          How you feel about them
+          Statuses
         </h2>
         <p>
           Every listing can have one status from your band. The five never change, but the words fit what
@@ -124,7 +124,7 @@ export default function HelpPage() {
 
       <section aria-labelledby="words" className="about-prose">
         <h2 id="words" className="display-m">
-          The rest of the words
+          Glossary
         </h2>
         <dl className="help-words">
           {WORDS.map(([word, meaning, where]) => (
@@ -140,7 +140,7 @@ export default function HelpPage() {
 
       <section aria-labelledby="shortcuts" className="about-prose">
         <h2 id="shortcuts" className="display-m">
-          Keyboard shortcuts
+          Keyboard Shortcuts
         </h2>
         <p>
           For sorting a lot of listings at once. They work while the quick view is open, except when you&rsquo;re
