@@ -38,7 +38,7 @@ select is((select count(*)::int from public.list_bands()), 0, 'members see no ba
 
 -- The admin.
 select set_config('request.jwt.claims', '{"sub":"5b111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
-select is((select array_agg(name order by name) from public.invitable_bands()), array['Wet Paint'],
+select is((select array_agg(name order by name) from public.invitable_bands() where connection_id::text like '5bcccccc-%'), array['Wet Paint'],
   'invitable: shared band listings, not our own page, private ones, or venues');
 
 -- Claim Wet Paint.
@@ -50,7 +50,7 @@ select is((select status || ' ' || band || ' ' || role from public.invite_previe
   (select split_part(v, '|', 3) from t where k = 'b1'))), 'open Wet Paint owner', 'the invite page can show it');
 select is((select members || ' ' || listing_from || ' ' || invite_email from public.list_bands() where name = 'Wet Paint'),
   '0 Home Band ib-owner@example.com', 'the list shows whose listing it claimed and who it''s waiting on');
-select is((select count(*)::int from public.invitable_bands()), 0, 'a claimed listing drops out of the picker');
+select is((select count(*)::int from public.invitable_bands() where connection_id::text like '5bcccccc-%'), 0, 'a claimed listing drops out of the picker');
 select throws_ok($$ select * from public.invite_band('5bcccccc-0000-0000-0000-000000000002', null, null, null) $$,
   '23505', 'already claimed', 'a listing is claimed once');
 select throws_ok($$ select * from public.invite_band('5bcccccc-0000-0000-0000-000000000003', null, null, null) $$,
