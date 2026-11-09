@@ -71,14 +71,17 @@ export function SharedRecord({
           href={directoryHrefFor(c.kind, c.group_type, archived)}
           name={{ text: c.name, headingId: "profile-name" }}
           end={
-            moderator && !c.is_us ? (
-              <KeepPrivate
-                key={String(c.keep_private)}
-                id={c.id}
-                band={detail.sharedBy ?? "their band"}
-                initial={c.keep_private}
-              />
-            ) : null
+            <>
+              {admin && !claim ? <InviteBandLink connection={c} /> : null}
+              {moderator && !c.is_us ? (
+                <KeepPrivate
+                  key={String(c.keep_private)}
+                  id={c.id}
+                  band={detail.sharedBy ?? "their band"}
+                  initial={c.keep_private}
+                />
+              ) : null}
+            </>
           }
         />
 
@@ -127,7 +130,6 @@ export function SharedRecord({
               ) : null}
               <span className="tag">From {detail.sharedBy}</span>
             </div>
-            {admin && !claim ? <InviteBandLink connection={c} /> : null}
           </div>
         </header>
 

@@ -2000,12 +2000,31 @@
   .back-pin-end {
     position: relative;
     flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
     pointer-events: auto;
   }
   /* Floating over the panels, they lift off them (Shadow/Soft). */
   .back-pin[data-pinned] > .back-pin-lead,
-  .back-pin[data-pinned] > .back-pin-end > .choice {
+  .back-pin[data-pinned] > .back-pin-end > .choice,
+  .back-pin[data-pinned] > .back-pin-end > .button-secondary {
     box-shadow: var(--shadow-soft);
+  }
+  /* Invite to Seeens beside Keep Private (#68): on phones, "Invite" and
+     the back arrow alone, so all three fit. */
+  @media (max-width: 639px) {
+    .invite-band-more {
+      display: none;
+    }
+    .back-pin:has(.back-pin-end > a.button-secondary) .back-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
   /* A failed Keep Private save, under the box. */
   .keep-private-error {
