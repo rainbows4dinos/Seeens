@@ -52,7 +52,7 @@ export default function AiPage() {
 
       <section aria-labelledby="rules" className="about-prose">
         <h2 id="rules" className="display-m">
-          The Rules
+          Our AI Constitution
         </h2>
         <p>These are the rules. If Seeens breaks any of them, call it out.</p>
         <ol>
