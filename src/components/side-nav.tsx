@@ -12,6 +12,38 @@ export function SideNav({ sections }: { sections: SideNavSection[] }) {
   // A clicked link stays marked until you scroll yourself: a short section
   // near the end can't scroll up to the top, so scrolling alone can't tell.
   const picked = useRef(false);
+  const nav = useRef<HTMLElement>(null);
+
+  // Just enough room after the page for its last heading to scroll up to
+  // where a jump lands it, so scrolling marks every section in turn. Only
+  // while the side nav shows; it updates as the page changes height (an
+  // FAQ answer opening, the window resizing).
+  useEffect(() => {
+    const layout = nav.current?.closest<HTMLElement>(".side-nav-layout");
+    const last = document.getElementById(ids.split(" ").at(-1) ?? "");
+    if (!layout || !last) return;
+    const fit = () => {
+      if (getComputedStyle(nav.current!).display === "none") {
+        layout.style.marginBottom = "";
+        return;
+      }
+      const now = parseFloat(layout.style.marginBottom) || 0;
+      const pageEnd = document.documentElement.scrollHeight - now;
+      const lastTop = last.getBoundingClientRect().top + window.scrollY;
+      const landing = parseFloat(getComputedStyle(last).scrollMarginTop) || 0;
+      const need = Math.ceil(lastTop - landing - (pageEnd - window.innerHeight)) + 1;
+      layout.style.marginBottom = need > 0 ? `${need}px` : "";
+    };
+    fit();
+    const watch = new ResizeObserver(fit);
+    watch.observe(layout);
+    window.addEventListener("resize", fit);
+    return () => {
+      watch.disconnect();
+      window.removeEventListener("resize", fit);
+      layout.style.marginBottom = "";
+    };
+  }, [ids]);
 
   useEffect(() => {
     const headings = ids
@@ -49,7 +81,7 @@ export function SideNav({ sections }: { sections: SideNavSection[] }) {
   }, [ids]);
 
   return (
-    <nav aria-labelledby="side-nav-title" className="side-nav">
+    <nav ref={nav} aria-labelledby="side-nav-title" className="side-nav">
       <p id="side-nav-title" className="caption">
         On this page
       </p>
