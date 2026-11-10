@@ -123,7 +123,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
             Phones pin only the search row. */}
         <PinWatch selector=".directory-bar, .bar-search" />
         {/* DOM order is reading and tab order: type tabs, search and filters,
-            then Add. Phones put Add in the search row as an icon. */}
+            then Add. Smaller screens put a short Add in the search row. */}
         <div className="directory-bar">
           <TypeTabs tab={tab} counts={c.types} filters={filters} />
 
@@ -162,7 +162,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   ) : null}
                 </>
               }
-              add={<AddConnection tab={tab} className="button-icon md:hidden" iconOnly />}
+              add={<AddConnection tab={tab} className="md:hidden" short />}
             />
           ) : null}
 
@@ -649,18 +649,20 @@ function FilterForm({
 }
 
 // Add, named for the tab and opening the form with its type set.
-function AddConnection({ tab, className, iconOnly = false }: { tab: Tab; className: string; iconOnly?: boolean }) {
+// Short in the search row on smaller screens: "+ Add", still named in full
+// for screen readers and as a tooltip.
+function AddConnection({ tab, className, short = false }: { tab: Tab; className: string; short?: boolean }) {
   const t = TABS.find((x) => x.id === tab)!;
   const href = t.addType ? `/add?type=${t.addType}` : "/add";
   return (
     <Link
       href={href}
       className={`button-primary ${className}`}
-      aria-label={iconOnly ? t.add : undefined}
-      title={iconOnly ? t.add : undefined}
+      aria-label={short ? t.add : undefined}
+      title={short ? t.add : undefined}
     >
       <Add size={16} aria-hidden="true" />
-      {iconOnly ? null : t.add}
+      {short ? "Add" : t.add}
     </Link>
   );
 }
