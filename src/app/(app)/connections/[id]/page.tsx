@@ -422,6 +422,7 @@ async function Connection({
                 id="p-notes"
                 name="notes"
                 rows={5}
+                maxLength={10000}
                 defaultValue={values.notes}
                 className="field"
               />

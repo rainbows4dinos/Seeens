@@ -228,7 +228,15 @@ function FormBody({
               />
             </Field>
             <Field id="c-phone" label="Phone">
-              <input {...noAutofill} id="c-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
+              <input
+                {...noAutofill}
+                id="c-phone"
+                name="phone"
+                type="tel"
+                maxLength={100}
+                defaultValue={v.phone}
+                className="field"
+              />
             </Field>
           </div>
           <LinksEditor initial={v.links} errors={errors.linkUrls} />
@@ -252,7 +260,15 @@ function FormBody({
             />
           </Field>
           <Field id="c-notes" label="Notes">
-            <textarea {...noAutofill} id="c-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
+            <textarea
+              {...noAutofill}
+              id="c-notes"
+              name="notes"
+              rows={5}
+              maxLength={10000}
+              defaultValue={v.notes}
+              className="field"
+            />
           </Field>
         </div>
       </ProfilePanel>

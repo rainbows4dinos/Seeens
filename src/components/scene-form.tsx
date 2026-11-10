@@ -126,6 +126,7 @@ export function SceneForm({
             {...noAutofill}
             id="s-description"
             name="description"
+            maxLength={2000}
             rows={3}
             defaultValue={v.description}
             className="field"
