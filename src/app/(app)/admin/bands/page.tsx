@@ -7,7 +7,7 @@ import { emailConfigured } from "@/lib/email/send";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
 import { PageLoader } from "@/components/metronome";
-import { InviteBandForm, NewLinkButton } from "./invite-band-form";
+import { CancelInviteButton, InviteBandForm, NewLinkButton } from "./invite-band-form";
 
 export const metadata: Metadata = { title: "Bands · Seeens" };
 
@@ -92,7 +92,12 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
                           .join(" · ")}
                   </p>
                 </div>
-                {waiting ? <NewLinkButton id={b.invite_id!} band={b.name} /> : null}
+                {waiting ? (
+                  <div className="flex flex-wrap items-start gap-3 sm:justify-end">
+                    <NewLinkButton id={b.invite_id!} band={b.name} />
+                    <CancelInviteButton id={b.invite_id!} band={b.name} />
+                  </div>
+                ) : null}
               </li>
             );
           })}

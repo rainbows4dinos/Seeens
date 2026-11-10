@@ -92,6 +92,19 @@ export async function renewBandInvite(inviteId: string): Promise<InviteBandState
   };
 }
 
+/** Cancel a waiting band's invite: the band goes, its link stops working. */
+export async function cancelBandInvite(inviteId: string): Promise<InviteBandState> {
+  if (!UUID.test(inviteId)) return { error: "Couldn't cancel it. Try again." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("cancel_band_invite", { p_invite_id: inviteId });
+  if (error || !data) {
+    if (error?.message.includes("has members")) return { error: "Someone already joined. Refresh the page." };
+    return { error: "That invite was used or closed. Refresh the page." };
+  }
+  revalidatePath("/admin/bands");
+  return { done: `Canceled ${data}'s invite.` };
+}
+
 async function emailOwner(to: string, link: string, band: string, name: string) {
   const [me, membership] = await Promise.all([getCurrentUser(), getMembership()]);
   const admin = membership?.displayName || "Seeens";
