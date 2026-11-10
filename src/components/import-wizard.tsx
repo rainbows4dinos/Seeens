@@ -13,6 +13,7 @@ import {
   buildRows,
   guessMapping,
   matchKey,
+  unwrapCell,
   type DraftRow,
   type SheetKind,
   type Target,
@@ -67,7 +68,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
           setError("That file doesn't have a header row and at least one row under it.");
           return;
         }
-        setSheet({ fileName: file.name, headers, data });
+        setSheet({ fileName: file.name, headers, data: data.map((row) => row.map(unwrapCell)) });
       },
       error: () => setError("Couldn't read that file. Save it as CSV and try again."),
     });
