@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { PREVIEW_TAG } from "@/lib/preview/tag";
 import { createClient } from "@/lib/supabase/server";
 
 export type SharingResult = { error?: string; refused?: number };
@@ -23,5 +24,6 @@ export async function setKeepPrivate(ids: string[], keepPrivate: boolean): Promi
     refused += Number((data as { refused?: number } | null)?.refused ?? 0);
   }
   revalidatePath("/", "layout");
+  updateTag(PREVIEW_TAG);
   return refused ? { refused } : {};
 }

@@ -2592,12 +2592,20 @@
     margin-top: -140px;
   }
   .preview-column:nth-child(3) {
-    display: none;
     margin-top: -60px;
   }
+  /* Two columns, then three from 100rem (PreviewWall draws both). */
+  @media (width >= 64rem) {
+    .preview-wall[data-columns="3"] {
+      display: none;
+    }
+  }
   @media (width >= 100rem) {
-    .preview-column:nth-child(3) {
-      display: block;
+    .preview-wall[data-columns="2"] {
+      display: none;
+    }
+    .preview-wall[data-columns="3"] {
+      display: flex;
     }
   }
   /* Each card carries its own gap below it, so half the track is exactly one
