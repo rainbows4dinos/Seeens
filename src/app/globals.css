@@ -2271,16 +2271,6 @@
   .suggested-bands > li + li {
     border-top: var(--stroke-hair) dashed var(--color-border-subtle);
   }
-  .getting-started-mark {
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    border: var(--stroke-strong) solid var(--color-border-strong);
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-  }
   /* A failed Keep Private save, under the box. */
   .keep-private-error {
     position: absolute;
