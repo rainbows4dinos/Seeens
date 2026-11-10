@@ -175,6 +175,9 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
           <Link href="/admin/feedback" className="nav-chip menu-item">
             Feedback Inbox
           </Link>
+          <Link href="/?preview=getting-started" className="nav-chip menu-item">
+            Preview Getting Started
+          </Link>
         </div>
       ) : null}
       <div className="menu-group">

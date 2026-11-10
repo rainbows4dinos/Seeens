@@ -112,7 +112,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
         {/* A new member's first steps (#68), on My Network only. */}
         {scope === "network" && !archived ? (
           <Suspense fallback={null}>
-            <GettingStarted />
+            <GettingStarted preview={params.preview === "getting-started"} />
           </Suspense>
         ) : null}
 
