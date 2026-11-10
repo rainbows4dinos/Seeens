@@ -2,19 +2,30 @@
 
 import { useEffect } from "react";
 
-// Which button you just pressed, so only it shows the progress cursor while
-// it waits (disabled while saving). Other disabled buttons are just
-// unavailable and keep a plain cursor. Cleared once it's usable again, or
-// when another button is pressed.
+// Which button you just pressed, so only it shows it's working while it waits
+// (disabled while saving): the metronome pointer after a beat (BusyPointer),
+// a progress cursor until then. Other disabled buttons are just unavailable.
+//
+// The wait is over once the button is usable again, its form resets (React
+// does that after a form action, and the button can stay disabled for another
+// reason, like a cleared field), or another button is pressed. A button that
+// doesn't go disabled right away isn't waiting on anything.
+const STARTS_WITHIN_MS = 500;
+
 export function PressedButton() {
   useEffect(() => {
     let pressed: HTMLButtonElement | null = null;
+    let form: HTMLFormElement | null = null;
+    let timer = 0;
     const watch = new MutationObserver(() => {
       if (pressed && !pressed.disabled) clear();
     });
     function clear() {
       pressed?.removeAttribute("data-pressed");
       pressed = null;
+      form?.removeEventListener("reset", clear);
+      form = null;
+      clearTimeout(timer);
       watch.disconnect();
     }
     const onClick = (e: MouseEvent) => {
@@ -24,6 +35,11 @@ export function PressedButton() {
       pressed = b;
       b.setAttribute("data-pressed", "");
       watch.observe(b, { attributes: true, attributeFilter: ["disabled"] });
+      form = b.form;
+      form?.addEventListener("reset", clear);
+      timer = window.setTimeout(() => {
+        if (pressed === b && !b.disabled) clear();
+      }, STARTS_WITHIN_MS);
     };
     document.addEventListener("click", onClick, true);
     return () => {
