@@ -174,6 +174,7 @@ Invites and account deletion need server-only env vars in Vercel (never `NEXT_PU
 | Variable | Needed for |
 | --- | --- |
 | `SUPABASE_SECRET_KEY` | Making an account from an invite, and deleting one (Account Settings > Delete Account). Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join, and accounts can't be deleted. |
+| `SITE_URL` | Optional. The address email links use, like `https://seeens.app`. Without it, production uses the domain Vercel provides, and previews and local dev use their own address. |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite and feedback emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself, and feedback still lands in the inbox. |
 
 ### Beta feedback

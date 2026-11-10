@@ -44,6 +44,7 @@ export function LinksEditor({
                 {...noAutofill}
                 id={`c-link_url_${link.key}`}
                 name="link_url"
+                maxLength={2000}
                 type="url"
                 inputMode="url"
                 value={link.url}
@@ -78,6 +79,7 @@ export function LinksEditor({
                   {...noAutofill}
                   id={`c-link_label_${link.key}`}
                   name="link_label"
+                  maxLength={100}
                   value={link.custom}
                   onChange={(e) => updateLink(link.key, { custom: e.target.value })}
                   placeholder="Merch store"
@@ -85,7 +87,7 @@ export function LinksEditor({
                 />
               </Field>
             ) : (
-              <input type="hidden" name="link_label" value="" />
+              <input type="hidden" name="link_label" maxLength={100} value="" />
             )}
             <button
               type="button"

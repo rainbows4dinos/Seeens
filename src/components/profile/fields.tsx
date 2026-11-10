@@ -29,7 +29,15 @@ export function ContactFields({ values: v }: { values: ConnectionFormValues }) {
           />
         </Field>
         <Field id="p-phone" label="Phone">
-          <input {...noAutofill} id="p-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
+          <input
+            {...noAutofill}
+            id="p-phone"
+            name="phone"
+            type="tel"
+            maxLength={100}
+            defaultValue={v.phone}
+            className="field"
+          />
         </Field>
       </div>
       <LinksEditor initial={v.links} errors={errors.linkUrls} />
@@ -56,11 +64,27 @@ export function BandNoteFields({ values: v }: { values: ConnectionFormValues }) 
           />
         </Field>
         <Field id="p-phone" label="Phone">
-          <input {...noAutofill} id="p-phone" name="phone" type="tel" defaultValue={v.phone} className="field" />
+          <input
+            {...noAutofill}
+            id="p-phone"
+            name="phone"
+            type="tel"
+            maxLength={100}
+            defaultValue={v.phone}
+            className="field"
+          />
         </Field>
       </div>
       <Field id="p-notes" label="Notes">
-        <textarea {...noAutofill} id="p-notes" name="notes" rows={5} defaultValue={v.notes} className="field" />
+        <textarea
+          {...noAutofill}
+          id="p-notes"
+          name="notes"
+          rows={5}
+          maxLength={10000}
+          defaultValue={v.notes}
+          className="field"
+        />
       </Field>
     </>
   );
