@@ -2249,15 +2249,21 @@
     scroll-margin-top: 96px;
   }
   /* Getting Started (#68): numbered steps that check themselves off. */
-  .getting-started > details + details {
-    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  .getting-started-dots {
+    display: flex;
+    gap: 6px;
   }
-  .getting-started summary {
-    cursor: pointer;
-    list-style: none;
+  .getting-started-dots > li {
+    width: 10px;
+    height: 10px;
+    border: var(--stroke-hair) solid var(--color-border-strong);
   }
-  .getting-started summary::-webkit-details-marker {
-    display: none;
+  .getting-started-dots > li[data-done] {
+    background: var(--color-bg-inverse);
+  }
+  .getting-started-dots > li[data-at] {
+    outline: var(--stroke-hair) solid var(--color-border-strong);
+    outline-offset: 2px;
   }
   .suggested-bands {
     border-block: var(--stroke-hair) solid var(--color-border-subtle);
@@ -2274,14 +2280,6 @@
     border: var(--stroke-strong) solid var(--color-border-strong);
     font-family: var(--font-mono);
     font-size: 0.875rem;
-  }
-  .getting-started > [data-done] .getting-started-mark {
-    background: var(--color-bg-inverse);
-    color: var(--color-text-inverse);
-  }
-  .getting-started > [data-done] .getting-started-title {
-    color: var(--color-text-secondary);
-    text-decoration: line-through;
   }
   /* A failed Keep Private save, under the box. */
   .keep-private-error {

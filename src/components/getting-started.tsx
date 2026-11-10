@@ -1,25 +1,15 @@
-import Link from "next/link";
-import { Checkmark } from "@carbon/icons-react";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { dismissGettingStarted } from "@/lib/onboarding/actions";
 import { ProfilePanel } from "@/components/profile/panel";
 import { SuggestedBands } from "@/components/suggested-bands";
+import { GettingStartedSteps, type Step } from "@/components/getting-started-steps";
 
 // Getting Started (#68): what a new member does first, on My Network, until
 // it's done or put away. Each step checks itself off. Per person, per band.
 
 // A network this size has something to look at.
 const NETWORK_GOAL = 3;
-
-type Step = {
-  done: boolean;
-  title: string;
-  body: string;
-  progress?: string | null;
-  extra?: React.ReactNode;
-  links: { href: string; label: string; plain?: boolean }[];
-};
 
 type Progress = {
   dismissed: boolean;
@@ -50,10 +40,10 @@ export async function GettingStarted() {
       done: p.network >= NETWORK_GOAL,
       title: suggested?.length ? "Start with bands you might know" : `Add ${NETWORK_GOAL} to your network`,
       body: suggested?.length
-        ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They become your network, below.`
-        : "The Full Directory has bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They become your network, below.",
+        ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They become your network.`
+        : "The Full Directory has bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They become your network.",
       progress: p.network ? `${Math.min(p.network, NETWORK_GOAL)} of ${NETWORK_GOAL}` : null,
-      extra: suggested?.length ? <SuggestedBands bands={suggested} /> : null,
+      extra: suggested?.length ? <SuggestedBands bands={suggested.slice(0, 4)} /> : null,
       links: [
         {
           href: "/directory",
@@ -90,63 +80,25 @@ export async function GettingStarted() {
       links: [{ href: "/band#band-invite", label: "Invite Bandmates" }],
     },
   ];
-  const doneCount = steps.filter((s) => s.done).length;
-  if (doneCount === steps.length) return null;
-  const current = steps.findIndex((s) => !s.done);
+  if (steps.every((s) => s.done)) return null;
 
   return (
-    <ProfilePanel id="getting-started" title="Getting Started" summary={`${doneCount} of ${steps.length} done`}>
-      <div className="flex flex-col gap-4">
-        <p className="text-muted">
-          Welcome to {band}! Seeens is a shared map of the bands, venues, and people in your scene. Start here, one step
-          at a time.
-        </p>
-        {/* One step open at a time (the browser closes the others). The first
-            one not done starts open; tap any other to look ahead. */}
-        <div className="getting-started flex flex-col">
-          {steps.map((s, i) => (
-            <details key={s.title} name="getting-started" open={i === current} data-done={s.done ? "" : undefined}>
-              <summary className="flex items-center gap-4 py-3">
-                <span className="getting-started-mark" aria-hidden="true">
-                  {s.done ? <Checkmark size={16} /> : i + 1}
-                </span>
-                <span className="getting-started-title flex-1 font-medium">
-                  {s.title}
-                  {s.done ? <span className="sr-only"> (done)</span> : null}
-                </span>
-                <span className="text-sm text-muted">{s.done ? "Done" : i === current ? s.progress : null}</span>
-              </summary>
-              <div className="flex flex-col gap-3 pb-4 sm:pl-11">
-                <p className="text-sm text-muted">{s.body}</p>
-                {s.done ? null : (
-                  <>
-                    {s.extra}
-                    <div className="flex flex-wrap gap-3 pt-1">
-                      {s.links.map((l, j) => {
-                        const cls = j === 0 && !s.extra ? "button-primary" : "button-secondary";
-                        return l.plain ? (
-                          <a key={l.href} href={l.href} className={cls}>
-                            {l.label}
-                          </a>
-                        ) : (
-                          <Link key={l.href} href={l.href} className={cls}>
-                            {l.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
-            </details>
-          ))}
-        </div>
-        <form action={dismissGettingStarted}>
-          <button type="submit" className="button-secondary">
-            Put This Away
-          </button>
-        </form>
-      </div>
+    <ProfilePanel
+      id="getting-started"
+      title="Getting Started"
+      summary={`${steps.filter((s) => s.done).length} of ${steps.length} done`}
+    >
+      <GettingStartedSteps
+        welcome={`Welcome to ${band}! Seeens is a shared map of the bands, venues, and people in your scene.`}
+        steps={steps}
+        putAway={
+          <form action={dismissGettingStarted}>
+            <button type="submit" className="action-link link text-sm text-muted">
+              Put This Away
+            </button>
+          </form>
+        }
+      />
     </ProfilePanel>
   );
 }
