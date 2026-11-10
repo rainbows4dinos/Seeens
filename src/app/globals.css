@@ -2249,8 +2249,21 @@
     scroll-margin-top: 96px;
   }
   /* Getting Started (#68): numbered steps that check themselves off. */
-  .getting-started > li + li {
+  .getting-started > details + details {
     border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .getting-started summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .getting-started summary::-webkit-details-marker {
+    display: none;
+  }
+  .suggested-bands {
+    border-block: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .suggested-bands > li + li {
+    border-top: var(--stroke-hair) dashed var(--color-border-subtle);
   }
   .getting-started-mark {
     display: grid;
@@ -2262,11 +2275,11 @@
     font-family: var(--font-mono);
     font-size: 0.875rem;
   }
-  .getting-started > li[data-done] .getting-started-mark {
+  .getting-started > [data-done] .getting-started-mark {
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
   }
-  .getting-started > li[data-done] p.font-medium {
+  .getting-started > [data-done] .getting-started-title {
     color: var(--color-text-secondary);
     text-decoration: line-through;
   }
