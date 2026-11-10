@@ -35,6 +35,7 @@ const PHOTOS = [
   ["The Lantern Room", "the-lantern-room.jpg", 0.3],
   ["Grey Static Records", "grey-static-records.jpg"],
   ["KXXX Night Shift", "kxxx-night-shift.jpg", 0.3],
+  ["Hit Parade Ghosts", "hit-parade-ghosts.jpg", 0.15],
 ];
 const MOBILE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 
@@ -113,13 +114,6 @@ browser.newContext = async (options) => {
 };
 
 try {
-  // Signed out
-  const anon = await browser.newContext(DESKTOP);
-  const login = await anon.newPage();
-  await login.goto(`${BASE_URL}/login`);
-  await shot(login, "login.png");
-  await anon.close();
-
   // Desktop, signed in
   const desktop = await browser.newContext(DESKTOP);
   const page = await signIn(desktop);
@@ -213,6 +207,23 @@ try {
     .waitFor();
   await shot(phone, "mobile-quick-view.png");
   await mobile.close();
+
+  // Signed out, last: the sign-in preview (#255) shows shared bands and
+  // venues with photos, so it waits until the copier has added them. The
+  // drift is paused so the shot is steady.
+  const anon = await browser.newContext(DESKTOP);
+  const login = await anon.newPage();
+  await login.goto(`${BASE_URL}/login`);
+  await login.addStyleTag({ content: ".preview-track { animation-play-state: paused !important; }" });
+  // Lazy below the fold (and the third column is hidden at this width), so
+  // only the cards on screen need their photos.
+  await login.waitForFunction(() =>
+    [...document.querySelectorAll(".preview-card img")]
+      .filter((i) => i.getClientRects().length && i.getBoundingClientRect().top < innerHeight)
+      .every((i) => i.complete && i.naturalWidth > 0),
+  );
+  await shot(login, "login.png");
+  await anon.close();
 } finally {
   await browser.close();
 }

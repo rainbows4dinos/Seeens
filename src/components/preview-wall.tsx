@@ -8,16 +8,27 @@ import type { PreviewCard } from "@/lib/preview/cards";
 // nothing from any band's own notes. Decorative, so screen readers skip it,
 // and with reduced motion it holds still.
 export function PreviewWall({ cards }: { cards: PreviewCard[] }) {
-  // Three columns; the third shows only on wide screens (CSS).
-  const columns = [0, 1, 2].map((n) => cards.filter((_, i) => i % 3 === n));
+  // Two columns, or three on wide screens: both are drawn and CSS shows the
+  // one that fits, so every card has a place either way. Photos in the
+  // hidden one never load (lazy).
   return (
-    <div className="preview-wall" aria-hidden="true">
+    <>
+      <Columns cards={cards} count={2} />
+      <Columns cards={cards} count={3} />
+    </>
+  );
+}
+
+function Columns({ cards, count }: { cards: PreviewCard[]; count: number }) {
+  const columns = Array.from({ length: count }, (_, n) => cards.filter((_, i) => i % count === n));
+  return (
+    <div className="preview-wall" data-columns={count} aria-hidden="true">
       {columns.map((col, i) =>
         col.length ? (
           <div
             key={i}
             className="preview-column"
-            // About 8s a card, and the second column a little slower, so they drift apart.
+            // About 8s a card, each column a little slower than the last, so they drift apart.
             style={{ "--preview-duration": `${col.length * (8 + i * 1.5)}s` } as CSSProperties}
           >
             {/* Twice over, so the loop has no seam. */}

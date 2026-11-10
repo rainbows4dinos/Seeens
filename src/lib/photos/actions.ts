@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { PREVIEW_TAG } from "@/lib/preview/tag";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { readSettings } from "./settings";
@@ -68,6 +69,7 @@ export async function savePhoto(
 
   revalidatePath(`/connections/${row.id}`);
   revalidatePath("/");
+  updateTag(PREVIEW_TAG);
   return {};
 }
 
@@ -88,6 +90,7 @@ export async function removePhoto(connectionId: string): Promise<Result> {
 
   revalidatePath(`/connections/${row.id}`);
   revalidatePath("/");
+  updateTag(PREVIEW_TAG);
   return {};
 }
 
