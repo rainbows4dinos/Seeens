@@ -20,6 +20,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
   const newBand = String(formData.get("new_band") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
+  const personId = String(formData.get("person_id") ?? "");
   const asLink = formData.get("mode") === "link";
   if (!UUID.test(listingId) && !newBand) return { error: "Pick the band, or type its name if it isn't listed." };
   if (!asLink && !email)
@@ -33,6 +34,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
     p_band: newBand || null,
     p_email: asLink ? null : email,
     p_name: name || null,
+    p_person_id: UUID.test(personId) ? personId : null,
   });
   const row = data?.[0];
   if (error || !row) {
@@ -43,6 +45,9 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
         error: `${newBand} is already in the directory. Pick it from the list.`,
       };
     if (msg.includes("not a band listing")) return { error: "That listing can't be invited. Refresh the page." };
+    if (msg.includes("someone else"))
+      return { error: "That person is already linked to someone's account. Pick another, or leave it blank." };
+    if (msg.includes("not a person")) return { error: "That profile can't be picked. Refresh the page." };
     if (msg.includes("not an email")) return { error: "That doesn't look like an email address." };
     if (msg.includes("opted out")) return { error: `${email} asked not to get email from Seeens.` };
     if (msg.includes("1 to 80")) return { error: "Keep the band's name under 80 characters." };

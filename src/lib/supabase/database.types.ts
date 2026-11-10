@@ -123,14 +123,14 @@ isOneToOne: false
                   Relationships: []
                 },"invites": {
                   Row: {
-                    "accepted_at": string | null,"accepted_by": string | null,"created_at": string,"email": string | null,"expires_at": string,"id": string,"invited_by": string | null,"invited_by_name": string,"name": string | null,"revoked_at": string | null,"revoked_by": string | null,"role": Database["public"]["Enums"]["member_role"],"sent_at": string | null,"token_hash": string,"workspace_id": string
+                    "accepted_at": string | null,"accepted_by": string | null,"connection_id": string | null,"created_at": string,"email": string | null,"expires_at": string,"id": string,"invited_by": string | null,"invited_by_name": string,"name": string | null,"revoked_at": string | null,"revoked_by": string | null,"role": Database["public"]["Enums"]["member_role"],"sent_at": string | null,"token_hash": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_at"?: string | null,"accepted_by"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name": string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash": string,"workspace_id": string
+                    "accepted_at"?: string | null,"accepted_by"?: string | null,"connection_id"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name": string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash": string,"workspace_id": string
                   }
                   Update: {
-                    "accepted_at"?: string | null,"accepted_by"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name"?: string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash"?: string,"workspace_id"?: string
+                    "accepted_at"?: string | null,"accepted_by"?: string | null,"connection_id"?: string | null,"created_at"?: string,"email"?: string | null,"expires_at"?: string,"id"?: string,"invited_by"?: string | null,"invited_by_name"?: string,"name"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"role"?: Database["public"]["Enums"]["member_role"],"sent_at"?: string | null,"token_hash"?: string,"workspace_id"?: string
                   }
                   Relationships: []
                 },"feedback": {
@@ -451,8 +451,10 @@ isOneToOne: false
 { Args: { "p_workspace_id": string }; Returns: undefined },
             "invitable_bands":
 { Args: never; Returns: { "connection_id": string,"name": string,"town": string | null,"added_by": string }[] },
+            "invitable_people":
+{ Args: never; Returns: { "connection_id": string,"name": string,"added_by": string,"keep_private": boolean }[] },
             "invite_band":
-{ Args: { "p_listing_id": string | null,"p_band": string | null,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
+{ Args: { "p_listing_id": string | null,"p_band": string | null,"p_email": string | null,"p_name": string | null,"p_person_id"?: string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
             "list_bands":
 { Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null }[] },
             "listing_claim":
