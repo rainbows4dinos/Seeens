@@ -30,8 +30,8 @@ if (typeof window !== "undefined") {
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
 // becomes a swinging metronome, like the old busy cursors.
 //
-// Waiting means a link was clicked and the new page hasn't arrived, or a page
-// loader is on screen. Whoever has the metronome when a wait starts keeps it
+// Waiting means a link was clicked and the new page hasn't arrived, a page
+// loader is on screen, or a pressed button is still working (PressedButton). Whoever has the metronome when a wait starts keeps it
 // to the end, so it never jumps: the pointer, when there's a mouse whose
 // position is known; otherwise the page loader (a phone, the keyboard, or a
 // fresh page the mouse hasn't moved over yet), and a link still waiting shows
@@ -83,7 +83,9 @@ export function BusyPointer() {
       }
       // Only ones on screen: earlier pages stay in the page, hidden.
       const loaders = document.querySelectorAll<HTMLElement>(".page-loader:not(.nav-loader .page-loader)");
-      setLoaderShown([...loaders].some((el) => el.checkVisibility()));
+      // A pressed button still working on it (PressedButton) counts too.
+      const working = document.querySelector("button[data-pressed]:disabled");
+      setLoaderShown(Boolean(working) || [...loaders].some((el) => el.checkVisibility()));
     };
     check();
     const mo = new MutationObserver(() => {
@@ -93,7 +95,7 @@ export function BusyPointer() {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["style", "hidden", "class"],
+      attributeFilter: ["style", "hidden", "class", "disabled", "data-pressed"],
     });
     // Back and forward land here too.
     const pop = () => {
