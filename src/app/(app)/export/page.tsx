@@ -104,7 +104,8 @@ async function Export({ searchParams }: { searchParams: PageProps<"/export">["se
         <p className="text-muted">
           Dates are written as year-month-day (2026-11-03), Pacific time. Lists like scenes and links are separated by
           semicolons. Cells that start with =, +, -, or @ get a leading apostrophe so spreadsheets show them as text
-          instead of running them.
+          instead of running them. Catalog numbers, and names or phone numbers that look like numbers, are written as
+          =&quot;...&quot; so spreadsheets keep them as typed. Rows go by type, then A to Z.
         </p>
         <details>
           <summary className="cursor-pointer text-muted">Column Names</summary>

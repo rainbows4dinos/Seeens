@@ -3,7 +3,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import Papa from "papaparse";
-import { EXPORT_COLUMNS, toCsv, type ExportRow } from "./csv.ts";
+import { EXPORT_COLUMNS, asText, toCsv, type ExportRow } from "./csv.ts";
+import { unwrapCell } from "../import/rows.ts";
 
 const blank = Object.fromEntries(EXPORT_COLUMNS.map((c) => [c, ""])) as ExportRow;
 
@@ -21,7 +22,10 @@ const tricky: ExportRow[] = [
   { ...blank, name: '=HYPERLINK("http://example.com","x")', notes: "+1 555 0100", phone: "-5", email: "@handle" },
   { ...blank, name: "\tTabbed", notes: "\rCarriage", can_help_with: "=SUM(A1)\nsecond line" },
   // Not formulas: these must come back exactly.
-  { ...blank, name: "A-Side", notes: "email@example.com", phone: "555-0100", next_action_date: "2026-11-03" },
+  { ...blank, name: "A-Side", notes: "email@example.com", next_action_date: "2026-11-03" },
+  // Spreadsheets would read these as numbers or money, so they go out as text.
+  { ...blank, catalog_no: "BND-0057", name: "1876", phone: "555-0100", notes: "1876" },
+  { ...blank, catalog_no: "MUS-0001", name: '-5"', phone: "+1 (503) 555-0100" },
 ];
 
 const FORMULA = /^[=+\-@\t\r]/;
@@ -40,7 +44,8 @@ test("every value round-trips through a standard CSV reader", () => {
   tricky.forEach((original, i) => {
     EXPORT_COLUMNS.forEach((col, j) => {
       const value = original[col];
-      const expected = FORMULA.test(value) ? `'${value}` : value;
+      const text = value && (col === "catalog_no" || ((col === "name" || col === "phone") && !/\p{L}/u.test(value)));
+      const expected = text ? asText(value) : FORMULA.test(value) ? `'${value}` : value;
       assert.equal(rows[i][j], expected, `row ${i} column ${col}`);
     });
   });
@@ -48,6 +53,26 @@ test("every value round-trips through a standard CSV reader", () => {
 
 test("formula-prefixed cells are guarded", () => {
   const parsed = Papa.parse<string[]>(toCsv(tricky.slice(2, 4)));
-  const cells = parsed.data.slice(1).flat().filter(Boolean);
+  // ="..." string literals are the text guard, checked below.
+  const cells = parsed.data
+    .slice(1)
+    .flat()
+    .filter((c) => c && !/^="(?:[^"]|"")*"$/.test(c));
   for (const cell of cells) assert.ok(!FORMULA.test(cell), `unguarded: ${JSON.stringify(cell)}`);
+});
+
+test("text-wrapped cells are plain string formulas", () => {
+  const parsed = Papa.parse<string[]>(toCsv(tricky));
+  const wrapped = parsed.data.flat().filter((c) => c.startsWith("="));
+  assert.ok(wrapped.length >= 5);
+  // One string literal, quotes doubled inside, nothing that could run.
+  for (const c of wrapped) assert.match(c, /^="(?:[^"]|"")*"$/);
+});
+
+test("the import wizard reads an export back to the original values", () => {
+  const parsed = Papa.parse<string[]>(toCsv(tricky));
+  const [, ...rows] = parsed.data;
+  tricky.forEach((original, i) => {
+    EXPORT_COLUMNS.forEach((col, j) => assert.equal(unwrapCell(rows[i][j]), original[col], `row ${i} column ${col}`));
+  });
 });

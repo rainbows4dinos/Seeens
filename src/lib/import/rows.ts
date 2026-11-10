@@ -144,6 +144,16 @@ export type DraftRow = {
 
 export type Built = { rows: DraftRow[]; skipped: { line: number; reason: string }[] };
 
+/**
+ * Undo the export's spreadsheet guards: ="1876" (kept as text) and a leading
+ * apostrophe in front of a formula-looking value. Anything else is untouched.
+ */
+export function unwrapCell(v: string): string {
+  const text = /^="((?:[^"]|"")*)"$/.exec(v);
+  if (text) return text[1].replace(/""/g, '"');
+  return /^'[=+\-@\t\r]/.test(v) ? v.slice(1) : v;
+}
+
 const UNSURE = /\?\s*\)?\s*$|\(\s*sp\s*\??\s*\)/i;
 export const isUnsure = (v: string) => UNSURE.test(v);
 
