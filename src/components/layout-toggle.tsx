@@ -37,12 +37,19 @@ export function useLayout() {
   return ctx;
 }
 
-// Figma Layout Toggle: icon-only segments, Cards first, on wider screens;
-// on phones, one square button that switches to the other layout and shows
-// its icon. Each keeps its name for screen readers and as a tooltip. Real
+// Figma Layout Toggle: icon-only segments, Cards first, from 40rem. Phones
+// switch in the filter sheet instead (segmented, with words), to keep the
+// search row to search, Filters, and Add. Each keeps its name for screen readers and as a tooltip. Real
 // links, so they still work before the page's script loads, or opened in a
 // new tab.
-export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string> }) {
+export function LayoutToggle({
+  hrefs,
+  segmented = false,
+}: {
+  hrefs: Record<DirectoryLayout, string>;
+  /** Both segments at every width, labeled (the phone filter sheet). */
+  segmented?: boolean;
+}) {
   const { layout: current, setLayout } = useLayout();
   const pick = (layout: DirectoryLayout) => (e: React.MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
@@ -50,33 +57,38 @@ export function LayoutToggle({ hrefs }: { hrefs: Record<DirectoryLayout, string>
     setLayout(layout);
     remember(layout);
   };
-  const other = current === "list" ? "cards" : "list";
-  return (
-    <>
-      <nav aria-label="Directory layout" className="segmented segmented-secondary shrink-0 max-sm:hidden">
-        {(["cards", "list"] as const).map((layout) => (
+  if (segmented)
+    return (
+      <nav aria-label="Directory layout" className="segmented segmented-secondary shrink-0">
+        {(["list", "cards"] as const).map((layout) => (
           <Link
             key={layout}
             href={hrefs[layout]}
             aria-current={current === layout ? "page" : undefined}
-            aria-label={layout === "list" ? "List" : "Cards"}
-            title={layout === "list" ? "List" : "Cards"}
             onClick={pick(layout)}
-            className="segment-icon"
+            className="gap-2"
           >
             {layout === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
+            {layout === "list" ? "List" : "Cards"}
           </Link>
         ))}
       </nav>
-      <Link
-        href={hrefs[other]}
-        onClick={pick(other)}
-        className="button-secondary button-icon shrink-0 sm:hidden"
-        aria-label={other === "cards" ? "Show as cards" : "Show as a list"}
-        title={other === "cards" ? "Show as cards" : "Show as a list"}
-      >
-        {other === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
-      </Link>
-    </>
+    );
+  return (
+    <nav aria-label="Directory layout" className="segmented segmented-secondary shrink-0 max-sm:hidden">
+      {(["cards", "list"] as const).map((layout) => (
+        <Link
+          key={layout}
+          href={hrefs[layout]}
+          aria-current={current === layout ? "page" : undefined}
+          aria-label={layout === "list" ? "List" : "Cards"}
+          title={layout === "list" ? "List" : "Cards"}
+          onClick={pick(layout)}
+          className="segment-icon"
+        >
+          {layout === "list" ? <List size={16} aria-hidden="true" /> : <Grid size={16} aria-hidden="true" />}
+        </Link>
+      ))}
+    </nav>
   );
 }

@@ -846,6 +846,64 @@
   .bar-panel-closed {
     display: none;
   }
+  /* Phones: the filters are a sheet from the bottom of the screen, opened
+     by Filters (FilterDisclosure), over a scrim. Its title, extras, and
+     buttons are phone-only. */
+  .sheet-head,
+  .sheet-extra,
+  .sheet-foot,
+  .sheet-backdrop {
+    @media (width >= 40rem) {
+      display: none;
+    }
+  }
+  @media (width < 40rem) {
+    .bar-panel:not(.bar-sheet-open) {
+      display: none;
+    }
+    .bar-sheet-open {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 85dvh;
+      overflow-y: auto;
+      padding: 16px var(--gutter) calc(16px + env(safe-area-inset-bottom));
+      border-top: var(--stroke-strong) solid var(--color-border-strong);
+      background: var(--color-bg-surface);
+      outline: none;
+    }
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 49;
+      background: rgb(20 20 20 / 0.4);
+    }
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sheet-extra {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: var(--stroke-hair) solid var(--color-border-subtle);
+    }
+    .sheet-foot {
+      position: sticky;
+      bottom: calc(-16px - env(safe-area-inset-bottom));
+      display: flex;
+      gap: 12px;
+      margin: 0 calc(-1 * var(--gutter)) calc(-16px - env(safe-area-inset-bottom));
+      padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+      border-top: var(--stroke-hair) solid var(--color-border-subtle);
+      background: var(--color-bg-surface);
+    }
+  }
   /* A tag that's a toggle (quick instruments on Add Member, #140): ink when on. */
   .tag-button {
     cursor: pointer;
@@ -939,6 +997,9 @@
     flex: 1 1 auto;
     min-width: 0;
     max-width: 20rem;
+    @media (width < 40rem) {
+      max-width: none;
+    }
   }
   .search-field > svg {
     position: absolute;
@@ -1007,6 +1068,18 @@
     width: 24px;
     height: 24px;
     color: var(--color-text-secondary);
+  }
+  /* No Enter key to point at on a touchscreen: the keyboard's Search does it. */
+  @media (hover: none) {
+    .search-field > .search-hint {
+      display: none;
+    }
+    .search-field > .field {
+      padding-right: 12px;
+    }
+    .search-field:has(.search-clear) > .field:not(:placeholder-shown) {
+      padding-right: 40px;
+    }
   }
   .search-clear:hover {
     color: var(--color-text-primary);
@@ -1143,6 +1216,18 @@
      Segment, Icon Only), a menu of links with their counts. */
   .type-tabs > a {
     gap: 1ch;
+  }
+  /* Phones: the tabs span the column, like the search row under them. */
+  @media (width < 40rem) {
+    .type-tabs {
+      display: flex;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+    .type-tabs > a {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
   }
   /* Figma: the icon sits a little closer to its label than the count. */
   .type-tab-icon {

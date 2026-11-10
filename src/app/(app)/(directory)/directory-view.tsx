@@ -136,6 +136,32 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               instruments={c.instruments}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
+              clearHref={filtering ? directoryHref(tab, { ...EMPTY, archived, scope: filters.scope }) : null}
+              showLabel={
+                c.matched === 0 ? "Show Results" : `Show ${c.matched} ${c.matched === 1 ? current.one : current.many}`
+              }
+              sheetExtra={
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-muted">Show as</span>
+                    <LayoutToggle hrefs={layoutHrefs} segmented />
+                  </div>
+                  {c.hiddenAvoid || (!archived && c.archived) ? (
+                    <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                      {c.hiddenAvoid ? (
+                        <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
+                          {c.hiddenAvoid} in Avoid, hidden
+                        </Link>
+                      ) : null}
+                      {!archived && c.archived ? (
+                        <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
+                          {c.archived} archived
+                        </Link>
+                      ) : null}
+                    </p>
+                  ) : null}
+                </>
+              }
               add={<AddConnection tab={tab} className="button-icon md:hidden" iconOnly />}
             />
           ) : null}
@@ -185,8 +211,9 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   ? `${c.matched} of ${c.total} match`
                   : `${c.matched} ${c.matched === 1 ? current.one : current.many}`}
               </p>
+              {/* Phones keep these in the filter sheet. */}
               {c.hiddenAvoid ? (
-                <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
+                <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link max-sm:hidden">
                   {c.hiddenAvoid} in Avoid, hidden. Show them
                 </Link>
               ) : null}
@@ -212,7 +239,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   Back to the directory
                 </Link>
               ) : c.archived ? (
-                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
+                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link max-sm:hidden">
                   {c.archived} archived
                 </Link>
               ) : null}
@@ -430,6 +457,9 @@ function FilterForm({
   open,
   layoutToggle,
   add,
+  clearHref,
+  showLabel,
+  sheetExtra,
 }: {
   tab: Tab;
   filters: DirectoryFilters;
@@ -442,6 +472,9 @@ function FilterForm({
   open: boolean;
   layoutToggle: React.ReactNode;
   add: React.ReactNode;
+  clearHref: string | null;
+  showLabel: string;
+  sheetExtra: React.ReactNode;
 }) {
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
   const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
@@ -461,6 +494,9 @@ function FilterForm({
       <FilterDisclosure
         initialOpen={open}
         active={active}
+        clearHref={clearHref}
+        showLabel={showLabel}
+        sheetExtra={sheetExtra}
         after={
           <>
             {layoutToggle}
