@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(35);
 
 insert into auth.users (id, email) values
   ('5b111111-1111-1111-1111-111111111111', 'ib-admin@example.com'),
@@ -114,6 +114,21 @@ select is((select (public.set_keep_private(array['5bcccccc-0000-0000-0000-000000
 reset role;
 select is((select role::text from public.workspace_members
   where user_id = '5b333333-3333-3333-3333-333333333333'), 'owner', 'the owner owns the new band');
+
+-- Canceling a waiting band's invite removes the band and frees its listing.
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"5b111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+insert into t select 'c1', invite_id from public.invite_band(null, 'Cancel Me', null, null);
+select set_config('request.jwt.claims', '{"sub":"5b222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
+select throws_ok($$ select public.cancel_band_invite((select v::uuid from t where k = 'c1')) $$, '42501', 'only admins',
+  'members can''t cancel band invites');
+select set_config('request.jwt.claims', '{"sub":"5b111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+select is(public.cancel_band_invite((select v::uuid from t where k = 'c1')), 'Cancel Me', 'the admin cancels it');
+select is((select count(*)::int from public.list_bands() where name = 'Cancel Me'), 0, 'the band is gone');
+select throws_ok($$ select public.cancel_band_invite((select split_part(v, '|', 2)::uuid from t where k = 'b1')) $$,
+  '23514', 'invite closed', 'an accepted invite can''t be canceled');
+reset role;
+select is((select count(*)::int from public.connections where name = 'Cancel Me'), 0, 'and its own listing went with it');
 
 select * from finish();
 rollback;

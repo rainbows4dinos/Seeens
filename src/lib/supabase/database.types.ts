@@ -459,6 +459,8 @@ isOneToOne: false
 { Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null }[] },
             "listing_claim":
 { Args: { "p_connection_id": string }; Returns: { "band": string,"mine": boolean,"joined": boolean }[] },
+            "cancel_band_invite":
+{ Args: { "p_invite_id": string }; Returns: string },
             "renew_band_invite":
 { Args: { "p_invite_id": string }; Returns: string },
             "grant_moderator_user":

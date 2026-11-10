@@ -5,7 +5,7 @@ import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
 import { Combobox, type ComboOption } from "@/components/combobox";
 import { LinkBox, Note } from "@/components/band-settings";
-import { inviteBand, renewBandInvite, type InviteBandState } from "@/lib/band/invite-band-actions";
+import { cancelBandInvite, inviteBand, renewBandInvite, type InviteBandState } from "@/lib/band/invite-band-actions";
 
 const unreachable = offline<InviteBandState>({
   error: "Couldn't reach Seeens. Try again.",
@@ -174,6 +174,38 @@ export function NewLinkButton({ id, band }: { id: string; band: string }) {
       </button>
       <Note state={state} />
       {state.link ? <LinkBox key={state.link} link={state.link} /> : null}
+    </div>
+  );
+}
+
+/** Cancel a waiting band's invite, after a second press to be sure. */
+export function CancelInviteButton({ id, band }: { id: string; band: string }) {
+  const [state, setState] = useState<InviteBandState>({});
+  const [sure, setSure] = useState(false);
+  const [pending, start] = useTransition();
+  if (!sure)
+    return (
+      <button type="button" className="button-secondary" onClick={() => setSure(true)}>
+        Cancel Invite<span className="sr-only"> for {band}</span>
+      </button>
+    );
+  return (
+    <div className="flex basis-full flex-col gap-2 sm:items-end">
+      <p className="text-sm">Cancel the invite for {band}? Its link stops working.</p>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          className="button-primary"
+          disabled={pending}
+          onClick={() => start(async () => setState(await cancelBandInvite(id).catch(unreachable)))}
+        >
+          Yes, Cancel It
+        </button>
+        <button type="button" className="button-secondary" disabled={pending} onClick={() => setSure(false)} autoFocus>
+          Keep It
+        </button>
+      </div>
+      <Note state={state} />
     </div>
   );
 }
