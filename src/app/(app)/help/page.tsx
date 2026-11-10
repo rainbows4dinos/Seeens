@@ -22,7 +22,7 @@ const WORDS: [string, string, string][] = [
   [
     "Listing",
     "Anyone or anything in the directory: a person, or a band, venue, label, studio, radio station, zine, or collective. Your band's own, or shared by another band.",
-    "My Network, Full Directory",
+    "Network, Explore",
   ],
   [
     "From (a band)",
@@ -35,11 +35,11 @@ const WORDS: [string, string, string][] = [
     "Top of a listing's page, or Band Settings > What You Share",
   ],
   [
-    "My Network",
+    "Network",
     "Everything your band has touched: given a status, notes, a plan, or outreach. Plus everything your band added.",
     "Main nav",
   ],
-  ["Full Directory", "Everything every band has shared, yours included.", "Main nav"],
+  ["Explore", "Everything every band has shared, yours included. Where you find who you don't know yet.", "Main nav"],
   [
     "This is us",
     "Your own band's page. Its members are your lineup, and other bands are measured against it (label mates, shared members).",
@@ -81,7 +81,7 @@ const WORDS: [string, string, string][] = [
   [
     "Quick view",
     "The panel that opens beside the directory when you click a card, for quick status changes and notes.",
-    "My Network, Full Directory",
+    "Network, Explore",
   ],
   ["Archive", "Hides a listing without losing anything. Restore it any time.", "Bottom of a listing's page"],
   [

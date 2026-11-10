@@ -38,7 +38,7 @@ export function DirectoryResults({
   matched: number;
   /** The directory URL's query string, without layout or after. */
   query: string;
-  /** / for My Network, /directory for the full directory (#192). */
+  /** / for Network, /directory for Explore (#192). */
   basePath?: string;
   today: string;
   /** Which tab: decides the detail line and whether scenes show. */

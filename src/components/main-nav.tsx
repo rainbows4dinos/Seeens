@@ -8,13 +8,13 @@ import { Suspense, useEffect, useId, useRef } from "react";
 const ITEMS = [
   {
     href: "/",
-    label: "My Network",
+    label: "Network",
     match: (p: string) => p === "/" || p.startsWith("/connections") || p === "/export",
   },
+  // Every band's shared records (#192), for finding who you don't know yet.
+  { href: "/directory", label: "Explore", match: (p: string) => p.startsWith("/directory") },
   { href: "/follow-ups", label: "Follow-ups", match: (p: string) => p.startsWith("/follow-ups") },
   { href: "/scenes", label: "Scenes", match: (p: string) => p.startsWith("/scenes") },
-  // Every band's shared records (#192).
-  { href: "/directory", label: "Full Directory", match: (p: string) => p.startsWith("/directory") },
 ];
 
 type Layout = "row" | "menu";
