@@ -123,7 +123,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
             Phones pin only the search row. */}
         <PinWatch selector=".directory-bar, .bar-search" />
         {/* DOM order is reading and tab order: type tabs, search and filters,
-            then Add. Phones put Add in the search row as an icon. */}
+            then Add. Smaller screens put a short Add in the search row. */}
         <div className="directory-bar">
           <TypeTabs tab={tab} counts={c.types} filters={filters} />
 
@@ -136,7 +136,33 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               instruments={c.instruments}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
-              add={<AddConnection tab={tab} className="button-icon md:hidden" iconOnly />}
+              clearHref={filtering ? directoryHref(tab, { ...EMPTY, archived, scope: filters.scope }) : null}
+              showLabel={
+                c.matched === 0 ? "Show Results" : `Show ${c.matched} ${c.matched === 1 ? current.one : current.many}`
+              }
+              sheetExtra={
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-muted">Show as</span>
+                    <LayoutToggle hrefs={layoutHrefs} segmented />
+                  </div>
+                  {c.hiddenAvoid || (!archived && c.archived) ? (
+                    <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                      {c.hiddenAvoid ? (
+                        <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
+                          {c.hiddenAvoid} in Avoid, hidden
+                        </Link>
+                      ) : null}
+                      {!archived && c.archived ? (
+                        <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
+                          {c.archived} archived
+                        </Link>
+                      ) : null}
+                    </p>
+                  ) : null}
+                </>
+              }
+              add={<AddConnection tab={tab} className="md:hidden" short />}
             />
           ) : null}
 
@@ -185,8 +211,9 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   ? `${c.matched} of ${c.total} match`
                   : `${c.matched} ${c.matched === 1 ? current.one : current.many}`}
               </p>
+              {/* Phones keep these in the filter sheet. */}
               {c.hiddenAvoid ? (
-                <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
+                <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link max-sm:hidden">
                   {c.hiddenAvoid} in Avoid, hidden. Show them
                 </Link>
               ) : null}
@@ -212,7 +239,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   Back to the directory
                 </Link>
               ) : c.archived ? (
-                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
+                <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link max-sm:hidden">
                   {c.archived} archived
                 </Link>
               ) : null}
@@ -430,6 +457,9 @@ function FilterForm({
   open,
   layoutToggle,
   add,
+  clearHref,
+  showLabel,
+  sheetExtra,
 }: {
   tab: Tab;
   filters: DirectoryFilters;
@@ -442,6 +472,9 @@ function FilterForm({
   open: boolean;
   layoutToggle: React.ReactNode;
   add: React.ReactNode;
+  clearHref: string | null;
+  showLabel: string;
+  sheetExtra: React.ReactNode;
 }) {
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
   const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
@@ -461,6 +494,9 @@ function FilterForm({
       <FilterDisclosure
         initialOpen={open}
         active={active}
+        clearHref={clearHref}
+        showLabel={showLabel}
+        sheetExtra={sheetExtra}
         after={
           <>
             {layoutToggle}
@@ -613,18 +649,20 @@ function FilterForm({
 }
 
 // Add, named for the tab and opening the form with its type set.
-function AddConnection({ tab, className, iconOnly = false }: { tab: Tab; className: string; iconOnly?: boolean }) {
+// Short in the search row on smaller screens: "+ Add", still named in full
+// for screen readers and as a tooltip.
+function AddConnection({ tab, className, short = false }: { tab: Tab; className: string; short?: boolean }) {
   const t = TABS.find((x) => x.id === tab)!;
   const href = t.addType ? `/add?type=${t.addType}` : "/add";
   return (
     <Link
       href={href}
       className={`button-primary ${className}`}
-      aria-label={iconOnly ? t.add : undefined}
-      title={iconOnly ? t.add : undefined}
+      aria-label={short ? t.add : undefined}
+      title={short ? t.add : undefined}
     >
       <Add size={16} aria-hidden="true" />
-      {iconOnly ? null : t.add}
+      {short ? "Add" : t.add}
     </Link>
   );
 }
