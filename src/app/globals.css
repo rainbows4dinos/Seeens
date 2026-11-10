@@ -2095,6 +2095,61 @@
     margin-top: var(--space-xs);
   }
 
+  /* Phones: the main pages as a select-like menu in the header row, between
+     the logo and the burger (which sits absolute at the right). */
+  .nav-picker-slot {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 14rem;
+    margin-left: auto;
+    margin-right: calc(var(--control-height) + var(--space-sm));
+  }
+  .nav-picker {
+    position: relative;
+  }
+  .nav-picker > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    list-style: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .nav-picker > summary::-webkit-details-marker {
+    display: none;
+  }
+  .nav-picker[open] > summary > svg {
+    rotate: 180deg;
+  }
+  .nav-picker-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    z-index: 40;
+    min-width: 12rem;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-hard);
+  }
+  .nav-picker-menu li + li {
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .nav-picker-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--control-height);
+    padding: 0 12px;
+  }
+  .nav-picker-menu a:hover {
+    background: var(--color-bg-hover);
+  }
+  .nav-picker-menu a[aria-current="page"] {
+    font-weight: 600;
+  }
+
   /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):
      the full header row needs about 740px. A <details>, so it
      opens without JavaScript. Open, the button turns ink and shows Close. */

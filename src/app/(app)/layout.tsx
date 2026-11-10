@@ -7,7 +7,7 @@ import { initials } from "@/lib/connections/card";
 import { photoUrl } from "@/lib/photos/urls";
 import { AccountMenu } from "@/components/account-menu";
 import { Photo } from "@/components/photo";
-import { MainNav } from "@/components/main-nav";
+import { MainNav, NavPicker } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
 import { FeedbackLink } from "@/components/feedback-link";
 import { ModeratorWelcome } from "@/components/moderator-welcome";
@@ -21,8 +21,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Figma App Header: surface, with an ink rule under it, pinned to the
           top while the page scrolls (#126). */}
       <header className="app-header">
-        {/* Desktop: logo, nav chips, and the account on one row. Phones: logo
-            and a Menu button; the nav and account move into the menu. */}
+        {/* Desktop: logo, nav chips, and the account on one row. Phones: logo,
+            the main pages as a menu showing where you are, and a Menu button
+            for the account. */}
         <div className="page-gutter relative w-full py-4">
           <div className="header-row flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -37,6 +38,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <MainNav />
               </div>
             </div>
+            {/* Phones: where you are, as a menu of the main pages, left of
+                the burger (which holds the account). */}
+            <div className="nav-picker-slot md:hidden">
+              <NavPicker />
+            </div>
             <div className="hidden items-center gap-2 md:flex">
               <FeedbackLink className="nav-chip" />
               <Suspense fallback={<span className="caption">Loading…</span>}>
@@ -47,7 +53,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           {/* Its button sits at the right end of the logo row; the panel
               opens over the page below it. */}
           <MobileMenu>
-            <MainNav layout="menu" />
             <FeedbackLink className="nav-chip w-full justify-end" />
             <Suspense fallback={<span className="caption self-end">Loading…</span>}>
               <Account layout="menu" />
