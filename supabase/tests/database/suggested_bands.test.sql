@@ -20,8 +20,8 @@ insert into public.workspace_members (workspace_id, user_id, role, display_name)
   ('5daaaaaa-0000-0000-0000-0000000000a1', '5d333333-3333-3333-3333-333333333333', 'member', 'Ada');
 insert into public.app_admins (user_id) values ('5d333333-3333-3333-3333-333333333333');
 insert into public.localities (id, workspace_id, name, region) values
-  ('5dbbbbbb-0000-0000-0000-000000000001', '5daaaaaa-0000-0000-0000-0000000000a1', 'Portland', 'Oregon'),
-  ('5dbbbbbb-0000-0000-0000-000000000002', '5daaaaaa-0000-0000-0000-0000000000a2', 'Portland', 'Oregon'),
+  ('5dbbbbbb-0000-0000-0000-000000000001', '5daaaaaa-0000-0000-0000-0000000000a1', 'Fixtureville', 'Nowhere'),
+  ('5dbbbbbb-0000-0000-0000-000000000002', '5daaaaaa-0000-0000-0000-0000000000a2', 'Fixtureville', 'Nowhere'),
   ('5dbbbbbb-0000-0000-0000-000000000003', '5daaaaaa-0000-0000-0000-0000000000a2', 'Seattle', 'Washington');
 insert into public.connections (id, workspace_id, name, kind, group_type, is_us, locality_id, created_by) values
   ('5dcccccc-0000-0000-0000-000000000001', '5daaaaaa-0000-0000-0000-0000000000a1', 'New Band', 'group', 'band', true, '5dbbbbbb-0000-0000-0000-000000000001', null),
@@ -56,7 +56,7 @@ select is(
   'not a band that avoids you, a private band, one in another town, or one you sorted');
 select is(
   (select town from public.suggested_bands('5daaaaaa-0000-0000-0000-0000000000a1') where name = 'Porch Band'),
-  'Portland, Oregon', 'with its town');
+  'Fixtureville, Nowhere', 'with its town');
 select is(
   (select count(*)::int from public.suggested_bands('5daaaaaa-0000-0000-0000-0000000000a1', true) where name = 'Sorted Band'), 0,
   'a non-admin''s preview is the plain list');
