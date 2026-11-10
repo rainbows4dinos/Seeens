@@ -20,7 +20,7 @@ import {
 } from "@carbon/icons-react";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { DirectoryResults } from "@/components/directory-results";
 import { LayoutProvider, LayoutToggle } from "@/components/layout-toggle";
 import { PinWatch } from "@/components/pin-watch";
@@ -67,10 +67,13 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   if (!membership) return <NoWorkspace />;
   const today = todayISO(new Date(), membership.timeZone);
 
-  const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
-  // Cards or list: the URL wins (shared links), then this device's last choice.
+  const [params, cookieStore, headerList] = await Promise.all([searchParams, cookies(), headers()]);
+  // Cards or list: the URL wins (shared links), then this device's last
+  // choice, then list on phones (cards are cramped there) and cards elsewhere.
   const layout: DirectoryLayout =
-    readLayout(params.layout) ?? readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ?? "cards";
+    readLayout(params.layout) ??
+    readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ??
+    (isPhone(headerList) ? "list" : "cards");
   const base = scope === "all" ? "/directory" : "/";
   const layoutHrefs = {
     list: withLayout(base, params, "list"),
@@ -402,6 +405,13 @@ function readAfter(value: string | string[] | undefined) {
 }
 
 // The same directory URL with a different layout.
+// The browser says so (Chromium), or its user agent does (Safari, Firefox).
+// Tablets get cards: there's room.
+function isPhone(h: Headers) {
+  if (h.get("sec-ch-ua-mobile") === "?1") return true;
+  return /\b(iPhone|iPod)\b|Android.+Mobile|Mobile.+Firefox|\bMobi\b/.test(h.get("user-agent") ?? "");
+}
+
 function withLayout(base: string, params: Params, layout: DirectoryLayout) {
   const p = new URLSearchParams(resultsQuery(params, "network"));
   p.set("layout", layout);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { LAYOUT_COOKIE, type DirectoryLayout } from "@/lib/connections/card";
 
-// Cards / List for the directory (Cards by default). Switching happens in the browser: the
+// Cards / List for the directory (list on phones, cards elsewhere, by default). Switching happens in the browser: the
 // results render from the same loaded data either way, so there's no trip
 // to the server. The choice still goes in the URL (shareable)
 // and a cookie (this device opens the same way next time).

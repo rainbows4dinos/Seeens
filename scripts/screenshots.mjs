@@ -37,7 +37,15 @@ const PHOTOS = [
   ["KXXX Night Shift", "kxxx-night-shift.jpg", 0.3],
   ["Hit Parade Ghosts", "hit-parade-ghosts.jpg", 0.15],
 ];
-const MOBILE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
+// A phone's user agent too: the directory opens as a list on phones.
+const MOBILE = {
+  viewport: { width: 390, height: 844 },
+  deviceScaleFactor: 2,
+  isMobile: true,
+  hasTouch: true,
+  userAgent:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+};
 
 async function settle(page) {
   await page.waitForLoadState("networkidle");
