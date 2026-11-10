@@ -6,7 +6,7 @@ import { ProfilePanel } from "@/components/profile/panel";
 import { SuggestedBands } from "@/components/suggested-bands";
 import { GettingStartedSteps, type Step } from "@/components/getting-started-steps";
 
-// Getting Started (#68): what a new member does first, on My Network, until
+// Getting Started (#68): what a new member does first, on Network, until
 // it's done or put away. Each step checks itself off. Per person, per band.
 
 // A network this size has something to look at.
@@ -52,13 +52,13 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
       title: suggested?.length ? "Start with bands you might know" : `Add ${NETWORK_GOAL} to your network`,
       body: suggested?.length
         ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They become your network.`
-        : "The Full Directory has bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They become your network.",
+        : "Explore has the bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They become your network.",
       progress: p.network ? `${Math.min(p.network, NETWORK_GOAL)} of ${NETWORK_GOAL}` : null,
       extra: suggested?.length ? <SuggestedBands bands={suggested.slice(0, 4)} preview={preview} /> : null,
       links: [
         {
           href: "/directory",
-          label: suggested?.length ? "Find More in the Full Directory" : "Browse the Full Directory",
+          label: suggested?.length ? "Explore More Bands" : "Explore",
         },
         { href: "/add", label: "Add Your Own" },
       ],

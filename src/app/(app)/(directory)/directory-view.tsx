@@ -51,9 +51,9 @@ import { PageLoader } from "@/components/metronome";
 type Params = Record<string, string | string[] | undefined>;
 export type Scope = "network" | "all";
 
-// Two pages share this view (#192): My Network at /, what this band added
+// Two pages share this view (#192): Network at /, what this band added
 // or has touched, and the full Directory at /directory, every record the
-// band can see. The archived view is always My Network's.
+// band can see. The archived view is always Network's.
 export function DirectoryView({ searchParams, scope }: { searchParams: Promise<Params>; scope: Scope }) {
   return (
     <Suspense fallback={<PageLoader label={scope === "network" ? "loading your network" : "loading directory"} />}>
@@ -85,7 +85,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
     ...read.filters,
     scope: read.filters.archived ? "network" : scope,
   };
-  // Archived is My Network's; an old ?scope=all link goes to the Directory page.
+  // Archived is Network's; an old ?scope=all link goes to the Directory page.
   if (scope === "all" && read.filters.archived) redirect(directoryHref(tab, filters));
   if (scope === "network" && params.scope === "all") redirect(directoryHref(tab, { ...filters, scope: "all" }));
   // Old links (?view=lets_play, ?type=group:venue) go to their tab and status.
@@ -110,9 +110,9 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
     // key: a server render with a different layout (a shared link) resets it.
     <LayoutProvider key={layout} initial={layout}>
       <div className="flex flex-col gap-6">
-        <h1 className="sr-only">{scope === "all" ? "Full Directory" : "My Network"}</h1>
+        <h1 className="sr-only">{scope === "all" ? "Explore" : "Network"}</h1>
 
-        {/* A new member's first steps (#68), on My Network only. */}
+        {/* A new member's first steps (#68), on Network only. */}
         {scope === "network" && !archived ? (
           <Suspense fallback={null}>
             <GettingStarted preview={params.preview === "getting-started"} />
@@ -250,18 +250,17 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               )}
             </div>
 
-            {/* Not in My Network, but other bands have it (#192): look there
+            {/* Not in Network, but other bands have it (#192): look there
                 before adding a copy. */}
             {c.matched === 0 && filtering && filters.scope === "network" && !archived && c.scopes.all > 0 ? (
               <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
                 <p className="font-medium">Nothing in your network matches.</p>
                 <p className="text-muted">
-                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} in the full directory, shared by other
-                  bands.
+                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} in Explore, shared by other bands.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link href={directoryHref(tab, { ...filters, scope: "all" })} className="button-primary">
-                    Search the Full Directory
+                    Search Explore
                   </Link>
                   <Link
                     href={directoryHref(tab, {
@@ -390,7 +389,7 @@ const TAB_ICONS: Record<Tab, React.ReactNode> = {
 
 // The directory URL for a tab and filters. Bands is the default tab.
 function directoryHref(tab: Tab, f: DirectoryFilters) {
-  // My Network is /, the full directory /directory (#192); archived is yours.
+  // Network is /, Explore /directory (#192); archived is yours.
   const base = f.scope === "all" && !f.archived ? "/directory" : "/";
   const p = new URLSearchParams();
   if (tab !== DEFAULT_TAB) p.set("type", tab);
