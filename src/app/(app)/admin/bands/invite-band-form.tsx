@@ -16,10 +16,13 @@ const unreachable = offline<InviteBandState>({
 // on the invite page, then invites the rest of the band.
 export function InviteBandForm({
   bands,
+  people,
   picked: initial,
   emailReady,
 }: {
   bands: ComboOption[];
+  /** People the owner could be, so their account links to them. */
+  people: ComboOption[];
   /** Opened from a listing's Invite button: that band, already picked. */
   picked?: string;
   emailReady: boolean;
@@ -32,6 +35,7 @@ export function InviteBandForm({
   // What's typed in the picker: a band that isn't listed, without having to
   // choose "New Band" (if it is listed, the server says to pick it).
   const [typed, setTyped] = useState("");
+  const [person, setPerson] = useState("");
   // A new picker after each invite, so the last pick doesn't linger.
   const [round, setRound] = useState(0);
   const [prevLink, setPrevLink] = useState(state.link);
@@ -40,6 +44,7 @@ export function InviteBandForm({
     setListing("");
     setNewBand("");
     setTyped("");
+    setPerson("");
     setFixed(undefined);
     setRound((r) => r + 1);
   }
@@ -51,10 +56,10 @@ export function InviteBandForm({
       <p className="text-muted">
         Pick the band from the directory, or type its name if nobody&rsquo;s added it yet. Its owner gets an invite,
         makes their account, and the band&rsquo;s listing becomes theirs to keep up to date. They invite their bandmates
-        from Band Settings.
+        from Band Settings. Bandmates listed as the band&rsquo;s members can find themselves under Find Yourself.
         {emailReady ? "" : " Email isn’t set up yet, so you’ll get a link to send them yourself."}
       </p>
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
         {fixed ? (
           <div className="flex flex-col gap-2">
             <p className="label">Band</p>
@@ -115,9 +120,24 @@ export function InviteBandForm({
           </label>
           <input {...noAutofill} id="owner-name" name="name" className="field" placeholder="Sam" maxLength={80} />
         </div>
+        <div className="flex flex-col gap-2">
+          <Combobox
+            key={round}
+            label="Owner’s Profile (Optional)"
+            options={people}
+            multiple={false}
+            placeholder="Find a person"
+            onChange={(values) => setPerson(values[0] ?? "")}
+          />
+          <p className="text-sm text-muted">
+            If they&rsquo;re already in the directory, their account links to them when they join. Private ones become
+            shared.
+          </p>
+        </div>
       </div>
       <input type="hidden" name="listing_id" value={listing} />
       <input type="hidden" name="new_band" value={band} />
+      <input type="hidden" name="person_id" value={person} />
       <Note state={state} />
       {state.link ? <LinkBox link={state.link} /> : null}
       <div className="flex flex-wrap gap-3">

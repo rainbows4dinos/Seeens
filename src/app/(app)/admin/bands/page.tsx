@@ -32,14 +32,21 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
   ]);
   if (!admin) notFound();
   const tz = membership?.timeZone ?? "America/Los_Angeles";
-  const [{ data: bands }, { data: invitable }] = await Promise.all([
+  const [{ data: bands }, { data: invitable }, { data: people }] = await Promise.all([
     supabase.rpc("list_bands"),
     supabase.rpc("invitable_bands"),
+    supabase.rpc("invitable_people"),
   ]);
   const options = (invitable ?? []).map((b) => ({
     value: b.connection_id,
     label: b.name,
     hint: [b.town, `Added by ${b.added_by}`].filter(Boolean).join(" · "),
+  }));
+
+  const personOptions = (people ?? []).map((p) => ({
+    value: p.connection_id,
+    label: p.name,
+    hint: [`Added by ${p.added_by}`, p.keep_private ? "Private" : null].filter(Boolean).join(" · "),
   }));
 
   return (
@@ -56,6 +63,7 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
         <InviteBandForm
           key={typeof band === "string" ? band : ""}
           bands={options}
+          people={personOptions}
           picked={typeof band === "string" ? band : undefined}
           emailReady={emailConfigured()}
         />
