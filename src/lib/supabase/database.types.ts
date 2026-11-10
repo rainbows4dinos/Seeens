@@ -446,7 +446,7 @@ isOneToOne: false
             "dismiss_scene_suggestion":
 { Args: { "p_scene_id": string }; Returns: undefined },
             "suggested_bands":
-{ Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"name": string,"town": string,"knows_you": boolean }[] },
+{ Args: { "p_workspace_id": string,"p_preview"?: boolean }; Returns: { "connection_id": string,"name": string,"town": string,"knows_you": boolean }[] },
             "getting_started":
 { Args: { "p_workspace_id": string }; Returns: Json },
             "dismiss_getting_started":

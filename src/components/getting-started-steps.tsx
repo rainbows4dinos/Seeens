@@ -18,10 +18,13 @@ export type Step = {
 // moves on to the next one not done (for this visit), and comes back around.
 export function GettingStartedSteps({
   welcome,
+  note,
   steps,
   putAway,
 }: {
   welcome: string;
+  /** Shown above the welcome, like the admin preview's note. */
+  note?: string | null;
   steps: Step[];
   putAway: ReactNode;
 }) {
@@ -32,6 +35,7 @@ export function GettingStartedSteps({
 
   return (
     <div className="flex flex-col gap-5">
+      {note ? <p className="border border-dashed border-strong p-3 text-sm font-medium">{note}</p> : null}
       <p className="text-muted">{welcome}</p>
       <section className="getting-started-step flex flex-col gap-3" aria-labelledby="getting-started-step">
         <div className="flex items-center justify-between gap-3">

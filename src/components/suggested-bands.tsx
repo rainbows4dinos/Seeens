@@ -9,17 +9,18 @@ export type SuggestedBand = { connection_id: string; name: string; town: string;
 
 // Bands a new band might know, each with a status to pick right here. Picking
 // one adds it to the network (Getting Started counts it).
-export function SuggestedBands({ bands }: { bands: SuggestedBand[] }) {
+// In an admin's preview a pick only shows; it doesn't save.
+export function SuggestedBands({ bands, preview = false }: { bands: SuggestedBand[]; preview?: boolean }) {
   return (
     <ul className="suggested-bands flex flex-col">
       {bands.map((b) => (
-        <Row key={b.connection_id} band={b} />
+        <Row key={b.connection_id} band={b} preview={preview} />
       ))}
     </ul>
   );
 }
 
-function Row({ band }: { band: SuggestedBand }) {
+function Row({ band, preview }: { band: SuggestedBand; preview: boolean }) {
   const [status, setStatus] = useState<ConnectionStatus | "">("");
   const [error, setError] = useState(false);
   const [pending, start] = useTransition();
@@ -29,6 +30,7 @@ function Row({ band }: { band: SuggestedBand }) {
     const before = status;
     setStatus(next);
     setError(false);
+    if (preview) return;
     start(async () => {
       let ok = false;
       try {
