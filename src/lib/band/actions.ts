@@ -101,6 +101,8 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
         .toLowerCase();
   const name = String(formData.get("name") ?? "").trim();
   const role = formData.get("role") === "owner" ? "owner" : "member";
+  // Who they are in the directory (#225), if picked: joining links them.
+  const personId = String(formData.get("person_id") ?? "");
   if (!asLink && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return {
       error: "Enter an email address, like sam@example.com. Or copy an invite link instead.",
@@ -113,6 +115,7 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
     p_email: asLink ? null : email,
     p_name: name || null,
     p_role: role,
+    p_person_id: UUID.test(personId) ? personId : null,
   });
   const row = data?.[0];
   if (error || !row) {
@@ -123,6 +126,9 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
         error: `${email} asked not to get email from Seeens. Copy a link and send it yourself instead.`,
       };
     if (msg.includes("only owners")) return { error: "Only owners can invite an owner." };
+    if (msg.includes("someone else"))
+      return { error: "That person is already linked to someone's account. Pick another, or leave it blank." };
+    if (msg.includes("not a person here")) return { error: "That person can't be picked. Refresh the page." };
     if (msg.includes("too many"))
       return {
         error: "That's a lot of open invites. Wait for some to be used or revoke a few, then try again.",

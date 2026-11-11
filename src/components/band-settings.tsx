@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState, useTransition } from "react";
+import { Combobox } from "@/components/combobox";
 import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
 import {
@@ -177,13 +178,70 @@ export function MemberControls({ userId, name, role }: { userId: string; name: s
   );
 }
 
-export function InviteForm({ canInviteOwners, bandName }: { canInviteOwners: boolean; bandName: string }) {
+export type InvitablePerson = { id: string; name: string; email: string | null; inBand: boolean };
+
+// Invite by email or link. Picking who they are in the directory (#225)
+// fills in their name (and email, when the band saved one), and joining
+// links their login to that person, so they don't make a copy of themselves.
+export function InviteForm({
+  canInviteOwners,
+  bandName,
+  people,
+}: {
+  canInviteOwners: boolean;
+  bandName: string;
+  people: InvitablePerson[];
+}) {
   const [state, action, pending] = useActionState(createInvite, {});
+  const [person, setPerson] = useState("");
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  // A fresh form after each invite (the picker included).
+  const [round, setRound] = useState(0);
+  const [lastState, setLastState] = useState(state);
+  if (state !== lastState) {
+    setLastState(state);
+    if (state.done) {
+      setPerson("");
+      setEmail("");
+      setName("");
+      setRound((r) => r + 1);
+    }
+  }
+
+  function pick(id: string) {
+    setPerson(id);
+    const p = people.find((x) => x.id === id);
+    if (!p) return;
+    setName(p.name);
+    if (p.email) setEmail(p.email);
+  }
+
   return (
     <form action={action} className="flex flex-col gap-4">
       <p className="text-muted">
         They&rsquo;ll see that you invited them to {bandName}, and that Seeens is in beta. Any member can invite.
       </p>
+      {people.length ? (
+        <div className="flex flex-col gap-2">
+          <Combobox
+            key={round}
+            label="Who (Optional)"
+            options={people.map((p) => ({
+              value: p.id,
+              label: p.name,
+              hint: [p.inBand ? `In ${bandName}` : null, p.email ? "Email saved" : null].filter(Boolean).join(" · "),
+            }))}
+            multiple={false}
+            placeholder="Find them in the directory"
+            onChange={(values) => pick(values[0] ?? "")}
+          />
+          <p className="text-sm text-muted">
+            If they&rsquo;re already in the directory, pick them. When they join, their login links to them.
+          </p>
+        </div>
+      ) : null}
+      <input type="hidden" name="person_id" value={person} />
       <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_10rem]">
         <div className="flex flex-col gap-2">
           <label htmlFor="invite-email" className="label">
@@ -196,13 +254,24 @@ export function InviteForm({ canInviteOwners, bandName }: { canInviteOwners: boo
             type="email"
             className="field"
             placeholder="sam@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="invite-name" className="label">
             Name (Optional)
           </label>
-          <input {...noAutofill} id="invite-name" name="name" className="field" placeholder="Sam" maxLength={80} />
+          <input
+            {...noAutofill}
+            id="invite-name"
+            name="name"
+            className="field"
+            placeholder="Sam"
+            maxLength={80}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="invite-role" className="label">

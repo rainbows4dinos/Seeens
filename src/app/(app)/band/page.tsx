@@ -31,7 +31,7 @@ async function Band() {
   const [user, us, supabase] = await Promise.all([getCurrentUser(), getUsConnection(), createClient()]);
   const ws = membership.workspaceId;
   const owner = membership.role === "owner";
-  const [{ data: members }, invites, { count: shared }, { count: kept }] = await Promise.all([
+  const [{ data: members }, invites, { count: shared }, { count: kept }, { data: people }] = await Promise.all([
     supabase.rpc("band_members", { p_workspace_id: ws }),
     loadPendingInvites(ws),
     supabase
@@ -44,6 +44,7 @@ async function Band() {
       .select("id", { count: "exact", head: true })
       .eq("workspace_id", ws)
       .eq("keep_private", true),
+    supabase.rpc("invitable_bandmates", { p_workspace_id: ws }),
   ]);
   const tz = membership.timeZone;
 
@@ -100,7 +101,16 @@ async function Band() {
       </ProfilePanel>
 
       <ProfilePanel id="band-invite" title="Invite a Bandmate">
-        <InviteForm canInviteOwners={owner} bandName={membership.workspaceName} />
+        <InviteForm
+          canInviteOwners={owner}
+          bandName={membership.workspaceName}
+          people={(people ?? []).map((p) => ({
+            id: p.connection_id,
+            name: p.name,
+            email: p.email,
+            inBand: p.in_band,
+          }))}
+        />
       </ProfilePanel>
 
       <ProfilePanel id="band-members" title={`Members (${members?.length ?? 0})`}>
