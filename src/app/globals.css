@@ -1486,13 +1486,13 @@
     opacity: 0;
     transition: opacity 120ms ease-out;
   }
-  /* On the top-left corner of the row's thumb (12px in), poking 2px past
+  /* On the top-left corner of the row's thumb (12px in), poking 4px past
      its edge so it reads as separate from the photo. Above the row even
      when it lifts on hover, and lifting with it. */
   .rows .select-slot {
     z-index: 4;
-    top: 8px;
-    left: 8px;
+    top: 6px;
+    left: 6px;
     width: 24px;
     height: 24px;
     transition:
