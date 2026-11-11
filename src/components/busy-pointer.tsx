@@ -10,9 +10,9 @@ const SIZE = 32;
 const HOTSPOT_X = (10 / 40) * SIZE;
 const HOTSPOT_Y = (5 / 40) * SIZE;
 const SHOW_AFTER_MS = 300;
-// Once out, it stays at least one full swing, so a load that ends just after
-// it appears doesn't blink it on and off.
-const MIN_SHOW_MS = 1000;
+// Once out, it stays a moment, so a load that ends just after it appears
+// doesn't blink it on and off.
+const MIN_SHOW_MS = 400;
 // Clicked a link, then the new page's loader: one wait, not two.
 const SETTLE_MS = 200;
 const GIVE_UP_MS = 15000;
@@ -30,7 +30,10 @@ if (typeof window !== "undefined") {
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
 // becomes a swinging metronome, like the old busy cursors.
 //
-/** Sent when a link's click was used for something else, like selecting it. */
+/**
+ * Sent when a link's click didn't navigate after all: it selected the listing
+ * (#243), or Show More finished loading in place.
+ */
 export const STAY_EVENT = "seeens:stay";
 
 // Waiting means a link was clicked and the new page hasn't arrived, a page
@@ -65,7 +68,7 @@ export function BusyPointer() {
       from.current = location.href;
       setNavigating(true);
     };
-    // A link click that selected instead of opening (#243): no wait after all.
+    // A link click that didn't navigate: the wait ends (STAY_EVENT).
     const stay = () => setNavigating(false);
     document.addEventListener("click", onClick, true);
     document.addEventListener(STAY_EVENT, stay);
@@ -75,10 +78,22 @@ export function BusyPointer() {
     };
   }, []);
 
+  // The router changes the address after it draws the new page, often with
+  // nothing else changing on the page after that, so watch the address itself.
   useEffect(() => {
     if (!navigating) return;
+    const arrived = () => {
+      if (from.current && location.href !== from.current) {
+        from.current = "";
+        setNavigating(false);
+      }
+    };
+    const poll = setInterval(arrived, 100);
     const t = setTimeout(() => setNavigating(false), GIVE_UP_MS);
-    return () => clearTimeout(t);
+    return () => {
+      clearInterval(poll);
+      clearTimeout(t);
+    };
   }, [navigating]);
 
   // A page loader on screen counts too (not the one this shows itself).

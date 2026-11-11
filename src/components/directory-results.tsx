@@ -9,6 +9,7 @@ import { ConnectionCard } from "@/components/connection-card";
 import { DateLines } from "@/components/date-line";
 import { useLayout } from "@/components/layout-toggle";
 import { loadMoreConnections } from "@/lib/connections/directory-actions";
+import { STAY_EVENT } from "@/components/busy-pointer";
 import type { Cursor, DirectoryItem, GroupCounts } from "@/lib/connections/directory";
 import { detailFor, wordSetForTab, type Tab } from "@/lib/connections/tabs";
 import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality, formatType, playedWords } from "@/lib/connections/labels";
@@ -92,6 +93,9 @@ export function DirectoryResults({
       } catch {
         setFailed(true);
         setAnnounce("Couldn't load more. Try again.");
+      } finally {
+        // The link didn't navigate, so the page wait it started ends here.
+        document.dispatchEvent(new Event(STAY_EVENT));
       }
     });
   }
