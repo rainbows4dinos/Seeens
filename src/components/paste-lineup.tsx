@@ -103,11 +103,7 @@ export function PasteLineup({
       return;
     }
     startTransition(async () => {
-      const result: AddMembersResult = await addBandMembers(
-        bandId,
-        input,
-        pick,
-      ).catch(
+      const result: AddMembersResult = await addBandMembers(bandId, input, pick).catch(
         offline({ ok: false, error: "Couldn't reach Seeens. Nothing was saved; try again." } as AddMembersResult),
       );
       if (result.ok) onDone();
