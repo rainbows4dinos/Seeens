@@ -1597,7 +1597,7 @@
   /* Selected: a grey row with an ink edge, or a card with an ink outline. */
   .select-item:has(.select-slot :checked) > .row-link {
     background: var(--color-bg-hover);
-    box-shadow: inset 4px 0 0 var(--color-bg-inverse);
+    box-shadow: inset 2px 0 0 var(--color-bg-inverse);
   }
   .select-item:has(.select-slot :checked) > .connection-card {
     outline: 3px solid var(--color-border-strong);
@@ -2039,6 +2039,15 @@
       inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
       var(--shadow-soft-nudged);
   }
+  /* A selected row keeps its grey and ink edge when it lifts. */
+  .select-item:has(.select-slot :checked) > .row-link:is(:hover, :focus-visible, [aria-current="true"]),
+  .select-item:has(> .select-slot :checked):has(> .select-slot:hover) > .row-link {
+    background: var(--color-bg-hover);
+    box-shadow:
+      inset 2px 0 0 var(--color-bg-inverse),
+      inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
+      var(--shadow-soft-nudged);
+  }
   @media (prefers-reduced-motion: reduce) {
     .row-link {
       transition: none;
@@ -2055,6 +2064,13 @@
     .row-link[aria-current="true"] {
       box-shadow:
         inset 6px 0 0 0 var(--color-border-strong),
+        inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
+        var(--shadow-soft);
+    }
+    .select-item:has(.select-slot :checked) > .row-link:is(:hover, :focus-visible, [aria-current="true"]),
+    .select-item:has(> .select-slot :checked):has(> .select-slot:hover) > .row-link {
+      box-shadow:
+        inset 2px 0 0 var(--color-bg-inverse),
         inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
         var(--shadow-soft);
     }
