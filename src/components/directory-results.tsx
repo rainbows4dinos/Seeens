@@ -14,6 +14,7 @@ import { detailFor, wordSetForTab, type Tab } from "@/lib/connections/tabs";
 import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality, formatType, playedWords } from "@/lib/connections/labels";
 import { catalogNo, initials } from "@/lib/connections/card";
 import { StickyGroups } from "@/components/sticky-groups";
+import { SelectBox, SelectionProvider, useSelectClick } from "@/components/selection";
 
 // The directory's rows or cards, grouped by status, a page at a time.
 // "Show More" fetches the next page and appends it in place; a group that
@@ -109,7 +110,7 @@ export function DirectoryResults({
   ].filter((s) => s.rows.length);
 
   return (
-    <>
+    <SelectionProvider visibleIds={items.map((c) => c.id)} words={wordSetForTab(tab)}>
       <StickyGroups />
       {sections.map((s) => (
         <section key={s.id} aria-labelledby={`group-${s.id}`} className="flex flex-col gap-2">
@@ -141,7 +142,7 @@ export function DirectoryResults({
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>
-    </>
+    </SelectionProvider>
   );
 }
 
@@ -196,62 +197,81 @@ function ConnectionRows({ connections, today, tab }: { connections: DirectoryIte
   const guard = useOpenGuard(openId);
   return (
     <ul className="panel rows flex flex-col">
-      {connections.map((c) => {
-        const place = formatLocality(c.localities);
-        const tags = tagsFor(c, tab);
-        const detail = detailFor(c, tab);
-        return (
-          <li key={c.id}>
-            {/* Opens in the quick view. With one already open, switching
-                replaces it, so Back (and Close) return to the directory. */}
-            <Link
-              href={`/connections/${c.id}`}
-              replace={openId !== null}
-              onClick={guard(c.id)}
-              aria-current={c.id === openId ? "true" : undefined}
-              data-listing={c.id}
-              className="flex flex-col gap-1 px-3 py-3 row-link @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:gap-4"
-            >
-              <span className="flex min-w-0 items-start gap-3">
-                {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
-                <span className="row-thumb" aria-hidden="true">
-                  <span className="row-thumb-initials">{initials(c.name)}</span>
-                  {c.photo_path ? (
-                    // A small copy at a stable, cached address.
-                    <Photo src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
-                  ) : null}
-                </span>
-                <span className="flex min-w-0 flex-col gap-2">
-                  {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
-                  <span className="flex flex-col-reverse gap-1">
-                    <span className="display-s break-words">{c.name}</span>
-                    <span className="caption">
-                      {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
-                    </span>
-                  </span>
-                  {detail ? <span className="detail-line">{detail}</span> : null}
-                  <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
-                </span>
-              </span>
-              {/* Narrow lists (phones, or beside the quick view): town on the
-                  left, tags on the right (Figma Directory Row, Mobile). */}
-              <span className="flex flex-wrap items-center justify-between gap-2 @3xl:justify-end">
-                {place ? <span className="text-sm text-muted">{place}</span> : null}
-                {tags.length ? (
-                  <span className="flex flex-wrap gap-1 @max-3xl:ml-auto @3xl:justify-end">
-                    {tags.map((t) => (
-                      <span key={t} className="tag">
-                        {t}
-                      </span>
-                    ))}
-                  </span>
-                ) : null}
-              </span>
-            </Link>
-          </li>
-        );
-      })}
+      {connections.map((c) => (
+        <ConnectionRow key={c.id} c={c} today={today} tab={tab} openId={openId} onOpen={guard(c.id)} />
+      ))}
     </ul>
+  );
+}
+
+function ConnectionRow({
+  c,
+  today,
+  tab,
+  openId,
+  onOpen,
+}: {
+  c: DirectoryItem;
+  today: string;
+  tab: Tab;
+  openId: string | null;
+  onOpen: (e: React.MouseEvent) => void;
+}) {
+  const select = useSelectClick(c.id, onOpen);
+  const place = formatLocality(c.localities);
+  const tags = tagsFor(c, tab);
+  const detail = detailFor(c, tab);
+  return (
+    <li className="select-item">
+      {/* Opens in the quick view. With one already open, switching
+          replaces it, so Back (and Close) return to the directory. */}
+      <Link
+        href={`/connections/${c.id}`}
+        replace={openId !== null}
+        {...select}
+        aria-current={c.id === openId ? "true" : undefined}
+        data-listing={c.id}
+        className="flex flex-col gap-1 px-3 py-3 row-link @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:gap-4"
+      >
+        <span className="flex min-w-0 items-start gap-3">
+          {/* The copied photo, or initials on photo paper. Decorative: the name is right beside it. */}
+          <span className="row-thumb" aria-hidden="true">
+            <span className="row-thumb-initials">{initials(c.name)}</span>
+            {c.photo_path ? (
+              // A small copy at a stable, cached address.
+              <Photo src={photoUrl(c.photo_path, 160)!} alt="" loading="lazy" decoding="async" />
+            ) : null}
+          </span>
+          <span className="flex min-w-0 flex-col gap-2">
+            {/* Name first for screen readers; type caption sits above it visually, like the Figma card. */}
+            <span className="flex flex-col-reverse gap-1">
+              <span className="display-s break-words">{c.name}</span>
+              <span className="caption">
+                {formatType(c)} · <span className="whitespace-nowrap">{catalogNo(c)}</span>
+              </span>
+            </span>
+            {detail ? <span className="detail-line">{detail}</span> : null}
+            <DateLines lastOutreach={c.outreach_entries[0]} nextAction={c.next_actions[0]} today={today} />
+          </span>
+        </span>
+        {/* Narrow lists (phones, or beside the quick view): town on the
+            left, tags on the right (Figma Directory Row, Mobile). */}
+        <span className="flex flex-wrap items-center justify-between gap-2 @3xl:justify-end">
+          {place ? <span className="text-sm text-muted">{place}</span> : null}
+          {tags.length ? (
+            <span className="flex flex-wrap gap-1 @max-3xl:ml-auto @3xl:justify-end">
+              {tags.map((t) => (
+                <span key={t} className="tag">
+                  {t}
+                </span>
+              ))}
+            </span>
+          ) : null}
+        </span>
+      </Link>
+      {/* The photo is the checkbox (#243). */}
+      <SelectBox id={c.id} name={c.name} />
+    </li>
   );
 }
 
@@ -263,8 +283,8 @@ function ConnectionCards({ connections, today, tab }: { connections: DirectoryIt
       {connections.map((c) => {
         const tags = tagsFor(c, tab);
         return (
-          <li key={c.id} className="flex">
-            <ConnectionCard
+          <li key={c.id} className="select-item flex">
+            <SelectableCard
               connection={c}
               today={today}
               detail={detailFor(c, tab)}
@@ -277,9 +297,16 @@ function ConnectionCards({ connections, today, tab }: { connections: DirectoryIt
                 </span>
               ))}
             />
+            <SelectBox id={c.id} name={c.name} />
           </li>
         );
       })}
     </ul>
   );
+}
+
+// A card whose link also selects (#243): Cmd/Shift-click, or a long press.
+function SelectableCard({ onClick, ...props }: React.ComponentProps<typeof ConnectionCard>) {
+  const select = useSelectClick(props.connection.id, onClick);
+  return <ConnectionCard {...props} linkProps={select} />;
 }

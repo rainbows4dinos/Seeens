@@ -58,6 +58,7 @@ export function ConnectionCard({
   open = false,
   replace = false,
   onClick,
+  linkProps,
 }: {
   connection: CardConnection;
   tags: ReactNode[];
@@ -69,6 +70,8 @@ export function ConnectionCard({
   /** Switching from another open connection replaces it in history. */
   replace?: boolean;
   onClick?: (e: React.MouseEvent) => void;
+  /** More handlers for the link: selecting (#243). */
+  linkProps?: Omit<React.ComponentProps<"a">, "href">;
 }) {
   const place = formatLocality(c.localities);
   const lastOutreach = c.outreach_entries[0];
@@ -84,6 +87,7 @@ export function ConnectionCard({
       href={`/connections/${c.id}`}
       replace={replace}
       onClick={onClick}
+      {...linkProps}
       aria-current={open ? "true" : undefined}
       data-listing={c.id}
       className="connection-card"

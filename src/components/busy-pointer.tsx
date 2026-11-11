@@ -30,6 +30,9 @@ if (typeof window !== "undefined") {
 // The busy pointer: while Seeens is waiting on a page, the mouse pointer
 // becomes a swinging metronome, like the old busy cursors.
 //
+/** Sent when a link's click was used for something else, like selecting it. */
+export const STAY_EVENT = "seeens:stay";
+
 // Waiting means a link was clicked and the new page hasn't arrived, a page
 // loader is on screen, or a pressed button is still working (PressedButton). Whoever has the metronome when a wait starts keeps it
 // to the end, so it never jumps: the pointer, when there's a mouse whose
@@ -62,8 +65,14 @@ export function BusyPointer() {
       from.current = location.href;
       setNavigating(true);
     };
+    // A link click that selected instead of opening (#243): no wait after all.
+    const stay = () => setNavigating(false);
     document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
+    document.addEventListener(STAY_EVENT, stay);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener(STAY_EVENT, stay);
+    };
   }, []);
 
   useEffect(() => {

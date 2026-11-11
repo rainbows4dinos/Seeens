@@ -143,6 +143,14 @@ const SHORTCUTS: [string, string][] = [
   ["Esc", "Close the quick view"],
 ];
 
+// Selecting several listings in the directory (#243).
+const SELECT_SHORTCUTS: [string, string][] = [
+  ["Cmd-click", "Select a listing, or deselect it (Ctrl-click on Windows)"],
+  ["Shift-click", "Select everything from the last one you picked"],
+  ["1–6", "In the Set Status menu, pick a status"],
+  ["Esc", "Clear the selection"],
+];
+
 // Help (#72's companion, copy from the About and Help doc): statuses, the
 // glossary, shortcuts, then the FAQ.
 export default function HelpPage() {
@@ -240,6 +248,32 @@ export default function HelpPage() {
             </thead>
             <tbody>
               {SHORTCUTS.map(([key, what]) => (
+                <tr key={what}>
+                  <th scope="row">
+                    <kbd className="keycap">{key}</kbd>
+                  </th>
+                  <td>{what}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <h3 className="display-s">Setting Several at Once</h3>
+          <p>
+            In Network or Explore, click a listing&rsquo;s photo to select it. A bar shows up at the bottom to set a
+            status or mark them played together for all of them, with an Undo. On a phone, press and hold a listing to
+            start, then tap to add more.
+          </p>
+          <table className="about-table">
+            <thead>
+              <tr>
+                <th scope="col" className="w-32">
+                  Key
+                </th>
+                <th scope="col">What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SELECT_SHORTCUTS.map(([key, what]) => (
                 <tr key={what}>
                   <th scope="row">
                     <kbd className="keycap">{key}</kbd>
