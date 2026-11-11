@@ -1248,12 +1248,14 @@
   .type-more {
     position: relative;
     padding: 0;
-    @media (width >= 40rem) {
+    @media (width >= 56rem) {
       display: none;
     }
   }
+  /* Under 900px all five tabs and Add don't fit on one row, so Labels and
+     All (or whichever two aren't picked) move into the ⋮ menu. */
   .type-tab-overflow {
-    @media (width < 40rem) {
+    @media (width < 56rem) {
       display: none;
     }
   }
@@ -2150,8 +2152,8 @@
     font-weight: 600;
   }
 
-  /* Mobile menu (Figma App Header, Viewport=Mobile), under 768px (md):
-     the full header row needs about 740px. A <details>, so it
+  /* Mobile menu (Figma App Header, Viewport=Mobile), under 960px: the
+     full header row needs about 920px. A <details>, so it
      opens without JavaScript. Open, the button turns ink and shows Close. */
   .mobile-menu > summary {
     list-style: none;
@@ -2187,6 +2189,11 @@
     top: calc(var(--space-lg) + var(--control-height) + var(--space-md));
     right: var(--space-lg);
     left: var(--space-lg);
+    /* Wider than a phone, it hangs from the button instead of spanning. */
+    @media (width >= 40rem) {
+      left: auto;
+      width: 22rem;
+    }
     z-index: 30;
     display: flex;
     flex-direction: column;
