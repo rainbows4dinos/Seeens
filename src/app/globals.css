@@ -1486,13 +1486,29 @@
     opacity: 0;
     transition: opacity 120ms ease-out;
   }
-  /* Over the row's 48px thumb (12px in, past its 1px border). */
+  /* Over the row's 48px thumb (12px in, past its 1px border), above the
+     row even when it lifts on hover, and lifting with it. */
   .rows .select-slot {
+    z-index: 4;
     top: 12px;
     left: 12px;
     width: 48px;
     height: 48px;
     background: rgb(20 20 20 / 0.55);
+    transition:
+      opacity 120ms ease-out,
+      translate 100ms ease-out;
+  }
+  .rows .select-item:hover > .select-slot,
+  .rows .row-link:focus-visible + .select-slot,
+  .rows .row-link[aria-current="true"] + .select-slot {
+    translate: -2px -2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rows .select-slot {
+      transition: none;
+      translate: none !important;
+    }
   }
   /* The card's corner. */
   .card-grid .select-slot {
@@ -1977,7 +1993,8 @@
   }
   .row-link:hover,
   .row-link:focus-visible,
-  .row-link[aria-current="true"] {
+  .row-link[aria-current="true"],
+  .select-item:has(> .select-slot:hover) > .row-link {
     /* Above the next row and the panel's border, so the shadow shows.
        The row covers that border, so it brings its own hairline. */
     z-index: 3;
@@ -1999,7 +2016,8 @@
     }
     .row-link:hover,
     .row-link:focus-visible,
-    .row-link[aria-current="true"] {
+    .row-link[aria-current="true"],
+    .select-item:has(> .select-slot:hover) > .row-link {
       translate: none;
       box-shadow:
         inset 0 0 0 var(--stroke-hair) var(--color-border-strong),
