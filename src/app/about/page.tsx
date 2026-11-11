@@ -167,7 +167,7 @@ export default function AboutPage() {
                   <td>Your status (Homies, Avoid, and the rest)</td>
                 </tr>
                 <tr>
-                  <td>Venue details: capacity, ages, how to book</td>
+                  <td>Venue details: type of space, capacity, ages, how to book</td>
                   <td>Notes, email, and phone numbers you added</td>
                 </tr>
                 <tr>

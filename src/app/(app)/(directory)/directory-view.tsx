@@ -7,6 +7,7 @@ import {
   Add,
   Bar,
   Events,
+  Building,
   EventsAlt,
   LocationStar,
   Music,
@@ -28,7 +29,7 @@ import { SearchClear } from "@/components/search-clear";
 import { TypeMenu } from "@/components/type-menu";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { wordSetForTab } from "@/lib/connections/tabs";
-import { AGES, CAPACITY } from "@/lib/connections/venue-details";
+import { AGES, CAPACITY, VENUE_TYPES, type VenueType } from "@/lib/connections/venue-details";
 import { getMembership } from "@/lib/auth/dal";
 import {
   DEFAULT_TAB,
@@ -103,7 +104,13 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   // The results' state resets whenever the filters change.
   const query = resultsQuery(params, scope);
   const filtersOpen = Boolean(
-    filters.statuses.length || filters.scene || filters.town || filters.instrument || filters.ages || filters.capacity,
+    filters.statuses.length ||
+    filters.scene ||
+    filters.town ||
+    filters.instrument ||
+    filters.ages ||
+    filters.capacity ||
+    filters.space,
   );
 
   return (
@@ -330,6 +337,7 @@ const EMPTY: DirectoryFilters = {
   instrument: "",
   ages: "",
   capacity: "",
+  space: "",
   archived: false,
   noStatus: false,
   scope: "network",
@@ -403,6 +411,7 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   // Ages and capacity are venue details (#48).
   if (tab === "venues" && f.ages) p.set("ages", f.ages);
   if (tab === "venues" && f.capacity) p.set("cap", f.capacity);
+  if (tab === "venues" && f.space) p.set("space", f.space);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
   return qs ? `${base}?${qs}` : base;
@@ -477,7 +486,7 @@ function FilterForm({
 }) {
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
   const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
-  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument, f.ages, f.capacity].filter(
+  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument, f.ages, f.capacity, f.space].filter(
     Boolean,
   ).length;
   return (
@@ -533,7 +542,7 @@ function FilterForm({
           </>
         }
       >
-        <div className="filter-fields">
+        <div className={tab === "venues" ? "filter-fields filter-fields-venues" : "filter-fields"}>
           {/* Status replaces the old views: everyone but Avoid, or one status. */}
           <label htmlFor="f-status" className="sr-only">
             Status
@@ -631,12 +640,28 @@ function FilterForm({
                 labelClassName="sr-only"
                 name="cap"
                 multiple={false}
-                placeholder="Capacity"
+                placeholder="Size"
                 options={Object.entries(CAPACITY).map(([value, label]) => ({
                   value,
                   label,
                 }))}
                 defaultValue={f.capacity ? [f.capacity] : []}
+                autoSubmit
+              />
+              {/* Space (#262): DIY, licensed, or one kind of room. */}
+              <Combobox
+                label="Space"
+                icon={<Building size={16} />}
+                labelClassName="sr-only"
+                name="space"
+                multiple={false}
+                placeholder="Space"
+                options={[
+                  { value: "diy", label: "Any DIY" },
+                  { value: "licensed", label: "Any licensed" },
+                  ...(Object.keys(VENUE_TYPES) as VenueType[]).map((t) => ({ value: t, label: VENUE_TYPES[t].label })),
+                ]}
+                defaultValue={f.space ? [f.space] : []}
                 autoSubmit
               />
             </>

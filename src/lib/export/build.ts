@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
 import { GROUP_TYPE_LABELS, PERSON_ROLE_LABELS, formatType, statusLabel } from "@/lib/connections/labels";
 import type { GroupType, PersonRole } from "@/lib/connections/labels";
-import { AGES, BOOK_VIA, CAPACITY, SPACE, readVenueDetails } from "@/lib/connections/venue-details";
+import { AGES, BOOK_VIA, CAPACITY, SPACE, readVenueDetails, venueTypeLabels } from "@/lib/connections/venue-details";
 import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
 import { liftBand } from "@/lib/connections/band-details";
@@ -91,6 +91,7 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
         accessibility: v.accessibility ?? "",
         special_terms: v.special_terms ?? "",
         details_checked_on: v.checked_on ?? "",
+        venue_types: venueTypeLabels(v).join(LIST_SEPARATOR),
       };
     });
 }

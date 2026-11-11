@@ -1,6 +1,6 @@
 import "server-only";
 import { liftBand, liftOther } from "./band-details";
-import { readVenueDetails, venueLine } from "./venue-details";
+import { readVenueDetails, venueLine, venueTypeLabels } from "./venue-details";
 import { requireWorkspaceId, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
@@ -65,6 +65,8 @@ export type DirectoryItem = {
   plays: string | null;
   /** A venue's ages, capacity, and space (#48): "All ages · 50–150 cap · DIY". */
   venue: string | null;
+  /** A venue's types (#262), as tags: "Dive Bar", "Art Space or Gallery". */
+  venueTypes: string[];
   /** The band a Heard-of person takes their status from ("close to us", #140). */
   via: string | null;
   /** The first line of the notes, for Labels & more (#122). */
@@ -110,7 +112,7 @@ export function readDirectoryQuery(params: Params): DirectoryQuery {
   const tab = readTab(params.type);
   const filters = readFilters(params);
   // Venue details filter only the Venues tab (#48).
-  return { tab, filters: tab === "venues" ? filters : { ...filters, ages: "", capacity: "" } };
+  return { tab, filters: tab === "venues" ? filters : { ...filters, ages: "", capacity: "", space: "" } };
 }
 
 type RpcRow = {
@@ -157,6 +159,7 @@ export async function loadDirectoryPage(
     p_instrument: filters.instrument || undefined,
     p_ages: filters.ages || undefined,
     p_capacity: filters.capacity || undefined,
+    p_space: filters.space || undefined,
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
     p_hide_avoid: !archived,
@@ -233,6 +236,7 @@ export async function loadDirectoryPage(
               )
             : null,
         venue: rest.group_type === "venue" ? venueLine(readVenueDetails(attributes)) : null,
+        venueTypes: rest.group_type === "venue" ? venueTypeLabels(readVenueDetails(attributes)) : [],
         note:
           notes
             ?.split("\n")

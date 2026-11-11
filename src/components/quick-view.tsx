@@ -9,7 +9,14 @@ import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { catalogNo, initials } from "@/lib/connections/card";
 import { formatLocality, formatType } from "@/lib/connections/labels";
-import { bookLine, gearLine, mapHref, readVenueDetails, venueLine } from "@/lib/connections/venue-details";
+import {
+  bookLine,
+  gearLine,
+  mapHref,
+  readVenueDetails,
+  venueLine,
+  venueTypeLabels,
+} from "@/lib/connections/venue-details";
 import { CHANNEL_LABELS, formatDay, todayISO } from "@/lib/outreach/labels";
 import { photoUrl } from "@/lib/photos/urls";
 import { DateLines } from "@/components/date-line";
@@ -160,6 +167,8 @@ export function Facts({
 
   if (c.kind === "group" && c.group_type === "venue") {
     const d = readVenueDetails(c.attributes);
+    const types = venueTypeLabels(d);
+    if (types.length) rows.push(["Type", types.join(", ")]);
     const room = venueLine(d);
     if (room) rows.push(["Room", room]);
     const gear = gearLine(d);

@@ -21,7 +21,7 @@ import { getConnection, toFormValues } from "@/lib/connections/queries";
 import { directoryHrefFor } from "@/lib/connections/directory";
 import { loadPlayedOffer } from "@/lib/connections/played-together";
 import { INSTRUMENTS, playsAll } from "@/lib/affiliations/instruments";
-import { isStale, readVenueDetails, venueLine } from "@/lib/connections/venue-details";
+import { isStale, readVenueDetails, venueLine, venueTypeLabels } from "@/lib/connections/venue-details";
 import { createClient } from "@/lib/supabase/server";
 import { statusLabel, historyLine, formatDate, formatLocality, formatType } from "@/lib/connections/labels";
 import { linksPanelProps } from "@/lib/affiliations/rows";
@@ -299,7 +299,11 @@ async function Connection({
         </ProfilePanel>
 
         {venue ? (
-          <ProfilePanel id="venue" title="Venue Details" summary={venueLine(venueDetails)}>
+          <ProfilePanel
+            id="venue"
+            title="Venue Details"
+            summary={[venueTypeLabels(venueDetails).join(", "), venueLine(venueDetails)].filter(Boolean).join(" · ")}
+          >
             <AutosaveForm connectionId={c.id}>
               <VenueDetailFields values={values.venue} />
               <FormError />

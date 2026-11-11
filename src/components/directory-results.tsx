@@ -152,6 +152,8 @@ function tagsFor(c: DirectoryItem, tab: Tab) {
     ...new Set([
       // "Close to us" (#140): which band a person's status comes from.
       c.via ? `Via ${c.via}` : null,
+      // What kind of venue (#262).
+      ...c.venueTypes,
       c.played_together ? playedWords(c).tag : null,
       ...c.tags,
       ...(tab === "all" ? [] : c.scenes),

@@ -948,6 +948,7 @@
       display: flex;
       align-items: center;
       & > .filter-status {
+        flex: none;
         width: 13.75rem;
       }
       /* Scene, town, and plays share what's left of the row, 128px at least. */
@@ -955,6 +956,23 @@
         flex: 1 1 8rem;
         min-width: 8rem;
       }
+    }
+  }
+  /* Venues add Ages, Capacity, and Space (#262): five fields after status,
+     so search and each field give a little to keep one row at 1280. */
+  @container directory (width >= 76rem) {
+    .directory-bar:has(.filter-fields-venues) .search-field {
+      width: 13rem;
+      /* No room for the Enter keycap; the placeholder fits without it. */
+      & > .search-hint {
+        display: none;
+      }
+      & > .field:placeholder-shown {
+        padding-right: 12px;
+      }
+    }
+    .filter-fields-venues > :not(.filter-status, .choice, .sr-only) {
+      min-width: 7rem;
     }
   }
   /* Status headings (Homies, Let's play…) pin under the pinned bar, each

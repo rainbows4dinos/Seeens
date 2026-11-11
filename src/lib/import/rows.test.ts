@@ -1,7 +1,16 @@
 // Spreadsheet import (#148). Run with: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildRows, cleanName, guessMapping, matchKey, readAges, readCapacity, readType } from "./rows.ts";
+import {
+  buildRows,
+  cleanName,
+  guessMapping,
+  matchKey,
+  readAges,
+  readCapacity,
+  readType,
+  guessVenueTypes,
+} from "./rows.ts";
 
 test("names: flipped articles, spelling doubts, spaces", () => {
   assert.equal(cleanName("Barf Bags, The"), "The Barf Bags");
@@ -116,4 +125,16 @@ test("a mixed sheet needs a type per row; venue details elsewhere become notes",
   assert.deepEqual(rows[1].venue, { capacity: "50_150" });
   assert.equal(rows[2].notes, "capacity: 150_300");
   assert.match(skipped[0].reason, /Type column/);
+});
+
+test("venue types are guessed from the sheet's words (#262)", () => {
+  assert.deepEqual(guessVenueTypes("Basement"), ["underground"]);
+  assert.deepEqual(guessVenueTypes("Dive bar / art gallery"), ["dive_bar", "art_space"]);
+  assert.deepEqual(guessVenueTypes("Brewery"), ["brewery"]);
+  assert.deepEqual(guessVenueTypes("Old theater"), ["concert_hall"]);
+  assert.deepEqual(guessVenueTypes("Concert hall"), ["concert_hall"]);
+  assert.deepEqual(guessVenueTypes("Amphitheatre"), ["amphitheater"]);
+  // A plain bar is the band's call.
+  assert.deepEqual(guessVenueTypes("bar"), []);
+  assert.deepEqual(guessVenueTypes("licensed"), []);
 });

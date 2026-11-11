@@ -219,12 +219,12 @@ insert into public.affiliations (workspace_id, from_connection_id, to_connection
 
 -- Venue details (#48). The basement's were checked a while ago, so they show their age.
 update public.connections set attributes =
-  '{"ages": "21_plus", "capacity": "150_300", "space": "licensed", "pa": true, "sound": true, "backline": false,
+  '{"ages": "21_plus", "capacity": "150_300", "venue_types": ["nice_bar", "club"], "space": "licensed", "pa": true, "sound": true, "backline": false,
     "address": "1234 Example Ave", "book_via": "email", "accessibility": "Step-free entry; one all-gender restroom"}'::jsonb
     || jsonb_build_object('checked_on', current_date)
 where id = 'c0000000-0000-0000-0000-000000000004';
 update public.connections set attributes =
-  '{"ages": "all_ages", "capacity": "under_50", "space": "diy", "pa": false, "backline": true,
+  '{"ages": "all_ages", "capacity": "under_50", "venue_types": ["underground"], "space": "diy", "pa": false, "backline": true,
     "address": "Ask a punk", "book_via": "instagram", "special_terms": "Door split; bring your own PA",
     "checked_on": "2025-12-01"}'::jsonb
 where id = 'c0000000-0000-0000-0000-000000000006';
