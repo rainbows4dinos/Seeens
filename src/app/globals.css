@@ -165,6 +165,33 @@
   letter-spacing: -0.03em;
 }
 
+/* Rub-down wear on big headings (#62), like handled transfer lettering. The
+   filters live in rub-down.tsx, which seeds data-rub from each heading's
+   words. Display-m and up, plus anything marked .rub-down (the login
+   headline); never a heading holding a link or control. Off for print,
+   forced colors, and reduced motion. */
+@media screen and (forced-colors: none) and (prefers-reduced-motion: no-preference) {
+  :is(h1, h2):is(
+      [class*="display-xxl"],
+      [class*="display-xl"],
+      [class*="display-l"],
+      [class*="display-m"],
+      [class*="font-display"]
+    ):not(:has(a, button, input, select, textarea)),
+  .rub-down {
+    filter: url(#rub-0);
+    &[data-rub="1"] {
+      filter: url(#rub-1);
+    }
+    &[data-rub="2"] {
+      filter: url(#rub-2);
+    }
+    &[data-rub="3"] {
+      filter: url(#rub-3);
+    }
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */

@@ -23,7 +23,7 @@ export default async function LoginPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
             </h1>
-            <p className="font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:display-xxl">
+            <p className="rub-down font-display text-5xl leading-[44px] font-bold tracking-[-0.045em] sm:display-xxl">
               Your people.
               <br />
               <span className="swipe">Your scenes.</span>

@@ -10,6 +10,7 @@ import "@fontsource/reenie-beanie/latin-400.css";
 import "./globals.css";
 import { RESTORE_POINTER_SCRIPT } from "@/lib/saved-pointer";
 import { PressedButton } from "@/components/pressed-button";
+import { RubDown } from "@/components/rub-down";
 
 export const metadata: Metadata = {
   title: "Seeens",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         {children}
         <PressedButton />
+        <RubDown />
       </body>
     </html>
   );
