@@ -21,9 +21,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Figma App Header: surface, with an ink rule under it, pinned to the
           top while the page scrolls (#126). */}
       <header className="app-header">
-        {/* Desktop: logo, nav chips, and the account on one row. Phones: logo,
-            the main pages as a menu showing where you are, and a Menu button
-            for the account. */}
+        {/* From 960px: logo, nav chips, and the account on one row (it needs
+            about 920px). Narrower: logo, the main pages as a menu showing
+            where you are, and a Menu button for the account. */}
         <div className="page-gutter relative w-full py-4">
           <div className="header-row flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -34,16 +34,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 {/* Everyone is a tester for now (#71). */}
                 <span className="logo-beta">Beta</span>
               </Link>
-              <div className="hidden md:block">
+              <div className="hidden min-[60rem]:block">
                 <MainNav />
               </div>
             </div>
             {/* Phones: where you are, as a menu of the main pages, left of
                 the burger (which holds the account). */}
-            <div className="nav-picker-slot md:hidden">
+            <div className="nav-picker-slot min-[60rem]:hidden">
               <NavPicker />
             </div>
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-2 min-[60rem]:flex">
               <FeedbackLink className="nav-chip" />
               <Suspense fallback={<span className="caption">Loading…</span>}>
                 <Account />

@@ -56,7 +56,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <details ref={ref} className="mobile-menu md:hidden">
+    <details ref={ref} className="mobile-menu min-[60rem]:hidden">
       <summary
         className="button-secondary button-icon absolute top-4 right-4"
         aria-label="Menu"
