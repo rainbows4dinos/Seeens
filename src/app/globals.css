@@ -1486,15 +1486,15 @@
     opacity: 0;
     transition: opacity 120ms ease-out;
   }
-  /* Over the row's 48px thumb (12px in, past its 1px border), above the
-     row even when it lifts on hover, and lifting with it. */
+  /* Inside the top-left corner of the row's thumb (12px in), a few pixels
+     in from its edge, not over the whole photo. Above the row even when it
+     lifts on hover, and lifting with it. */
   .rows .select-slot {
     z-index: 4;
-    top: 12px;
-    left: 12px;
-    width: 48px;
-    height: 48px;
-    background: rgb(20 20 20 / 0.55);
+    top: 14px;
+    left: 14px;
+    width: 24px;
+    height: 24px;
     transition:
       opacity 120ms ease-out,
       translate 100ms ease-out;
@@ -1540,7 +1540,8 @@
     background: var(--color-bg-surface);
   }
   .rows .select-mark {
-    border-color: var(--color-bg-surface);
+    width: 20px;
+    height: 20px;
   }
   .select-slot:has(:checked) {
     background: var(--color-bg-inverse);
@@ -1562,7 +1563,8 @@
     outline: 2px solid var(--color-focus, var(--color-border-strong));
     outline-offset: 2px;
   }
-  .card-grid .select-slot:has(:checked) {
+  .card-grid .select-slot:has(:checked),
+  .rows .select-slot:has(:checked) {
     background: none;
   }
   /* Selected: a grey row with an ink edge, or a card with an ink outline. */
