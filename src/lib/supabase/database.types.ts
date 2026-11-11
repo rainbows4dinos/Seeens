@@ -394,7 +394,9 @@ isOneToOne: false
           }
           Functions: {
             "create_invite":
-{ Args: { "p_workspace_id": string,"p_email": string | null,"p_name": string | null,"p_role": Database["public"]["Enums"]["member_role"] }; Returns: { "invite_id": string,"token": string,"existing": boolean,"first_sent_by": string | null }[] },
+{ Args: { "p_workspace_id": string,"p_email": string | null,"p_name": string | null,"p_role": Database["public"]["Enums"]["member_role"],"p_person_id"?: string | null }; Returns: { "invite_id": string,"token": string,"existing": boolean,"first_sent_by": string | null }[] },
+            "invitable_bandmates":
+{ Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"name": string,"email": string | null,"in_band": boolean }[] },
             "renew_invite_link":
 { Args: { "p_invite_id": string }; Returns: string },
             "mark_invite_sent":
