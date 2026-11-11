@@ -3,11 +3,18 @@ import { catalogNo } from "@/lib/connections/card";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
-import { formatType, statusLabel } from "@/lib/connections/labels";
+import { GROUP_TYPE_LABELS, PERSON_ROLE_LABELS, formatType, statusLabel } from "@/lib/connections/labels";
+import type { GroupType, PersonRole } from "@/lib/connections/labels";
 import { AGES, BOOK_VIA, CAPACITY, SPACE, readVenueDetails } from "@/lib/connections/venue-details";
 import { todayISO } from "@/lib/outreach/labels";
 import { LIST_SEPARATOR, type ExportRow } from "./csv";
 import { liftBand } from "@/lib/connections/band-details";
+import { byTypeThenName } from "./order";
+
+const BY_TYPE = byTypeThenName(
+  Object.keys(GROUP_TYPE_LABELS) as GroupType[],
+  Object.keys(PERSON_ROLE_LABELS) as PersonRole[],
+);
 
 // Everything in the current workspace. Outreach history is
 // not included.
@@ -34,52 +41,56 @@ export async function buildExportRows({ includeArchived }: { includeArchived: bo
     throw new Error("export query failed");
   });
 
-  return data.map(liftBand).map((c): ExportRow => {
-    const v = c.group_type === "venue" ? readVenueDetails(c.attributes) : {};
-    const yesNo = (b?: boolean) => (b === true ? "yes" : b === false ? "no" : "");
-    const next = c.next_actions.find((a) => a.status === "open");
-    return {
-      catalog_no: catalogNo(c),
-      name: c.name,
-      kind: c.kind === "group" ? "group" : "person",
-      types: formatType(c).split(", ").join(LIST_SEPARATOR),
-      status: c.status ?? "",
-      played_together: c.played_together ? "yes" : "no",
-      our_band: c.is_us ? "yes" : "no",
-      town: c.localities?.name ?? "",
-      region: c.localities?.region ?? "",
-      country: c.localities?.country ?? "",
-      scenes: c.connection_scenes
-        .map((cs) => cs.scenes?.name)
-        .filter((n): n is string => Boolean(n))
-        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-        .join(LIST_SEPARATOR),
-      can_help_with: c.can_help_with.join(LIST_SEPARATOR),
-      email: c.email ?? "",
-      phone: c.phone ?? "",
-      links: [...c.connection_links]
-        .sort((a, b) => a.position - b.position)
-        .map((l) => (l.label ? `${l.label}: ${l.url}` : l.url))
-        .join(LIST_SEPARATOR),
-      notes: c.notes ?? "",
-      next_action: next?.description ?? "",
-      next_action_date: next?.due_on ?? "",
-      next_action_owner: next ? (next.assignee?.display_name ?? "anyone") : "",
-      archived_on: day(c.archived_at),
-      added_on: day(c.created_at),
-      updated_on: day(c.updated_at),
-      status_label: c.status ? statusLabel(c.status, c) : "",
-      ages: v.ages ? AGES[v.ages] : "",
-      capacity: v.capacity ? CAPACITY[v.capacity] : "",
-      space: v.space ? SPACE[v.space] : "",
-      pa: yesNo(v.pa),
-      sound_engineer: yesNo(v.sound),
-      backline: yesNo(v.backline),
-      book_via: v.book_via ? BOOK_VIA[v.book_via] : "",
-      address: v.address ?? "",
-      accessibility: v.accessibility ?? "",
-      special_terms: v.special_terms ?? "",
-      details_checked_on: v.checked_on ?? "",
-    };
-  });
+  // Grouped by type (your band, bands, venues, ..., then people), A to Z in each.
+  return data
+    .map(liftBand)
+    .sort(BY_TYPE)
+    .map((c): ExportRow => {
+      const v = c.group_type === "venue" ? readVenueDetails(c.attributes) : {};
+      const yesNo = (b?: boolean) => (b === true ? "yes" : b === false ? "no" : "");
+      const next = c.next_actions.find((a) => a.status === "open");
+      return {
+        catalog_no: catalogNo(c),
+        name: c.name,
+        kind: c.kind === "group" ? "group" : "person",
+        types: formatType(c).split(", ").join(LIST_SEPARATOR),
+        status: c.status ?? "",
+        played_together: c.played_together ? "yes" : "no",
+        our_band: c.is_us ? "yes" : "no",
+        town: c.localities?.name ?? "",
+        region: c.localities?.region ?? "",
+        country: c.localities?.country ?? "",
+        scenes: c.connection_scenes
+          .map((cs) => cs.scenes?.name)
+          .filter((n): n is string => Boolean(n))
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+          .join(LIST_SEPARATOR),
+        can_help_with: c.can_help_with.join(LIST_SEPARATOR),
+        email: c.email ?? "",
+        phone: c.phone ?? "",
+        links: [...c.connection_links]
+          .sort((a, b) => a.position - b.position)
+          .map((l) => (l.label ? `${l.label}: ${l.url}` : l.url))
+          .join(LIST_SEPARATOR),
+        notes: c.notes ?? "",
+        next_action: next?.description ?? "",
+        next_action_date: next?.due_on ?? "",
+        next_action_owner: next ? (next.assignee?.display_name ?? "anyone") : "",
+        archived_on: day(c.archived_at),
+        added_on: day(c.created_at),
+        updated_on: day(c.updated_at),
+        status_label: c.status ? statusLabel(c.status, c) : "",
+        ages: v.ages ? AGES[v.ages] : "",
+        capacity: v.capacity ? CAPACITY[v.capacity] : "",
+        space: v.space ? SPACE[v.space] : "",
+        pa: yesNo(v.pa),
+        sound_engineer: yesNo(v.sound),
+        backline: yesNo(v.backline),
+        book_via: v.book_via ? BOOK_VIA[v.book_via] : "",
+        address: v.address ?? "",
+        accessibility: v.accessibility ?? "",
+        special_terms: v.special_terms ?? "",
+        details_checked_on: v.checked_on ?? "",
+      };
+    });
 }
