@@ -92,7 +92,7 @@ async function Connection({
       />
     );
   }
-  const { connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
+  const { ours, connection: c, nextAction, labelMates, sharedWithUs, isLabelMateWithUs, statusHistory } = detail;
   // A label we're on is "our label": from our band's label link, not a checkbox.
   const ourLabel = detail.affiliations.incoming.some((a) => a.kind === "on_label" && a.other?.is_us && a.is_current);
   const place = formatLocality(c.localities);
@@ -112,14 +112,14 @@ async function Connection({
       : [];
   // Just saved from the edit form with "played together" newly on (#124).
   const playedOffer =
-    offer === "played" && c.played_together && !c.is_us
+    offer === "played" && c.played_together && !ours
       ? await loadPlayedOffer(await createClient(), membership.workspaceId, c.id)
       : null;
 
   // Who has a login (#44): you, a bandmate, or on the band's page, its members.
   const account = linkedPeople.get(c.id);
   const isYou = account?.userId === user.id;
-  const usesSeeens = c.is_us ? [...linkedPeople.keys()] : undefined;
+  const usesSeeens = ours ? [...linkedPeople.keys()] : undefined;
   const values = toFormValues(c);
   const venue = c.kind === "group" && c.group_type === "venue";
   const band = c.kind === "group" && c.group_type === "band";
@@ -141,7 +141,7 @@ async function Connection({
           end={
             <>
               {admin && !claim ? <InviteBandLink connection={c} /> : null}
-              {c.is_us ? null : (
+              {ours ? null : (
                 <KeepPrivate
                   key={String(c.keep_private)}
                   id={c.id}
@@ -197,7 +197,7 @@ async function Connection({
             originalPath={c.photo_original_path}
             settings={readSettings(c.photo_settings)}
             alt={c.photo_alt}
-            defaults={defaultSettings(c.status, c.is_us)}
+            defaults={defaultSettings(c.status, ours)}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             {/* The name, and how saving is going where Edit Profile used to be. */}
@@ -211,7 +211,7 @@ async function Connection({
             {/* Where things stand in time: the latest outreach and the next plan. */}
             <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
             <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
-              {c.is_us ? <span className="tag font-semibold">This is us</span> : null}
+              {ours ? <span className="tag font-semibold">This is us</span> : null}
               {isYou ? (
                 <span className="tag font-semibold">This is you</span>
               ) : account ? (
@@ -256,14 +256,14 @@ async function Connection({
         <ProfilePanel
           id="basic"
           title="Basic Info"
-          summary={[formatType(c), place, c.is_us ? null : statusLabel(c.status, c)].filter(Boolean).join(" · ")}
+          summary={[formatType(c), place, ours ? null : statusLabel(c.status, c)].filter(Boolean).join(" · ")}
         >
           <AutosaveForm connectionId={c.id}>
             <BasicInfoFields values={values} scenes={sceneOptions} />
             <FormError />
           </AutosaveForm>
           {/* Status is how we relate to others; it doesn't apply to us. */}
-          {c.is_us ? null : (
+          {ours ? null : (
             <div className="flex flex-col gap-2 pt-5">
               <QuickStatus
                 id={c.id}
@@ -313,7 +313,7 @@ async function Connection({
         ) : null}
 
         {/* Plans and outreach are about other people, not us. */}
-        {c.is_us ? null : (
+        {ours ? null : (
           <ProfilePanel
             id="activity"
             title="Activity"
