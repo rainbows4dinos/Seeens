@@ -1,7 +1,7 @@
 import "server-only";
 import { readVenueDetails, venueDetailsToForm } from "./venue-details";
 import { notFound, redirect } from "next/navigation";
-import { requireWorkspaceId } from "@/lib/auth/dal";
+import { getUsConnection, requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAll } from "@/lib/supabase/paginate";
 import { buildNetwork } from "./network";
@@ -178,8 +178,12 @@ export async function getConnection(id: string) {
   }
 
   const shaped = shapeConnection(connection.data);
+  const us = shaped.is_us ? null : await getUsConnection();
   return {
     connection: shaped,
+    /** Your band's own page: one it started, or the listing it claimed (#191).
+     *  No status, plans or outreach for yourself. */
+    ours: shaped.is_us || shaped.id === us?.id,
     /** Added by this band, so it can change the record itself (#185). */
     mine: shaped.workspace_id === ws,
     /** When a moderator last changed it (#195), or null. */

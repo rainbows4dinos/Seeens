@@ -1,7 +1,7 @@
 import "server-only";
 import { liftBand, liftOther } from "./band-details";
 import { readVenueDetails, venueLine } from "./venue-details";
-import { requireWorkspaceId } from "@/lib/auth/dal";
+import { requireWorkspaceId, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
 import { readFilters, type DirectoryFilters } from "./filters";
@@ -198,6 +198,8 @@ export async function loadDirectoryPage(
     }),
   );
   const sceneNames = new Map(scenes.map((s) => [s.id, s.name]));
+  // The listing your band claimed is its own page too (#191), for display.
+  const usId = (await getUsConnection())?.id;
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
@@ -213,6 +215,7 @@ export async function loadDirectoryPage(
     return [
       {
         ...rest,
+        is_us: rest.is_us || rest.id === usId,
         tags: [r.label_mate ? "Label mate" : null, r.shares_member ? "Shares a member" : null].filter(
           (t): t is string => Boolean(t),
         ),

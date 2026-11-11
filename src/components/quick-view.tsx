@@ -51,7 +51,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
               originalPath={c.photo_original_path}
               settings={readSettings(c.photo_settings)}
               alt={c.photo_alt}
-              defaults={defaultSettings(c.status, c.is_us)}
+              defaults={defaultSettings(c.status, detail.ours)}
             />
           ) : (
             <span className="quick-view-thumb" aria-hidden="true">
@@ -85,7 +85,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
         ) : null}
 
         {/* Status, plans, and outreach are about other people, not us. */}
-        {c.is_us ? null : (
+        {detail.ours ? null : (
           <>
             <QuickStatus
               id={c.id}
@@ -104,7 +104,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
 
         <Facts detail={detail} place={place} />
 
-        {c.is_us ? null : (
+        {detail.ours ? null : (
           <section className="flex flex-col gap-3" aria-labelledby="qv-outreach">
             <h3 id="qv-outreach" className="display-s">
               Last outreach
@@ -134,7 +134,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
           {detail.mine ? "Edit Profile" : "Open Profile"}
           <span className="sr-only"> of {c.name}</span>
         </a>
-        {c.is_us ? null : <LogOutreachButton connectionId={c.id} />}
+        {detail.ours ? null : <LogOutreachButton connectionId={c.id} />}
       </div>
     </>
   );
