@@ -5,7 +5,7 @@ import Papa from "papaparse";
 import { Upload } from "@carbon/icons-react";
 import { useId, useMemo, useState, useTransition } from "react";
 import { STATUSES, STATUS_LABELS, formatType, type ConnectionStatus } from "@/lib/connections/labels";
-import { venueLine } from "@/lib/connections/venue-details";
+import { venueLine, venueTypeLabels } from "@/lib/connections/venue-details";
 import { lookupTowns, runImport, type ImportResult, type TownMatches } from "@/lib/import/actions";
 import {
   SHEET_KINDS,
@@ -468,6 +468,8 @@ function ReviewRow({
   const details = [
     formatType({ kind: r.kind, group_type: r.group_type as never, person_roles: r.person_roles as never }),
     town,
+    // A guess from the sheet's words (#262): shown here, so it's never silent.
+    venueTypeLabels(r.venue).length ? `Looks like: ${venueTypeLabels(r.venue).join(", ")}` : null,
     venueLine(r.venue),
     r.venue.special_terms ? `Terms: ${r.venue.special_terms}` : null,
     r.booked_by.length ? `Booked by ${r.booked_by.join(", ")}` : null,

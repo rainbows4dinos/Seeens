@@ -1,6 +1,7 @@
 import { noAutofill } from "@/lib/no-autofill";
 import type { VenueKey } from "@/lib/connections/form";
-import { AGES, BOOK_VIA, CAPACITY, GEAR, SPACE, TEXT_LIMITS } from "@/lib/connections/venue-details";
+import { AGES, BOOK_VIA, CAPACITY, GEAR, TEXT_LIMITS } from "@/lib/connections/venue-details";
+import { VenueTypeField } from "@/components/venue-type-field";
 
 // Venue details on the connection form (#48). Every field can stay blank
 // ("Not sure"); only what's picked shows on the venue.
@@ -51,11 +52,11 @@ export function VenueFields({
       ) : (
         <legend className="sr-only">Venue details</legend>
       )}
+      <VenueTypeField types={values.venue_types} diy={values.diy} space={values.space} />
       {text("address", "Address", "123 Main St, or Ask a punk")}
       <div className="grid gap-4 sm:grid-cols-3">
         {choice("ages", "Ages", AGES)}
         {choice("capacity", "Capacity", CAPACITY)}
-        {choice("space", "Space", SPACE)}
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         {(Object.keys(GEAR) as (keyof typeof GEAR)[]).map((k) => choice(k, GEAR[k], { yes: "Yes", no: "No" }))}

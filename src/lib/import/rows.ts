@@ -4,7 +4,7 @@
 // into the notes instead of a field.
 
 import { detectLinkType } from "../connections/link-types.ts";
-import type { VenueDetails } from "../connections/venue-details.ts";
+import { readVenueTypes, spaceFor, type VenueDetails, type VenueType } from "../connections/venue-details.ts";
 
 type Kind = "person" | "group";
 type GroupType =
@@ -207,6 +207,38 @@ export function readCapacity(v: string): VenueDetails["capacity"] {
   return "600_plus";
 }
 
+// Words -> venue types (#262), a guess shown in the preview before anything
+// is saved. First match per type; more than one can apply. A plain "bar"
+// stays unguessed (dive or nice is the band's call).
+const VENUE_TYPE_WORDS: [RegExp, VenueType][] = [
+  [/amphithea/, "amphitheater"],
+  [/concert hall|theat(er|re)|auditorium|opera/, "concert_hall"],
+  [/\bclub\b|music venue|showroom/, "club"],
+  [/\bdive\b/, "dive_bar"],
+  [/cocktail|lounge|wine bar/, "nice_bar"],
+  [/brew|taproom|tap room|\bpub\b/, "brewery"],
+  [/restaurant|diner|pizza|taqueria/, "restaurant"],
+  [/coffee|caf[eé]\b/, "coffee_shop"],
+  [/record (store|shop)/, "record_store"],
+  [/music (store|shop)|guitar (store|shop)/, "music_store"],
+  [/\bhouse\b/, "house"],
+  [/basement|warehouse|squat|garage|practice space|underground/, "underground"],
+  [/galler|art ?space|arts? (center|centre)/, "art_space"],
+  [/church|communit|library|grange|\bvfw\b|legion|\bhall\b/, "community_space"],
+  [/\bpark\b|outdoor|field|beach/, "outdoor"],
+];
+
+export function guessVenueTypes(v: string): VenueType[] {
+  const t = v.toLowerCase();
+  const hits = VENUE_TYPE_WORDS.filter(([re]) => re.test(t)).map(([, type]) => type);
+  // An amphitheater isn't also a theater, and a concert hall isn't a community hall.
+  const drop = new Set<VenueType>([
+    ...(hits.includes("amphitheater") ? (["concert_hall"] as const) : []),
+    ...(hits.includes("concert_hall") ? (["community_space"] as const) : []),
+  ]);
+  return readVenueTypes(hits.filter((x) => !drop.has(x)));
+}
+
 export function readSpace(v: string): VenueDetails["space"] {
   const t = v.toLowerCase();
   if (/diy|house|basement|warehouse|squat|garage/.test(t)) return "diy";
@@ -354,6 +386,12 @@ export function buildRows(
           if (t) {
             Object.assign(row, t);
             typed = true;
+            // "Dive bar", "brewery": a venue type too (#262).
+            const types = t.group_type === "venue" ? guessVenueTypes(raw) : [];
+            if (types.length) {
+              row.venue.venue_types = readVenueTypes([...(row.venue.venue_types ?? []), ...types]);
+              row.venue.space = spaceFor(row.venue.venue_types, false, row.venue.space);
+            }
           } else note();
           return;
         }
@@ -398,7 +436,11 @@ export function buildRows(
         }
         case "space": {
           const space = readSpace(raw);
-          if (space) row.venue.space = space;
+          const types = guessVenueTypes(raw);
+          if (types.length) {
+            row.venue.venue_types = readVenueTypes([...(row.venue.venue_types ?? []), ...types]);
+            row.venue.space = spaceFor(row.venue.venue_types, false, space);
+          } else if (space) row.venue.space = space;
           else note();
           return;
         }

@@ -12,6 +12,29 @@ export const CAPACITY = {
   "600_plus": "600+",
 } as const;
 export const SPACE = { diy: "DIY", licensed: "Licensed" } as const;
+
+/**
+ * What kind of room it is (#262). More than one can apply (a bar that's also
+ * an art space). DIY or licensed comes from the type; "either" ones take a
+ * DIY toggle. A fixed list, so filters stay clean.
+ */
+export const VENUE_TYPES = {
+  club: { label: "Club or Music Venue", space: "licensed" },
+  concert_hall: { label: "Concert Hall", space: "licensed" },
+  amphitheater: { label: "Amphitheater", space: "licensed" },
+  dive_bar: { label: "Dive Bar", space: "licensed" },
+  nice_bar: { label: "Nice Bar", space: "licensed" },
+  brewery: { label: "Brewery or Taproom", space: "licensed" },
+  restaurant: { label: "Restaurant", space: "licensed" },
+  coffee_shop: { label: "Coffee Shop", space: "licensed" },
+  record_store: { label: "Record Store", space: "licensed" },
+  music_store: { label: "Music Store", space: "licensed" },
+  house: { label: "House Shows", space: "diy" },
+  underground: { label: "Underground", space: "diy" },
+  art_space: { label: "Art Space or Gallery", space: "either" },
+  community_space: { label: "Community Space", space: "either" },
+  outdoor: { label: "Outdoor or Park", space: "either" },
+} as const satisfies Record<string, { label: string; space: "diy" | "licensed" | "either" }>;
 export const BOOK_VIA = {
   email: "Email",
   instagram: "Instagram",
@@ -25,6 +48,7 @@ export const GEAR = { pa: "PA", sound: "Sound engineer", backline: "Backline" } 
 export type Ages = keyof typeof AGES;
 export type Capacity = keyof typeof CAPACITY;
 export type Space = keyof typeof SPACE;
+export type VenueType = keyof typeof VENUE_TYPES;
 export type BookVia = keyof typeof BOOK_VIA;
 export type Gear = keyof typeof GEAR;
 
@@ -33,6 +57,9 @@ export type VenueDetails = {
   address?: string;
   ages?: Ages;
   capacity?: Capacity;
+  /** What kind of room (#262), in list order. */
+  venue_types?: VenueType[];
+  /** DIY or licensed: from the types when there are any, else as stored. */
   space?: Space;
   pa?: boolean;
   sound?: boolean;
@@ -50,6 +77,8 @@ export const VENUE_KEYS = [
   "address",
   "ages",
   "capacity",
+  "venue_types",
+  "diy",
   "space",
   "pa",
   "sound",
@@ -66,6 +95,34 @@ const pick = <T extends Record<string, string>>(map: T, v: unknown) =>
 const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
 const bool = (v: unknown) => (typeof v === "boolean" ? v : undefined);
 
+const TYPE_ORDER = Object.keys(VENUE_TYPES) as VenueType[];
+
+/** Known types, once each, in list order. Accepts an array or "a,b". */
+export function readVenueTypes(v: unknown): VenueType[] {
+  const raw = Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : [];
+  const set = new Set(raw.map((x) => String(x).trim()));
+  return TYPE_ORDER.filter((t) => set.has(t));
+}
+
+/**
+ * DIY or licensed from the types: any DIY type makes it DIY, then any
+ * licensed one makes it licensed. "Either" types alone go by the DIY toggle.
+ * No types: whatever was there (an old "Licensed" stays until a type is picked).
+ */
+export function spaceFor(types: VenueType[], diy: boolean, fallback?: Space): Space | undefined {
+  if (!types.length) return fallback;
+  if (diy || types.some((t) => VENUE_TYPES[t].space === "diy")) return "diy";
+  if (types.some((t) => VENUE_TYPES[t].space === "licensed")) return "licensed";
+  return undefined;
+}
+
+/** The DIY toggle shows only when every picked type could go either way. */
+export function needsDiyToggle(types: VenueType[]) {
+  return types.length > 0 && types.every((t) => VENUE_TYPES[t].space === "either");
+}
+
+export const venueTypeLabels = (d: VenueDetails) => (d.venue_types ?? []).map((t) => VENUE_TYPES[t].label);
+
 /** Whatever is stored, read safely: unknown values are dropped, not trusted. */
 export function readVenueDetails(attributes: unknown): VenueDetails {
   const a = (attributes && typeof attributes === "object" ? attributes : {}) as Record<string, unknown>;
@@ -73,6 +130,10 @@ export function readVenueDetails(attributes: unknown): VenueDetails {
     address: text(a.address),
     ages: pick(AGES, a.ages),
     capacity: pick(CAPACITY, a.capacity),
+    venue_types: (() => {
+      const t = readVenueTypes(a.venue_types);
+      return t.length ? t : undefined;
+    })(),
     space: pick(SPACE, a.space),
     pa: bool(a.pa),
     sound: bool(a.sound),
@@ -95,13 +156,16 @@ export function venueDetailsFromForm(
   }
   if (Object.keys(errors).length) return { ok: false, errors };
   const yesNo = (v: string) => (v === "yes" ? true : v === "no" ? false : undefined);
+  const types = readVenueTypes(raw.venue_types);
   return {
     ok: true,
     details: readVenueDetails({
       address: raw.address,
       ages: raw.ages,
       capacity: raw.capacity,
-      space: raw.space,
+      venue_types: types,
+      // The DIY toggle counts only while it shows (every type is "either").
+      space: spaceFor(types, needsDiyToggle(types) && raw.diy === "yes", pick(SPACE, raw.space)),
       pa: yesNo(raw.pa),
       sound: yesNo(raw.sound),
       backline: yesNo(raw.backline),
@@ -119,6 +183,8 @@ export function venueDetailsToForm(d: VenueDetails): Record<(typeof VENUE_KEYS)[
     address: d.address ?? "",
     ages: d.ages ?? "",
     capacity: d.capacity ?? "",
+    venue_types: (d.venue_types ?? []).join(","),
+    diy: d.venue_types && needsDiyToggle(d.venue_types) && d.space === "diy" ? "yes" : "",
     space: d.space ?? "",
     pa: yesNo(d.pa),
     sound: yesNo(d.sound),

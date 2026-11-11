@@ -40,6 +40,9 @@ export const EXPORT_COLUMNS = [
   "accessibility",
   "special_terms",
   "details_checked_on",
+  // #262: what kind of venue, "Dive Bar; Art Space or Gallery". Added last, so
+  // older columns stay where they were.
+  "venue_types",
 ] as const;
 
 export type ExportRow = Record<(typeof EXPORT_COLUMNS)[number], string>;

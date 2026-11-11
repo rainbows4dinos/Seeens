@@ -6,15 +6,21 @@ import {
   mapHref,
   gearLine,
   isStale,
+  needsDiyToggle,
   readVenueDetails,
+  readVenueTypes,
+  spaceFor,
   venueDetailsFromForm,
   venueDetailsToForm,
   venueLine,
+  venueTypeLabels,
 } from "./venue-details.ts";
 
 const blank = {
   ages: "",
   capacity: "",
+  venue_types: "",
+  diy: "",
   space: "",
   pa: "",
   sound: "",
@@ -58,6 +64,41 @@ test("the form round-trips, and blank means not sure", () => {
   const empty = venueDetailsFromForm(blank);
   assert.ok(empty.ok);
   assert.deepEqual(empty.details, {});
+});
+
+test("venue types (#262): a fixed list, in order, DIY or licensed from the type", () => {
+  assert.deepEqual(readVenueTypes("art_space, dive_bar,nope,dive_bar"), ["dive_bar", "art_space"]);
+  assert.deepEqual(readVenueTypes(["house"]), ["house"]);
+  assert.deepEqual(readVenueTypes(null), []);
+  // Any DIY type wins, then any licensed one.
+  assert.equal(spaceFor(["dive_bar", "underground"], false), "diy");
+  assert.equal(spaceFor(["dive_bar", "art_space"], false), "licensed");
+  // "Either" alone goes by the toggle.
+  assert.equal(spaceFor(["art_space"], true), "diy");
+  assert.equal(spaceFor(["art_space"], false), undefined);
+  // No types: an old value stays.
+  assert.equal(spaceFor([], false, "licensed"), "licensed");
+  assert.equal(needsDiyToggle(["art_space", "outdoor"]), true);
+  assert.equal(needsDiyToggle(["art_space", "dive_bar"]), false);
+  assert.deepEqual(venueTypeLabels({ venue_types: ["coffee_shop", "art_space"] }), [
+    "Coffee Shop",
+    "Art Space or Gallery",
+  ]);
+});
+
+test("the form: types and the DIY toggle round-trip", () => {
+  const r = venueDetailsFromForm({ ...blank, venue_types: "art_space", diy: "yes" });
+  assert.ok(r.ok);
+  assert.deepEqual(r.details, { venue_types: ["art_space"], space: "diy" });
+  assert.deepEqual(venueDetailsToForm(r.details), { ...blank, venue_types: "art_space", diy: "yes", space: "diy" });
+  // The toggle doesn't count once a licensed type is picked too.
+  const bar = venueDetailsFromForm({ ...blank, venue_types: "art_space,dive_bar", diy: "yes" });
+  assert.ok(bar.ok);
+  assert.equal(bar.details.space, "licensed");
+  // An old "Licensed" with no types stays put.
+  const old = venueDetailsFromForm({ ...blank, space: "licensed" });
+  assert.ok(old.ok);
+  assert.deepEqual(old.details, { space: "licensed" });
 });
 
 test("long text is an error", () => {

@@ -9,7 +9,7 @@ create temp table tc as select * from public.connections with no data;
 alter table tc add column status public.connection_status, add column played_together boolean,
   add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
 
-select plan(10);
+select plan(13);
 
 -- Only this file's records: other data in the database (the local seed, say)
 -- would show up as shared. Rolled back with the rest.
@@ -26,6 +26,8 @@ insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, 
   ('cfc00000-0000-0000-0000-000000000002', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'Big Room', 'group', '{}', 'venue', 'neutral',
    '{"ages": "21_plus", "capacity": "300_600"}'),
   ('cfc00000-0000-0000-0000-000000000003', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'No Details', 'group', '{}', 'venue', 'neutral', '{}'),
+  ('cfc00000-0000-0000-0000-000000000004', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'Corner Dive', 'group', '{}', 'venue', 'neutral',
+   '{"venue_types": ["dive_bar", "art_space"], "space": "licensed"}'),
   ('cfc00000-0000-0000-0000-000000000011', 'cfaaaaaa-0000-0000-0000-0000000000a1', 'Joel', 'person', '{booker}', null, 'neutral', '{}');
 insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, attributes) select id, workspace_id, name, kind, person_roles, group_type, attributes from tc;
 update public.connection_band_details d set status = coalesce(t.status, d.status) from tc t where d.connection_id = t.id;
@@ -49,7 +51,20 @@ select is(
   array['cfc00000-0000-0000-0000-000000000002'], 'Capacity filter');
 select is(
   (public.directory_page('cfaaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'venues') -> 'counts' ->> 'matched')::int,
-  3, 'no filter: every venue, with or without details');
+  4, 'no filter: every venue, with or without details');
+-- Space (#262): one type, or DIY or licensed.
+select is(
+  (select array_agg(r ->> 'id' order by r ->> 'id') from jsonb_array_elements(
+    public.directory_page('cfaaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'venues', p_space => 'art_space') -> 'rows') r),
+  array['cfc00000-0000-0000-0000-000000000004'], 'Space filter: a type');
+select is(
+  (select array_agg(r ->> 'id' order by r ->> 'id') from jsonb_array_elements(
+    public.directory_page('cfaaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'venues', p_space => 'diy') -> 'rows') r),
+  array['cfc00000-0000-0000-0000-000000000001'], 'Space filter: DIY');
+select is(
+  (select array_agg(r ->> 'id' order by r ->> 'id') from jsonb_array_elements(
+    public.directory_page('cfaaaaaa-0000-0000-0000-0000000000a1', false, p_type => 'venues', p_space => 'licensed') -> 'rows') r),
+  array['cfc00000-0000-0000-0000-000000000004'], 'Space filter: licensed');
 
 -- Saving: unchanged details keep their date; changed ones get today's.
 create temp table saved (id uuid) on commit drop;
