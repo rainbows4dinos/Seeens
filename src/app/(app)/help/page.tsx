@@ -57,6 +57,11 @@ const WORDS: [string, string, string][] = [
   ],
   ["Town", "Where they're based, not where you met them.", "Basic Info"],
   [
+    "Type of Space",
+    "What kind of room a venue is: a dive bar, house shows, a record store. Pick any that apply. DIY or licensed follows from the type; art spaces, community spaces, and parks get a DIY checkbox.",
+    "Venue Details, and the Space filter on Venues",
+  ],
+  [
     "Members and connections",
     "How listings link up: who's in a band, who books a venue, who's on a label, who works with whom.",
     "Members & Connections panel",
