@@ -1471,6 +1471,179 @@
   }
 
   /* List row thumbnail: a 48px print beside the name. */
+  /* Bulk status (#243): the photo is the checkbox. It shows on hover or
+     focus, on everything once something's selected, and on touch after a
+     long press. A sibling of the listing's link, laid over its photo. */
+  .select-item {
+    position: relative;
+  }
+  .select-slot {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+  /* Over the row's 48px thumb (12px in, past its 1px border). */
+  .rows .select-slot {
+    top: 12px;
+    left: 12px;
+    width: 48px;
+    height: 48px;
+    background: rgb(20 20 20 / 0.55);
+  }
+  /* The card's corner. */
+  .card-grid .select-slot {
+    top: 10px;
+    left: 10px;
+    width: 36px;
+    height: 36px;
+  }
+  .select-item:hover .select-slot,
+  .select-slot:has(:focus-visible),
+  .select-slot:has(:checked),
+  [data-selecting] .select-slot {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .select-item:hover .select-slot:not(:has(:checked)) {
+      opacity: 0;
+    }
+    [data-selecting] .select-item .select-slot {
+      opacity: 1;
+    }
+  }
+  .select-mark {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: var(--stroke-strong) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+  }
+  .rows .select-mark {
+    border-color: var(--color-bg-surface);
+  }
+  .select-slot:has(:checked) {
+    background: var(--color-bg-inverse);
+  }
+  .select-slot:has(:checked) .select-mark {
+    border-color: var(--color-bg-surface);
+    background: var(--color-bg-inverse);
+  }
+  .select-slot:has(:checked) .select-mark::after {
+    content: "";
+    width: 6px;
+    height: 11px;
+    border: solid var(--color-bg-surface);
+    border-width: 0 2.5px 2.5px 0;
+    rotate: 45deg;
+    translate: 0 -1px;
+  }
+  .select-slot:has(:focus-visible) .select-mark {
+    outline: 2px solid var(--color-focus, var(--color-border-strong));
+    outline-offset: 2px;
+  }
+  .card-grid .select-slot:has(:checked) {
+    background: none;
+  }
+  /* Selected: a grey row with an ink edge, or a card with an ink outline. */
+  .select-item:has(.select-slot :checked) > .row-link {
+    background: var(--color-bg-hover);
+    box-shadow: inset 4px 0 0 var(--color-bg-inverse);
+  }
+  .select-item:has(.select-slot :checked) > .connection-card {
+    outline: 3px solid var(--color-border-strong);
+    outline-offset: 2px;
+  }
+  /* No link preview while long-pressing to select on touch. */
+  [data-selecting] .row-link,
+  [data-selecting] .connection-card {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+  /* The bar: floats at the bottom while anything's selected; on phones it
+     runs along the bottom edge. */
+  .select-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100vw - 32px);
+    padding: 10px 12px;
+    border: var(--stroke-strong) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-hard);
+    translate: -50% 0;
+    white-space: nowrap;
+    @media (width < 40rem) {
+      right: 0;
+      bottom: 0;
+      left: 0;
+      gap: 8px;
+      max-width: none;
+      padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+      border-width: var(--stroke-strong) 0 0;
+      box-shadow: none;
+      translate: none;
+    }
+  }
+  .select-bar-count {
+    padding: 0 4px;
+  }
+  .select-bar-done:empty {
+    display: none;
+  }
+  @media (width < 40rem) {
+    .select-bar-done {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      padding: 8px var(--gutter);
+      border-top: var(--stroke-hair) solid var(--color-border-subtle);
+      background: var(--color-bg-surface);
+      white-space: normal;
+    }
+  }
+  .select-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    min-width: 15rem;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-hard);
+  }
+  .select-menu li + li {
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .select-menu button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--control-height);
+    padding: 0 12px;
+    text-align: left;
+  }
+  .select-menu button:hover,
+  .select-menu button:focus-visible {
+    background: var(--color-bg-hover);
+  }
+  .select-menu kbd {
+    margin-left: auto;
+    padding: 0 4px;
+    border: var(--stroke-hair) solid var(--color-border-subtle);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
   .row-thumb {
     position: relative;
     display: grid;
