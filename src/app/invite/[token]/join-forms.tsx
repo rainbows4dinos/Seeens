@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import type { WorkspaceKind } from "@/lib/band/kind";
 import { acceptInvite, optOut, signInAndJoin, signUpAndJoin, type JoinState } from "@/lib/band/actions";
 import { offline } from "@/lib/offline";
 
@@ -31,11 +32,13 @@ export function AcceptForm({ token, band, email }: { token: string; band: string
 export function JoinForms({
   token,
   band,
+  kind,
   inviteEmail,
   name,
 }: {
   token: string;
   band: string;
+  kind: WorkspaceKind;
   inviteEmail: string | null;
   name: string | null;
 }) {
@@ -113,7 +116,7 @@ export function JoinForms({
           Your Name
         </label>
         <p id="up-name-hint" className="-mt-1 text-sm text-muted">
-          How bandmates see you. You can change it later.
+          How {kind === "label" ? "the people at the label" : "bandmates"} see you. You can change it later.
         </p>
         <input
           id="up-name"

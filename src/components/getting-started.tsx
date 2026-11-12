@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cache } from "react";
 import { getMembership } from "@/lib/auth/dal";
+import { kindWords } from "@/lib/band/kind";
 import { createClient } from "@/lib/supabase/server";
 import { dismissGettingStarted } from "@/lib/onboarding/actions";
 import { ProfilePanel } from "@/components/profile/panel";
@@ -56,6 +57,8 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
   const { membership, supabase, preview, p } = loaded;
 
   const band = membership.workspaceName;
+  const words = kindWords(membership.kind);
+  const label = membership.kind === "label";
   const { data: suggested } = await supabase.rpc("suggested_bands", {
     p_workspace_id: membership.workspaceId,
     p_preview: preview,
@@ -82,12 +85,14 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
     },
     {
       done: p.listing_filled,
-      title: "Fill in your band's page",
-      body: "Add your town and a link or two (Bandcamp, Instagram), so other bands can find you.",
+      title: `Fill in your ${words.noun}'s page`,
+      body: label
+        ? "Add your town, a link or two (Bandcamp, Instagram), and the bands on your label, so bands can find you."
+        : "Add your town and a link or two (Bandcamp, Instagram), so other bands can find you.",
       links: [
         {
           href: p.listing_id ? `/connections/${p.listing_id}` : "/add?us=1",
-          label: "Open Your Band's Page",
+          label: `Open Your ${words.Noun}'s Page`,
           plain: true,
         },
       ],
@@ -100,12 +105,12 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
     },
     {
       done: p.members > 1,
-      title: "Invite your bandmates",
+      title: `Invite ${words.mates}`,
       body:
         p.members > 1
           ? `${p.members} of you are in ${band}.`
-          : "From Band Settings, by email or with a link you send them.",
-      links: [{ href: "/band#band-invite", label: "Invite Bandmates" }],
+          : `From ${words.settings}, by email or with a link you send them.`,
+      links: [{ href: "/band#band-invite", label: label ? "Invite People" : "Invite Bandmates" }],
     },
   ];
   if (steps.every((s) => s.done)) return null;
@@ -118,7 +123,7 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
     >
       <GettingStartedSteps
         welcome={`Welcome to ${band}! Seeens is a shared map of the bands, venues, and people in your scene.`}
-        note={preview ? "Admin preview: what a new band sees. Nothing you pick here saves." : null}
+        note={preview ? `Admin preview: what a new ${words.noun} sees. Nothing you pick here saves.` : null}
         steps={steps}
         putAway={
           preview ? (

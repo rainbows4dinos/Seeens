@@ -64,7 +64,7 @@ export function LinkBox({ link }: { link: string }) {
   );
 }
 
-export function BandNameField({ initial }: { initial: string }) {
+export function BandNameField({ initial, Noun = "Band" }: { initial: string; Noun?: string }) {
   const [state, setState] = useState<BandState>({});
   const [pending, start] = useTransition();
   const saved = useRef(initial);
@@ -79,7 +79,7 @@ export function BandNameField({ initial }: { initial: string }) {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor="band-name" className="label">
-        Band Name
+        {Noun} Name
       </label>
       <p id="band-name-hint" className="-mt-1 text-sm text-muted">
         Shown in the header and on invites.

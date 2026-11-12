@@ -375,11 +375,11 @@ isOneToOne: false
                   ]
                 },"workspaces": {
                   Row: {
-                    "created_at": string,"id": string,"listing_id": string | null,"name": string,"time_zone": string
+                    "created_at": string,"id": string,"kind": "band" | "label","listing_id": string | null,"name": string,"time_zone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"listing_id"?: string | null,"name": string,"time_zone"?: string
+                    "created_at"?: string,"id"?: string,"kind"?: "band" | "label","listing_id"?: string | null,"name": string,"time_zone"?: string
                   }
                   Update: {
                     "created_at"?: string,"id"?: string,"name"?: string,"time_zone"?: string
@@ -404,7 +404,7 @@ isOneToOne: false
             "revoke_invite":
 { Args: { "p_invite_id": string }; Returns: undefined },
             "invite_preview":
-{ Args: { "p_token": string }; Returns: { "band": string,"invited_by": string,"email": string | null,"name": string | null,"role": Database["public"]["Enums"]["member_role"],"status": string }[] },
+{ Args: { "p_token": string }; Returns: { "band": string,"invited_by": string,"email": string | null,"name": string | null,"role": Database["public"]["Enums"]["member_role"],"status": string,"kind": "band" | "label" }[] },
             "accept_invite":
 { Args: { "p_token": string,"p_display_name": string | null }; Returns: string },
             "opt_out_of_invites":
@@ -454,13 +454,15 @@ isOneToOne: false
             "dismiss_getting_started":
 { Args: { "p_workspace_id": string }; Returns: undefined },
             "invitable_bands":
-{ Args: never; Returns: { "connection_id": string,"name": string,"town": string | null,"added_by": string }[] },
+{ Args: never; Returns: { "connection_id": string,"name": string,"town": string | null,"added_by": string,"group_type": "band" | "label" }[] },
             "invitable_people":
 { Args: never; Returns: { "connection_id": string,"name": string,"added_by": string,"keep_private": boolean }[] },
             "invite_band":
-{ Args: { "p_listing_id": string | null,"p_band": string | null,"p_email": string | null,"p_name": string | null,"p_person_id"?: string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
+{ Args: { "p_listing_id": string | null,"p_band": string | null,"p_email": string | null,"p_name": string | null,"p_person_id"?: string | null,"p_kind"?: "band" | "label" }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string,"kind": "band" | "label" }[] },
             "list_bands":
-{ Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null }[] },
+{ Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null,"kind": "band" | "label" }[] },
+            "label_roster":
+{ Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"is_current": boolean,"joined": boolean }[] },
             "listing_claim":
 { Args: { "p_connection_id": string }; Returns: { "band": string,"mine": boolean,"joined": boolean }[] },
             "cancel_band_invite":

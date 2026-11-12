@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getCurrentUser, getMembership, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { loadPendingInvites } from "@/lib/band/queries";
+import { kindWords } from "@/lib/band/kind";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
 import { NoWorkspace } from "@/components/no-workspace";
@@ -28,6 +29,7 @@ export default function BandPage() {
 async function Band() {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
+  const words = kindWords(membership.kind);
   const [user, us, supabase] = await Promise.all([getCurrentUser(), getUsConnection(), createClient()]);
   const ws = membership.workspaceId;
   const owner = membership.role === "owner";
@@ -51,22 +53,22 @@ async function Band() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <p className="caption">Band Settings</p>
+        <p className="caption">{words.settings}</p>
         <h1 className="display-l break-words">{membership.workspaceName}</h1>
         <p className="text-muted">
           Shared with everyone in {membership.workspaceName}.{" "}
           {owner
-            ? "As an owner, you can rename the band and change roles."
-            : "Owners can rename the band and change roles."}
+            ? `As an owner, you can rename the ${words.noun} and change roles.`
+            : `Owners can rename the ${words.noun} and change roles.`}
         </p>
       </div>
 
-      <ProfilePanel id="band-band" title="Band" summary={membership.workspaceName}>
+      <ProfilePanel id="band-band" title={words.Noun} summary={membership.workspaceName}>
         {owner ? (
-          <BandNameField initial={membership.workspaceName} />
+          <BandNameField initial={membership.workspaceName} Noun={words.Noun} />
         ) : (
           <p>
-            <span className="label">Band Name</span>
+            <span className="label">{words.Noun} Name</span>
             <br />
             {membership.workspaceName}
           </p>
@@ -82,7 +84,7 @@ async function Band() {
             <>
               nothing yet.{" "}
               <Link href="/add?us=1" className="link">
-                Add your band&rsquo;s page
+                Add your {words.noun}&rsquo;s page
               </Link>
             </>
           )}
@@ -100,7 +102,7 @@ async function Band() {
         </Link>
       </ProfilePanel>
 
-      <ProfilePanel id="band-invite" title="Invite a Bandmate">
+      <ProfilePanel id="band-invite" title={membership.kind === "label" ? "Invite Someone" : "Invite a Bandmate"}>
         <InviteForm
           canInviteOwners={owner}
           bandName={membership.workspaceName}

@@ -11,9 +11,9 @@ const unreachable = offline<InviteBandState>({
   error: "Couldn't reach Seeens. Try again.",
 });
 
-// Invite a band (#68): pick its listing in the directory (or name a band
-// that isn't listed), and its first owner. The owner makes their account
-// on the invite page, then invites the rest of the band.
+// Invite a band (#68) or a label (#298): pick its listing in the directory
+// (or name one that isn't listed), and its first owner. The owner makes
+// their account on the invite page, then invites the rest.
 export function InviteBandForm({
   bands,
   people,
@@ -36,6 +36,8 @@ export function InviteBandForm({
   // choose "New Band" (if it is listed, the server says to pick it).
   const [typed, setTyped] = useState("");
   const [person, setPerson] = useState("");
+  // A name that isn't listed: a band, unless it's a label.
+  const [newKind, setNewKind] = useState<"band" | "label">("band");
   // A new picker after each invite, so the last pick doesn't linger.
   const [round, setRound] = useState(0);
   const [prevLink, setPrevLink] = useState(state.link);
@@ -45,6 +47,7 @@ export function InviteBandForm({
     setNewBand("");
     setTyped("");
     setPerson("");
+    setNewKind("band");
     setFixed(undefined);
     setRound((r) => r + 1);
   }
@@ -54,15 +57,15 @@ export function InviteBandForm({
   return (
     <form action={action} className="flex flex-col gap-4">
       <p className="text-muted">
-        Pick the band from the directory, or type its name if nobody&rsquo;s added it yet. Its owner gets an invite,
-        makes their account, and the band&rsquo;s listing becomes theirs to keep up to date. They invite their bandmates
-        from Band Settings. Bandmates listed as the band&rsquo;s members can find themselves under Find Yourself.
+        Pick the band or label from the directory, or type its name if nobody&rsquo;s added it yet. Its owner gets an
+        invite, makes their account, and the listing becomes theirs to keep up to date. They invite the rest from Band
+        Settings (Label Settings for a label). People listed as its members can find themselves under Find Yourself.
         {emailReady ? "" : " Email isn’t set up yet, so you’ll get a link to send them yourself."}
       </p>
       <div className="grid gap-5 sm:grid-cols-2">
         {fixed ? (
           <div className="flex flex-col gap-2">
-            <p className="label">Band</p>
+            <p className="label">Band or Label</p>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-col">
                 <p className="font-medium break-words">{fixed.label}</p>
@@ -76,12 +79,13 @@ export function InviteBandForm({
                   setListing("");
                 }}
               >
-                Change<span className="sr-only"> band</span>
+                Change<span className="sr-only"> band or label</span>
               </button>
             </div>
           </div>
         ) : (
           <div
+            className="flex flex-col gap-3"
             onInput={(e) => {
               const t = e.target as HTMLInputElement;
               if (t.getAttribute("role") === "combobox") setTyped(t.value);
@@ -89,16 +93,30 @@ export function InviteBandForm({
           >
             <Combobox
               key={round}
-              label="Band"
+              label="Band or Label"
               options={bands}
               multiple={false}
-              placeholder="Find a band"
-              create={{ verb: "New Band" }}
+              placeholder="Find a band or label"
+              create={{ verb: "New" }}
               onChange={(values, created) => {
                 setListing(values[0] ?? "");
                 setNewBand(values[0] ? "" : (created[0] ?? ""));
               }}
             />
+            {band ? (
+              <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <legend className="sr-only">{band} is a</legend>
+                <span className="text-sm text-muted" aria-hidden="true">
+                  New, not listed yet:
+                </span>
+                {(["band", "label"] as const).map((k) => (
+                  <label key={k} className="flex items-center gap-2">
+                    <input type="radio" checked={newKind === k} onChange={() => setNewKind(k)} />
+                    {k === "band" ? "Band" : "Label"}
+                  </label>
+                ))}
+              </fieldset>
+            ) : null}
           </div>
         )}
         <div className="flex flex-col gap-2">
@@ -138,6 +156,7 @@ export function InviteBandForm({
       <input type="hidden" name="listing_id" value={listing} />
       <input type="hidden" name="new_band" value={band} />
       <input type="hidden" name="person_id" value={person} />
+      <input type="hidden" name="new_kind" value={newKind} />
       <Note state={state} />
       {state.link ? <LinkBox link={state.link} /> : null}
       <div className="flex flex-wrap gap-3">
