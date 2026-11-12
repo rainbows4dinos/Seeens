@@ -34,6 +34,17 @@ export function QuickViewFrame({ children }: { children: ReactNode }) {
   // run while it's visible, so this follows what's on screen. Shown again
   // (Forward), it slides back in rather than staying where it slid out.
   useLayoutEffect(() => {
+    // Opened from somewhere that isn't the directory (a redirect after Add,
+    // a link on another page): Next still intercepts, since route groups
+    // don't count, and the panel would sit over a blank page. Load the full
+    // page instead. Back still goes where you were.
+    // Next keeps pages you left in the DOM, hidden, so it has to be showing.
+    const under = document.querySelector(".directory-shell [data-directory]")?.firstElementChild;
+    if (!under?.checkVisibility()) {
+      aside.current?.setAttribute("hidden", "");
+      location.replace(location.href);
+      return;
+    }
     const shell = document.querySelector(".directory-shell");
     shell?.setAttribute("data-quick-view", "");
     aside.current?.removeAttribute("data-closing");
