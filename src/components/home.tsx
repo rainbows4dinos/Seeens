@@ -98,15 +98,15 @@ export async function HomeHeader() {
             ))}
           </p>
         ) : null}
-        <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        <div className="flex flex-wrap gap-3 pt-1">
           {/* A full page load, like the account menu's link to it. */}
-          <a href={us ? `/connections/${us.id}` : "/add?us=1"} className="link">
+          <a href={us ? `/connections/${us.id}` : "/add?us=1"} className="button-secondary">
             {us ? "Your Band’s Page" : "Add Your Band’s Page"}
           </a>
-          <Link href="/band" className="link">
+          <Link href="/band" className="button-secondary">
             Band Settings
           </Link>
-        </p>
+        </div>
       </div>
     </header>
   );
