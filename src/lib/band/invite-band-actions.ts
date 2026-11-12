@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
+import { ownerInvite } from "@/lib/email/invites";
 import { siteOrigin } from "@/lib/origin";
 import type { WorkspaceKind } from "@/lib/band/kind";
 
@@ -115,25 +116,6 @@ async function emailOwner(to: string, link: string, band: string, name: string, 
   return sendEmail({
     to,
     replyTo: me.email ?? undefined,
-    subject: `${admin} invited ${band} to Seeens`,
-    text: [
-      name ? `Hi ${name},` : "Hi,",
-      "",
-      `${admin} invited ${band} to Seeens, with you as its owner.`,
-      "",
-      kind === "label"
-        ? "Seeens is where bands and labels keep track of the people, venues, labels, and scenes they know, and find out who else knows them. It's in beta and invite only, so you'd be one of the first labels on it. Your feedback shapes it."
-        : "Seeens is where a band keeps track of the people, venues, labels, and scenes it knows, and finds out who else knows them. It's in beta and invite only, so you'd be one of the first bands on it. Your feedback shapes it.",
-      "",
-      `Make your account and join: ${link}`,
-      "",
-      kind === "label"
-        ? `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite the people at the label from Label Settings. The link works for 7 days and only once.`
-        : `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite your bandmates from Band Settings. The link works for 7 days and only once.`,
-      "",
-      `Questions? Reply to this email and it goes to ${admin}.`,
-      "",
-      `Don't want email from Seeens? Open the link and choose "Don't email me again."`,
-    ].join("\n"),
+    ...ownerInvite({ from: admin, replyName: admin, band, kind, name, link }),
   });
 }
