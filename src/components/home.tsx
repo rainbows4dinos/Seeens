@@ -174,7 +174,7 @@ export async function UpNext() {
 export async function StatusShelf({ status }: { status: "homies" | "lets_play" | "prospect" }) {
   const membership = await getMembership();
   if (!membership) return null;
-  const { items, counts } = await loadDirectoryPage(readDirectoryQuery({ type: "all", status: [status, "ours"] }));
+  const { items, counts } = await loadDirectoryPage(readDirectoryQuery({ type: "all", status }));
   const shown = items.filter((c: DirectoryItem) => c.status === status).slice(0, 12);
   if (!shown.length) return null;
   const total = counts?.matched ?? shown.length;
@@ -211,13 +211,18 @@ export async function NewOnSeeens() {
   const membership = await getMembership();
   if (!membership) return null;
   const ws = membership.workspaceId;
-  const supabase = await createClient();
-  const [{ data: towns }, { data: recent }] = await Promise.all([
+  const [supabase, us] = await Promise.all([createClient(), getUsConnection()]);
+  const [{ data: towns }, { data: home }, { data: recent }] = await Promise.all([
     supabase.from("localities").select("place_id").eq("workspace_id", ws).not("place_id", "is", null),
+    // Our own town counts even before we've added anything (a band that just
+    // claimed its listing).
+    us
+      ? supabase.from("connections").select("localities ( place_id )").eq("id", us.id).maybeSingle()
+      : Promise.resolve({ data: null }),
     supabase
       .from("connections")
       .select(
-        "id, name, kind, group_type, person_roles, photo_path, created_at, added_by:workspaces!connections_workspace_id_fkey ( name ), localities ( name, region, region_code, country, country_code, place_id ), band:connection_band_details ( status, played_together, notes, archived_at )",
+        "id, name, kind, group_type, person_roles, photo_path, is_us, created_at, added_by:workspaces!connections_workspace_id_fkey ( name ), localities ( name, region, region_code, country, country_code, place_id ), band:connection_band_details ( status, played_together, notes, archived_at )",
       )
       .neq("workspace_id", ws)
       .eq("band.workspace_id", ws)
@@ -225,7 +230,10 @@ export async function NewOnSeeens() {
       .limit(40),
   ]);
   const known = new Set((towns ?? []).map((t) => t.place_id));
+  if (home?.localities?.place_id) known.add(home.localities.place_id);
   const untouched = (recent ?? []).filter((c) => {
+    // Not our own listing (a claimed one lives with the band that added it).
+    if (c.id === us?.id) return false;
     const b = layerOf(c.band);
     return !b || !(b.status || b.played_together || b.notes || b.archived_at);
   });
@@ -254,7 +262,11 @@ export async function NewOnSeeens() {
                   {[formatType(c), formatLocality(c.localities as Place)].filter(Boolean).join(" · ")}
                 </span>
               </span>
-              {c.added_by?.name ? <span className="home-row-action caption">added by {c.added_by.name}</span> : null}
+              {c.is_us ? (
+                <span className="home-row-action caption">joined Seeens</span>
+              ) : c.added_by?.name ? (
+                <span className="home-row-action caption">added by {c.added_by.name}</span>
+              ) : null}
             </Link>
           </li>
         ))}

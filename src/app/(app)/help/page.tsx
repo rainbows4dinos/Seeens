@@ -45,11 +45,6 @@ const WORDS: [string, string, string][] = [
     "Main nav",
   ],
   [
-    "Ours",
-    "Everything your band has touched: given a status, notes, a plan, or outreach. Plus everything your band added.",
-    "Status filter in the Directory",
-  ],
-  [
     "This is us",
     "Your own band's page. Its members are your lineup, and other bands are measured against it (label mates, shared members).",
     "Your band in the account menu",

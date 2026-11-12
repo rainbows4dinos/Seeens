@@ -37,14 +37,14 @@ The user-facing commitments live in the [AI Constitution (draft)](ai-constitutio
 
 **AI search reaches the long tail, but only when scoped.** Larry tested Google AI Mode on Merwulf and five homie bands:
 
-| Band | Result |
-|---|---|
-| Merwulf | Lineup and roles, cited to a label blog and Bandcamp. |
-| Sad Boy Union | Accurate: Portland queercore trio, lineup, Bandcamp and official site. |
-| The Shitfits | Accurate: lineup, debut album, Maximum Rocknroll review, links. |
-| Teeth For Eyes | Found the Portland band, mixed with a comic character and a medical term. |
-| Soda | Mixed: summary said Portland punk, but cited sources were a different cover band. Similar-name bands also listed. |
-| Hutchie | Found the Seattle band, mixed with slang and surname meanings. |
+| Band           | Result                                                                                                            |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Merwulf        | Lineup and roles, cited to a label blog and Bandcamp.                                                             |
+| Sad Boy Union  | Accurate: Portland queercore trio, lineup, Bandcamp and official site.                                            |
+| The Shitfits   | Accurate: lineup, debut album, Maximum Rocknroll review, links.                                                   |
+| Teeth For Eyes | Found the Portland band, mixed with a comic character and a medical term.                                         |
+| Soda           | Mixed: summary said Portland punk, but cited sources were a different cover band. Similar-name bands also listed. |
+| Hutchie        | Found the Seattle band, mixed with slang and surname meanings.                                                    |
 
 Common names need anchors. A citation alone isn't enough: Soda's summary and sources disagreed.
 
@@ -82,31 +82,31 @@ So there are **two primary approaches**: member-captured flyers and posts, and s
 
 ## AI search risks and mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Scene backlash against AI | No AI at launch; opt-in per workspace; task labels, not AI branding; public AI Constitution; non-AI baseline for every feature. |
-| Same-name confusion | Scope by type and locality; anchor with known facts; same entity check. |
-| Summary disagrees with its sources (the Soda case) | Check each finding against its cited source, not the summary. |
-| Confident errors, mixed-up or past lineups | Citations on every item; member review before anything is saved. |
-| Stale info presented as current | Require a source date per item and show it in the inbox. |
-| Cost | On demand only; cache results per connection; cap per workspace; paid from the shared pot, never metered to users. |
+| Risk                                               | Mitigation                                                                                                                      |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Scene backlash against AI                          | No AI at launch; opt-in per workspace; task labels, not AI branding; public AI Constitution; non-AI baseline for every feature. |
+| Same-name confusion                                | Scope by type and locality; anchor with known facts; same entity check.                                                         |
+| Summary disagrees with its sources (the Soda case) | Check each finding against its cited source, not the summary.                                                                   |
+| Confident errors, mixed-up or past lineups         | Citations on every item; member review before anything is saved.                                                                |
+| Stale info presented as current                    | Require a source date per item and show it in the inbox.                                                                        |
+| Cost                                               | On demand only; cache results per connection; cap per workspace; paid from the shared pot, never metered to users.              |
 
 Test plan: run 10 bands where members know the truth, Merwulf included, through at least two providers. Score accuracy, invented details, same-name mix-ups, stale info, citation usefulness, and cost per lookup. Then walk through plan-a-town for two real towns: one with known bill mates (Boise or Reno) and one with none. Also test on-device OCR against a stack of real flyers to see how often the LLM fallback is needed.
 
 ## Source assessment (checked October 2026)
 
-| Source | Access today | Signal for Seeens | Verdict |
-|---|---|---|---|
-| Show flyers and posts | Shared by members. | Lineups, venues, dates, shared bills. | Primary. |
-| AI search | Paid APIs from several providers; results cite web sources. | Long-tail web coverage: Bandcamp pages, label blogs, venue sites, local press. | Primary, opt-in, scoped and reviewed. |
-| Venue calendars | Public pages on venues' own sites; terms vary. | Bills at local DIY spaces and small rooms. | Strong, per venue. |
-| MusicBrainz | Open API, about 1 request per second, descriptive User-Agent required. | Band membership and artist links. | Enrichment. Thin coverage for DIY bands. |
-| setlist.fm | Open API; free for non-commercial use only. | Shows by venue and artist. | Enrichment. Thin for basement shows; commercial deal needed if public. |
-| Spotify Web API | Since February 2026: no followers, popularity, top tracks, or batch lookups in dev mode; search capped at 10 results; owner needs Premium; new apps start at 5 users. Related artists cut in 2024. | Spotify IDs and links. | Identity only. |
-| Instagram Graph API | Business Discovery gives follower, media, and per-post counts for other professional accounts via your own professional account. No follower lists, tags, or personal accounts. | Activity signal. | Freshness only. |
-| Bandsintown | Keys tied to one artist; other artists' data needs approval; scraping and commercial use prohibited. | Merwulf's own shows. | Own data only. |
-| Bandcamp | No public API for discovery; January 2026 policy forbids scraping. | None directly. AI search may cite public Bandcamp pages. | Out as a direct source. |
-| Last.fm | Similar-artist endpoints appear to still exist; not verified. | Sound-alike suggestions. | Test before relying on it. |
+| Source                | Access today                                                                                                                                                                                       | Signal for Seeens                                                              | Verdict                                                                |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Show flyers and posts | Shared by members.                                                                                                                                                                                 | Lineups, venues, dates, shared bills.                                          | Primary.                                                               |
+| AI search             | Paid APIs from several providers; results cite web sources.                                                                                                                                        | Long-tail web coverage: Bandcamp pages, label blogs, venue sites, local press. | Primary, opt-in, scoped and reviewed.                                  |
+| Venue calendars       | Public pages on venues' own sites; terms vary.                                                                                                                                                     | Bills at local DIY spaces and small rooms.                                     | Strong, per venue.                                                     |
+| MusicBrainz           | Open API, about 1 request per second, descriptive User-Agent required.                                                                                                                             | Band membership and artist links.                                              | Enrichment. Thin coverage for DIY bands.                               |
+| setlist.fm            | Open API; free for non-commercial use only.                                                                                                                                                        | Shows by venue and artist.                                                     | Enrichment. Thin for basement shows; commercial deal needed if public. |
+| Spotify Web API       | Since February 2026: no followers, popularity, top tracks, or batch lookups in dev mode; search capped at 10 results; owner needs Premium; new apps start at 5 users. Related artists cut in 2024. | Spotify IDs and links.                                                         | Identity only.                                                         |
+| Instagram Graph API   | Business Discovery gives follower, media, and per-post counts for other professional accounts via your own professional account. No follower lists, tags, or personal accounts.                    | Activity signal.                                                               | Freshness only.                                                        |
+| Bandsintown           | Keys tied to one artist; other artists' data needs approval; scraping and commercial use prohibited.                                                                                               | Merwulf's own shows.                                                           | Own data only.                                                         |
+| Bandcamp              | No public API for discovery; January 2026 policy forbids scraping.                                                                                                                                 | None directly. AI search may cite public Bandcamp pages.                       | Out as a direct source.                                                |
+| Last.fm               | Similar-artist endpoints appear to still exist; not verified.                                                                                                                                      | Sound-alike suggestions.                                                       | Test before relying on it.                                             |
 
 Not legal advice. Re-check each platform's and provider's terms before building against it.
 

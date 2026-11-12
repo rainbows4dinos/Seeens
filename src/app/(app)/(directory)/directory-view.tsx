@@ -51,9 +51,8 @@ import { PageLoader } from "@/components/metronome";
 type Params = Record<string, string | string[] | undefined>;
 
 // The Directory (#273): every record the band can see, its own and what
-// every other band shares, Avoid last. Ours (what this band added or
-// touched) is an option in the status filter; the archived view is always
-// Ours. Home (/) is the band's own page.
+// every other band shares, Avoid last. The archived view is this band's
+// own. Home (/) is the band's own page.
 export function DirectoryView({ searchParams }: { searchParams: Promise<Params> }) {
   return (
     <Suspense fallback={<PageLoader label="loading directory" />}>
@@ -81,8 +80,8 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
   };
   const read = readDirectoryQuery(params);
   const tab = read.tab;
-  // Archived is always Ours.
-  const filters: DirectoryFilters = { ...read.filters, scope: read.filters.archived ? "network" : read.filters.scope };
+  // Archived is this band's own.
+  const filters: DirectoryFilters = { ...read.filters, scope: read.filters.archived ? "network" : "all" };
   // An old ?scope=all link: Everyone is the default now.
   if (params.scope !== undefined) redirect(directoryHref(tab, filters));
   // Old links (?view=lets_play, ?type=group:venue) go to their tab and status.
@@ -228,24 +227,7 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
               )}
             </div>
 
-            {/* Not in Ours, but other bands have it (#192): look there
-                before adding a copy. */}
-            {c.matched === 0 && filtering && filters.scope === "network" && !archived && c.scopes.all > 0 ? (
-              <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-                <p className="font-medium">Nothing of yours matches.</p>
-                <p className="text-muted">
-                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} from everyone, shared by other bands.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Link href={directoryHref(tab, { ...filters, scope: "all" })} className="button-primary">
-                    Search Everyone
-                  </Link>
-                  <Link href={directoryHref(tab, EMPTY)} className="button-secondary">
-                    Clear Filters
-                  </Link>
-                </div>
-              </div>
-            ) : c.matched === 0 && filtering ? (
+            {c.matched === 0 && filtering ? (
               <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
                 <p className="font-medium">Nothing matches.</p>
                 <p className="text-muted">Try fewer filters or a shorter search.</p>
@@ -358,8 +340,6 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   const p = new URLSearchParams();
   if (tab !== DEFAULT_TAB) p.set("type", tab);
   if (f.q) p.set("q", f.q);
-  // Ours (#273); archived is always Ours, so it doesn't say so.
-  if (f.scope === "network" && !f.archived) p.append("status", "ours");
   f.statuses.forEach((st) => p.append("status", st));
   if (f.noStatus) p.set("status", "none");
   if (f.scene) p.set("scene", f.scene);
@@ -499,7 +479,7 @@ function FilterForm({
         }
       >
         <div className={tab === "venues" ? "filter-fields filter-fields-venues" : "filter-fields"}>
-          {/* Status replaces the old views: everyone, ours, or one status. */}
+          {/* Status replaces the old views: everyone, or one status. */}
           <label htmlFor="f-status" className="sr-only">
             Status
           </label>
@@ -511,19 +491,10 @@ function FilterForm({
               id="f-status"
               name="status"
               className="field"
-              defaultValue={
-                f.noStatus
-                  ? "none"
-                  : f.statuses.length === 1
-                    ? f.statuses[0]
-                    : f.scope === "network" && !f.archived
-                      ? "ours"
-                      : ""
-              }
+              defaultValue={f.noStatus ? "none" : f.statuses.length === 1 ? f.statuses[0] : ""}
             >
-              {/* Everyone, Avoid last (#273); or Ours, what this band added or touched. */}
+              {/* Everyone, Avoid last (#273). */}
               <option value="">Everyone</option>
-              {f.archived ? null : <option value="ours">Ours</option>}
               {STATUSES.map((st) => (
                 <option key={st} value={st}>
                   {STATUS_WORDS[wordSetForTab(tab)][st]}

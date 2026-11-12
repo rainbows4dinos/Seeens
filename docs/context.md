@@ -26,13 +26,13 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
   - **Heard of:** we know of them, no particular plans. Where a record the band adds starts. Stored as `neutral`. (Was Known, and before that Heard of: Known read as "we know them".)
   - **No status:** the band hasn't sorted it yet. Every record another band shares starts here, and a status can be cleared back to it (#192). Stored as null.
   - **Avoid:** the honest "nope" (cold shoulder, or played once and that was enough). Kept, not archived, and can change.
-  Each type has its own words for the same five statuses (#139). Words say how we feel, never what happened; "played together" carries that.
+    Each type has its own words for the same five statuses (#139). Words say how we feel, never what happened; "played together" carries that.
   - Venues and promoters: Favorite, Let's book, Want to book, Heard of, Avoid.
   - People: Homie, Let's collab, Want to collab, Heard of, Avoid.
   - Labels, studios, radio, press: Homies, Let's collab, Want to collab, Heard of, Avoid.
   - "Played together" reads as played here (venues), booked us (promoters, bookers), recorded here (studios), been on (radio), covered us (press, writers), or worked together (everyone else). Musicians and DJs keep "played together".
-  The All tab's status menu uses the band words.
-  A stored status is never changed through affiliations. A person left at Heard of, or with no status, is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Want to play), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
+    The All tab's status menu uses the band words.
+    A stored status is never changed through affiliations. A person left at Heard of, or with no status, is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Want to play), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
 - **Network and Explore (#192, renamed from My Network and Full Directory):** two pages in the main nav (Network, Explore, Follow-ups, Scenes). Network, at `/`, is what the band added or has touched (a status, notes, contacts, played together, an archive, a plan, or outreach); clearing a status alone doesn't drop a record that has anything else. Explore, at `/directory`, is every record the band can see. For now both group by status; Explore should get its own organization (#194). Follow-ups may later fold into a Today home page.
 - **Roles (#195):** members add records, edit what their band added, and keep their band's own layer. Moderators, picked by an app admin, can fix any shared record's details (logged), and keep any record private. App admins are moderators too. Keep Private: groups only by an owner of their band or a moderator; a person by themselves once linked, else by the band that added them.
 - **Played together:** a separate fact, what has already happened, versus how the band feels and what's next. Distinguishes warm leads from cold ones when planning a town.
