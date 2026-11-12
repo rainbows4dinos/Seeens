@@ -12,7 +12,6 @@ no-pressure rule). Keep it short and plain, for the bands using Seeens.
 ## Now
 
 - **Fixing what beta testers run into.** Your feedback goes to the front of the line. (#71)
-- **Festivals.** Festivals get their own listing type, with when applications open and close. (#263)
 - **Details by type.** The right fields for each kind of listing: bands, promoters and bookers, DJs and radio hosts, radio stations and press. (#48)
 
 ## Next
@@ -23,6 +22,7 @@ no-pressure rule). Keep it short and plain, for the bands using Seeens.
 
 ## Later
 
+- **Festivals.** Festivals as listings, with how to apply. On hold for now: whole platforms already track festivals. (#263)
 - **Boards.** A playful canvas for laying out your network: tours, bills, scenes, wish lists. (#49)
 - **Everyone claims their own listing.** Venues, labels, promoters, radio, and press can claim and keep up their own listings, the way bands do now. (#68)
 - **Release or tour focus.** Point Seeens at a release or tour, and see who to reach out to for it. (#23)
