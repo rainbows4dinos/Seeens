@@ -41,9 +41,15 @@ export function PressedButton() {
         if (pressed === b && !b.disabled) clear();
       }, STARTS_WITHIN_MS);
     };
+    // Back to a page the browser kept as it was: nothing's still working.
+    const show = (e: PageTransitionEvent) => {
+      if (e.persisted) clear();
+    };
     document.addEventListener("click", onClick, true);
+    addEventListener("pageshow", show);
     return () => {
       document.removeEventListener("click", onClick, true);
+      removeEventListener("pageshow", show);
       clear();
     };
   }, []);
