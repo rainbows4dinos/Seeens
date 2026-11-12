@@ -649,7 +649,7 @@
     background: var(--color-accent-primary);
     color: var(--color-text-inverse);
   }
-  /* Arrange Home (#313). An empty row takes no room, except while
+  /* Customize Home (#313). An empty row takes no room, except while
      arranging, when it says it's empty. */
   .home-section:not([data-editing]):has(> .home-section-body:empty) {
     display: none;
