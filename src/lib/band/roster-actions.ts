@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { ownerInvite } from "@/lib/email/invites";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { siteOrigin } from "@/lib/origin";
 import type { BandState } from "@/lib/band/actions";
@@ -55,22 +56,14 @@ export async function inviteRosterBand(_prev: BandState, formData: FormData): Pr
   const sent = await sendEmail({
     to: email,
     replyTo: me.email ?? undefined,
-    subject: `${membership.workspaceName} invited ${band} to Seeens`,
-    text: [
-      name ? `Hi ${name},` : "Hi,",
-      "",
-      `${membership.displayName} at ${membership.workspaceName} invited ${band} to Seeens, with you as its owner.`,
-      "",
-      "Seeens is where a band keeps track of the people, venues, labels, and scenes it knows, and finds out who else knows them. It's in beta and invite only. Your feedback shapes it.",
-      "",
-      `Make your account and join: ${link}`,
-      "",
-      `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite your bandmates from Band Settings. The link works for 7 days and only once.`,
-      "",
-      `Questions? Reply to this email and it goes to ${membership.displayName}.`,
-      "",
-      `Don't want email from Seeens? Open the link and choose "Don't email me again."`,
-    ].join("\n"),
+    ...ownerInvite({
+      from: `${membership.displayName} at ${membership.workspaceName}`,
+      replyName: membership.displayName,
+      band,
+      kind: "band",
+      name,
+      link,
+    }),
   }).catch(() => false);
   if (!sent)
     return {

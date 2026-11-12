@@ -6,6 +6,8 @@ import { getCurrentUser, getMembership, rememberBand } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
+import { memberInvite } from "@/lib/email/invites";
+import type { WorkspaceKind } from "@/lib/band/kind";
 import { siteOrigin } from "@/lib/origin";
 
 // Band Settings and invites (#69). The database checks who may do what;
@@ -72,22 +74,8 @@ export async function removeMember(userId: string): Promise<BandState> {
 
 const inviteLink = async (token: string) => `${await siteOrigin()}/invite/${token}`;
 
-async function emailInvite(to: string, link: string, inviter: string, bandName: string) {
-  return sendEmail({
-    to,
-    subject: `${inviter} invited you to ${bandName} on Seeens`,
-    text: [
-      `${inviter} invited you to join ${bandName} on Seeens.`,
-      "",
-      "Seeens is where the band keeps track of the people, venues, labels, and scenes it knows. It's in beta, so you'd be one of the first to use it, and your feedback shapes it.",
-      "",
-      `Join ${bandName}: ${link}`,
-      "",
-      "The link works for 7 days and only once.",
-      "",
-      `Don't want email from Seeens? Open the link and choose "Don't email me again."`,
-    ].join("\n"),
-  });
+async function emailInvite(to: string, link: string, inviter: string, bandName: string, kind: WorkspaceKind) {
+  return sendEmail({ to, ...memberInvite({ from: inviter, band: bandName, kind, link }) });
 }
 
 /** Invite by email (sent if email is set up) or as a link to copy. */
@@ -147,7 +135,7 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
       link,
     };
   }
-  const sent = await emailInvite(email, link, m.displayName, m.workspaceName);
+  const sent = await emailInvite(email, link, m.displayName, m.workspaceName, m.kind);
   if (!sent)
     return {
       done: `${already}Couldn't send the email. Send ${email} this link yourself.`,
@@ -190,7 +178,7 @@ export async function resendInvite(inviteId: string): Promise<BandState> {
       done: "Email isn't set up yet, so send this link yourself.",
       link: renewed.link,
     };
-  const sent = await emailInvite(inv.email, renewed.link, m.displayName, m.workspaceName);
+  const sent = await emailInvite(inv.email, renewed.link, m.displayName, m.workspaceName, m.kind);
   if (!sent)
     return {
       done: "Couldn't send the email. Send this link yourself.",
