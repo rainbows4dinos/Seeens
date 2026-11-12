@@ -166,10 +166,11 @@
 }
 
 /* Rub-down wear on big headings (#62), like handled transfer lettering. The
-   filters live in rub-down.tsx, which seeds data-rub from each heading's
-   words. Display-m and up, plus anything marked .rub-down (the login
-   headline); never a heading holding a link or control. Off for print,
-   forced colors, and reduced motion. */
+   filters live in rub-down.tsx. Display-m and up, plus anything marked
+   .rub-down (the login headline); never a heading holding a link or
+   control. The variant follows where a heading sits (h1 or h2, and which
+   section), so a page wears the same way every visit. Off for print, forced
+   colors, and reduced motion. */
 @media screen and (forced-colors: none) and (prefers-reduced-motion: no-preference) {
   :is(h1, h2):is(
       [class*="display-xxl"],
@@ -180,13 +181,13 @@
     ):not(:has(a, button, input, select, textarea)),
   .rub-down {
     filter: url(#rub-0);
-    &[data-rub="1"] {
+    &:is(h2) {
       filter: url(#rub-1);
     }
-    &[data-rub="2"] {
+    :is(section, div):nth-of-type(2n) > &:is(h2) {
       filter: url(#rub-2);
     }
-    &[data-rub="3"] {
+    :is(section, div):nth-of-type(3n) > &:is(h2) {
       filter: url(#rub-3);
     }
   }
@@ -1417,6 +1418,105 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-photo-paper);
   }
+  /* Home (#273). Prints: a photo or initials on photo paper, like the
+     card print and the profile thumbnail. */
+  .home-print {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+  }
+  .home-print img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .home-print-s {
+    width: 40px;
+  }
+  .home-print-s .card-print-initials {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--color-text-muted);
+  }
+  /* The header's, the same size as the profile's thumbnail. */
+  header > .home-print-m,
+  .home-shelf-item > .home-print-m {
+    width: 112px;
+  }
+  .home-print-m .card-print-initials {
+    font-size: 40px;
+  }
+  @media (width < 40rem) {
+    header > .home-print-m {
+      width: 80px;
+    }
+  }
+  /* Up Next and New: rows in a window, the whole row a link. */
+  .home-list {
+    padding: 0 16px;
+  }
+  .home-list > li + li {
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .home-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .home-row:hover .font-display {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .home-row:focus-visible {
+    outline-offset: 2px;
+  }
+  .home-row-action {
+    max-width: 45%;
+    text-align: right;
+    font-size: 0.875rem;
+  }
+  @media (width < 40rem) {
+    .home-row {
+      flex-wrap: wrap;
+    }
+    .home-row-action {
+      flex-basis: 100%;
+      max-width: none;
+      padding-left: 52px;
+      text-align: left;
+    }
+  }
+  /* A status's people as a row of prints, scrolling sideways when long. */
+  .home-shelf {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+  .home-shelf > li {
+    flex: none;
+    width: 112px;
+    scroll-snap-align: start;
+  }
+  .home-shelf-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .home-shelf-item:hover .font-medium {
+    text-decoration: underline;
+  }
+
   /* Display/XL, like Figma's card print initials. */
   .card-print-initials {
     font-family: var(--type-display);
@@ -2691,21 +2791,37 @@
     scroll-margin-top: 96px;
   }
   /* Getting Started (#68): numbered steps that check themselves off. */
-  .getting-started-dots {
+  /* Getting Started's steps (#269): numbered blocks. Done ones invert with
+     a check; the current one has the heavy border; the rest are buttons. */
+  .getting-started-blocks {
     display: flex;
-    gap: 6px;
+    gap: 4px;
   }
-  .getting-started-dots > li {
-    width: 10px;
-    height: 10px;
+  .step-block {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
     border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
   }
-  .getting-started-dots > li[data-done] {
+  button.step-block {
+    cursor: pointer;
+  }
+  button.step-block:hover {
+    background: var(--color-bg-hover);
+  }
+  .step-block[data-done] {
     background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
   }
-  .getting-started-dots > li[data-at] {
-    outline: var(--stroke-hair) solid var(--color-border-strong);
-    outline-offset: 2px;
+  .step-block[aria-current="step"] {
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--color-border-strong);
   }
   .suggested-bands {
     border-block: var(--stroke-hair) solid var(--color-border-subtle);

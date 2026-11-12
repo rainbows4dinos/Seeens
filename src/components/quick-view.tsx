@@ -77,7 +77,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
                 {c.scenes.map((s, i) => (
                   <span key={s.id}>
                     {i ? ", " : null}
-                    <Link href={`/?scene=${s.id}`} className="link">
+                    <Link href={`/directory?scene=${s.id}`} className="link">
                       {s.name}
                     </Link>
                   </span>

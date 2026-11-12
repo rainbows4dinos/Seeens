@@ -8,7 +8,7 @@ Seeens is in closed alpha at [www.seeens.com](https://www.seeens.com). Merwulf i
 
 Formerly Artist Pathway / BandPath / Seeen. The project restarted on October 27, 2026 with a smaller, personal MVP.
 
-![Network: type tabs, then everyone your band knows grouped by status, as photocopied snapshots](docs/screenshots/directory.png)
+![Home: Merwulf's header, Up Next, then Homies and Let's play as rows of photocopied prints](docs/screenshots/home.png)
 
 ## Screenshots
 
@@ -16,35 +16,37 @@ All data shown is fictional sample data from `supabase/seed.sql`. The photos are
 
 To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run screenshots` (first time: `npx playwright install chromium`).
 
-| | |
-| --- | --- |
-| ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png) | ![A band's profile: Basic Info, Activity, Members & Connections, Contact & Links, and Notes panels](docs/screenshots/connection.png) |
-| **Sign in.** Invite-only. | **A connection.** One page in panels that saves as you go: who they are, the next step and what's happened, who's connected, how to reach them. |
-| ![Everyone marked Let's play](docs/screenshots/lets-play.png) | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png) |
-| **Let's play.** The booking backlog: All, filtered to Let's play, and by town or scene if you like. | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest. |
-| ![Follow-ups grouped by date](docs/screenshots/follow-ups.png) | ![The directory on a phone](docs/screenshots/mobile-directory.png) |
-| **Follow-ups.** Every next step, with dates as plain facts and no overdue alarms. | **On a phone.** The same app, built for the merch table. |
-| ![The directory with The Tin Hollows open in the quick view panel beside it](docs/screenshots/quick-view.png) | ![The Lantern Room's quick view as a sheet on a phone](docs/screenshots/mobile-quick-view.png) |
-| **Quick view.** Click a row and the connection opens beside the list: change status, handle the next step, log outreach. On your band's own listings, change the photo, town, and scenes there too. Previous and Next (or J and K) step through the list; 1 to 6 set the status; Esc closes it. | **Quick view on a phone.** The same panel as a sheet under the header. |
-| ![Band Settings: band name, members with roles, the invite form, and a pending invite](docs/screenshots/band-settings.png) | ![An invite: "Alex invited you to Merwulf on Seeens" with a form to make an account and join](docs/screenshots/invite.png) |
-| **Band Settings.** Everyone in the band, and invites by email or link. Owners manage roles. | **An invite.** Who invited you, to which band, and that Seeens is in beta. Make an account or sign in, and you're in. |
-| ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png) | ![What You Share: people kept private, bands shared, with Keep Private on each](docs/screenshots/sharing.png) |
-| **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue. | **What You Share.** Choose what other bands see and what stays yours. People start private; everything else starts shared. |
-| ![The Brine Hall, shared by Moth Signal, with Merwulf's own status, plans, and notes on it](docs/screenshots/shared-record.png) | ![Explore: venues from every band, with Moth Signal's under No Status](docs/screenshots/full-directory.png) |
-| **Another band's record.** Only the band that shared it, or a moderator (shown here), can change its details. Your status, plans, outreach, notes, and contacts on it are your band's own. | **Explore.** Every record other bands share, beside your own. What you haven't sorted sits under No Status. |
+|                                                                                                                                                                                                                                                                                                 |                                                                                                                                                 |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png)                                                                                                                                                                                                       | ![A band's profile: Basic Info, Activity, Members & Connections, Contact & Links, and Notes panels](docs/screenshots/connection.png)            |
+| **Sign in.** Invite-only.                                                                                                                                                                                                                                                                       | **A connection.** One page in panels that saves as you go: who they are, the next step and what's happened, who's connected, how to reach them. |
+| ![Everyone marked Let's play](docs/screenshots/lets-play.png)                                                                                                                                                                                                                                   | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png)                                                                           |
+| **Let's play.** The booking backlog: All, filtered to Let's play, and by town or scene if you like.                                                                                                                                                                                             | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest.                                                                        |
+| ![The Directory: type tabs, then everyone grouped by status, as photocopied snapshots](docs/screenshots/directory.png)                                                                                                                                                                          | ![The directory on a phone](docs/screenshots/mobile-directory.png)                                                                              |
+| **The Directory.** Every band's shared listings beside your own, grouped by your status, Avoid at the very end.                                                                                                                                                                                 | **On a phone.** The same app, built for the merch table.                                                                                        |
+| ![Follow-ups grouped by date](docs/screenshots/follow-ups.png)                                                                                                                                                                                                                                  |                                                                                                                                                 |
+| **Follow-ups.** Every next step, with dates as plain facts and no overdue alarms. The first few are Up Next on Home.                                                                                                                                                                            |                                                                                                                                                 |
+| ![The directory with The Tin Hollows open in the quick view panel beside it](docs/screenshots/quick-view.png)                                                                                                                                                                                   | ![The Lantern Room's quick view as a sheet on a phone](docs/screenshots/mobile-quick-view.png)                                                  |
+| **Quick view.** Click a row and the connection opens beside the list: change status, handle the next step, log outreach. On your band's own listings, change the photo, town, and scenes there too. Previous and Next (or J and K) step through the list; 1 to 6 set the status; Esc closes it. | **Quick view on a phone.** The same panel as a sheet under the header.                                                                          |
+| ![Band Settings: band name, members with roles, the invite form, and a pending invite](docs/screenshots/band-settings.png)                                                                                                                                                                      | ![An invite: "Alex invited you to Merwulf on Seeens" with a form to make an account and join](docs/screenshots/invite.png)                      |
+| **Band Settings.** Everyone in the band, and invites by email or link. Owners manage roles.                                                                                                                                                                                                     | **An invite.** Who invited you, to which band, and that Seeens is in beta. Make an account or sign in, and you're in.                           |
+| ![Send Feedback: kind, what happened, an optional screenshot, and what's sent with it](docs/screenshots/feedback.png)                                                                                                                                                                           | ![What You Share: people kept private, bands shared, with Keep Private on each](docs/screenshots/sharing.png)                                   |
+| **Send Feedback.** From anywhere in the app. It's private: it goes to an inbox only app admins see, who decide what becomes a public issue.                                                                                                                                                     | **What You Share.** Choose what other bands see and what stays yours. People start private; everything else starts shared.                      |
+| ![The Brine Hall, shared by Moth Signal, with Merwulf's own status, plans, and notes on it](docs/screenshots/shared-record.png)                                                                                                                                                                 | ![The Directory's Venues tab: venues from every band, with Moth Signal's under No Status](docs/screenshots/full-directory.png)                  |
+| **Another band's record.** Only the band that shared it, or a moderator (shown here), can change its details. Your status, plans, outreach, notes, and contacts on it are your band's own.                                                                                                      | **Venues from every band.** What you haven't sorted sits under No Status.                                                                       |
 
 ## MVP
 
 - **Listings:** bands, promoters, venues, DJs, playlisters, and other people or organizations in the directory. "Listing" is the word on screen; the code and database say `connections`. "Connections" on screen means the links between listings (who plays in a band, who books a venue).
 - **Scenes:** organize listings by locality and scene, with multiple memberships when useful. Scenes named with a town or its nickname (LA Punk, PDX Garage, Sactown Hardcore) find their town and go inside that town's scene; older ones get suggestions to confirm on the Scenes page. Town Nicknames lists the nicknames (moderators keep it), and town search knows them too.
-- **Network and Explore:** Network (the home page) is what your band added or has touched; Explore, next to it in the main nav, is every record other bands share too, for finding who you don't know yet. Anything you haven't given a status sits under No Status, and the status filter can show just those. A search that finds nothing in Network offers Explore.
+- **Home and the Directory:** Home (`/`) is your band's own page: its header (photo, town, scenes), Getting Started for new members, Up Next (the first few follow-ups), your Homies and Let's play as rows of prints, what other bands added near you, and, once Getting Started is done, bands you might know. Sections with nothing in them don't show. The Directory (`/directory`) is every record every band shares, yours included, grouped by your status with Avoid at the very end. Old Network links open the Directory with the same filters. Anything you haven't given a status sits under No Status, and the status filter can show just those.
 - **Status:** one band-wide choice per connection, in words that fit its type: Homies, Let's play, Want to play, Heard of, or Avoid for bands, or no status yet; Favorite, Let's book, and Want to book for venues; Homie, Let's collab, and Want to collab for people. Plus whether you've played together (or played here, been booked, been covered, and so on). To set it on many at once, click listings' photos (or Cmd-click, Shift-click a range, or long-press on a phone), then use the bar at the bottom: Set Status (1 to 6 in its menu), Played Together, and Undo. Your own band's listing is skipped.
 - **Affiliations:** links between connections, such as who plays in which bands, who books which venue, or who works where, shown on each connection's detail page.
 - **Venue details:** type of space (any that apply: club, concert hall, amphitheater, dive bar, nice bar, brewery, restaurant, coffee shop, record store, music store, house shows, underground, art space, community space, outdoor), address, ages, capacity, PA, sound engineer, backline, how to book (pointing at the venue's email or links), accessibility, and special terms. DIY or licensed follows from the type; art spaces, community spaces and parks get a DIY checkbox. Blank means not sure. Venue rows show the types as tags and "All ages · 50–150 cap · DIY", the Venues tab filters by ages, capacity, and space (DIY, licensed, or one type), and details checked more than six months ago say so. Imports guess a type from words like "basement" or "brewery", shown in the preview before anything is saved.
 - **What people play:** read from their band roles ("vocals, guitar"), current and former, on the person's page and in the People list, with a Plays filter. Someone who's only Heard of, or has no status, shows under the closest status of a band they're in, marked "via" that band; their own status wins, and an Avoid band never pulls them into Avoid.
-- **By type:** the directory has a tab for Bands, People, Venues, and Labels & more, plus All, each with its count. Status is a filter: everyone but Avoid, or one status, like Want to play (who you'd like to know) or Let's play (the booking backlog).
+- **By type:** the directory has a tab for Bands, People, Venues, and Labels & more, plus All, each with its count. Status is a filter: everyone (Avoid last), or one status, like Want to play (who you'd like to know) or Let's play (the booking backlog).
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
-- **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action.
+- **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action; the first few are Up Next on Home.
 - **Shared access:** authorized band members can work with the same private data across devices.
 - **Portability:** export the directory to CSV, and import a spreadsheet of bands, venues, or people. The import guesses each column, matches towns, and shows every row before saving. Rows already in the directory only get their blanks filled. Anything unreadable or marked with a ? goes into notes, not a field, and venue bookers become Booked By links.
 - **Where Seeens Stands on AI:** `/ai` is public: no AI in the app today, the ten rules if that ever changes, and what runs where (nothing yet). Linked from About, the FAQ's AI answer, and the footer.
@@ -57,17 +59,17 @@ Search by name and filter by status, scene (a bigger scene includes the scenes i
 
 ## Architecture
 
-| Layer | Direction |
-| --- | --- |
-| Frontend | Next.js (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| Hosting | Vercel |
-| Database | Supabase Postgres |
-| Authentication | Supabase Auth |
-| Authorization | Workspace membership enforced through Row Level Security |
-| Fonts | Hanken Grotesk and IBM Plex Mono, self-hosted with Fontsource |
-| CI | GitHub Actions: lint, formatting, typecheck, unit tests, a production build, and the pgTAP database tests on every PR and push to main |
+| Layer          | Direction                                                                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend       | Next.js (App Router)                                                                                                                   |
+| Language       | TypeScript                                                                                                                             |
+| Styling        | Tailwind CSS                                                                                                                           |
+| Hosting        | Vercel                                                                                                                                 |
+| Database       | Supabase Postgres                                                                                                                      |
+| Authentication | Supabase Auth                                                                                                                          |
+| Authorization  | Workspace membership enforced through Row Level Security                                                                               |
+| Fonts          | Hanken Grotesk and IBM Plex Mono, self-hosted with Fontsource                                                                          |
+| CI             | GitHub Actions: lint, formatting, typecheck, unit tests, a production build, and the pgTAP database tests on every PR and push to main |
 
 Design tokens live in `src/app/globals.css` and mirror the [Seeens Figma file](https://www.figma.com/design/QKSF4MTanGHlnbNvmUKDX0/Seeens?node-id=9-2). See the [design system rules](docs/design-system/rules.md).
 
@@ -127,19 +129,19 @@ cp .env.example .env.local   # add the Supabase URL and publishable key
 npm run dev                  # http://localhost:3000
 ```
 
-| Script | Purpose |
-| --- | --- |
-| `npm run dev` | Dev server |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier, 120 characters (`format:check` is what CI runs). Editors with Prettier format on save the same way. |
-| `npm run typecheck` | Route types + TypeScript |
-| `npm test` | Unit tests (CSV export round-trip, paging past 1,000 rows) |
-| `npm run db:start` / `db:stop` | Local Supabase via the CLI (Docker) |
-| `npm run db:migration <name>` | New versioned migration in `supabase/migrations/` |
-| `npm run db:reset` | Rebuild local DB from migrations |
-| `npm run db:test` | Run database access tests (`supabase/tests/`); CI runs them on every pull request too |
-| `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` |
+| Script                         | Purpose                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                  | Dev server                                                                                                    |
+| `npm run build`                | Production build                                                                                              |
+| `npm run lint`                 | ESLint                                                                                                        |
+| `npm run format`               | Prettier, 120 characters (`format:check` is what CI runs). Editors with Prettier format on save the same way. |
+| `npm run typecheck`            | Route types + TypeScript                                                                                      |
+| `npm test`                     | Unit tests (CSV export round-trip, paging past 1,000 rows)                                                    |
+| `npm run db:start` / `db:stop` | Local Supabase via the CLI (Docker)                                                                           |
+| `npm run db:migration <name>`  | New versioned migration in `supabase/migrations/`                                                             |
+| `npm run db:reset`             | Rebuild local DB from migrations                                                                              |
+| `npm run db:test`              | Run database access tests (`supabase/tests/`); CI runs them on every pull request too                         |
+| `npm run db:types`             | Regenerate `src/lib/supabase/database.types.ts`                                                               |
 
 Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `alex@example.com` or `sam@example.com` (members of Merwulf; Alex is also an app admin, for the feedback inbox), `robin@example.com` (Moth Signal, a second band, so the shared directory has another side), or `dana@example.com` (not a member), all with password `password123`.
 
@@ -166,17 +168,17 @@ npx supabase db push --linked
 
 ### Inviting bands and members
 
-Seeens is invite only. App admins invite each band from **Invite Bands** in the account menu (`/admin/bands`), or with the **Invite to Seeens** button on any band listing nobody has claimed yet: pick the band's listing in the directory, or type its name if nobody's added it yet, and add its first owner's email. The owner gets an invite (emailed when email is set up, otherwise a link to send yourself), makes their account on the invite page, and their band claims the listing. A claimed listing shows "Uses Seeens"; the band that added it keeps its own notes and history on it, and the claimed band's members can fix its details (name, town, links, what they can help with), logged as theirs. It stays shared. Bands still waiting on their owner show on the Bands page, with a New Link button if the first one runs out. New members get **Getting Started** on Network, one step at a time: start with bands you might know (bands that already have yours in their network, then shared bands in your town, each with a status to pick right there; 3 in the network checks it off), fill in the band's page, find yourself, and invite bandmates. Each step checks itself off, Skip for Now moves to the next, and each person can put it away. App admins can preview it as a new band sees it from the account menu (`/?preview=getting-started`); nothing picked there saves. People can be in more than one band: the account menu lists their bands under Band, and picking one switches to it (remembered on that browser).
+Seeens is invite only. App admins invite each band from **Invite Bands** in the account menu (`/admin/bands`), or with the **Invite to Seeens** button on any band listing nobody has claimed yet: pick the band's listing in the directory, or type its name if nobody's added it yet, and add its first owner's email. The owner gets an invite (emailed when email is set up, otherwise a link to send yourself), makes their account on the invite page, and their band claims the listing. A claimed listing shows "Uses Seeens"; the band that added it keeps its own notes and history on it, and the claimed band's members can fix its details (name, town, links, what they can help with), logged as theirs. It stays shared. Bands still waiting on their owner show on the Bands page, with a New Link button if the first one runs out. New members get **Getting Started** at the top of Home, one step at a time: start with bands you might know (bands that already have yours in their network, then shared bands in your town, each with a status to pick right there; 3 in the network checks it off), fill in the band's page, find yourself, and invite bandmates. Each step checks itself off, Skip for Now moves to the next, and each person can put it away. App admins can preview it as a new band sees it from the account menu (`/?preview=getting-started`); nothing picked there saves. People can be in more than one band: the account menu lists their bands under Band, and picking one switches to it (remembered on that browser).
 
 Everyone else joins from **Band Settings** (account menu > Band Settings). Any member can invite by email or copy a link; only owners can invite owners. If the bandmate is already in the directory, pick them under Who: their name (and email, if the band saved one) fills in, and joining links their login to that person, so they don't end up with a copy. The band's members come first, even ones another band kept private. Links work once, for 7 days. Someone new makes their account on the invite page, so public sign-ups stay turned off in the Supabase auth settings. Owners change roles, remove members, and rename the band there too, and a band always keeps an owner. Members leave from Account Settings. Each member can link their login to their person in the directory (Account Settings > You > Your Page): pick themselves from any band's people (another band may already have added them), or make a page that's added to the band. One person per account: linking fills in their other bands too. Linked from another band, the person stays with the band that added it, and they can fix their own details there. Linked people show "Uses Seeens" on the band's page, and Your Page appears in the account menu.
 
 Invites and account deletion need server-only env vars in Vercel (never `NEXT_PUBLIC_`, never in the repo):
 
-| Variable | Needed for |
-| --- | --- |
-| `SUPABASE_SECRET_KEY` | Making an account from an invite, and deleting one (Account Settings > Delete Account). Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join, and accounts can't be deleted. |
-| `SITE_URL` | Optional. The address email links use, like `https://seeens.app`. Without it, production uses the domain Vercel provides, and previews and local dev use their own address. |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite and feedback emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself, and feedback still lands in the inbox. |
+| Variable                       | Needed for                                                                                                                                                                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SUPABASE_SECRET_KEY`          | Making an account from an invite, and deleting one (Account Settings > Delete Account). Supabase > Project Settings > API Keys > Secret keys. Without it, only people who already have an account can join, and accounts can't be deleted. |
+| `SITE_URL`                     | Optional. The address email links use, like `https://seeens.app`. Without it, production uses the domain Vercel provides, and previews and local dev use their own address.                                                                |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Sending invite and feedback emails through [Resend](https://resend.com). Optional: without them, Send Invite shows a link to pass on yourself, and feedback still lands in the inbox.                                                      |
 
 ### Beta feedback
 

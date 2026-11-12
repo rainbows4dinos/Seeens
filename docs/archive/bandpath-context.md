@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-BandPath, formerly called Artist Pathway, is a product concept for helping independent artists understand, build, and participate in music scenes. The core idea is a modern, dynamic version of DIY music directories like *Book Your Own Fucking Life*, but updated for the streaming/social/platform era.
+BandPath, formerly called Artist Pathway, is a product concept for helping independent artists understand, build, and participate in music scenes. The core idea is a modern, dynamic version of DIY music directories like _Book Your Own Fucking Life_, but updated for the streaming/social/platform era.
 
 The product helps artists discover practical pathway opportunities across cities, genres, scenes, venues, local media, radio, podcasts, blogs, playlists, labels, festivals, promoters, and peer bands. It is not just a marketing dashboard. It is a scene intelligence and relationship-building tool.
 
@@ -62,7 +62,7 @@ Key failure modes to design around:
 
 - **Venue and promoter turnover.** Bookers, promoters, and venue managers shift frequently. A contact that was accurate a year ago may be completely wrong today.
 
-The honest product response to all of this is not to hide the uncertainty. It is to surface it clearly, timestamp everything, and help artists know *how* to verify rather than implying the verification has already been done.
+The honest product response to all of this is not to hide the uncertainty. It is to surface it clearly, timestamp everything, and help artists know _how_ to verify rather than implying the verification has already been done.
 
 BandPath's value proposition is not "we have the right contacts." It is "we show you where to start looking and help you triangulate from there."
 
@@ -206,6 +206,7 @@ Every piece of data in BandPath should carry a visible confidence indicator base
 A booking contact that was verified two years ago should display differently than one verified last month — even if both were once accurate. The age of a signal matters as much as its source.
 
 Every data point should ideally carry:
+
 - Source (where did this come from)
 - Source date (when was this captured)
 - Last community confirmation (when did a human last validate this)

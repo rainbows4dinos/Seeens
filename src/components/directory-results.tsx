@@ -40,7 +40,7 @@ export function DirectoryResults({
   matched: number;
   /** The directory URL's query string, without layout or after. */
   query: string;
-  /** / for Network, /directory for Explore (#192). */
+  /** Where Show More links without script (the Directory). */
   basePath?: string;
   today: string;
   /** Which tab: decides the detail line and whether scenes show. */
@@ -101,16 +101,18 @@ export function DirectoryResults({
   }
 
   // Our own band isn't in the directory; the header's band chip opens it (#123).
+  const byStatus = (status: (typeof STATUSES)[number]) => ({
+    id: status as string,
+    label: STATUS_WORDS[wordSetForTab(tab)][status],
+    tag: `tag-${status}`,
+    count: groups[status],
+    rows: items.filter((c) => c.status === status),
+  });
   const sections = [
-    ...STATUSES.map((status) => ({
-      id: status as string,
-      label: STATUS_WORDS[wordSetForTab(tab)][status],
-      tag: `tag-${status}`,
-      count: groups[status],
-      rows: items.filter((c) => c.status === status),
-    })),
-    // Not sorted yet (#192), after the five.
+    ...STATUSES.filter((st) => st !== "avoid").map(byStatus),
+    // Not sorted yet (#192), then Avoid last (#273), as the directory sorts them.
     { id: "none", label: NO_STATUS, tag: "", count: groups.none, rows: items.filter((c) => c.status === null) },
+    byStatus("avoid"),
   ].filter((s) => s.rows.length);
 
   return (

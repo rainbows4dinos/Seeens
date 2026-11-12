@@ -6,14 +6,15 @@ import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useId, useRef } from "react";
 
 const ITEMS = [
+  // Your band's own page (#273): what's up next, your people, what's new.
+  // Follow-ups lives inside it.
+  { href: "/", label: "Home", match: (p: string) => p === "/" || p.startsWith("/follow-ups") },
+  // Every band's shared records, yours included; Ours is a filter there.
   {
-    href: "/",
-    label: "Network",
-    match: (p: string) => p === "/" || p.startsWith("/connections") || p === "/export",
+    href: "/directory",
+    label: "Directory",
+    match: (p: string) => p.startsWith("/directory") || p.startsWith("/connections") || p === "/export",
   },
-  // Every band's shared records (#192), for finding who you don't know yet.
-  { href: "/directory", label: "Explore", match: (p: string) => p.startsWith("/directory") },
-  { href: "/follow-ups", label: "Follow-ups", match: (p: string) => p.startsWith("/follow-ups") },
   { href: "/scenes", label: "Scenes", match: (p: string) => p.startsWith("/scenes") },
 ];
 

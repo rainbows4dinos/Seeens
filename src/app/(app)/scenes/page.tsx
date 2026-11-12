@@ -155,7 +155,7 @@ function SceneRow({ scene, total, hasChildren }: { scene: SceneItem; total: numb
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
       <p>
-        <Link href={`/?scene=${scene.id}`} className="link font-medium">
+        <Link href={`/directory?scene=${scene.id}`} className="link font-medium">
           {scene.name}
         </Link>
         <span className="text-sm text-muted">

@@ -162,7 +162,8 @@ export async function loadDirectoryPage(
     p_space: filters.space || undefined,
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
-    p_hide_avoid: !archived,
+    // Avoid sorts last instead of hiding (#273).
+    p_hide_avoid: false,
     p_after: after ?? undefined,
     p_limit: PAGE_SIZE,
     p_counts: counts,

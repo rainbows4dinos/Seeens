@@ -1,48 +1,17 @@
-"use client";
-
-import { useEffect } from "react";
-
 // Rub-down wear on display headings (#62): like transfer lettering that's
 // been handled. An SVG filter knocks out tiny specks and nudges edges a
 // pixel or so, so letters sit a little unevenly. The text stays real text.
 //
 // - Which headings: big h1 and h2 (display-m and up), never one holding a
 //   link or control, plus anything with the rub-down class. The CSS in
-//   globals.css picks them.
-// - Seeded from the words: each heading gets one of VARIANTS filters by a
-//   hash of its text, so it wears the same way every visit.
+//   globals.css picks them, and picks one of these VARIANTS by where the
+//   heading sits on the page, so each page wears the same way every visit.
+//   (Not by script: marking headings after load clashed with hydration.)
 // - Off for print, forced colors, and reduced motion (globals.css).
 
 const VARIANTS = 4;
 
-function hash(text: string) {
-  let h = 2166136261;
-  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
-  return (h >>> 0) % VARIANTS;
-}
-
-function seedAll() {
-  for (const el of document.querySelectorAll<HTMLElement>("h1, h2, .rub-down")) {
-    const rub = String(hash(el.textContent?.trim() ?? ""));
-    if (el.dataset.rub !== rub) el.dataset.rub = rub;
-  }
-}
-
 export function RubDown() {
-  useEffect(() => {
-    seedAll();
-    let frame = 0;
-    const observer = new MutationObserver(() => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(seedAll);
-    });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-
   return (
     <svg aria-hidden="true" focusable="false" width="0" height="0" className="absolute">
       <defs>

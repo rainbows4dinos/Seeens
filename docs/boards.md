@@ -19,13 +19,13 @@ The picture is a retro computer desktop crossed with a self-healing cutting mat.
 
 Every board gesture maps to a real record, so arranging the board fills in the directory:
 
-| Gesture | Saves |
-|---|---|
+| Gesture                       | Saves                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------ |
 | Draw string between two cards | An affiliation, or a "played together" fact, after you pick how they're linked |
-| Leave string unlabeled | A doodle that only the board sees, not a record |
-| Drop cards on a stack | A group on the board; later, maybe a scene or a tag |
-| Tape a card down | Pins it on the board; possibly a quick Homie or status move |
-| Drop a flyer | Cards for each band on the bill, plus suggested "same bill" strings to confirm |
+| Leave string unlabeled        | A doodle that only the board sees, not a record                                |
+| Drop cards on a stack         | A group on the board; later, maybe a scene or a tag                            |
+| Tape a card down              | Pins it on the board; possibly a quick Homie or status move                    |
+| Drop a flyer                  | Cards for each band on the bill, plus suggested "same bill" strings to confirm |
 
 Suggested links never save on their own. A member confirms each one.
 

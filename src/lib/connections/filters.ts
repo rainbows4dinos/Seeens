@@ -16,7 +16,7 @@ import {
 // (?type=) is separate: it's where you are, not a filter (see directory.ts).
 export type DirectoryFilters = {
   q: string;
-  /** Empty: everyone but Avoid. The status select sets one. */
+  /** Empty: everyone, Avoid last (#273). The status select sets one. */
   statuses: ConnectionStatus[];
   scene: string;
   town: string;
@@ -30,7 +30,10 @@ export type DirectoryFilters = {
   archived: boolean;
   /** Only records with no status (#192): ?status=none. */
   noStatus: boolean;
-  /** My network (the default) or all scenes (#192): ?scope=all. */
+  /**
+   * Everyone; or, in the archived view, only this band's own (what it added
+   * or touched). The Directory shows everyone (#273).
+   */
   scope: "network" | "all";
 };
 
@@ -62,7 +65,7 @@ export function readFilters(params: Params): DirectoryFilters {
         : "",
     archived: first(params.archived) === "1" || view === "archived",
     noStatus: all(params.status).includes("none"),
-    scope: first(params.scope) === "all" ? "all" : "network",
+    scope: "all",
   };
 }
 
