@@ -2149,6 +2149,32 @@
     letter-spacing: -0.01em;
     white-space: nowrap;
   }
+  /* What's New (#216): a dot while there's something new. On phones the
+     menu button carries it too, since the chip is inside the menu. */
+  .whats-new {
+    gap: var(--space-xs);
+  }
+  .whats-new-dot,
+  .mobile-menu:has(.whats-new) > summary::after {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-plate-magenta);
+    outline: var(--stroke-hair) solid var(--color-border-strong);
+  }
+  .whats-new-dot {
+    display: inline-block;
+    flex: none;
+  }
+  .mobile-menu:has(.whats-new) > summary {
+    position: relative;
+  }
+  .mobile-menu:has(.whats-new) > summary::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+  }
   .nav-chip:hover {
     background: var(--color-bg-hover);
   }

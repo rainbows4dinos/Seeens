@@ -10,6 +10,7 @@ import { Photo } from "@/components/photo";
 import { MainNav, NavPicker } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
 import { FeedbackLink } from "@/components/feedback-link";
+import { WhatsNewMark } from "@/components/whats-new";
 import { ModeratorWelcome } from "@/components/moderator-welcome";
 import { BusyPointer } from "@/components/busy-pointer";
 import { createClient } from "@/lib/supabase/server";
@@ -44,6 +45,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <NavPicker />
             </div>
             <div className="hidden items-center gap-2 min-[60rem]:flex">
+              <Suspense fallback={null}>
+                <WhatsNewMark className="nav-chip" />
+              </Suspense>
               <FeedbackLink className="nav-chip" />
               <Suspense fallback={<span className="caption">Loading…</span>}>
                 <Account />
@@ -53,6 +57,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           {/* Its button sits at the right end of the logo row; the panel
               opens over the page below it. */}
           <MobileMenu>
+            <Suspense fallback={null}>
+              <WhatsNewMark className="nav-chip w-full justify-end" />
+            </Suspense>
             <FeedbackLink className="nav-chip w-full justify-end" />
             <Suspense fallback={<span className="caption self-end">Loading…</span>}>
               <Account layout="menu" />
@@ -79,6 +86,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           ·{" "}
           <Link href="/ai" className="link">
             Seeens &amp; AI
+          </Link>{" "}
+          ·{" "}
+          <Link href="/changelog" className="link">
+            What&rsquo;s New
           </Link>{" "}
           · Town data from{" "}
           <a href="https://www.geonames.org/" className="link" target="_blank" rel="noopener noreferrer">
