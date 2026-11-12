@@ -5,6 +5,13 @@
 //   TYLER RACHAL - VOCALS / GUITAR      -> Tyler Rachal · Vocals, Guitar
 //   Jo Example: vox, keys (former)      -> Jo Example · Vocals, Keyboards · former
 //   Past members                        -> (heading: rows below are former)
+//   bass, vocals - Sam Sample           -> Sam Sample · Bass, Vocals (#293)
+//   Ana Test / keys, synth              -> Ana Test · Keyboards, Synth
+//   Lee Example (drums)                 -> Lee Example · Drums
+//
+// The name can come first or last: the part made of known role words is the
+// roles, and the other part is the name. When no part reads as roles, the
+// first part is the name, as typed lineups usually go.
 
 import { INSTRUMENTS, INSTRUMENT_ALIASES } from "./instruments.ts";
 
@@ -34,8 +41,12 @@ const ROLE_ALIASES: Record<string, string> = {
 // Small words that stay lowercase inside a title-cased role.
 const SMALL_WORDS = new Set(["and", "of", "the", "on", "in", "a", "an"]);
 
-// Name and roles are split on the first of these.
-const NAME_SEPARATOR = /\s+[-–—]\s+|\s*[:|\t]\s*|\s+[–—]\s*|\s*[–—]\s+/;
+// A line splits into parts on these: dashes with a space, a colon, a pipe, a
+// tab, or a slash with spaces around it. A slash without spaces ("vocals/
+// guitar", "AC/DC") and a hyphen inside a word ("Mary-Kate") don't split.
+const PART_SEPARATOR = /\s+[-–—]\s+|\s*[:|\t]\s*|\s+[–—]\s*|\s*[–—]\s+|\s+\/\s+/;
+// "Lee Example (drums)": roles in brackets at the end.
+const BRACKETED = /^(.+?)\s*[([]([^)\]]+)[)\]]\s*$/;
 // Roles are split on any of these.
 const ROLE_SEPARATOR = /\s*(?:\/|,|&|\+|;|\band\b)\s*/i;
 // Marks a single line as a former member: "(former)", "[ex]", "- ex-member".
@@ -67,9 +78,7 @@ export function parseLineup(text: string): LineupRow[] {
       rest = rest.replace(FORMER_MARK, " ").trim();
     }
 
-    const split = rest.match(NAME_SEPARATOR);
-    const namePart = split ? rest.slice(0, split.index) : rest;
-    const rolePart = split ? rest.slice(split.index! + split[0].length) : "";
+    const [namePart, rolePart] = splitNameAndRoles(rest);
 
     const name = cleanName(namePart);
     if (!name) continue;
@@ -77,6 +86,39 @@ export function parseLineup(text: string): LineupRow[] {
     if (rows.length >= MAX_ROWS) break;
   }
   return rows;
+}
+
+// Which part of a line is the name and which the roles (#293).
+function splitNameAndRoles(line: string): [string, string] {
+  const bracketed = line.match(BRACKETED);
+  if (bracketed && readsAsRoles(bracketed[2])) return [bracketed[1], bracketed[2]];
+
+  const parts = line
+    .split(PART_SEPARATOR)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (parts.length < 2) return [line, ""];
+  const names = parts.filter((p) => !readsAsRoles(p));
+  // One part isn't roles and the rest are: that one's the name, wherever it is.
+  if (names.length === 1) return [names[0], parts.filter((p) => p !== names[0]).join(", ")];
+  // Otherwise, name first.
+  return [parts[0], parts.slice(1).join(", ")];
+}
+
+// A part reads as roles when most of its pieces are role words we know:
+// "bass, vocals", "vox & keys", "lead guitar".
+function readsAsRoles(part: string) {
+  const pieces = part
+    .split(ROLE_SEPARATOR)
+    .map((x) =>
+      x
+        .replace(/[.\s]+$/, "")
+        .trim()
+        .toLowerCase(),
+    )
+    .filter(Boolean);
+  const known = pieces.filter((x) => x in ROLE_ALIASES).length;
+  return known > 0 && known * 2 >= pieces.length;
 }
 
 // "TYLER RACHAL" -> "Tyler Rachal". Mixed-case names are left alone, so

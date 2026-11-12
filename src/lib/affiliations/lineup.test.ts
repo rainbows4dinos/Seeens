@@ -133,3 +133,51 @@ test("empty input", () => {
   assert.deepEqual(parseLineup(""), []);
   assert.deepEqual(parseLineup("\n\n  \nLineup:\n"), []);
 });
+
+// #293: lineups come name-first, roles-first, and with spaced slashes.
+test("the formats from beta feedback", () => {
+  assert.deepEqual(
+    parseLineup(
+      [
+        "Jo Example – vocals, guitar",
+        "bass, vocals - Sam Sample",
+        "drums, percussion / Riley Fiction",
+        "Ana Test / keys, synth",
+        "Lee Placeholder - guitar/vocals",
+      ].join("\n"),
+    ),
+    [
+      row("Jo Example", "Vocals, Guitar"),
+      row("Sam Sample", "Bass, Vocals"),
+      row("Riley Fiction", "Drums, Percussion"),
+      row("Ana Test", "Keyboards, Synth"),
+      row("Lee Placeholder", "Guitar, Vocals"),
+    ],
+  );
+});
+
+test("roles in brackets after the name", () => {
+  assert.deepEqual(parseLineup("Lee Example (drums)\nKim Sample [vox, keys]"), [
+    row("Lee Example", "Drums"),
+    row("Kim Sample", "Vocals, Keyboards"),
+  ]);
+});
+
+test("roles nobody's heard of fall back to name first", () => {
+  assert.deepEqual(parseLineup("Jo Example / Theremin Wrangler\nSam Sample - vocals / tape loops"), [
+    row("Jo Example", "Theremin Wrangler"),
+    row("Sam Sample", "Vocals, Tape Loops"),
+  ]);
+});
+
+test("hyphens and slashes inside a name stay whole", () => {
+  assert.deepEqual(parseLineup("Mary-Kate Example - bass\nbass - Mary-Kate Example\nAC/DC Fan / guitar"), [
+    row("Mary-Kate Example", "Bass"),
+    row("Mary-Kate Example", "Bass"),
+    row("AC/DC Fan", "Guitar"),
+  ]);
+});
+
+test("a bracket that isn't roles stays in the name", () => {
+  assert.deepEqual(parseLineup("Jo Example (Jojo) - guitar"), [row("Jo Example (Jojo)", "Guitar")]);
+});

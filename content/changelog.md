@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-11
 
+- **Paste Members reads more lineups.** Roles can come before or after the name, and a slash works between them: “bass, vocals - Sam,” “drums / Riley,” and “Lee (guitar)” all come out right. Thanks for the report.
 - **Home.** The first page is now your band’s own: your band at the top, what’s up next, your Homies and Let’s play as rows of photos, and what other bands just added near you. New members get Getting Started here too. Follow-ups lives here now, as Up Next, with a link to all of them.
 - **One Directory.** Network and Explore are one page again, the Directory. It shows everyone, with Avoid at the very end. Your own people are on Home. Old Network links still work.
 - **What’s New and the Roadmap.** This page is new: what changed, newest first, with a mark in the header when there’s something you haven’t seen. The [Roadmap](/roadmap) shows what’s coming: now, next, and later.
