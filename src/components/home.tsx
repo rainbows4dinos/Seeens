@@ -3,7 +3,6 @@ import { getMembership, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { layerOf } from "@/lib/connections/band-details";
 import { initials } from "@/lib/connections/card";
-import { loadDirectoryPage, readDirectoryQuery, type DirectoryItem } from "@/lib/connections/directory";
 import { formatLocality, formatType, STATUS_WORDS } from "@/lib/connections/labels";
 import { formatDay, todayISO } from "@/lib/outreach/labels";
 import { photoUrl } from "@/lib/photos/urls";
@@ -199,10 +198,31 @@ export async function UpNext() {
 export async function StatusShelf({ status }: { status: "homies" | "lets_play" | "prospect" }) {
   const membership = await getMembership();
   if (!membership) return null;
-  const { items, counts } = await loadDirectoryPage(readDirectoryQuery({ type: "all", status }));
-  const shown = items.filter((c: DirectoryItem) => c.status === status).slice(0, 12);
+  // Only listings this band gave the status itself (#311). The Directory
+  // also groups a Heard-of person under their band's status; here that made
+  // a band's whole lineup look like Homies.
+  const supabase = await createClient();
+  const { data: marked } = await supabase
+    .from("connection_band_details")
+    .select("connection_id")
+    .eq("workspace_id", membership.workspaceId)
+    .eq("status", status)
+    .is("archived_at", null);
+  const ids = (marked ?? []).map((m) => m.connection_id);
+  const { data: rows } = ids.length
+    ? await supabase
+        .from("connections")
+        .select(
+          "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
+        )
+        .in("id", ids)
+        .is("merged_into", null)
+        .order("name")
+    : { data: [] };
+  const all = rows ?? [];
+  const shown = all.slice(0, 12);
   if (!shown.length) return null;
-  const total = counts?.matched ?? shown.length;
+  const total = all.length;
   const id = `home-${status}`;
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
@@ -212,7 +232,7 @@ export async function StatusShelf({ status }: { status: "homies" | "lets_play" |
           <span className="text-muted">({total})</span>
         </h2>
         <Link href={`/directory?type=all&status=${status}`} className="link text-sm">
-          {total > shown.length ? `View All ${total} in the Directory` : "View in the Directory"}
+          View in the Directory
         </Link>
       </div>
       <ul className="home-shelf">
@@ -221,7 +241,7 @@ export async function StatusShelf({ status }: { status: "homies" | "lets_play" |
             <a href={`/connections/${c.id}`} className="home-shelf-item">
               <Print name={c.name} path={c.photo_path} size="m" />
               <span className="block truncate text-sm font-medium">{c.name}</span>
-              <span className="caption block truncate">{formatLocality(c.localities) ?? formatType(c)}</span>
+              <span className="caption block truncate">{formatLocality(c.localities as Place) ?? formatType(c)}</span>
             </a>
           </li>
         ))}

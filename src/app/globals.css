@@ -75,6 +75,8 @@
   --radius-none: 0px;
   /* Standard control height: fields, buttons, choices, segments. */
   --control-height: 36px;
+  /* Small controls (#313): a select or button inside a row of text. */
+  --control-height-sm: 28px;
   --menu-motion: 300ms ease-in-out;
 
   /* Type families (Figma text styles: Display/*, UI/Nav, Mono/*, Hand/Note) */
@@ -647,6 +649,27 @@
     background: var(--color-accent-primary);
     color: var(--color-text-inverse);
   }
+  /* Small (#313): for a field or button sitting inline in a row, like a
+     member's status in a Members list. Same type, less padding. Still well
+     over the 24px tap minimum. */
+  .field.control-sm,
+  .button-primary.control-sm,
+  .button-secondary.control-sm {
+    min-height: var(--control-height-sm);
+    padding-block: 0.125rem;
+  }
+  .field.control-sm {
+    padding-inline: 8px;
+  }
+  select.field.control-sm {
+    padding-right: 28px;
+    background-position: right 8px center;
+  }
+  .button-primary.control-sm,
+  .button-secondary.control-sm {
+    padding-inline: 8px;
+  }
+
   /* Icon-only button (Figma Button, Icon Only=True): a 36px square. Needs
      an aria-label. */
   /* Icon-only buttons are locked to 36 x 36 (border included): no padding,
