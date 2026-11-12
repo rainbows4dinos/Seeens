@@ -55,9 +55,12 @@ type Params = Record<string, string | string[] | undefined>;
 // own. Home (/) is the band's own page.
 export function DirectoryView({ searchParams }: { searchParams: Promise<Params> }) {
   return (
-    <Suspense fallback={<PageLoader label="loading directory" />}>
-      <Directory searchParams={searchParams} />
-    </Suspense>
+    // The quick view checks for this: no directory under it, no panel.
+    <div data-directory className="contents">
+      <Suspense fallback={<PageLoader label="loading directory" />}>
+        <Directory searchParams={searchParams} />
+      </Suspense>
+    </div>
   );
 }
 

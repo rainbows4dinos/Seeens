@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-12
+
+- **Fixes.** Opening a listing from outside the Directory, like right after adding one or from a link on another listing’s page, opens its full page instead of a quick view over a blank page.
+
 ## 2026-11-11
 
 - **Links stand out.** Links are now semibold and always dark, even in gray text, so they’re easier to spot.
