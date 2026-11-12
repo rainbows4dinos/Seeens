@@ -2177,6 +2177,14 @@
     }
   }
 
+  /* Links are semibold ink (#307), even in a muted paragraph: a thin
+     underline alone got lost in mono body text. A link given its own
+     muted class (text-muted) keeps it; utilities win over this layer. */
+  .link,
+  .action-link {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
   .link {
     text-decoration: underline;
     text-decoration-thickness: 1px;
