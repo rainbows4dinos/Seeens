@@ -1417,6 +1417,105 @@
     border: var(--stroke-hair) solid var(--color-border-strong);
     background: var(--color-bg-photo-paper);
   }
+  /* Home (#273). Prints: a photo or initials on photo paper, like the
+     card print and the profile thumbnail. */
+  .home-print {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    background: var(--color-bg-photo-paper);
+  }
+  .home-print img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .home-print-s {
+    width: 40px;
+  }
+  .home-print-s .card-print-initials {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--color-text-muted);
+  }
+  /* The header's, the same size as the profile's thumbnail. */
+  header > .home-print-m,
+  .home-shelf-item > .home-print-m {
+    width: 112px;
+  }
+  .home-print-m .card-print-initials {
+    font-size: 40px;
+  }
+  @media (width < 40rem) {
+    header > .home-print-m {
+      width: 80px;
+    }
+  }
+  /* Up Next and New: rows in a window, the whole row a link. */
+  .home-list {
+    padding: 0 16px;
+  }
+  .home-list > li + li {
+    border-top: var(--stroke-hair) solid var(--color-border-subtle);
+  }
+  .home-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .home-row:hover .font-display {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .home-row:focus-visible {
+    outline-offset: 2px;
+  }
+  .home-row-action {
+    max-width: 45%;
+    text-align: right;
+    font-size: 0.875rem;
+  }
+  @media (width < 40rem) {
+    .home-row {
+      flex-wrap: wrap;
+    }
+    .home-row-action {
+      flex-basis: 100%;
+      max-width: none;
+      padding-left: 52px;
+      text-align: left;
+    }
+  }
+  /* A status's people as a row of prints, scrolling sideways when long. */
+  .home-shelf {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+  .home-shelf > li {
+    flex: none;
+    width: 112px;
+    scroll-snap-align: start;
+  }
+  .home-shelf-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .home-shelf-item:hover .font-medium {
+    text-decoration: underline;
+  }
+
   /* Display/XL, like Figma's card print initials. */
   .card-print-initials {
     font-family: var(--type-display);

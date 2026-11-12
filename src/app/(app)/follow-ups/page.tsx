@@ -10,12 +10,15 @@ import { catalogNo } from "@/lib/connections/card";
 import { formatType } from "@/lib/connections/labels";
 import { layerOf } from "@/lib/connections/band-details";
 import { PageLoader } from "@/components/metronome";
+import { BackButton } from "@/components/back-button";
 
 export const metadata: Metadata = { title: "Follow-ups · Seeens" };
 
 export default function FollowUpsPage({ searchParams }: PageProps<"/follow-ups">) {
   return (
     <div className="page-measure flex flex-col gap-6">
+      {/* Up Next on Home shows the first few (#273); this is all of them. */}
+      <BackButton href="/" label="Back to Home" />
       <h1 className="display-l sm:display-xl">Follow-ups</h1>
       <Suspense fallback={<PageLoader label="loading follow-ups" />}>
         <FollowUps searchParams={searchParams} />
@@ -94,7 +97,7 @@ async function FollowUps({ searchParams }: { searchParams: PageProps<"/follow-up
         <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
           <p className="font-medium">Nothing planned.</p>
           <p className="text-muted">Plan a next step from any listing&rsquo;s page and it shows up here.</p>
-          <Link href="/" className="button-secondary">
+          <Link href="/directory" className="button-secondary">
             Go to the Directory
           </Link>
         </div>

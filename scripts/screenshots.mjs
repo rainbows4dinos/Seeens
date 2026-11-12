@@ -85,7 +85,7 @@ async function openFullPage(page, name) {
 // that already has one, so running the script twice is fine.
 async function addPhotos(page) {
   for (const [name, file, lighter = 0] of PHOTOS) {
-    await page.goto(`${BASE_URL}/?type=all&layout=list&q=${encodeURIComponent(name)}`);
+    await page.goto(`${BASE_URL}/directory?type=all&layout=list&q=${encodeURIComponent(name)}`);
     // A row click opens the quick view; the photo copier is on the full page.
     await openFullPage(page, name);
     // The print's button says Add or Change; only add where there's none.
@@ -127,20 +127,25 @@ try {
   const page = await signIn(desktop);
   await addPhotos(page);
 
-  // All, so the first row shows several kinds of connection.
-  await page.goto(`${BASE_URL}/?type=all`);
+  // Home (#273): the band's header, Up Next, and its people.
+  await page.goto(`${BASE_URL}/`);
+  await page.getByRole("heading", { name: "Up Next" }).waitFor();
+  await shot(page, "home.png");
+
+  // The Directory on All, so the first row shows several kinds of connection.
+  await page.goto(`${BASE_URL}/directory?type=all`);
   await shot(page, "directory.png");
 
-  // Explore (#192): venues every band shares, Moth Signal's included.
+  // Venues every band shares, Moth Signal's included.
   await page.goto(`${BASE_URL}/directory?type=venues`);
   await shot(page, "full-directory.png");
 
   // From 1280 the filter fields sit in the bar, so there's nothing to open.
-  await page.goto(`${BASE_URL}/?type=all&status=lets_play`);
+  await page.goto(`${BASE_URL}/directory?type=all&status=lets_play`);
   await shot(page, "lets-play.png");
 
   // A row opens the quick view beside the list.
-  await page.goto(`${BASE_URL}/?type=bands`);
+  await page.goto(`${BASE_URL}/directory?type=bands`);
   await page
     .getByRole("link", { name: /The Tin Hollows/ })
     .first()
@@ -151,7 +156,7 @@ try {
     .waitFor();
   await shot(page, "quick-view.png");
 
-  await page.goto(`${BASE_URL}/`);
+  await page.goto(`${BASE_URL}/directory`);
   await openFullPage(page, "The Tin Hollows");
   await shot(page, "connection.png", { fullPage: true });
 
@@ -200,11 +205,11 @@ try {
   // Mobile, signed in
   const mobile = await browser.newContext(MOBILE);
   const phone = await signIn(mobile);
-  await phone.goto(`${BASE_URL}/`);
+  await phone.goto(`${BASE_URL}/directory`);
   await shot(phone, "mobile-directory.png");
 
   // On a phone the quick view is a sheet under the header.
-  await phone.goto(`${BASE_URL}/?type=venues`);
+  await phone.goto(`${BASE_URL}/directory?type=venues`);
   await phone
     .getByRole("link", { name: /The Lantern Room/ })
     .first()

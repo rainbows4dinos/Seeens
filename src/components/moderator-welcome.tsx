@@ -28,7 +28,7 @@ export function ModeratorWelcome() {
             Got It
           </button>
           <Link href="/directory" className="link text-sm" onClick={dismiss}>
-            Open Explore
+            Open the Directory
           </Link>
         </div>
       </div>

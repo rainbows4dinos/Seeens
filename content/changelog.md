@@ -13,6 +13,8 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-11
 
+- **Home.** The first page is now your band’s own: your band at the top, what’s up next, your Homies and Let’s play as rows of photos, and what other bands just added near you. New members get Getting Started here too. Follow-ups lives here now, as Up Next, with a link to all of them.
+- **One Directory.** Network and Explore are one page again, the Directory. It shows everyone, with Avoid at the very end. To see only what your band added or touched, pick **Ours** in the status filter. Old Network links still work.
 - **What’s New and the Roadmap.** This page is new: what changed, newest first, with a mark in the header when there’s something you haven’t seen. The [Roadmap](/roadmap) shows what’s coming: now, next, and later.
 - **Set a status on several listings at once.** In Network or Explore, click a listing’s photo to select it. Cmd-click (Ctrl-click on Windows) adds one, Shift-click adds a range, and on a phone you press and hold. A bar at the bottom sets a status or Played Together for all of them, and you can Undo. [The shortcuts are on Help](/help#shortcuts).
 - **Type of space for venues.** A venue can say what kind of place it is: dive bar, coffee shop, house show, record store, and more. Filter by it in Explore.

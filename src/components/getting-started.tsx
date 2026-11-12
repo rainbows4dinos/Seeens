@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cache } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { dismissGettingStarted } from "@/lib/onboarding/actions";
@@ -6,8 +7,9 @@ import { ProfilePanel } from "@/components/profile/panel";
 import { SuggestedBands } from "@/components/suggested-bands";
 import { GettingStartedSteps, type Step } from "@/components/getting-started-steps";
 
-// Getting Started (#68): what a new member does first, on Network, until
-// it's done or put away. Each step checks itself off. Per person, per band.
+// Getting Started (#68): what a new member does first, at the top of Home
+// (#273), until it's done or put away. Each step checks itself off. Per
+// person, per band.
 
 // A network this size has something to look at.
 const NETWORK_GOAL = 3;
@@ -23,7 +25,9 @@ type Progress = {
 
 // An app admin can preview it as a brand-new band sees it, at
 // /?preview=getting-started: nothing done, and nothing picked there saves.
-export async function GettingStarted({ preview: asked = false }: { preview?: boolean }) {
+// What it has to go on, or null when there's nothing to show. Shared with
+// Home, which shows Bands You Might Know on its own once this is gone.
+const loadProgress = cache(async (asked: boolean) => {
   const membership = await getMembership();
   if (!membership) return null;
   const supabase = await createClient();
@@ -36,7 +40,20 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
   const p: Progress = preview
     ? { ...saved, dismissed: false, listing_filled: false, members: 1, network: 0, linked: false }
     : saved;
-  if (p.dismissed) return null;
+  const done = p.network >= NETWORK_GOAL && p.listing_filled && p.linked && p.members > 1;
+  if (p.dismissed || done) return null;
+  return { membership, supabase, preview, p };
+});
+
+/** Whether Getting Started is on Home right now. */
+export async function gettingStartedShows(preview = false) {
+  return Boolean(await loadProgress(preview));
+}
+
+export async function GettingStarted({ preview: asked = false }: { preview?: boolean }) {
+  const loaded = await loadProgress(asked);
+  if (!loaded) return null;
+  const { membership, supabase, preview, p } = loaded;
 
   const band = membership.workspaceName;
   const { data: suggested } = await supabase.rpc("suggested_bands", {
@@ -49,16 +66,16 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
   const steps: Step[] = [
     {
       done: p.network >= NETWORK_GOAL,
-      title: suggested?.length ? "Start with bands you might know" : `Add ${NETWORK_GOAL} to your network`,
+      title: suggested?.length ? "Start with bands you might know" : `Give ${NETWORK_GOAL} listings a status`,
       body: suggested?.length
-        ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They become your network.`
-        : "Explore has the bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They become your network.",
+        ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They show up here on Home.`
+        : "The Directory has the bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They show up here on Home.",
       progress: p.network ? `${Math.min(p.network, NETWORK_GOAL)} of ${NETWORK_GOAL}` : null,
       extra: suggested?.length ? <SuggestedBands bands={suggested.slice(0, 4)} preview={preview} /> : null,
       links: [
         {
           href: "/directory",
-          label: suggested?.length ? "Explore More Bands" : "Explore",
+          label: suggested?.length ? "More in the Directory" : "Open the Directory",
         },
         { href: "/add", label: "Add Your Own" },
       ],

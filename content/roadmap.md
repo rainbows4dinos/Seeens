@@ -17,7 +17,6 @@ no-pressure rule). Keep it short and plain, for the bands using Seeens.
 
 ## Next
 
-- **One directory, plus a home of your own.** Network and Explore become one directory, with a personal page built on it. (#273)
 - **Towns, scenes, and genres.** Clearer ways to say where a band is from, which scenes it’s part of, and what it sounds like. (#125)
 - **Aliases and solo projects.** DJ names, side projects, and the other names people go by, tied to one person. (#29)
 - **Show dates and check-ins.** Keep track of shows, then jot down how they went. (#26)

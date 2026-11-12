@@ -21,7 +21,7 @@ const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   lets_play: "You both want to play together; it just isn't booked.",
   prospect: "You'd like to. They don't know yet, or it isn't mutual.",
   neutral: STATUS_HINT_WORDS.band.neutral.replace("We know", "You know"),
-  avoid: "Not for you. Hidden from your directory unless you ask to see them.",
+  avoid: "Not for you. They sit at the very end of the directory, and never on your Home.",
 };
 
 // The page's sections, for the side nav.
@@ -156,6 +156,10 @@ export default function AboutPage() {
             <li>Mark how you feel about each: Homies, Let&rsquo;s Play, Want to Play, Heard Of, or Avoid.</li>
             <li>Group them by scene and town, so planning a run starts with who you already know there.</li>
             <li>Log what happened and plan what&rsquo;s next, with a date and whose turn it is.</li>
+            <li>
+              Open Home to see what&rsquo;s up next, your Homies and Let&rsquo;s Play, and what other bands just added
+              near you.
+            </li>
             <li>Import the spreadsheet you&rsquo;ve been keeping, and export it all as a CSV whenever you want.</li>
           </ul>
         </section>

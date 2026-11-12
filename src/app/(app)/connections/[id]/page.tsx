@@ -230,7 +230,7 @@ async function Connection({
                 {plays.map((i, n) => (
                   <span key={i}>
                     {n ? ", " : null}
-                    <Link href={`/?type=people&plays=${i}`} className="link">
+                    <Link href={`/directory?type=people&plays=${i}`} className="link">
                       {INSTRUMENTS[i]}
                     </Link>
                   </span>
@@ -243,7 +243,7 @@ async function Connection({
                 {c.scenes.map((s, i) => (
                   <span key={s.id}>
                     {i ? ", " : null}
-                    <Link href={`/?scene=${s.id}`} className="link">
+                    <Link href={`/directory?scene=${s.id}`} className="link">
                       {s.name}
                     </Link>
                   </span>

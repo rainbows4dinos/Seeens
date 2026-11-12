@@ -1,6 +1,5 @@
 import { noAutofill } from "@/lib/no-autofill";
 import Link from "next/link";
-import { GettingStarted } from "@/components/getting-started";
 import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
 import {
@@ -50,20 +49,20 @@ import { countDuplicates } from "@/lib/connections/merge";
 import { PageLoader } from "@/components/metronome";
 
 type Params = Record<string, string | string[] | undefined>;
-export type Scope = "network" | "all";
 
-// Two pages share this view (#192): Network at /, what this band added
-// or has touched, and the full Directory at /directory, every record the
-// band can see. The archived view is always Network's.
-export function DirectoryView({ searchParams, scope }: { searchParams: Promise<Params>; scope: Scope }) {
+// The Directory (#273): every record the band can see, its own and what
+// every other band shares, Avoid last. Ours (what this band added or
+// touched) is an option in the status filter; the archived view is always
+// Ours. Home (/) is the band's own page.
+export function DirectoryView({ searchParams }: { searchParams: Promise<Params> }) {
   return (
-    <Suspense fallback={<PageLoader label={scope === "network" ? "loading your network" : "loading directory"} />}>
-      <Directory searchParams={searchParams} scope={scope} />
+    <Suspense fallback={<PageLoader label="loading directory" />}>
+      <Directory searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Directory({ searchParams, scope }: { searchParams: Promise<Params>; scope: Scope }) {
+async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
   const membership = await getMembership();
   if (!membership) return <NoWorkspace />;
   const today = todayISO(new Date(), membership.timeZone);
@@ -75,20 +74,17 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
     readLayout(params.layout) ??
     readLayout(cookieStore.get(LAYOUT_COOKIE)?.value) ??
     (isPhone(headerList) ? "list" : "cards");
-  const base = scope === "all" ? "/directory" : "/";
+  const base = "/directory";
   const layoutHrefs = {
     list: withLayout(base, params, "list"),
     cards: withLayout(base, params, "cards"),
   };
   const read = readDirectoryQuery(params);
   const tab = read.tab;
-  const filters: DirectoryFilters = {
-    ...read.filters,
-    scope: read.filters.archived ? "network" : scope,
-  };
-  // Archived is Network's; an old ?scope=all link goes to the Directory page.
-  if (scope === "all" && read.filters.archived) redirect(directoryHref(tab, filters));
-  if (scope === "network" && params.scope === "all") redirect(directoryHref(tab, { ...filters, scope: "all" }));
+  // Archived is always Ours.
+  const filters: DirectoryFilters = { ...read.filters, scope: read.filters.archived ? "network" : read.filters.scope };
+  // An old ?scope=all link: Everyone is the default now.
+  if (params.scope !== undefined) redirect(directoryHref(tab, filters));
   // Old links (?view=lets_play, ?type=group:venue) go to their tab and status.
   if (params.view !== undefined || (typeof params.type === "string" && params.type.includes(":"))) {
     redirect(directoryHref(tab, filters));
@@ -102,7 +98,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
   const c = counts!;
   const towns = c.towns.map((t) => [t.id, formatLocality(t)!] as const).sort((x, y) => x[1].localeCompare(y[1]));
   // The results' state resets whenever the filters change.
-  const query = resultsQuery(params, scope);
+  const query = resultsQuery(params);
   const filtersOpen = Boolean(
     filters.statuses.length ||
     filters.scene ||
@@ -117,14 +113,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
     // key: a server render with a different layout (a shared link) resets it.
     <LayoutProvider key={layout} initial={layout}>
       <div className="flex flex-col gap-6">
-        <h1 className="sr-only">{scope === "all" ? "Explore" : "Network"}</h1>
-
-        {/* A new member's first steps (#68), on Network only. */}
-        {scope === "network" && !archived ? (
-          <Suspense fallback={null}>
-            <GettingStarted preview={params.preview === "getting-started"} />
-          </Suspense>
-        ) : null}
+        <h1 className="sr-only">Directory</h1>
 
         {/* Every directory control in one bar, pinned while the list scrolls.
             Phones pin only the search row. */}
@@ -143,7 +132,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               instruments={c.instruments}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
-              clearHref={filtering ? directoryHref(tab, { ...EMPTY, archived, scope: filters.scope }) : null}
+              clearHref={filtering ? directoryHref(tab, { ...EMPTY, archived }) : null}
               showLabel={
                 c.matched === 0 ? "Show Results" : `Show ${c.matched} ${c.matched === 1 ? current.one : current.many}`
               }
@@ -153,13 +142,8 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                     <span className="text-sm text-muted">Show as</span>
                     <LayoutToggle hrefs={layoutHrefs} segmented />
                   </div>
-                  {c.hiddenAvoid || (!archived && c.archived) ? (
+                  {!archived && c.archived ? (
                     <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                      {c.hiddenAvoid ? (
-                        <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link">
-                          {c.hiddenAvoid} in Avoid, hidden
-                        </Link>
-                      ) : null}
                       {!archived && c.archived ? (
                         <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link">
                           {c.archived} archived
@@ -218,21 +202,8 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
                   ? `${c.matched} of ${c.total} match`
                   : `${c.matched} ${c.matched === 1 ? current.one : current.many}`}
               </p>
-              {/* Phones keep these in the filter sheet. */}
-              {c.hiddenAvoid ? (
-                <Link href={directoryHref(tab, { ...filters, statuses: ["avoid"] })} className="link max-sm:hidden">
-                  {c.hiddenAvoid} in Avoid, hidden. Show them
-                </Link>
-              ) : null}
               {filtering ? (
-                <Link
-                  href={directoryHref(tab, {
-                    ...EMPTY,
-                    archived,
-                    scope: filters.scope,
-                  })}
-                  className="link"
-                >
+                <Link href={directoryHref(tab, { ...EMPTY, archived })} className="link">
                   Clear filters
                 </Link>
               ) : null}
@@ -257,25 +228,19 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               )}
             </div>
 
-            {/* Not in Network, but other bands have it (#192): look there
+            {/* Not in Ours, but other bands have it (#192): look there
                 before adding a copy. */}
             {c.matched === 0 && filtering && filters.scope === "network" && !archived && c.scopes.all > 0 ? (
               <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
-                <p className="font-medium">Nothing in your network matches.</p>
+                <p className="font-medium">Nothing of yours matches.</p>
                 <p className="text-muted">
-                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} in Explore, shared by other bands.
+                  {c.scopes.all} {c.scopes.all === 1 ? "match" : "matches"} from everyone, shared by other bands.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link href={directoryHref(tab, { ...filters, scope: "all" })} className="button-primary">
-                    Search Explore
+                    Search Everyone
                   </Link>
-                  <Link
-                    href={directoryHref(tab, {
-                      ...EMPTY,
-                      scope: filters.scope,
-                    })}
-                    className="button-secondary"
-                  >
+                  <Link href={directoryHref(tab, EMPTY)} className="button-secondary">
                     Clear Filters
                   </Link>
                 </div>
@@ -284,14 +249,7 @@ async function Directory({ searchParams, scope }: { searchParams: Promise<Params
               <div className="flex flex-col items-start gap-3 border border-dashed border-strong bg-surface p-6">
                 <p className="font-medium">Nothing matches.</p>
                 <p className="text-muted">Try fewer filters or a shorter search.</p>
-                <Link
-                  href={directoryHref(tab, {
-                    ...EMPTY,
-                    archived,
-                    scope: filters.scope,
-                  })}
-                  className="button-secondary"
-                >
+                <Link href={directoryHref(tab, { ...EMPTY, archived })} className="button-secondary">
                   Clear Filters
                 </Link>
               </div>
@@ -340,7 +298,7 @@ const EMPTY: DirectoryFilters = {
   space: "",
   archived: false,
   noStatus: false,
-  scope: "network",
+  scope: "all",
 };
 
 // One tab per kind of connection (#122), each with its count under the
@@ -397,11 +355,11 @@ const TAB_ICONS: Record<Tab, React.ReactNode> = {
 
 // The directory URL for a tab and filters. Bands is the default tab.
 function directoryHref(tab: Tab, f: DirectoryFilters) {
-  // Network is /, Explore /directory (#192); archived is yours.
-  const base = f.scope === "all" && !f.archived ? "/directory" : "/";
   const p = new URLSearchParams();
   if (tab !== DEFAULT_TAB) p.set("type", tab);
   if (f.q) p.set("q", f.q);
+  // Ours (#273); archived is always Ours, so it doesn't say so.
+  if (f.scope === "network" && !f.archived) p.append("status", "ours");
   f.statuses.forEach((st) => p.append("status", st));
   if (f.noStatus) p.set("status", "none");
   if (f.scene) p.set("scene", f.scene);
@@ -414,18 +372,16 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (tab === "venues" && f.space) p.set("space", f.space);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
-  return qs ? `${base}?${qs}` : base;
+  return qs ? `/directory?${qs}` : "/directory";
 }
 
 // The query string the results reload for: everything but layout and paging.
-function resultsQuery(params: Params, scope: Scope) {
+function resultsQuery(params: Params) {
   const p = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (key === "layout" || key === "after" || key === "scope" || value === undefined) continue;
     (Array.isArray(value) ? value : [value]).forEach((v) => p.append(key, v));
   }
-  // Show More loads through a server action that reads only the query.
-  if (scope === "all") p.set("scope", "all");
   return p.toString();
 }
 
@@ -448,7 +404,7 @@ function isPhone(h: Headers) {
 }
 
 function withLayout(base: string, params: Params, layout: DirectoryLayout) {
-  const p = new URLSearchParams(resultsQuery(params, "network"));
+  const p = new URLSearchParams(resultsQuery(params));
   p.set("layout", layout);
   return `${base}?${p.toString()}`;
 }
@@ -491,7 +447,7 @@ function FilterForm({
   ).length;
   return (
     <AutoFilterForm
-      action={f.scope === "all" && !f.archived ? "/directory" : "/"}
+      action="/directory"
       role="search"
       aria-label="Search and filter the directory"
       className="bar-search"
@@ -543,7 +499,7 @@ function FilterForm({
         }
       >
         <div className={tab === "venues" ? "filter-fields filter-fields-venues" : "filter-fields"}>
-          {/* Status replaces the old views: everyone but Avoid, or one status. */}
+          {/* Status replaces the old views: everyone, ours, or one status. */}
           <label htmlFor="f-status" className="sr-only">
             Status
           </label>
@@ -555,10 +511,19 @@ function FilterForm({
               id="f-status"
               name="status"
               className="field"
-              defaultValue={f.noStatus ? "none" : f.statuses.length === 1 ? f.statuses[0] : ""}
+              defaultValue={
+                f.noStatus
+                  ? "none"
+                  : f.statuses.length === 1
+                    ? f.statuses[0]
+                    : f.scope === "network" && !f.archived
+                      ? "ours"
+                      : ""
+              }
             >
-              {/* Archived ones keep Avoid in view (nothing's hidden there). */}
-              <option value="">{f.archived ? "Everyone" : "Everyone but Avoid"}</option>
+              {/* Everyone, Avoid last (#273); or Ours, what this band added or touched. */}
+              <option value="">Everyone</option>
+              {f.archived ? null : <option value="ours">Ours</option>}
               {STATUSES.map((st) => (
                 <option key={st} value={st}>
                   {STATUS_WORDS[wordSetForTab(tab)][st]}

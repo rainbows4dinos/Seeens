@@ -35,7 +35,7 @@ export function directoryHrefFor(kind: ConnectionKind, groupType: GroupType | nu
   if (tab !== DEFAULT_TAB) p.set("type", tab);
   if (archived) p.set("archived", "1");
   const qs = p.toString();
-  return qs ? `/?${qs}` : "/";
+  return qs ? `/directory?${qs}` : "/directory";
 }
 
 export function readTab(v: string | string[] | undefined): Tab {

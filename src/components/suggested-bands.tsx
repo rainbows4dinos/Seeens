@@ -8,7 +8,7 @@ import { STATUSES, statusLabel, type ConnectionStatus } from "@/lib/connections/
 export type SuggestedBand = { connection_id: string; name: string; town: string; knows_you: boolean };
 
 // Bands a new band might know, each with a status to pick right here. Picking
-// one adds it to the network (Getting Started counts it).
+// one adds it to Ours (Getting Started counts it), and it shows up on Home.
 // In an admin's preview a pick only shows; it doesn't save.
 export function SuggestedBands({ bands, preview = false }: { bands: SuggestedBand[]; preview?: boolean }) {
   return (

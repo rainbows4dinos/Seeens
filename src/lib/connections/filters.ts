@@ -16,7 +16,7 @@ import {
 // (?type=) is separate: it's where you are, not a filter (see directory.ts).
 export type DirectoryFilters = {
   q: string;
-  /** Empty: everyone but Avoid. The status select sets one. */
+  /** Empty: everyone, Avoid last (#273). The status select sets one. */
   statuses: ConnectionStatus[];
   scene: string;
   town: string;
@@ -30,7 +30,11 @@ export type DirectoryFilters = {
   archived: boolean;
   /** Only records with no status (#192): ?status=none. */
   noStatus: boolean;
-  /** My network (the default) or all scenes (#192): ?scope=all. */
+  /**
+   * Everyone (the default), or Ours: what this band added or touched
+   * (#273, was the Network page). Ours is an option in the status select:
+   * ?status=ours.
+   */
   scope: "network" | "all";
 };
 
@@ -62,13 +66,22 @@ export function readFilters(params: Params): DirectoryFilters {
         : "",
     archived: first(params.archived) === "1" || view === "archived",
     noStatus: all(params.status).includes("none"),
-    scope: first(params.scope) === "all" ? "all" : "network",
+    scope: all(params.status).includes("ours") ? "network" : "all",
   };
 }
 
-/** Filters that narrow the list: search, status, scene, town. Archived is a different half, not a narrowing. */
+/** Filters that narrow the list: Ours, search, status, scene, town. Archived is a different half, not a narrowing. */
 export function hasFilters(f: DirectoryFilters) {
   return Boolean(
-    f.q || f.statuses.length || f.noStatus || f.scene || f.town || f.instrument || f.ages || f.capacity || f.space,
+    f.scope === "network" ||
+    f.q ||
+    f.statuses.length ||
+    f.noStatus ||
+    f.scene ||
+    f.town ||
+    f.instrument ||
+    f.ages ||
+    f.capacity ||
+    f.space,
   );
 }

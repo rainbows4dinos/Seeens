@@ -14,7 +14,7 @@ const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   lets_play: "You both want to. It just isn't booked yet.",
   prospect: "You'd like to. It isn't mutual yet.",
   neutral: "You know of them. No plans.",
-  avoid: "Not for you. Hidden from the directory unless you ask to see them.",
+  avoid: "Not for you. They sit at the very end of the directory, and never on your Home.",
 };
 
 // The glossary, each line readable on its own. [word, meaning, where]
@@ -22,7 +22,7 @@ const WORDS: [string, string, string][] = [
   [
     "Listing",
     "Anyone or anything in the directory: a person, or a band, venue, label, studio, radio station, zine, or collective. Your band's own, or shared by another band.",
-    "Network, Explore",
+    "Directory",
   ],
   [
     "From (a band)",
@@ -35,11 +35,20 @@ const WORDS: [string, string, string][] = [
     "Top of a listing's page, or Band Settings > What You Share",
   ],
   [
-    "Network",
-    "Everything your band has touched: given a status, notes, a plan, or outreach. Plus everything your band added.",
+    "Home",
+    "Your band's own page: what's up next, your Homies and Let's play, and what other bands added near you.",
     "Main nav",
   ],
-  ["Explore", "Everything every band has shared, yours included. Where you find who you don't know yet.", "Main nav"],
+  [
+    "Directory",
+    "Everything every band has shared, yours included, with Avoid at the end. Where you find who you don't know yet.",
+    "Main nav",
+  ],
+  [
+    "Ours",
+    "Everything your band has touched: given a status, notes, a plan, or outreach. Plus everything your band added.",
+    "Status filter in the Directory",
+  ],
   [
     "This is us",
     "Your own band's page. Its members are your lineup, and other bands are measured against it (label mates, shared members).",
@@ -81,12 +90,12 @@ const WORDS: [string, string, string][] = [
   [
     "Follow-ups",
     "Every next step your band has planned, by date. Dates are plain facts; nothing turns red.",
-    "Follow-ups",
+    "Up Next on Home, and All follow-ups",
   ],
   [
     "Quick view",
     "The panel that opens beside the directory when you click a card, for quick status changes and notes.",
-    "Network, Explore",
+    "Directory",
   ],
   ["Archive", "Hides a listing without losing anything. Restore it any time.", "Bottom of a listing's page"],
   [
@@ -259,9 +268,9 @@ export default function HelpPage() {
           </table>
           <h3 className="display-s">Setting Several at Once</h3>
           <p>
-            In Network or Explore, click a listing&rsquo;s photo to select it. A bar shows up at the bottom to set a
-            status or mark them played together for all of them, with an Undo. On a phone, press and hold a listing to
-            start, then tap to add more.
+            In the Directory, click a listing&rsquo;s photo to select it. A bar shows up at the bottom to set a status
+            or mark them played together for all of them, with an Undo. On a phone, press and hold a listing to start,
+            then tap to add more.
           </p>
           <table className="about-table">
             <thead>
