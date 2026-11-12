@@ -71,7 +71,7 @@ async function Feedback({ searchParams }: { searchParams: PageProps<"/feedback">
                   {kindLabel(f.kind)} · {formatDate(f.created_at, membership.timeZone)}
                   {f.github_url ? (
                     <a href={f.github_url} className="link" target="_blank" rel="noopener noreferrer">
-                      On GitHub
+                      View on GitHub
                     </a>
                   ) : null}
                 </p>

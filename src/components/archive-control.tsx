@@ -28,7 +28,7 @@ export function ArchiveControl({ id, name, archived }: { id: string; name: strin
           disabled={pending}
           onClick={() => run(restoreConnection)}
         >
-          {pending ? "Restoring…" : "Restore to directory"}
+          {pending ? "Restoring…" : "Restore to Directory"}
         </button>
         <Status error={error} />
       </div>

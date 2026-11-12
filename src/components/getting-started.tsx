@@ -75,7 +75,7 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
       links: [
         {
           href: "/directory",
-          label: suggested?.length ? "More in the Directory" : "Open the Directory",
+          label: suggested?.length ? "Browse the Directory" : "Open the Directory",
         },
         { href: "/add", label: "Add Your Own" },
       ],

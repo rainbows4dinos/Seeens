@@ -164,7 +164,7 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
             <p className="text-sm text-muted">
               Nothing archived.{" "}
               <Link href={directoryHref(tab, EMPTY)} className="link">
-                Back to the directory
+                Back to the Directory
               </Link>
             </p>
           ) : (
@@ -203,17 +203,17 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
               </p>
               {filtering ? (
                 <Link href={directoryHref(tab, { ...EMPTY, archived })} className="link">
-                  Clear filters
+                  Clear Filters
                 </Link>
               ) : null}
               {after ? (
                 <Link href={directoryHref(tab, filters)} className="link">
-                  Back to the start
+                  Back to the Start
                 </Link>
               ) : null}
               {archived ? (
                 <Link href={directoryHref(tab, EMPTY)} className="link">
-                  Back to the directory
+                  Back to the Directory
                 </Link>
               ) : c.archived ? (
                 <Link href={directoryHref(tab, { ...EMPTY, archived: true })} className="link max-sm:hidden">

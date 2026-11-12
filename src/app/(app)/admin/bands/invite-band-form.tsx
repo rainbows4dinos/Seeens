@@ -170,7 +170,7 @@ export function NewLinkButton({ id, band }: { id: string; band: string }) {
         disabled={pending}
         onClick={() => start(async () => setState(await renewBandInvite(id).catch(unreachable)))}
       >
-        New Link<span className="sr-only"> for {band}</span>
+        Refresh Link<span className="sr-only"> for {band}</span>
       </button>
       <Note state={state} />
       {state.link ? <LinkBox key={state.link} link={state.link} /> : null}

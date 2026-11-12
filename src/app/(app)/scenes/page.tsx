@@ -21,7 +21,7 @@ export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
             Town Nicknames
           </Link>
           <Link href="/scenes/new" className="button-primary">
-            New Scene
+            Add Scene
           </Link>
         </div>
       </div>

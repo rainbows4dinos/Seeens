@@ -571,12 +571,12 @@ function CopierBody({
                 Remove
               </button>
               <button type="button" className="action-link text-sm" onClick={() => setConfirmRemove(false)}>
-                Keep it
+                Keep It
               </button>
             </div>
           ) : (
             <button type="button" className="action-link text-sm" onClick={() => setConfirmRemove(true)}>
-              Remove photo
+              Remove Photo
             </button>
           )
         ) : null}
