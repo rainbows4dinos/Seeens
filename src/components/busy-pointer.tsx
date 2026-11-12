@@ -107,9 +107,12 @@ export function BusyPointer() {
       }
       // Only ones on screen: earlier pages stay in the page, hidden.
       const loaders = document.querySelectorAll<HTMLElement>(".page-loader:not(.nav-loader .page-loader)");
-      // A pressed button still working on it (PressedButton) counts too.
-      const working = document.querySelector("button[data-pressed]:disabled");
-      setLoaderShown(Boolean(working) || [...loaders].some((el) => el.checkVisibility()));
+      // A pressed button still working on it (PressedButton) counts too, if
+      // it's on screen: a page you left stays in the page, hidden, button and all.
+      const working = [...document.querySelectorAll<HTMLElement>("button[data-pressed]:disabled")].some((el) =>
+        el.checkVisibility(),
+      );
+      setLoaderShown(working || [...loaders].some((el) => el.checkVisibility()));
     };
     check();
     const mo = new MutationObserver(() => {
@@ -121,16 +124,25 @@ export function BusyPointer() {
       attributes: true,
       attributeFilter: ["style", "hidden", "class", "disabled", "data-pressed"],
     });
-    // Back and forward land here too.
+    // Back and forward land here too. So does a page the browser kept as it
+    // was (the back-forward cache, Safari especially): it comes back mid-wait
+    // for the link you clicked to leave it, so the wait ends.
     const pop = () => {
       from.current = "";
       setNavigating(false);
     };
+    const show = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      pop();
+      check();
+    };
     addEventListener("popstate", pop);
+    addEventListener("pageshow", show);
     return () => {
       mo.disconnect();
       cancelAnimationFrame(frame);
       removeEventListener("popstate", pop);
+      removeEventListener("pageshow", show);
     };
   }, []);
 
