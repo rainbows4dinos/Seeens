@@ -21,7 +21,7 @@ export function parseChangelog(source: string): ChangelogDay[] {
 }
 
 // **bold**, `code`, and [text](href). Links stay on Seeens or go to https.
-function parseInline(text: string): Inline[] {
+export function parseInline(text: string): Inline[] {
   const out: Inline[] = [];
   const re = /\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\(([^)\s]+)\)/g;
   let at = 0;

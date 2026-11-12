@@ -245,6 +245,10 @@ export default function AboutPage() {
             <Link href="/changelog" className="link">
               What&rsquo;s New
             </Link>
+            ; for what&rsquo;s coming, the{" "}
+            <Link href="/roadmap" className="link">
+              Roadmap
+            </Link>
             .
           </p>
         </section>
@@ -258,6 +262,9 @@ export default function AboutPage() {
           </Link>
           <Link href="/changelog" className="button-secondary">
             What&rsquo;s New
+          </Link>
+          <Link href="/roadmap" className="button-secondary">
+            Roadmap
           </Link>
         </footer>
       </div>
