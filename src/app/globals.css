@@ -75,7 +75,7 @@
   --radius-none: 0px;
   /* Standard control height: fields, buttons, choices, segments. */
   --control-height: 36px;
-  /* Small controls (#313): a select or button inside a row of text. */
+  /* Small controls (#311): a select or button inside a row of text. */
   --control-height-sm: 28px;
   --menu-motion: 300ms ease-in-out;
 
@@ -649,7 +649,59 @@
     background: var(--color-accent-primary);
     color: var(--color-text-inverse);
   }
-  /* Small (#313): for a field or button sitting inline in a row, like a
+  /* Arrange Home (#313). An empty row takes no room, except while
+     arranging, when it says it's empty. */
+  .home-section:not([data-editing]):has(> .home-section-body:empty) {
+    display: none;
+  }
+  .home-section[data-editing] {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    border: var(--stroke-hair) dashed var(--color-border-strong);
+    background: var(--color-bg-surface);
+  }
+  .home-section[data-editing][data-hidden] > .home-section-body {
+    opacity: 0.4;
+  }
+  .home-section[data-dragging] {
+    box-shadow: var(--shadow-soft);
+    outline: 2px solid var(--color-border-strong);
+  }
+  .home-section-body:empty::before {
+    content: attr(data-empty);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+  .home-section-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+  .home-section-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    border: var(--stroke-hair) solid var(--color-border-strong);
+    cursor: grab;
+    touch-action: none;
+  }
+  .home-section[data-dragging] .home-section-handle {
+    cursor: grabbing;
+  }
+  .home-arrange-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  /* Small (#311): for a field or button sitting inline in a row, like a
      member's status in a Members list. Same type, less padding. Still well
      over the 24px tap minimum. */
   .field.control-sm,
