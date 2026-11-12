@@ -32,11 +32,22 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
   ]);
   if (!admin) notFound();
   const tz = membership?.timeZone ?? "America/Los_Angeles";
-  const [{ data: bands }, { data: invitable }, { data: people }] = await Promise.all([
+  const [{ data: bands }, { data: invitable }, { data: people }, { data: saved }] = await Promise.all([
     supabase.rpc("list_bands"),
     supabase.rpc("invitable_bands"),
     supabase.rpc("invitable_people"),
+    // Emails your own band saved, to fill in the owner's email.
+    membership
+      ? supabase
+          .from("connection_band_details")
+          .select("connection_id, email")
+          .eq("workspace_id", membership.workspaceId)
+          .not("email", "is", null)
+      : Promise.resolve({ data: [] }),
   ]);
+  const emails = Object.fromEntries(
+    (saved ?? []).flatMap((d) => (d.email?.trim() ? [[d.connection_id, d.email.trim()]] : [])),
+  );
   const options = (invitable ?? []).map((b) => ({
     value: b.connection_id,
     label: b.name,
@@ -64,6 +75,7 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
           key={typeof band === "string" ? band : ""}
           bands={options}
           people={personOptions}
+          emails={emails}
           picked={typeof band === "string" ? band : undefined}
           emailReady={emailConfigured()}
         />

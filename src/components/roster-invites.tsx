@@ -16,6 +16,8 @@ export type RosterBand = {
   /** Waiting on its owner; byUs when this label sent the invite. */
   invited: boolean;
   byUs: boolean;
+  /** The label's saved email for the band, filled in. */
+  email: string | null;
 };
 
 export function RosterInvites({ bands, canInvite, label }: { bands: RosterBand[]; canInvite: boolean; label: string }) {
@@ -74,6 +76,7 @@ function RosterRow({ band: b, canInvite, label }: { band: RosterBand; canInvite:
                 id={`roster-email-${b.id}`}
                 name="email"
                 type="email"
+                defaultValue={b.email ?? ""}
                 className="field"
                 placeholder="sam@example.com"
               />

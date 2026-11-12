@@ -125,6 +125,7 @@ async function Band() {
                   joined: b.joined,
                   invited: b.invited,
                   byUs: b.by_us,
+                  email: b.email,
                 }))}
               />
             </>
