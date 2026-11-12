@@ -19,6 +19,7 @@ export function InviteBandForm({
   people,
   picked: initial,
   emailReady,
+  emails,
 }: {
   bands: ComboOption[];
   /** People the owner could be, so their account links to them. */
@@ -26,6 +27,8 @@ export function InviteBandForm({
   /** Opened from a listing's Invite button: that band, already picked. */
   picked?: string;
   emailReady: boolean;
+  /** Emails your band saved for listings, to fill in the owner's email. */
+  emails: Record<string, string>;
 }) {
   const [state, action, pending] = useActionState(inviteBand, {});
   const preset = bands.find((b) => b.value === initial);
@@ -36,6 +39,16 @@ export function InviteBandForm({
   // choose "New Band" (if it is listed, the server says to pick it).
   const [typed, setTyped] = useState("");
   const [person, setPerson] = useState("");
+  // The owner's email. Picking a listing or a person with a saved email
+  // fills it in, unless you've typed something else. A person's beats a
+  // band's.
+  const [email, setEmail] = useState((preset && emails[preset.value]) || "");
+  const [filled, setFilled] = useState((preset && emails[preset.value]) || "");
+  const fill = (next: string | undefined) => {
+    if (!next || (email && email !== filled)) return;
+    setEmail(next);
+    setFilled(next);
+  };
   // A name that isn't listed: a band, unless it's a label.
   const [newKind, setNewKind] = useState<"band" | "label">("band");
   // A new picker after each invite, so the last pick doesn't linger.
@@ -47,6 +60,8 @@ export function InviteBandForm({
     setNewBand("");
     setTyped("");
     setPerson("");
+    setEmail("");
+    setFilled("");
     setNewKind("band");
     setFixed(undefined);
     setRound((r) => r + 1);
@@ -101,6 +116,7 @@ export function InviteBandForm({
               onChange={(values, created) => {
                 setListing(values[0] ?? "");
                 setNewBand(values[0] ? "" : (created[0] ?? ""));
+                if (!person || !emails[person]) fill(values[0] ? emails[values[0]] : undefined);
               }}
             />
             {band ? (
@@ -130,7 +146,12 @@ export function InviteBandForm({
             type="email"
             className="field"
             placeholder="sam@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
+          {email && email === filled ? (
+            <p className="text-sm text-muted">From the email your band saved for them.</p>
+          ) : null}
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="owner-name" className="label">
@@ -145,7 +166,10 @@ export function InviteBandForm({
             options={people}
             multiple={false}
             placeholder="Find a person"
-            onChange={(values) => setPerson(values[0] ?? "")}
+            onChange={(values) => {
+              setPerson(values[0] ?? "");
+              fill(values[0] ? emails[values[0]] : undefined);
+            }}
           />
           <p className="text-sm text-muted">
             If they&rsquo;re already in the directory, their account links to them when they join. Private ones become

@@ -12,17 +12,26 @@ export const loadRoster = cache(async () => {
   const { data: roster } = await supabase.rpc("label_roster", { p_workspace_id: membership.workspaceId });
   const ids = (roster ?? []).map((r) => r.connection_id);
   if (!ids.length) return [];
-  const { data: bands } = await supabase
-    .from("connections")
-    .select(
-      "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
-    )
-    .in("id", ids);
+  const [{ data: bands }, { data: saved }] = await Promise.all([
+    supabase
+      .from("connections")
+      .select(
+        "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
+      )
+      .in("id", ids),
+    // The label's own saved email for each band, to fill in its invite.
+    supabase
+      .from("connection_band_details")
+      .select("connection_id, email")
+      .eq("workspace_id", membership.workspaceId)
+      .in("connection_id", ids),
+  ]);
+  const emails = new Map((saved ?? []).map((d) => [d.connection_id, d.email?.trim() || null]));
   const byId = new Map((roster ?? []).map((r) => [r.connection_id, r]));
   return (bands ?? [])
     .flatMap((b) => {
       const r = byId.get(b.id);
-      return r ? [{ ...b, ...r }] : [];
+      return r ? [{ ...b, ...r, email: emails.get(b.id) ?? null }] : [];
     })
     .sort((a, b) => Number(b.is_current) - Number(a.is_current) || a.name.localeCompare(b.name));
 });
