@@ -507,7 +507,7 @@ function CopierBody({
               disabled={!source || !webgl}
               onClick={() => set("seed", (settings.seed + 1 + Math.floor(Math.random() * 997)) % 1000)}
             >
-              Shuffle Grain
+              New Grain
             </button>
             <button type="button" className="button-secondary" onClick={() => fileInput.current?.click()}>
               {source ? "Different Photo" : "Choose a Photo"}

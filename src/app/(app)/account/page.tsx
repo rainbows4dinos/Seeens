@@ -125,7 +125,7 @@ async function Account({ searchParams }: { searchParams: PageProps<"/account">["
                   <div className="flex flex-wrap gap-3">
                     {b.workspace_id === membership?.workspaceId ? (
                       <Link href="/band" className="button-secondary">
-                        Open Band Settings<span className="sr-only"> for {band}</span>
+                        Band Settings<span className="sr-only"> for {band}</span>
                       </Link>
                     ) : null}
                     <LeaveBand workspaceId={b.workspace_id} name={band} />

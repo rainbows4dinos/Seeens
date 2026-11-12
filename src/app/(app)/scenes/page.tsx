@@ -18,7 +18,7 @@ export default function ScenesPage({ searchParams }: PageProps<"/scenes">) {
         <h1 className="display-l sm:display-xl">Scenes</h1>
         <div className="flex flex-wrap gap-3">
           <Link href="/scenes/nicknames" className="button-secondary">
-            View Town Nicknames
+            Town Nicknames
           </Link>
           <Link href="/scenes/new" className="button-primary">
             Add Scene

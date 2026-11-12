@@ -60,10 +60,10 @@ export default async function ChangelogPage() {
 
         <footer className="flex flex-wrap gap-3">
           <Link href="/about" className="button-secondary">
-            Read About Seeens
+            About Seeens
           </Link>
           <Link href="/roadmap" className="button-secondary">
-            See the Roadmap
+            Roadmap
           </Link>
           <Link href="/" className="button-primary">
             Open Seeens
