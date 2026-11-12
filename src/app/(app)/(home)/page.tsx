@@ -41,7 +41,7 @@ async function Home({ searchParams }: { searchParams: Promise<Params> }) {
         <GettingStarted preview={preview} />
       </Suspense>
       {/* The rest in this person's order (#313), hidden ones too, for
-          Arrange Home's edit mode. */}
+          Customize Home's edit mode. */}
       <HomeArrange
         isDefault={isDefault(home.layout, home.kind)}
         rows={[

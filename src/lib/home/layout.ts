@@ -1,4 +1,4 @@
-// Arrange Home (#313): which rows Home shows, and in what order, for one
+// Customize Home (#313): which rows Home shows, and in what order, for one
 // person in one band. Getting Started and the band header stay on top and
 // aren't arranged.
 

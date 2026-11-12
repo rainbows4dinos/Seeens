@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createContext, useContext, useRef, useState, useTransition, type ReactNode } from "react";
 import { saveHomeLayout } from "@/lib/home/actions";
 
-// Arrange Home (#313): an edit mode on Home itself. Drag a row by its handle,
+// Customize Home (#313): an edit mode on Home itself. Drag a row by its handle,
 // or use its arrows, and hide the ones you don't use. Just for you, in this
 // band.
 //
@@ -128,9 +128,9 @@ export function HomeArrange({
         {said}
       </p>
       {editing ? (
-        <div className="save-bar home-arrange-bar" role="region" aria-label="Arrange Home">
+        <div className="save-bar home-arrange-bar" role="region" aria-label="Customize Home">
           <p className="text-sm">
-            <strong>Arranging Home.</strong> Drag rows by their handle, or use the arrows. Just for you.
+            <strong>Customizing Home.</strong> Drag rows by their handle, or use the arrows. Just for you.
           </p>
           {error ? (
             <p role="alert" className="text-sm font-medium text-error">
@@ -163,7 +163,7 @@ export function HomeArrange({
               requestAnimationFrame(() => list.current?.scrollIntoView({ block: "start", behavior: "smooth" }));
             }}
           >
-            Arrange Home
+            Customize Home
           </button>
         </div>
       )}
