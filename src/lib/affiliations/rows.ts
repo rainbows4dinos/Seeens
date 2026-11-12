@@ -39,6 +39,15 @@ function linkRows(subject: ConnectionDetail["connection"], affiliations: Connect
           role: a.role,
           isCurrent: a.is_current,
           notes: a.notes,
+          // Members and their bands each get their own status (#311): the
+          // bass player is just the bass player. Not on our own listing.
+          status:
+            a.kind === "member" && !a.other.is_us
+              ? {
+                  value: a.other.status ?? null,
+                  type: { kind: a.other.kind, group_type: a.other.group_type, person_roles: a.other.person_roles },
+                }
+              : null,
         }
       : null;
   return [

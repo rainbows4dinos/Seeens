@@ -13,6 +13,8 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-12
 
+- **Each member gets their own status.** On a band’s page, set a status for each member right in the Members list, and on a person’s page, for each of their bands. Being Homies with a band doesn’t make you close with the bass player.
+- **Home shows only the statuses you set.** The Homies and Let’s Play rows used to include members of those bands too. In the Directory, people still sit with their band’s status until you give them one.
 - **Fixes.** Opening a listing from outside the Directory, like right after adding one or from a link on another listing’s page, opens its full page instead of a quick view over a blank page.
 
 ## 2026-11-11

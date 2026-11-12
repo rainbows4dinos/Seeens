@@ -6,6 +6,8 @@ import { offline } from "@/lib/offline";
 import Link from "next/link";
 import { useActionState, useId, useRef, useState, useTransition } from "react";
 import { DetachedForm } from "@/components/detached-form";
+import { RowStatus, type StatusType } from "@/components/row-status";
+import type { ConnectionStatus } from "@/lib/connections/labels";
 import { PasteLineup } from "@/components/paste-lineup";
 import { CarryFields, hasCarry, pickAll, type Carry } from "@/components/carry-fields";
 import { INSTRUMENTS, instrumentsFromRole, type Instrument } from "@/lib/affiliations/instruments";
@@ -32,6 +34,9 @@ export type LinkRow = {
   role: string | null;
   isCurrent: boolean;
   notes: string | null;
+  /** A band's member, or a person's band (#311): this band's status for
+   *  them, set right here. Null otherwise. */
+  status: { value: ConnectionStatus | null; type: StatusType } | null;
 };
 
 /**
@@ -250,7 +255,10 @@ function LinkItem({ row, usesSeeens }: { row: LinkRow; usesSeeens: boolean }) {
           {row.notes ? <span className="block text-sm text-muted">{row.notes}</span> : null}
         </p>
         {mode === "view" ? (
-          <span className="flex gap-3 text-sm">
+          <span className="flex items-center gap-3 text-sm">
+            {row.status ? (
+              <RowStatus id={row.otherId} name={row.otherName} initial={row.status.value} type={row.status.type} />
+            ) : null}
             <button ref={editRef} type="button" className="action-link" onClick={() => setMode("edit")}>
               Edit<span className="sr-only"> link to {row.otherName}</span>
             </button>

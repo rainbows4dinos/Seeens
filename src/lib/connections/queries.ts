@@ -99,14 +99,14 @@ export async function getConnection(id: string) {
       supabase
         .from("affiliations")
         .select(
-          "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at ) )",
+          "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_to_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at, status ) )",
         )
         .eq("from_connection_id", id)
         .eq("workspace_id", ws),
       supabase
         .from("affiliations")
         .select(
-          "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at ) )",
+          "id, kind, role, is_current, notes, other:connections!affiliations_workspace_id_from_connection_id_fkey ( id, name, kind, group_type, person_roles, catalog_no, is_us, band:connection_band_details ( archived_at, status ) )",
         )
         .eq("to_connection_id", id)
         .eq("workspace_id", ws),
