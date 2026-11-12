@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { getMembership } from "@/lib/auth/dal";
+import { ArrangeHome } from "@/components/arrange-home";
+import { HOME_ROWS, isDefault, type HomeRowKey } from "@/lib/home/layout";
+import { loadHomeLayout } from "@/lib/home/queries";
 import { GettingStarted } from "@/components/getting-started";
 import { HomeHeader, MightKnow, NewOnSeeens, Roster, StatusShelf, UpNext } from "@/components/home";
 import { NoWorkspace } from "@/components/no-workspace";
@@ -25,7 +27,8 @@ export default function HomePage({ searchParams }: PageProps<"/">) {
 async function Home({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
   if (Object.keys(params).some((k) => DIRECTORY_PARAMS.includes(k))) redirect(oldNetworkLink(params));
-  if (!(await getMembership())) return <NoWorkspace />;
+  const home = await loadHomeLayout();
+  if (!home) return <NoWorkspace />;
   const preview = params.preview === "getting-started";
 
   return (
@@ -37,25 +40,39 @@ async function Home({ searchParams }: { searchParams: Promise<Params> }) {
       <Suspense fallback={null}>
         <GettingStarted preview={preview} />
       </Suspense>
-      <Suspense fallback={null}>
-        <UpNext />
-      </Suspense>
-      {/* A label's bands (#298). */}
-      <Suspense fallback={null}>
-        <Roster />
-      </Suspense>
-      <Suspense fallback={null}>
-        <StatusShelf status="homies" />
-      </Suspense>
-      <Suspense fallback={null}>
-        <StatusShelf status="lets_play" />
-      </Suspense>
-      <Suspense fallback={null}>
-        <NewOnSeeens />
-      </Suspense>
-      <Suspense fallback={null}>
-        <MightKnow preview={preview} />
-      </Suspense>
+      {/* The rest in this person's order (#313). */}
+      {home.layout.shown.map((key) => (
+        <Suspense key={key} fallback={null}>
+          {row(key, preview)}
+        </Suspense>
+      ))}
+      <ArrangeHome
+        isDefault={isDefault(home.layout, home.kind)}
+        rows={[
+          ...home.layout.shown.map((key) => ({ key, label: label(key), shown: true })),
+          ...home.layout.hidden.map((key) => ({ key, label: label(key), shown: false })),
+        ]}
+      />
     </div>
   );
 }
+
+function row(key: HomeRowKey, preview: boolean) {
+  switch (key) {
+    case "up_next":
+      return <UpNext />;
+    // A label's bands (#298).
+    case "roster":
+      return <Roster />;
+    case "homies":
+    case "lets_play":
+    case "prospect":
+      return <StatusShelf status={key} />;
+    case "new_near_you":
+      return <NewOnSeeens />;
+    case "might_know":
+      return <MightKnow preview={preview} />;
+  }
+}
+
+const label = (key: HomeRowKey) => HOME_ROWS.find((r) => r.key === key)!.label;

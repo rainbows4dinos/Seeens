@@ -75,7 +75,7 @@
   --radius-none: 0px;
   /* Standard control height: fields, buttons, choices, segments. */
   --control-height: 36px;
-  /* Small controls (#313): a select or button inside a row of text. */
+  /* Small controls (#311): a select or button inside a row of text. */
   --control-height-sm: 28px;
   --menu-motion: 300ms ease-in-out;
 
@@ -649,7 +649,7 @@
     background: var(--color-accent-primary);
     color: var(--color-text-inverse);
   }
-  /* Small (#313): for a field or button sitting inline in a row, like a
+  /* Small (#311): for a field or button sitting inline in a row, like a
      member's status in a Members list. Same type, less padding. Still well
      over the 24px tap minimum. */
   .field.control-sm,
