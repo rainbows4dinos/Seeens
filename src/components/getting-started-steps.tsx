@@ -38,16 +38,17 @@ export function GettingStartedSteps({
       {note ? <p className="border border-dashed border-strong p-3 text-sm font-medium">{note}</p> : null}
       <p className="text-muted">{welcome}</p>
       <section className="getting-started-step flex flex-col gap-3" aria-labelledby="getting-started-step">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-muted">
-            Step {at + 1} of {steps.length}
-            {s.progress ? ` · ${s.progress}` : ""}
-          </p>
+        {/* The dots and the count together: they say the same thing. */}
+        <div className="flex items-center gap-3">
           <ol className="getting-started-dots" aria-hidden="true">
             {steps.map((x, i) => (
               <li key={x.title} data-done={x.done ? "" : undefined} data-at={i === at ? "" : undefined} />
             ))}
           </ol>
+          <p className="text-sm text-muted">
+            Step {at + 1} of {steps.length}
+            {s.progress ? ` · ${s.progress}` : ""}
+          </p>
         </div>
         <h3 id="getting-started-step" className="text-lg font-medium">
           {s.title}

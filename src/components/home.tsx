@@ -8,6 +8,8 @@ import { formatLocality, formatType, STATUS_WORDS } from "@/lib/connections/labe
 import { formatDay, todayISO } from "@/lib/outreach/labels";
 import { photoUrl } from "@/lib/photos/urls";
 import { Photo } from "@/components/photo";
+import { PhotoPanel } from "@/components/photo-panel";
+import { defaultSettings, readSettings } from "@/lib/photos/settings";
 import { SuggestedBands } from "@/components/suggested-bands";
 import { gettingStartedShows } from "@/components/getting-started";
 
@@ -45,7 +47,7 @@ export async function HomeHeader() {
       ? supabase
           .from("connections")
           .select(
-            "name, kind, group_type, person_roles, localities ( name, region, region_code, country, country_code ), connection_scenes ( scenes ( id, name ) )",
+            "name, kind, group_type, person_roles, photo_path, photo_original_path, photo_settings, photo_alt, localities ( name, region, region_code, country, country_code ), connection_scenes ( scenes ( id, name ) )",
           )
           .eq("id", us.id)
           .maybeSingle()
@@ -67,7 +69,23 @@ export async function HomeHeader() {
 
   return (
     <header className="flex items-start gap-4">
-      <Print name={membership.workspaceName} path={us?.photoPath ?? null} size="m" />
+      {/* The band's photo, changed right here like on its page. */}
+      {us && listing ? (
+        <PhotoPanel
+          connectionId={us.id}
+          workspaceId={membership.workspaceId}
+          name={listing.name}
+          photoUrl={photoUrl(listing.photo_path, 320)}
+          originalUrl={photoUrl(listing.photo_original_path)}
+          photoPath={listing.photo_path}
+          originalPath={listing.photo_original_path}
+          settings={readSettings(listing.photo_settings)}
+          alt={listing.photo_alt}
+          defaults={defaultSettings(null, true)}
+        />
+      ) : (
+        <Print name={membership.workspaceName} path={null} size="m" />
+      )}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h1 className="min-w-0 display-l break-words sm:display-xl">{membership.workspaceName}</h1>
@@ -141,7 +159,7 @@ export async function UpNext() {
           Up Next
         </h2>
         <Link href="/follow-ups" className="link text-sm">
-          {open.length > shown.length ? `All ${open.length} follow-ups` : "All follow-ups"}
+          {open.length > shown.length ? `View All ${open.length} Follow-ups` : "View All Follow-ups"}
         </Link>
       </div>
       <ul className="window home-list">
@@ -187,7 +205,7 @@ export async function StatusShelf({ status }: { status: "homies" | "lets_play" |
           <span className="text-muted">({total})</span>
         </h2>
         <Link href={`/directory?type=all&status=${status}`} className="link text-sm">
-          {total > shown.length ? `All ${total} in the Directory` : "See them in the Directory"}
+          {total > shown.length ? `View All ${total} in the Directory` : "View in the Directory"}
         </Link>
       </div>
       <ul className="home-shelf">
@@ -248,7 +266,7 @@ export async function NewOnSeeens() {
           {near.length ? "New Near You" : "New on Seeens"}
         </h2>
         <Link href="/directory?type=all" className="link text-sm">
-          Everyone in the Directory
+          View Full Directory
         </Link>
       </div>
       <ul className="window home-list">
