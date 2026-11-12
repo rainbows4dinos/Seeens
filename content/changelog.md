@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-11
 
+- **Links stand out.** Links are now semibold and always dark, even in gray text, so they’re easier to spot.
 - **Labels on Seeens.** A label can be invited to claim its listing, like a band. Its Home shows a **Roster**: the bands on the label, with a mark on the ones already on Seeens. Settings and Getting Started talk about your label instead of your band.
 - **Labels invite their bands.** A label’s owners can invite the bands on its roster from Label Settings. Each band claims its own listing and brings in its bandmates.
 - **Paste Members reads more lineups.** Roles can come before or after the name, and a slash works between them: “bass, vocals - Sam,” “drums / Riley,” and “Lee (guitar)” all come out right. Thanks for the report.
