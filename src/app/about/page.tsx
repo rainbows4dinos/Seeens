@@ -240,7 +240,12 @@ export default function AboutPage() {
           </h2>
           <p>
             Seeens is in a closed beta. Everyone using it is a tester, so things will change, and what you tell us
-            decides what changes. Once you&rsquo;re in, Send Feedback is in the header.
+            decides what changes. Once you&rsquo;re in, Send Feedback is in the header. To see what&rsquo;s changed
+            lately, read{" "}
+            <Link href="/changelog" className="link">
+              What&rsquo;s New
+            </Link>
+            .
           </p>
         </section>
 
@@ -250,6 +255,9 @@ export default function AboutPage() {
           </Link>
           <Link href="/ai" className="button-secondary">
             Seeens &amp; AI
+          </Link>
+          <Link href="/changelog" className="button-secondary">
+            What&rsquo;s New
           </Link>
         </footer>
       </div>

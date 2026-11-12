@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // What's New (#216) reads its Markdown at runtime; ship it with the server.
+  outputFileTracingIncludes: { "/**": ["./content/changelog.md"] },
   // Launch hardening: no framing (clickjacking on Sign In), no MIME sniffing,
   // referrers trimmed to the origin off-site, HTTPS remembered, and no camera,
   // mic, or location for any page. The photo copier reads files, not the camera.

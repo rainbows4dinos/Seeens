@@ -473,6 +473,10 @@ isOneToOne: false
 { Args: never; Returns: boolean },
             "dismiss_moderator_welcome":
 { Args: never; Returns: undefined },
+            "changelog_seen_on":
+{ Args: never; Returns: string },
+            "mark_changelog_seen":
+{ Args: { "p_on": string }; Returns: undefined },
             "grant_moderator":
 { Args: { "p_email": string }; Returns: string },
             "revoke_moderator":
