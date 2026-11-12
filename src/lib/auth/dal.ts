@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { safeTimeZone } from "@/lib/outreach/labels";
+import type { WorkspaceKind } from "@/lib/band/kind";
 
 export type CurrentUser = {
   id: string;
@@ -16,6 +17,8 @@ export type Membership = {
   displayName: string;
   role: "owner" | "member";
   timeZone: string;
+  /** A band, or a label (#298). Words and Home follow it. */
+  kind: WorkspaceKind;
   /** Your person in the band's directory, once you've linked it (#44). */
   connectionId: string | null;
 };
@@ -56,7 +59,7 @@ export const getMemberships = cache(async (): Promise<Membership[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("workspace_members")
-    .select("workspace_id, display_name, role, connection_id, workspaces ( name, time_zone )")
+    .select("workspace_id, display_name, role, connection_id, workspaces ( name, time_zone, kind )")
     .eq("user_id", user.id)
     .order("created_at");
   if (error) throw new Error("Couldn't load your workspace.");
@@ -66,6 +69,7 @@ export const getMemberships = cache(async (): Promise<Membership[]> => {
     displayName: m.display_name,
     role: m.role,
     timeZone: safeTimeZone(m.workspaces?.time_zone),
+    kind: m.workspaces?.kind === "label" ? "label" : "band",
     connectionId: m.connection_id,
   }));
 });

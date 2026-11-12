@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ArrowsHorizontal, Checkmark } from "@carbon/icons-react";
 import { getCurrentUser, getMembership, getMemberships, getUsConnection } from "@/lib/auth/dal";
 import { switchBand } from "@/lib/auth/band-switch";
+import { kindWords } from "@/lib/band/kind";
 import { initials } from "@/lib/connections/card";
 import { photoUrl } from "@/lib/photos/urls";
 import { AccountMenu } from "@/components/account-menu";
@@ -125,6 +126,11 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   const us = membership ? await getUsConnection() : null;
   const { data: appAdmin } = await (await createClient()).rpc("is_app_admin");
   const name = membership?.displayName ?? user.email ?? "you";
+  const words = kindWords(membership?.kind ?? "band");
+  // "Band", "Labels", or "Bands and Labels" when you're in both (#298).
+  const kinds = new Set([membership, ...others].filter(Boolean).map((m) => m!.kind));
+  const groupName =
+    kinds.size > 1 ? "Bands and Labels" : `${kindWords([...kinds][0] ?? "band").Noun}${others.length ? "s" : ""}`;
 
   // Figma account menu (#67): your bands, you, admin (app admins only), Seeens
   // itself, then signing out. The band item
@@ -133,19 +139,21 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
     <>
       {membership ? (
         <div className="menu-group">
-          <p className="caption">{others.length ? "Bands" : "Band"}</p>
+          <p className="caption">{groupName}</p>
           {/* A full page load: a link from here to a connection would otherwise open
               the directory's quick view over an empty page. */}
           <a
             href={us ? `/connections/${us.id}` : "/add?us=1"}
             className="nav-chip nav-chip-inverse menu-item"
             aria-label={
-              us ? `${membership.workspaceName}, your band's page` : `${membership.workspaceName}: add your band's page`
+              us
+                ? `${membership.workspaceName}, your ${words.noun}'s page`
+                : `${membership.workspaceName}: add your ${words.noun}'s page`
             }
           >
             {membership.workspaceName}
             <Checkmark size={16} aria-hidden="true" />
-            <span className="sr-only"> (current band)</span>
+            <span className="sr-only"> (current {words.noun})</span>
           </a>
           {/* Your other bands (#68): pick one to switch. */}
           {others.map((m) => (
@@ -159,7 +167,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
             </form>
           ))}
           <Link href="/band" className="nav-chip menu-item menu-item-after">
-            Band Settings
+            {words.settings}
           </Link>
         </div>
       ) : null}

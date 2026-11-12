@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
 import { GettingStarted } from "@/components/getting-started";
-import { HomeHeader, MightKnow, NewOnSeeens, StatusShelf, UpNext } from "@/components/home";
+import { HomeHeader, MightKnow, NewOnSeeens, Roster, StatusShelf, UpNext } from "@/components/home";
 import { NoWorkspace } from "@/components/no-workspace";
 import { PageLoader } from "@/components/metronome";
 import { DIRECTORY_PARAMS, oldNetworkLink } from "@/lib/connections/old-links";
@@ -39,6 +39,10 @@ async function Home({ searchParams }: { searchParams: Promise<Params> }) {
       </Suspense>
       <Suspense fallback={null}>
         <UpNext />
+      </Suspense>
+      {/* A label's bands (#298). */}
+      <Suspense fallback={null}>
+        <Roster />
       </Suspense>
       <Suspense fallback={null}>
         <StatusShelf status="homies" />

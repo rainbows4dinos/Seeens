@@ -12,6 +12,7 @@ import { PhotoPanel } from "@/components/photo-panel";
 import { defaultSettings, readSettings } from "@/lib/photos/settings";
 import { SuggestedBands } from "@/components/suggested-bands";
 import { gettingStartedShows } from "@/components/getting-started";
+import { kindWords } from "@/lib/band/kind";
 
 // Home (#273): your band's own page, pointing into the Directory rather than
 // copying it. Each section loads on its own and steps aside when it has
@@ -60,6 +61,7 @@ export async function HomeHeader() {
   const scenes = (listing?.connection_scenes ?? []).flatMap((cs) => (cs.scenes ? [cs.scenes] : []));
   const town = formatLocality(listing?.localities as Place);
   const first = membership.displayName?.trim().split(/\s+/)[0];
+  const words = kindWords(membership.kind);
   const today = new Intl.DateTimeFormat("en-US", {
     weekday: "short",
     month: "short",
@@ -96,7 +98,7 @@ export async function HomeHeader() {
         </div>
         <p className="text-muted">
           {[
-            listing ? formatType(listing) : "Band",
+            listing ? formatType(listing) : words.Noun,
             town,
             members ? `${members} ${members === 1 ? "member" : "members"}` : null,
           ]
@@ -119,10 +121,10 @@ export async function HomeHeader() {
         <div className="flex flex-wrap gap-3 pt-1">
           {/* A full page load, like the account menu's link to it. */}
           <a href={us ? `/connections/${us.id}` : "/add?us=1"} className="button-secondary">
-            {us ? "Your Band’s Page" : "Add Your Band’s Page"}
+            {us ? words.page : `Add ${words.page}`}
           </a>
           <Link href="/band" className="button-secondary">
-            Band Settings
+            {words.settings}
           </Link>
         </div>
       </div>
@@ -293,6 +295,71 @@ export async function NewOnSeeens() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+// A label's Roster (#298): the bands on it, from anyone's records, current
+// ones first, with a mark on the ones already on Seeens. Bands don't get
+// one. Empty, it says where to add them.
+export async function Roster() {
+  const membership = await getMembership();
+  if (!membership || membership.kind !== "label") return null;
+  const [supabase, us] = await Promise.all([createClient(), getUsConnection()]);
+  const { data: roster } = await supabase.rpc("label_roster", { p_workspace_id: membership.workspaceId });
+  const ids = (roster ?? []).map((r) => r.connection_id);
+  const { data: bands } = ids.length
+    ? await supabase
+        .from("connections")
+        .select(
+          "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
+        )
+        .in("id", ids)
+    : { data: [] };
+  const byId = new Map((roster ?? []).map((r) => [r.connection_id, r]));
+  const shown = (bands ?? [])
+    .map((b) => ({ ...b, ...byId.get(b.id)! }))
+    .sort((a, b) => Number(b.is_current) - Number(a.is_current) || a.name.localeCompare(b.name));
+  const addHref = us ? `/connections/${us.id}` : "/add?us=1";
+
+  return (
+    <section aria-labelledby="home-roster" className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 id="home-roster" className="display-s">
+          Roster{shown.length ? <span className="text-muted"> ({shown.length})</span> : null}
+        </h2>
+        {shown.length ? (
+          <a href={addHref} className="link text-sm">
+            Add Bands on Your Label’s Page
+          </a>
+        ) : null}
+      </div>
+      {shown.length ? (
+        <ul className="home-shelf">
+          {shown.map((c) => (
+            <li key={c.id}>
+              <a href={`/connections/${c.id}`} className="home-shelf-item">
+                <Print name={c.name} path={c.photo_path} size="m" />
+                <span className="block truncate text-sm font-medium">{c.name}</span>
+                <span className="caption block truncate">
+                  {[c.is_current ? null : "Past", c.joined ? "On Seeens" : null].filter(Boolean).join(" · ") ||
+                    formatLocality(c.localities as Place) ||
+                    formatType(c)}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="window flex flex-wrap items-center justify-between gap-3 p-4">
+          <p className="text-muted">
+            No bands on {membership.workspaceName} yet. Add them on your label&rsquo;s page, and they show up here.
+          </p>
+          <a href={addHref} className="button-secondary">
+            Add Bands
+          </a>
+        </div>
+      )}
     </section>
   );
 }

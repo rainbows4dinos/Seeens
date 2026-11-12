@@ -5,8 +5,9 @@ import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { siteOrigin } from "@/lib/origin";
+import type { WorkspaceKind } from "@/lib/band/kind";
 
-// Invite a band (#68), for app admins: its first owner gets an invite, and
+// Invite a band (#68) or a label (#298), for app admins: its first owner gets an invite, and
 // the band claims its listing in the directory (or gets a new one). The
 // database checks it's an admin asking; these turn its answers into words.
 
@@ -21,8 +22,10 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const personId = String(formData.get("person_id") ?? "");
+  const newKind = formData.get("new_kind") === "label" ? "label" : "band";
   const asLink = formData.get("mode") === "link";
-  if (!UUID.test(listingId) && !newBand) return { error: "Pick the band, or type its name if it isn't listed." };
+  if (!UUID.test(listingId) && !newBand)
+    return { error: "Pick the band or label, or type its name if it isn't listed." };
   if (!asLink && !email)
     return {
       error: "Add the owner's email, like sam@example.com. Or copy a link instead.",
@@ -35,11 +38,12 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
     p_email: asLink ? null : email,
     p_name: name || null,
     p_person_id: UUID.test(personId) ? personId : null,
+    p_kind: newKind,
   });
   const row = data?.[0];
   if (error || !row) {
     const msg = error?.message ?? "";
-    if (msg.includes("already claimed")) return { error: "That band's already been invited. Refresh the page." };
+    if (msg.includes("already claimed")) return { error: "That one's already been invited. Refresh the page." };
     if (msg.includes("already listed"))
       return {
         error: `${newBand} is already in the directory. Pick it from the list.`,
@@ -50,8 +54,8 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
     if (msg.includes("not a person")) return { error: "That profile can't be picked. Refresh the page." };
     if (msg.includes("not an email")) return { error: "That doesn't look like an email address." };
     if (msg.includes("opted out")) return { error: `${email} asked not to get email from Seeens.` };
-    if (msg.includes("1 to 80")) return { error: "Keep the band's name under 80 characters." };
-    return { error: "Couldn't invite the band. Try again." };
+    if (msg.includes("1 to 80")) return { error: "Keep the name under 80 characters." };
+    return { error: "Couldn't send the invite. Try again." };
   }
   revalidatePath("/admin/bands");
   const band = row.band;
@@ -67,7 +71,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
       done: `Invite ready for ${band}. Email isn't set up, so send this link to ${email} yourself.`,
       link,
     };
-  const sent = await emailOwner(email, link, band, name).catch(() => false);
+  const sent = await emailOwner(email, link, band, name, row.kind === "label" ? "label" : "band").catch(() => false);
   if (!sent)
     return {
       done: `Invite ready for ${band}, but the email didn't go out. Send this link to ${email} yourself.`,
@@ -105,7 +109,7 @@ export async function cancelBandInvite(inviteId: string): Promise<InviteBandStat
   return { done: `Canceled ${data}'s invite.` };
 }
 
-async function emailOwner(to: string, link: string, band: string, name: string) {
+async function emailOwner(to: string, link: string, band: string, name: string, kind: WorkspaceKind) {
   const [me, membership] = await Promise.all([getCurrentUser(), getMembership()]);
   const admin = membership?.displayName || "Seeens";
   return sendEmail({
@@ -117,11 +121,15 @@ async function emailOwner(to: string, link: string, band: string, name: string) 
       "",
       `${admin} invited ${band} to Seeens, with you as its owner.`,
       "",
-      "Seeens is where a band keeps track of the people, venues, labels, and scenes it knows, and finds out who else knows them. It's in beta and invite only, so you'd be one of the first bands on it. Your feedback shapes it.",
+      kind === "label"
+        ? "Seeens is where bands and labels keep track of the people, venues, labels, and scenes they know, and find out who else knows them. It's in beta and invite only, so you'd be one of the first labels on it. Your feedback shapes it."
+        : "Seeens is where a band keeps track of the people, venues, labels, and scenes it knows, and finds out who else knows them. It's in beta and invite only, so you'd be one of the first bands on it. Your feedback shapes it.",
       "",
       `Make your account and join: ${link}`,
       "",
-      `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite your bandmates from Band Settings. The link works for 7 days and only once.`,
+      kind === "label"
+        ? `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite the people at the label from Label Settings. The link works for 7 days and only once.`
+        : `Once you're in, ${band}'s listing in the directory is yours to keep up to date, and you can invite your bandmates from Band Settings. The link works for 7 days and only once.`,
       "",
       `Questions? Reply to this email and it goes to ${admin}.`,
       "",
