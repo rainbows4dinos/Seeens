@@ -130,6 +130,10 @@ export async function HomeHeader() {
   );
 }
 
+// Listing links on Home are plain <a> (a full page load), like the account
+// menu's: a client-side link to /connections/… is caught by the Directory's
+// quick view, which would open over an empty page.
+
 // Up Next: the band's open follow-ups (folded in from Follow-ups), soonest
 // first. Dates are plans, not deadlines: no overdue warnings.
 export async function UpNext() {
@@ -167,7 +171,7 @@ export async function UpNext() {
           const c = a.connection!;
           return (
             <li key={a.id}>
-              <Link href={`/connections/${c.id}`} className="home-row">
+              <a href={`/connections/${c.id}`} className="home-row">
                 <Print name={c.name} path={c.photo_path} size="s" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-display text-lg leading-tight font-bold">{c.name}</span>
@@ -179,7 +183,7 @@ export async function UpNext() {
                   {a.description}
                   {a.due_on ? <span className="caption block">planned for {formatDay(a.due_on, today)}</span> : null}
                 </span>
-              </Link>
+              </a>
             </li>
           );
         })}
@@ -211,11 +215,11 @@ export async function StatusShelf({ status }: { status: "homies" | "lets_play" |
       <ul className="home-shelf">
         {shown.map((c) => (
           <li key={c.id}>
-            <Link href={`/connections/${c.id}`} className="home-shelf-item">
+            <a href={`/connections/${c.id}`} className="home-shelf-item">
               <Print name={c.name} path={c.photo_path} size="m" />
               <span className="block truncate text-sm font-medium">{c.name}</span>
               <span className="caption block truncate">{formatLocality(c.localities) ?? formatType(c)}</span>
-            </Link>
+            </a>
           </li>
         ))}
       </ul>
@@ -272,7 +276,7 @@ export async function NewOnSeeens() {
       <ul className="window home-list">
         {shown.map((c) => (
           <li key={c.id}>
-            <Link href={`/connections/${c.id}`} className="home-row">
+            <a href={`/connections/${c.id}`} className="home-row">
               <Print name={c.name} path={c.photo_path} size="s" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-display text-lg leading-tight font-bold">{c.name}</span>
@@ -285,7 +289,7 @@ export async function NewOnSeeens() {
               ) : c.added_by?.name ? (
                 <span className="home-row-action caption">added by {c.added_by.name}</span>
               ) : null}
-            </Link>
+            </a>
           </li>
         ))}
       </ul>
