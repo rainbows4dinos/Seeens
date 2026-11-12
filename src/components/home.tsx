@@ -119,10 +119,10 @@ export async function HomeHeader() {
         <div className="flex flex-wrap gap-3 pt-1">
           {/* A full page load, like the account menu's link to it. */}
           <a href={us ? `/connections/${us.id}` : "/add?us=1"} className="button-secondary">
-            {us ? "Your Band’s Page" : "Add Your Band’s Page"}
+            {us ? "Open Your Band’s Page" : "Add Your Band’s Page"}
           </a>
           <Link href="/band" className="button-secondary">
-            Band Settings
+            Open Band Settings
           </Link>
         </div>
       </div>

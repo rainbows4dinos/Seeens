@@ -100,7 +100,7 @@ export default function AiPage() {
 
       <footer className="flex flex-wrap gap-3">
         <Link href="/about" className="button-secondary">
-          About Seeens
+          Read About Seeens
         </Link>
         <Link href="/login" className="button-primary signed-out-only">
           Sign In

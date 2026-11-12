@@ -91,10 +91,10 @@ export default async function RoadmapPage() {
 
         <footer className="flex flex-wrap gap-3">
           <Link href="/about" className="button-secondary">
-            About Seeens
+            Read About Seeens
           </Link>
           <Link href="/changelog" className="button-secondary">
-            What&rsquo;s New
+            See What&rsquo;s New
           </Link>
         </footer>
       </div>

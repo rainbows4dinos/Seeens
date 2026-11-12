@@ -273,13 +273,13 @@ export default function AboutPage() {
             Sign In
           </Link>
           <Link href="/ai" className="button-secondary">
-            Seeens &amp; AI
+            Read About AI
           </Link>
           <Link href="/changelog" className="button-secondary">
-            What&rsquo;s New
+            See What&rsquo;s New
           </Link>
           <Link href="/roadmap" className="button-secondary">
-            Roadmap
+            See the Roadmap
           </Link>
         </footer>
       </div>

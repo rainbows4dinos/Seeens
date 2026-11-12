@@ -323,7 +323,7 @@ export function PendingInviteActions({ id, hasEmail, label }: { id: string; hasE
           disabled={pending}
           onClick={() => run(() => renewInviteLink(id))}
         >
-          New Link<span className="sr-only"> for {label}</span>
+          Make a New Link<span className="sr-only"> for {label}</span>
         </button>
         <button
           type="button"

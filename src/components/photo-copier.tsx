@@ -507,7 +507,7 @@ function CopierBody({
               disabled={!source || !webgl}
               onClick={() => set("seed", (settings.seed + 1 + Math.floor(Math.random() * 997)) % 1000)}
             >
-              New Grain
+              Shuffle Grain
             </button>
             <button type="button" className="button-secondary" onClick={() => fileInput.current?.click()}>
               {source ? "Different Photo" : "Choose a Photo"}
@@ -571,12 +571,12 @@ function CopierBody({
                 Remove
               </button>
               <button type="button" className="action-link text-sm" onClick={() => setConfirmRemove(false)}>
-                Keep it
+                Keep It
               </button>
             </div>
           ) : (
             <button type="button" className="action-link text-sm" onClick={() => setConfirmRemove(true)}>
-              Remove photo
+              Remove Photo
             </button>
           )
         ) : null}
