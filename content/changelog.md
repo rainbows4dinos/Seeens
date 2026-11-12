@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-11
 
+- **What’s New and the Roadmap.** This page is new: what changed, newest first, with a mark in the header when there’s something you haven’t seen. The [Roadmap](/roadmap) shows what’s coming: now, next, and later.
 - **Set a status on several listings at once.** In Network or Explore, click a listing’s photo to select it. Cmd-click (Ctrl-click on Windows) adds one, Shift-click adds a range, and on a phone you press and hold. A bar at the bottom sets a status or Played Together for all of them, and you can Undo. [The shortcuts are on Help](/help#shortcuts).
 - **Type of space for venues.** A venue can say what kind of place it is: dive bar, coffee shop, house show, record store, and more. Filter by it in Explore.
 - **Invite a bandmate who’s already listed.** When you invite a bandmate, you can pick them from your band’s people instead of typing an email. They’re linked to that listing when they join, so nobody ends up listed twice.

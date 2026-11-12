@@ -62,6 +62,9 @@ export default async function ChangelogPage() {
           <Link href="/about" className="button-secondary">
             About Seeens
           </Link>
+          <Link href="/roadmap" className="button-secondary">
+            Roadmap
+          </Link>
           <Link href="/" className="button-primary">
             Open Seeens
           </Link>

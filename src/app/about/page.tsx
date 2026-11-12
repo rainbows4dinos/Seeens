@@ -65,6 +65,17 @@ export default function AboutPage() {
               one bandmate&rsquo;s head. Who booked that show in Spokane? Which bands want to play with us again? Who
               said they&rsquo;d follow up, and did they?
             </p>
+            <p className="text-muted">
+              See{" "}
+              <Link href="/changelog" className="link">
+                what&rsquo;s new
+              </Link>
+              , or{" "}
+              <Link href="/roadmap" className="link">
+                what&rsquo;s coming
+              </Link>
+              .
+            </p>
           </div>
           <Link href="/login" className="button-primary">
             Sign In
@@ -245,6 +256,10 @@ export default function AboutPage() {
             <Link href="/changelog" className="link">
               What&rsquo;s New
             </Link>
+            ; for what&rsquo;s coming, the{" "}
+            <Link href="/roadmap" className="link">
+              Roadmap
+            </Link>
             .
           </p>
         </section>
@@ -258,6 +273,9 @@ export default function AboutPage() {
           </Link>
           <Link href="/changelog" className="button-secondary">
             What&rsquo;s New
+          </Link>
+          <Link href="/roadmap" className="button-secondary">
+            Roadmap
           </Link>
         </footer>
       </div>
