@@ -13,6 +13,7 @@ import { defaultSettings, readSettings } from "@/lib/photos/settings";
 import { SuggestedBands } from "@/components/suggested-bands";
 import { gettingStartedShows } from "@/components/getting-started";
 import { kindWords } from "@/lib/band/kind";
+import { loadRoster } from "@/lib/band/roster";
 
 // Home (#273): your band's own page, pointing into the Directory rather than
 // copying it. Each section loads on its own and steps aside when it has
@@ -305,21 +306,8 @@ export async function NewOnSeeens() {
 export async function Roster() {
   const membership = await getMembership();
   if (!membership || membership.kind !== "label") return null;
-  const [supabase, us] = await Promise.all([createClient(), getUsConnection()]);
-  const { data: roster } = await supabase.rpc("label_roster", { p_workspace_id: membership.workspaceId });
-  const ids = (roster ?? []).map((r) => r.connection_id);
-  const { data: bands } = ids.length
-    ? await supabase
-        .from("connections")
-        .select(
-          "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
-        )
-        .in("id", ids)
-    : { data: [] };
-  const byId = new Map((roster ?? []).map((r) => [r.connection_id, r]));
-  const shown = (bands ?? [])
-    .map((b) => ({ ...b, ...byId.get(b.id)! }))
-    .sort((a, b) => Number(b.is_current) - Number(a.is_current) || a.name.localeCompare(b.name));
+  const [shown, us] = await Promise.all([loadRoster(), getUsConnection()]);
+  const waiting = membership.role === "owner" && shown.some((b) => !b.joined && !(b.invited && !b.by_us));
   const addHref = us ? `/connections/${us.id}` : "/add?us=1";
 
   return (
@@ -329,9 +317,16 @@ export async function Roster() {
           Roster{shown.length ? <span className="text-muted"> ({shown.length})</span> : null}
         </h2>
         {shown.length ? (
-          <a href={addHref} className="link text-sm">
-            Add Bands on Your Label’s Page
-          </a>
+          <span className="flex flex-wrap gap-x-4 gap-y-1">
+            {waiting ? (
+              <Link href="/band#band-roster" className="link text-sm">
+                Invite Your Bands
+              </Link>
+            ) : null}
+            <a href={addHref} className="link text-sm">
+              Add Bands
+            </a>
+          </span>
         ) : null}
       </div>
       {shown.length ? (
@@ -342,7 +337,9 @@ export async function Roster() {
                 <Print name={c.name} path={c.photo_path} size="m" />
                 <span className="block truncate text-sm font-medium">{c.name}</span>
                 <span className="caption block truncate">
-                  {[c.is_current ? null : "Past", c.joined ? "On Seeens" : null].filter(Boolean).join(" · ") ||
+                  {[c.is_current ? null : "Past", c.joined ? "On Seeens" : c.invited ? "Invited" : null]
+                    .filter(Boolean)
+                    .join(" · ") ||
                     formatLocality(c.localities as Place) ||
                     formatType(c)}
                 </span>

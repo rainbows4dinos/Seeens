@@ -375,11 +375,11 @@ isOneToOne: false
                   ]
                 },"workspaces": {
                   Row: {
-                    "created_at": string,"id": string,"kind": "band" | "label","listing_id": string | null,"name": string,"time_zone": string
+                    "created_at": string,"id": string,"invited_by_workspace": string | null,"kind": "band" | "label","listing_id": string | null,"name": string,"time_zone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"kind"?: "band" | "label","listing_id"?: string | null,"name": string,"time_zone"?: string
+                    "created_at"?: string,"id"?: string,"invited_by_workspace"?: string | null,"kind"?: "band" | "label","listing_id"?: string | null,"name": string,"time_zone"?: string
                   }
                   Update: {
                     "created_at"?: string,"id"?: string,"name"?: string,"time_zone"?: string
@@ -462,7 +462,9 @@ isOneToOne: false
             "list_bands":
 { Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null,"kind": "band" | "label" }[] },
             "label_roster":
-{ Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"is_current": boolean,"joined": boolean }[] },
+{ Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"is_current": boolean,"joined": boolean,"invited": boolean,"by_us": boolean }[] },
+            "invite_roster_band":
+{ Args: { "p_workspace_id": string,"p_listing_id": string,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
             "listing_claim":
 { Args: { "p_connection_id": string }; Returns: { "band": string,"mine": boolean,"joined": boolean }[] },
             "cancel_band_invite":

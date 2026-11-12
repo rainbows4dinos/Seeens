@@ -5,6 +5,8 @@ import { getCurrentUser, getMembership, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { loadPendingInvites } from "@/lib/band/queries";
 import { kindWords } from "@/lib/band/kind";
+import { loadRoster } from "@/lib/band/roster";
+import { RosterInvites } from "@/components/roster-invites";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
 import { NoWorkspace } from "@/components/no-workspace";
@@ -33,7 +35,7 @@ async function Band() {
   const [user, us, supabase] = await Promise.all([getCurrentUser(), getUsConnection(), createClient()]);
   const ws = membership.workspaceId;
   const owner = membership.role === "owner";
-  const [{ data: members }, invites, { count: shared }, { count: kept }, { data: people }] = await Promise.all([
+  const [{ data: members }, invites, { count: shared }, { count: kept }, { data: people }, roster] = await Promise.all([
     supabase.rpc("band_members", { p_workspace_id: ws }),
     loadPendingInvites(ws),
     supabase
@@ -47,6 +49,7 @@ async function Band() {
       .eq("workspace_id", ws)
       .eq("keep_private", true),
     supabase.rpc("invitable_bandmates", { p_workspace_id: ws }),
+    loadRoster(),
   ]);
   const tz = membership.timeZone;
 
@@ -101,6 +104,38 @@ async function Band() {
           Review What You Share
         </Link>
       </ProfilePanel>
+
+      {membership.kind === "label" ? (
+        <ProfilePanel id="band-roster" title={`Roster (${roster.length})`}>
+          {roster.length ? (
+            <>
+              <p className="text-muted">
+                The bands on {membership.workspaceName}.{" "}
+                {owner
+                  ? "Invite the ones that aren't on Seeens yet: they claim their listing, the way you claimed yours."
+                  : "Owners can invite the ones that aren't on Seeens yet."}
+              </p>
+              <RosterInvites
+                label={membership.workspaceName}
+                canInvite={owner}
+                bands={roster.map((b) => ({
+                  id: b.id,
+                  name: b.name,
+                  current: b.is_current,
+                  joined: b.joined,
+                  invited: b.invited,
+                  byUs: b.by_us,
+                }))}
+              />
+            </>
+          ) : (
+            <p className="text-muted">
+              No bands on {membership.workspaceName} yet. Add them on your label&rsquo;s page, under Bands on This
+              Label.
+            </p>
+          )}
+        </ProfilePanel>
+      ) : null}
 
       <ProfilePanel id="band-invite" title={membership.kind === "label" ? "Invite Someone" : "Invite a Bandmate"}>
         <InviteForm
