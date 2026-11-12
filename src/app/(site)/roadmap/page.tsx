@@ -24,11 +24,11 @@ export default async function RoadmapPage() {
   const sections = (await getRoadmap()).filter((s) => s.items.length);
   const nav = sections.map((s) => ({ id: s.label.toLowerCase(), label: s.label }));
   return (
-    <main className="side-nav-layout flex-1 px-4 py-16">
+    <main className="side-nav-layout flex-1 px-4 pt-16 pb-16 [body:has(.app-header)_&]:pt-8">
       <SideNav sections={nav} />
       <div className="page-measure flex flex-col gap-12">
         <header className="flex flex-col items-start gap-6">
-          <Link href="/about" className="logo">
+          <Link href="/about" className="logo signed-out-only">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
           </Link>

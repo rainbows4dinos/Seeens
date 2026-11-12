@@ -20,7 +20,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 - **Paste Members on the Add page.** Adding a band? Paste its lineup and pick who to add, roles and all.
 - **No status on your own band.** Your band’s page no longer offers a status, plans, or outreach for itself.
 - **Worn headings.** Big headings now look a little rubbed, like transfer lettering that’s been handled.
-- **Fixes.** The loading metronome no longer hangs after a page has loaded, or after Show More. The phone menu scrolls when it’s taller than the screen. CSV exports list listings by type, then name.
+- **Fixes.** The loading metronome no longer hangs after a page has loaded, or after Show More. The phone menu scrolls when it’s taller than the screen. CSV exports list listings by type, then name. Signed in, About and the other info pages keep the usual header, without a Sign In button.
 
 ## 2026-11-10
 
