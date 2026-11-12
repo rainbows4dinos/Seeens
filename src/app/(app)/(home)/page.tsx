@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { ArrangeHome } from "@/components/arrange-home";
+import { HomeArrange, HomeRow } from "@/components/arrange-home";
 import { HOME_ROWS, isDefault, type HomeRowKey } from "@/lib/home/layout";
 import { loadHomeLayout } from "@/lib/home/queries";
 import { GettingStarted } from "@/components/getting-started";
@@ -40,19 +40,21 @@ async function Home({ searchParams }: { searchParams: Promise<Params> }) {
       <Suspense fallback={null}>
         <GettingStarted preview={preview} />
       </Suspense>
-      {/* The rest in this person's order (#313). */}
-      {home.layout.shown.map((key) => (
-        <Suspense key={key} fallback={null}>
-          {row(key, preview)}
-        </Suspense>
-      ))}
-      <ArrangeHome
+      {/* The rest in this person's order (#313), hidden ones too, for
+          Arrange Home's edit mode. */}
+      <HomeArrange
         isDefault={isDefault(home.layout, home.kind)}
         rows={[
           ...home.layout.shown.map((key) => ({ key, label: label(key), shown: true })),
           ...home.layout.hidden.map((key) => ({ key, label: label(key), shown: false })),
         ]}
-      />
+      >
+        {[...home.layout.shown, ...home.layout.hidden].map((key) => (
+          <HomeRow key={key} id={key}>
+            <Suspense fallback={null}>{row(key, preview)}</Suspense>
+          </HomeRow>
+        ))}
+      </HomeArrange>
     </div>
   );
 }
