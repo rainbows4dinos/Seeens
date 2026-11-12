@@ -22,7 +22,7 @@ type Row = {
   alreadyMember: boolean;
 };
 
-const EXAMPLE = "Jo Example - vocals, guitar\nRiley Sample - drums\nSam Placeholder - bass (former)";
+const EXAMPLE = "Jo Example - vocals, guitar\ndrums / Riley Sample\nSam Placeholder - bass (former)";
 
 // Paste a band's lineup, check it, and add everyone as members in one save.
 export function PasteLineup({
@@ -125,8 +125,8 @@ export function PasteLineup({
               Lineup
             </label>
             <p id={`${id}-hint`} className="-mt-1 text-sm text-muted">
-              Paste it from their site, Bandcamp, or a press kit. One person per line, with roles after a dash. Nothing
-              is saved until you check it.
+              Paste it from their site, Bandcamp, or a press kit. One person per line, with their roles before or after
+              the name. Nothing is saved until you check it.
             </p>
             <textarea
               {...noAutofill}
