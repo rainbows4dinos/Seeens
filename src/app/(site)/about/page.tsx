@@ -41,11 +41,11 @@ const SECTIONS: SideNavSection[] = [
 // band's own layer on it, and Keep Private.
 export default function AboutPage() {
   return (
-    <main className="side-nav-layout flex-1 px-4 py-16">
+    <main className="side-nav-layout flex-1 px-4 pt-16 pb-16 [body:has(.app-header)_&]:pt-8">
       <SideNav sections={SECTIONS} />
       <div className="page-measure flex flex-col gap-12">
         <header className="flex flex-col items-start gap-6">
-          <Link href="/" className="logo">
+          <Link href="/" className="logo signed-out-only">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
           </Link>
@@ -77,7 +77,7 @@ export default function AboutPage() {
               .
             </p>
           </div>
-          <Link href="/login" className="button-primary">
+          <Link href="/login" className="button-primary signed-out-only">
             Sign In
           </Link>
         </header>
@@ -265,7 +265,7 @@ export default function AboutPage() {
         </section>
 
         <footer className="flex flex-wrap gap-3">
-          <Link href="/login" className="button-primary">
+          <Link href="/login" className="button-primary signed-out-only">
             Sign In
           </Link>
           <Link href="/ai" className="button-secondary">

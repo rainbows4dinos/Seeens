@@ -47,9 +47,9 @@ const RULES: [string, string][] = [
 
 export default function AiPage() {
   return (
-    <main className="page-measure flex flex-1 flex-col gap-12 px-4 py-16">
+    <main className="page-measure flex flex-1 flex-col gap-12 px-4 pt-16 pb-16 [body:has(.app-header)_&]:pt-8">
       <header className="flex flex-col items-start gap-6">
-        <Link href="/about" className="logo">
+        <Link href="/about" className="logo signed-out-only">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/seeens-logo.svg" alt="Seeens" width={75} height={18} />
         </Link>
@@ -102,7 +102,7 @@ export default function AiPage() {
         <Link href="/about" className="button-secondary">
           About Seeens
         </Link>
-        <Link href="/login" className="button-primary">
+        <Link href="/login" className="button-primary signed-out-only">
           Sign In
         </Link>
       </footer>
