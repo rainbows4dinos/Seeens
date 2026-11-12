@@ -67,7 +67,7 @@ export function RowStatus({
         aria-label={`Status for ${name}`}
         value={shown ?? ""}
         onChange={(e) => save((e.target.value || null) as ConnectionStatus | null)}
-        className="field"
+        className="field control-sm"
         aria-invalid={failed || undefined}
       >
         <option value="">{NO_STATUS}</option>
