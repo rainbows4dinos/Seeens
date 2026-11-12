@@ -1,6 +1,6 @@
 // The invite emails, in one place so they read alike. Plain text.
 //
-// - Say what Seeens is for in terms of a show or a tour, not features.
+// - Only say what Seeens does today. No promises about features to come.
 // - No possessive on a band's name: "The Snubs's" reads wrong, so it's
 //   "your band's listing".
 // - Replies go to whoever sent it, and the email says so.
@@ -29,8 +29,8 @@ export function ownerInvite(o: {
       `${o.from} invited ${o.band} to Seeens and made you its owner.`,
       "",
       label
-        ? "Seeens is a directory bands and labels keep together: the bands, venues, bookers, and labels you know, and who else knows them. When a release needs shows, you can see who's played where and who can make an intro."
-        : "Seeens is a directory bands keep together: the venues, bookers, labels, and bands you know, and who else knows them. When you're planning a show or a tour, you can see who's played where and who can make an intro.",
+        ? "Seeens is a directory bands and labels keep together. Keep track of the bands, venues, and bookers you work with, what you've got planned with each, and what's next, in one place everyone at the label can see."
+        : "Seeens is a directory bands keep together. Keep track of the venues, bookers, and bands you know, who you've played with, and what's next, in one place the whole band can see.",
       "",
       `It's in beta and invite only, so you'd be one of the first ${label ? "labels" : "bands"} on it. Tell us what's missing.`,
       "",
@@ -57,7 +57,7 @@ export function memberInvite(o: { from: string; band: string; kind: WorkspaceKin
       `${o.from} invited you to ${o.band} on Seeens.`,
       "",
       label
-        ? `It's where ${o.band} keeps track of the bands, venues, and bookers you all work with: who's played where, who to ask about what, and what's next.`
+        ? `It's where ${o.band} keeps track of the bands, venues, and bookers you all work with, and what's next with each.`
         : `It's where ${o.band} keeps track of the venues, bookers, and bands you all know: who you've played with, who books what, and what's next. Anyone in the band can add to it, so nobody has to remember it all.`,
       "",
       `Join ${o.band}: ${o.link}`,
