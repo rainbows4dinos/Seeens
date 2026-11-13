@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-12
 
+- **Fixes.** Saving a photo shows the loading metronome on the pointer again, instead of behind the photo window.
 - **Invites fill in the email.** Inviting a band, a label’s band, or someone you’ve saved an email for? The email’s filled in. Change it if it’s not the right one.
 - **Arrange Home.** Press **Arrange Home** at the bottom, then drag Home’s rows into the order you want and hide the ones you don’t use. It’s just for you; your bandmates keep their own. Home also has a **Want to Play** row now, at the end.
 - **Each member gets their own status.** On a band’s page, set a status for each member right in the Members list, and on a person’s page, for each of their bands. Being Homies with a band doesn’t make you close with the bass player.
