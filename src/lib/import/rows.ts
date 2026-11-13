@@ -38,6 +38,8 @@ type Status = "homies" | "lets_play" | "prospect" | "neutral" | "avoid";
 /** Where a column goes. "notes" keeps it, labeled with the header; "skip" drops it. */
 export const TARGETS = {
   name: { label: "Name" },
+  // A Seeens export's "BND-0042": fills in exactly that record (#321).
+  catalog_no: { label: "Catalog No." },
   type: { label: "Type" },
   town: { label: "Town" },
   email: { label: "Email" },
@@ -56,6 +58,7 @@ export const TARGETS = {
   accessibility: { label: "Accessibility", venue: true },
   special_terms: { label: "Special terms", venue: true },
   scenes: { label: "Scenes" },
+  members: { label: "Members (Names)" },
   status: { label: "Status" },
   played: { label: "Played together" },
   notes: { label: "Add to notes" },
@@ -74,6 +77,7 @@ export type SheetKind = keyof typeof SHEET_KINDS;
 
 // Header words -> target. First match wins, so specific ones come first.
 const HEADER_GUESSES: [RegExp, Target][] = [
+  [/catalog|^cat\.?\s*no/i, "catalog_no"],
   [/book(ed|er|ing)?\s*(by|contact person|who)|^booker|^who books/i, "booked_by"],
   [/book|contact method|how to (book|contact)/i, "booking"],
   [/e-?mail/i, "email"],
@@ -94,6 +98,7 @@ const HEADER_GUESSES: [RegExp, Target][] = [
   [/played|we.?ve played/i, "played"],
   [/^type$|^kind$|^category$|what is it/i, "type"],
   [/town|city|location|where/i, "town"],
+  [/^(band\s*)?members?$|line-?up/i, "members"],
   [/^name$|band name|venue name|^band$|^venue$|^who$|^artist$/i, "name"],
   [/note|comment|misc/i, "notes"],
 ];
@@ -110,7 +115,7 @@ export function guessMapping(headers: string[], sheet: SheetKind): Target[] {
   const out = headers.map((h) => guessTarget(h, sheet));
   if (!out.includes("name") && headers.length) out[0] = "name";
   // Only one name and one town column.
-  for (const t of ["name", "town", "type"] as Target[]) {
+  for (const t of ["name", "town", "type", "catalog_no"] as Target[]) {
     let seen = false;
     out.forEach((v, i) => {
       if (v !== t) return;
@@ -140,6 +145,10 @@ export type DraftRow = {
   scenes: string[];
   venue: VenueDetails;
   booked_by: string[];
+  /** The record this row fills in, by its catalog number, from a Seeens export. */
+  catalog_no: number | null;
+  /** Band members by name: people Seeens finds or adds, linked as members. */
+  members: string[];
 };
 
 export type Built = { rows: DraftRow[]; skipped: { line: number; reason: string }[] };
@@ -354,6 +363,8 @@ export function buildRows(
       scenes: [],
       venue: {},
       booked_by: [],
+      catalog_no: null,
+      members: [],
     };
     let typed = sheet !== "mixed";
 
@@ -370,11 +381,17 @@ export function buildRows(
       }
       if (target === "notes") return notes.push(/^notes?$|^comments?$/i.test(header) ? raw : `${header}: ${raw}`);
       // Several names: only the unsure ones stay out.
-      if (target === "booked_by") {
+      if (target === "booked_by" || target === "members") {
         for (const name of splitNames(raw)) {
-          if (isUnsure(name)) unsure.push(`booked by ${name}`);
-          else row.booked_by.push(cleanName(name));
+          if (isUnsure(name)) unsure.push(`${target === "members" ? "member" : "booked by"} ${name}`);
+          else row[target].push(cleanName(name));
         }
+        return;
+      }
+      if (target === "catalog_no") {
+        const no = readCatalogNo(raw);
+        if (no) row.catalog_no = no;
+        else note();
         return;
       }
       // Anything marked unsure stays out of the fields.
@@ -478,8 +495,12 @@ export function buildRows(
 
     if (!row.name) return skipped.push({ line, reason: "No name" });
     if (!typed) return skipped.push({ line, reason: `${row.name}: the Type column doesn't say what it is` });
-    const key = matchKey(row.name);
-    if (seen.has(key)) return skipped.push({ line, reason: `${row.name}: same name as line ${seen.get(key)}` });
+    // Two bands can share a name; two rows can't share a record.
+    const key = row.catalog_no ? `#${row.catalog_no}` : matchKey(row.name);
+    if (seen.has(key)) {
+      const same = row.catalog_no ? "same catalog number" : "same name";
+      return skipped.push({ line, reason: `${row.name}: ${same} as line ${seen.get(key)}` });
+    }
     seen.set(key, line);
 
     // Venue details only mean something on a venue; elsewhere they're notes.
@@ -491,6 +512,10 @@ export function buildRows(
       notes.push(`Booked by: ${row.booked_by.join(", ")}`);
       row.booked_by = [];
     }
+    if (row.group_type !== "band" && row.members.length) {
+      notes.push(`Members: ${row.members.join(", ")}`);
+      row.members = [];
+    }
     if (unsure.length) notes.push(`Not sure: ${unsure.join("; ")}`);
     row.notes = notes.length ? notes.join("\n") : null;
     row.scenes = [...new Set(row.scenes)];
@@ -498,6 +523,47 @@ export function buildRows(
   });
 
   return { rows, skipped };
+}
+
+/** "BND-0042", "bnd 42", or "42" -> 42. Null for anything else. */
+export function readCatalogNo(raw: string): number | null {
+  const m = /^(?:[a-z]{2,3}[-\s]?)?0*([1-9][0-9]{0,8})$/i.exec(raw.trim());
+  return m ? Number(m[1]) : null;
+}
+
+type Existing = { id: string; name: string; kind: Kind; group_type: string | null; catalog_no: number | null };
+
+/**
+ * Which record each row fills in. A catalog number decides on its own: one
+ * that isn't your band's record is skipped, never added again by name.
+ * Without one, the same name and kind.
+ */
+export function matchRows<E extends Existing>(
+  rows: DraftRow[],
+  existing: E[],
+): { matches: Map<number, E>; strays: { line: number; reason: string }[] } {
+  const byNo = new Map(existing.filter((e) => e.catalog_no).map((e) => [e.catalog_no, e]));
+  const byKey = new Map<string, E[]>();
+  for (const e of existing) byKey.set(matchKey(e.name), [...(byKey.get(matchKey(e.name)) ?? []), e]);
+  const matches = new Map<number, E>();
+  const strays: { line: number; reason: string }[] = [];
+  for (const r of rows) {
+    if (r.catalog_no) {
+      const m = byNo.get(r.catalog_no);
+      if (m) matches.set(r.line, m);
+      else
+        strays.push({
+          line: r.line,
+          reason: `${r.name}: catalog number ${r.catalog_no} isn't in your band's directory`,
+        });
+      continue;
+    }
+    const m = (byKey.get(matchKey(r.name)) ?? []).find(
+      (e) => e.kind === r.kind && (!e.group_type || !r.group_type || e.group_type === r.group_type),
+    );
+    if (m) matches.set(r.line, m);
+  }
+  return { matches, strays };
 }
 
 // A booking cell holds an email, a handle, a link, or just how ("Instagram").

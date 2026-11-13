@@ -48,7 +48,7 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 - **Photos:** one photo per connection, run through the copier (a xerox look you tune: lighter/darker, contrast, toner grit, an ink plate, and its offset) before it's saved. Location data is stripped in the browser, and photos stay in private storage.
 - **Follow-through:** log outreach and keep one next action per connection, with a responsible member and an optional follow-up date. Follow-ups lists every open next action; the first few are Up Next on Home.
 - **Shared access:** authorized band members can work with the same private data across devices.
-- **Portability:** export the directory to CSV, and import a spreadsheet of bands, venues, or people. The import guesses each column, matches towns, and shows every row before saving. Rows already in the directory only get their blanks filled. Anything unreadable or marked with a ? goes into notes, not a field, and venue bookers become Booked By links.
+- **Portability:** export the directory to CSV, and import a spreadsheet of bands, venues, or people. The import guesses each column, matches towns, and shows every row before saving. Rows already in the directory only get their blanks filled: a Catalog No. column (from an export) picks the exact record, otherwise the name does, and a link the record already has, or a second Instagram or Bandcamp, isn't added again. Anything unreadable or marked with a ? goes into notes, not a field, venue bookers become Booked By links, and a band's Members column links its members.
 - **Where Seeens Stands on AI:** `/ai` is public: no AI in the app today, the ten rules if that ever changes, and what runs where (nothing yet). Linked from About, the FAQ's AI answer, and the footer.
 - **Sign-in preview:** from 1024px wide, the sign-in page shows a slow drift of real cards beside the form: shared bands and venues with photos, shuffled hourly (`preview_cards()`, open to visitors). Name, type, town, scenes, and photo only, never people or anything from a band's own layer. Keep Private takes a listing off it. Photos come through `/api/preview-photos/[id]`, which checks the listing first.
 - **About and Help:** `/about` is public, for people who just got an invite (linked from Sign In and the footer): the shared directory, your band's own layer, Keep Private, statuses, roles, and who's behind it. Help (account menu) has the statuses, a glossary, keyboard shortcuts (the quick view and selecting several), then the FAQ. The copy lives in the About and Help doc. About has a spot for one screenshot (`SCREENSHOT` in `src/app/about/page.tsx`): real data, shared parts only.
@@ -213,6 +213,18 @@ Supabase code lives in `src/lib/supabase/`: `client.ts` for Client Components, `
 ## Place data
 
 Town search uses the GeoNames `cities1000` list (towns with 1,000+ people), loaded into Supabase by migration. Data is © GeoNames, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), credited in the app footer. To rebuild the data migration from a newer package: `node scripts/build-places-migration.mjs <timestamp>`.
+
+## Look up (admin script)
+
+`scripts/look-up.ts` fills in missing band details from public pages, outside the app (#321). Export the directory, then:
+
+```sh
+npm run look-up -- ~/Downloads/seeens-export.csv --limit 10
+```
+
+For each band missing an Instagram, Bandcamp, website, or email, it makes one Claude call with web search (3 searches at most) and checks the band's own website (robots.txt respected, 4 pages at most). It never fetches Bandcamp or Instagram pages. Every value must cite a page the search returned, or it's left out, and the band's own website wins when the two disagree. It writes `<export>.look-up.csv` next to the export, with sources in the notes column and a `photo_to_upload` column to set by hand. Check that sheet, delete anything wrong, then bring it in with Import as Bands.
+
+It needs `ANTHROPIC_API_KEY` in the environment or `.env.local`; `LOOK_UP_MODEL` overrides the model. Results are cached for 30 days in `<export>.look-up-cache.json` (`--fresh` ignores it, `--only BND-0042` runs one band, `--dry-run` prints the prompts). Both files hold real contacts and are gitignored; keep them out of the repo. Seeens itself runs no AI: see [docs/ai-constitution.md](docs/ai-constitution.md).
 
 ## Project documentation
 

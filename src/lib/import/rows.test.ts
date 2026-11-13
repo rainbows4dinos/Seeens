@@ -10,6 +10,8 @@ import {
   readCapacity,
   readType,
   guessVenueTypes,
+  matchRows,
+  readCatalogNo,
 } from "./rows.ts";
 
 test("names: flipped articles, spelling doubts, spaces", () => {
@@ -137,4 +139,58 @@ test("venue types are guessed from the sheet's words (#262)", () => {
   // A plain bar is the band's call.
   assert.deepEqual(guessVenueTypes("bar"), []);
   assert.deepEqual(guessVenueTypes("licensed"), []);
+});
+
+test("catalog numbers from an export fill in exactly that record (#321)", () => {
+  assert.equal(readCatalogNo("BND-0042"), 42);
+  assert.equal(readCatalogNo("bnd 42"), 42);
+  assert.equal(readCatalogNo("42"), 42);
+  assert.equal(readCatalogNo("BND-0000"), null);
+  assert.equal(readCatalogNo("Teeth For Eyes"), null);
+  assert.deepEqual(guessMapping(["catalog_no", "name", "Members"], "bands"), ["catalog_no", "name", "members"]);
+
+  const headers = ["catalog_no", "Name", "Members"];
+  const { rows, skipped } = buildRows(
+    headers,
+    [
+      ["BND-0042", "Soda", "Riley Example, Chris?, Sam"],
+      ["BND-0057", "Soda", ""],
+      ["BND-0042", "Soda again", ""],
+      ["", "New Band", ""],
+    ],
+    ["catalog_no", "name", "members"],
+    "bands",
+    { status: "neutral" },
+  );
+  // Two bands can share a name; two rows can't share a record.
+  assert.deepEqual(
+    rows.map((r) => [r.name, r.catalog_no]),
+    [
+      ["Soda", 42],
+      ["Soda", 57],
+      ["New Band", null],
+    ],
+  );
+  assert.deepEqual(skipped, [{ line: 4, reason: "Soda again: same catalog number as line 2" }]);
+  assert.deepEqual(rows[0].members, ["Riley Example", "Sam"]);
+  assert.match(rows[0].notes ?? "", /Not sure: member Chris\?/);
+
+  const existing = [
+    { id: "a", name: "Soda", kind: "group" as const, group_type: "band", catalog_no: 42 },
+    { id: "b", name: "New Band", kind: "group" as const, group_type: "band", catalog_no: 99 },
+  ];
+  const { matches, strays } = matchRows(rows, existing);
+  assert.equal(matches.get(2)?.id, "a");
+  assert.equal(matches.get(5)?.id, "b", "no catalog number: matched by name");
+  // 57 is someone else's record: skipped, not added again by name.
+  assert.equal(matches.has(3), false);
+  assert.deepEqual(strays, [{ line: 3, reason: "Soda: catalog number 57 isn't in your band's directory" }]);
+});
+
+test("members only mean something on a band", () => {
+  const { rows } = buildRows(["Name", "Members"], [["Dantes", "Joel"]], ["name", "members"], "venues", {
+    status: "neutral",
+  });
+  assert.deepEqual(rows[0].members, []);
+  assert.equal(rows[0].notes, "Members: Joel");
 });

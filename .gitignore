@@ -40,3 +40,7 @@ npm-debug.log*
 
 # Python (design-sync scripts)
 __pycache__/
+
+# Look up output (#321): real contacts
+*.look-up.csv
+*.look-up-cache.json
