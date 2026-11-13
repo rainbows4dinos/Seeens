@@ -27,4 +27,7 @@ no-pressure rule). Keep it short and plain, for the bands using Seeens.
 - **Everyone claims their own listing.** Venues, labels, promoters, radio, and press can claim and keep up their own listings, the way bands do now. (#68)
 - **Release or tour focus.** Point Seeens at a release or tour, and see who to reach out to for it. (#23)
 - **Dark mode.** (#65)
+- **Bandsintown.** Connect your Bandsintown feed and your shows show up on your listing. Add shows by hand if you don't use it. (#322)
+- **Messages.** Message other bands and people on Seeens. The first message is a request they can accept, ignore, or block. (#323)
+- **Flyer wall.** Browse upcoming shows from your network, flyers and all, and see who's playing where. (#324)
 - **Finding new scenes.** Ways to discover bands and places beyond the people you already know. (#21)
