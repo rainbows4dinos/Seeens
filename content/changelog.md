@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-13
+
+- **“The” doesn’t count in the Directory’s order.** The Shitfits sorts under S, not T.
+
 ## 2026-11-12
 
 - **Fixes.** Saving a photo shows the loading metronome on the pointer again, instead of behind the photo window.
