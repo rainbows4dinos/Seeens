@@ -245,6 +245,16 @@ export function BusyPointer() {
     // Put it on the pointer before it shows.
     const el = ref.current;
     if (show && el) el.style.transform = `translate(${last.x - HOTSPOT_X}px, ${last.y - HOTSPOT_Y}px)`;
+    // A modal dialog (the photo editor) sits in the top layer, above any
+    // z-index. As a popover the metronome joins the top layer too, and
+    // showing it again puts it above whatever opened since.
+    if (el?.showPopover) {
+      const open = el.matches(":popover-open");
+      if (show) {
+        if (open) el.hidePopover();
+        el.showPopover();
+      } else if (open) el.hidePopover();
+    }
     const root = document.documentElement;
     root.toggleAttribute("data-page-owns", owner === "page");
     root.toggleAttribute("data-busy-pointer-on", show);
@@ -253,7 +263,7 @@ export function BusyPointer() {
 
   return (
     <>
-      <div ref={ref} className="busy-pointer" data-on={show ? "" : undefined} aria-hidden="true">
+      <div ref={ref} popover="manual" className="busy-pointer" data-on={show ? "" : undefined} aria-hidden="true">
         <Metronome size={SIZE} />
       </div>
       {navigating && due && owner === "page" ? (

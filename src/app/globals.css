@@ -3328,9 +3328,14 @@
 
   .busy-pointer {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0 auto auto 0;
     z-index: 100;
+    /* It's a popover (to sit above modal dialogs): none of its box. */
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow: visible;
     pointer-events: none;
     visibility: hidden;
     transform: translate(-100px, -100px);
