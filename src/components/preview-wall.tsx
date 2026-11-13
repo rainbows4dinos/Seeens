@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { GROUP_TYPE_LABELS } from "@/lib/connections/labels";
 import { catalogNo, initials } from "@/lib/connections/card";
 import type { PreviewCard } from "@/lib/preview/cards";
+import { Photo } from "@/components/photo";
 
 // The sign-in page's preview (#255): columns of real cards drifting up,
 // like flipping through a crate. Names, towns, scenes, and photos only;
@@ -51,8 +52,8 @@ function Card({ card: c }: { card: PreviewCard }) {
     <div className="connection-card preview-card">
       <span className="card-print">
         <span className="card-print-initials">{initials(c.name)}</span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        {/* The copier's light bar sweeps while it loads, like cards in the app. */}
+        <Photo
           src={`/api/preview-photos/${c.id}?w=320`}
           srcSet={`/api/preview-photos/${c.id}?w=320 320w, /api/preview-photos/${c.id}?w=640 640w`}
           sizes="(min-width: 64rem) 25vw, 0px"
