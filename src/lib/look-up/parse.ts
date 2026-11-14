@@ -298,6 +298,9 @@ export function scanSite(html: string, pageUrl: string): SiteScan {
   const instagram = [...new Set(urls.map(instagramProfile).filter((u): u is string => Boolean(u)))];
   const bandcamp = [...new Set(urls.map(bandcampRoot).filter((u): u is string => Boolean(u)))];
   const site = host(pageUrl);
+  // Press and EPK pages first: that's where a band keeps its photos.
+  const rank = (u: string) =>
+    /press|epk/i.test(new URL(u).pathname) ? 0 : /about|bio/i.test(new URL(u).pathname) ? 1 : 2;
   const pages = [
     ...new Set(
       urls.filter(
@@ -307,12 +310,38 @@ export function scanSite(html: string, pageUrl: string): SiteScan {
           linkKey(u) !== linkKey(pageUrl),
       ),
     ),
-  ];
-  const og =
-    /<meta[^>]+property\s*=\s*["']og:image["'][^>]*content\s*=\s*["']([^"']+)["']/i.exec(html)?.[1] ??
-    /<meta[^>]+content\s*=\s*["']([^"']+)["'][^>]*property\s*=\s*["']og:image["']/i.exec(html)?.[1] ??
-    null;
-  return { emails: [...emails], instagram, bandcamp, image: og ? abs(og.replace(/&amp;/g, "&")) : null, pages };
+  ].sort((a, b) => rank(a) - rank(b));
+  const shared = [...html.matchAll(/<meta\b[^>]*>/gi)]
+    .map((m) => m[0])
+    .filter((tag) =>
+      /(?:property|name)\s*=\s*["'](?:og:image(?::url|:secure_url)?|twitter:image(?::src)?)["']/i.test(tag),
+    )
+    .map((tag) => /content\s*=\s*["']([^"']+)["']/i.exec(tag)?.[1])
+    .filter((v): v is string => Boolean(v))
+    .map((v) => abs(v.replace(/&amp;/g, "&")))
+    .filter((v): v is string => Boolean(v));
+  const image = shared.find(looksLikePhoto) ?? null;
+  return { emails: [...emails], instagram, bandcamp, image, pages };
+}
+
+/**
+ * A share image that's likely a photo of the band, not a logo, a wordmark,
+ * or a site graphic: by its file name, since nothing here downloads it.
+ */
+export function looksLikePhoto(url: string): boolean {
+  let path: string;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+    path = decodeURIComponent(u.pathname).toLowerCase();
+  } catch {
+    return false;
+  }
+  if (/\.(svg|gif|ico)$/.test(path)) return false;
+  const file = path.split("/").pop() ?? "";
+  return !/logo|wordmark|font|icon|favicon|banner|header|placeholder|default|untitled|share-?card|og-?image|lms-/.test(
+    file,
+  );
 }
 
 /** One row for the importer: only the blanks, with every source in the notes. */
@@ -325,7 +354,7 @@ export type OutRow = {
   website: string;
   email: string;
   members: string;
-  photo_to_upload: string;
+  photo: string;
   notes: string;
 };
 
@@ -338,7 +367,7 @@ export const OUT_COLUMNS: (keyof OutRow)[] = [
   "website",
   "email",
   "members",
-  "photo_to_upload",
+  "photo",
   "notes",
 ];
 
@@ -384,7 +413,7 @@ export function rowFor(
   const members = answer.members.map((m) => (m.roles ? `${m.name} - ${m.roles}` : m.name));
   if (members.length) notes.push(`Members: ${[...new Set(answer.members.map((m) => m.source))].join(", ")}`);
   const photo = site?.image ?? "";
-  if (photo) notes.push(`Photo: the website's share image; upload it if it's right`);
+  if (photo) notes.push(`Photo: the band's website (${siteUrl}); Import adds it`);
 
   if (!Object.keys(pick).length && !members.length && !photo) return null;
   if (answer.confusions.length) {
@@ -406,7 +435,7 @@ export function rowFor(
     website: pick.website ?? "",
     email: pick.email ?? "",
     members: members.join("; "),
-    photo_to_upload: photo,
+    photo,
     notes: notes.join("\n"),
   };
 }

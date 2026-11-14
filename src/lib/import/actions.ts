@@ -50,6 +50,8 @@ export type ImportResult =
       membersLinked: number;
       /** For See Them in the Directory: just this import's listings (#321). */
       importId: string | null;
+      /** Each row's record, in order, for adding its photo (#321). */
+      ids: string[];
     }
   | { ok: false; error: string };
 
@@ -65,6 +67,8 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
     notes: r.notes?.slice(0, 5000) ?? null,
     links: r.links.filter((l) => /^https?:\/\/\S+\.\S+/i.test(l.url)).slice(0, 20),
     scenes: r.scenes.map((s) => s.slice(0, 120)).slice(0, 20),
+    // Photos go through the copier in the browser after the import, not here.
+    photo_url: undefined,
     members: r.members
       .map((m) => ({ name: m.name.slice(0, 200), roles: m.roles.slice(0, 80), former: Boolean(m.former) }))
       .filter((m) => m.name)
@@ -84,6 +88,7 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
     bookers_added: number;
     member_links?: number;
     import_id?: string | null;
+    ids?: string[];
   };
   return {
     ok: true,
@@ -92,5 +97,6 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
     bookersAdded: d.bookers_added,
     membersLinked: d.member_links ?? 0,
     importId: d.import_id ?? null,
+    ids: d.ids ?? [],
   };
 }

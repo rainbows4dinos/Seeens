@@ -5,7 +5,8 @@
 // Reads a Seeens export (Directory > Export), looks up the bands missing an
 // Instagram, Bandcamp, website, or email, and writes <export>.look-up.csv
 // next to it. Check that sheet, delete anything wrong, then bring it in with
-// Import: the catalog numbers fill in exactly those records, blanks only.
+// Import: the catalog numbers fill in exactly those records, blanks only, and
+// the photo column's links go through the copier for listings with no photo.
 //
 // Each band gets one Claude call with web search (3 searches at most), then a
 // look at the band's own website (robots.txt respected, 4 pages at most).
@@ -140,9 +141,9 @@ if (!dryRun) {
 
 function summary(a: Answer, row: OutRow | null): string {
   const got = row
-    ? (["instagram", "bandcamp", "website", "email", "members", "photo_to_upload"] as const).filter((k) => row[k])
+    ? (["instagram", "bandcamp", "website", "email", "members", "photo"] as const).filter((k) => row[k])
     : [];
-  const parts = [got.length ? `found ${got.join(", ").replace("photo_to_upload", "photo")}` : "nothing to fill in"];
+  const parts = [got.length ? `found ${got.join(", ")}` : "nothing to fill in"];
   if (a.dropped.length) parts.push(`left out: ${a.dropped.join("; ")}`);
   return parts.join(". ");
 }
@@ -210,6 +211,8 @@ async function scanWebsite(url: string): Promise<SiteScan | null> {
     scan.emails = [...new Set([...scan.emails, ...more.emails])];
     scan.instagram = [...new Set([...scan.instagram, ...more.instagram])];
     scan.bandcamp = [...new Set([...scan.bandcamp, ...more.bandcamp])];
+    // A press or EPK page's photo beats the homepage's share image.
+    if (more.image && (/press|epk/i.test(new URL(page).pathname) || !scan.image)) scan.image = more.image;
   }
   return scan;
 }

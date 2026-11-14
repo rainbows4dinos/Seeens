@@ -6,6 +6,7 @@ import { Upload } from "@carbon/icons-react";
 import { useId, useMemo, useState, useTransition } from "react";
 import { STATUSES, STATUS_LABELS, formatType, type ConnectionStatus } from "@/lib/connections/labels";
 import { venueLine, venueTypeLabels } from "@/lib/connections/venue-details";
+import { ImportPhotos } from "@/components/import-photos";
 import { lookupTowns, runImport, type ImportResult, type TownMatches } from "@/lib/import/actions";
 import {
   SHEET_KINDS,
@@ -44,6 +45,8 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
   const [excluded, setExcluded] = useState<Set<number>>(new Set());
   const [error, setError] = useState("");
   const [result, setResult] = useState<Extract<ImportResult, { ok: true }> | null>(null);
+  // Photo links to run through the copier once the import's saved (#321).
+  const [photos, setPhotos] = useState<{ id: string; url: string }[]>([]);
   const [pending, startTransition] = useTransition();
 
   const built = useMemo(
@@ -121,6 +124,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
     startTransition(async () => {
       const res = await runImport(picked);
       if (res.ok) {
+        setPhotos(picked.flatMap((r, i) => (r.photo_url && res.ids[i] ? [{ id: res.ids[i], url: r.photo_url }] : [])));
         setResult(res);
         setStep("done");
       } else setError(res.error);
@@ -351,6 +355,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
               : ""}
             .
           </p>
+          <ImportPhotos wanted={photos} />
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/directory?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}${result.importId ? `&import=${result.importId}` : ""}`}
@@ -364,6 +369,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
               onClick={() => {
                 setSheet(null);
                 setResult(null);
+                setPhotos([]);
                 setExcluded(new Set());
                 setStep("file");
               }}
@@ -483,6 +489,7 @@ function ReviewRow({
     r.booked_by.length ? `Booked by ${r.booked_by.join(", ")}` : null,
     r.members.length ? `Members: ${r.members.map(memberLabel).join("; ")}` : null,
     r.links.length ? `${r.links.length} ${r.links.length === 1 ? "link" : "links"}` : null,
+    r.photo_url ? "photo" : null,
     r.email,
   ].filter(Boolean);
   return (
