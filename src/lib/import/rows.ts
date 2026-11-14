@@ -3,6 +3,7 @@
 // a value Seeens can't read, or one marked unsure ("Chris?", "(sp?)"), goes
 // into the notes instead of a field.
 
+import { parseLineup, type LineupRow } from "../affiliations/lineup.ts";
 import { detectLinkType } from "../connections/link-types.ts";
 import { readVenueTypes, spaceFor, type VenueDetails, type VenueType } from "../connections/venue-details.ts";
 
@@ -58,7 +59,7 @@ export const TARGETS = {
   accessibility: { label: "Accessibility", venue: true },
   special_terms: { label: "Special terms", venue: true },
   scenes: { label: "Scenes" },
-  members: { label: "Members (Names)" },
+  members: { label: "Members" },
   status: { label: "Status" },
   played: { label: "Played together" },
   notes: { label: "Add to notes" },
@@ -147,8 +148,8 @@ export type DraftRow = {
   booked_by: string[];
   /** The record this row fills in, by its catalog number, from a Seeens export. */
   catalog_no: number | null;
-  /** Band members by name: people Seeens finds or adds, linked as members. */
-  members: string[];
+  /** Band members, read like a pasted lineup: people Seeens finds or adds, linked as members. */
+  members: LineupRow[];
 };
 
 export type Built = { rows: DraftRow[]; skipped: { line: number; reason: string }[] };
@@ -381,10 +382,17 @@ export function buildRows(
       }
       if (target === "notes") return notes.push(/^notes?$|^comments?$/i.test(header) ? raw : `${header}: ${raw}`);
       // Several names: only the unsure ones stay out.
-      if (target === "booked_by" || target === "members") {
+      if (target === "booked_by") {
         for (const name of splitNames(raw)) {
-          if (isUnsure(name)) unsure.push(`${target === "members" ? "member" : "booked by"} ${name}`);
-          else row[target].push(cleanName(name));
+          if (isUnsure(name)) unsure.push(`booked by ${name}`);
+          else row.booked_by.push(cleanName(name));
+        }
+        return;
+      }
+      if (target === "members") {
+        for (const m of readMembers(raw)) {
+          if (isUnsure(m.name)) unsure.push(`member ${m.name}`);
+          else row.members.push(m);
         }
         return;
       }
@@ -513,7 +521,7 @@ export function buildRows(
       row.booked_by = [];
     }
     if (row.group_type !== "band" && row.members.length) {
-      notes.push(`Members: ${row.members.join(", ")}`);
+      notes.push(`Members: ${row.members.map(memberLabel).join("; ")}`);
       row.members = [];
     }
     if (unsure.length) notes.push(`Not sure: ${unsure.join("; ")}`);
@@ -523,6 +531,54 @@ export function buildRows(
   });
 
   return { rows, skipped };
+}
+
+/**
+ * A Members cell, read the way Paste Lineup reads one (#75, #293): "Jo
+ * Example - vocals/guitar", "Lee Example (drums)", "bass: Sam Sample". Several
+ * members go on separate lines or between semicolons; a cell with no roles in
+ * it can also list them with commas ("Riley Example, Sam Example").
+ */
+export function readMembers(raw: string): LineupRow[] {
+  const text = raw.trim();
+  if (!text) return [];
+  let lines: string[];
+  if (/[;\n]/.test(text)) lines = text.split(/\s*[;\r\n]+\s*/);
+  // "Jo Example: vox, keys" is one member, its roles after the colon or dash.
+  else if (/:|\s[-–—]\s/.test(text)) lines = [text];
+  else lines = splitOutsideBrackets(text);
+  const seen = new Set<string>();
+  return parseLineup(lines.join("\n")).filter((m) => {
+    const key = matchKey(m.name);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// "Lee (drums), Sam (bass) & Jo" -> three; commas inside brackets don't split.
+function splitOutsideBrackets(text: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let current = "";
+  const words = text.split(/(\s+&\s+|\s+and\s+|,)/i);
+  for (const w of words) {
+    const isSep = /^(\s+&\s+|\s+and\s+|,)$/i.test(w);
+    if (isSep && depth === 0) {
+      out.push(current);
+      current = "";
+      continue;
+    }
+    for (const ch of w) depth += ch === "(" || ch === "[" ? 1 : ch === ")" || ch === "]" ? -1 : 0;
+    current += w;
+  }
+  out.push(current);
+  return out.map((s) => s.trim()).filter(Boolean);
+}
+
+/** "Jo Example (Vocals, Guitar)", for the review and notes. */
+export function memberLabel(m: LineupRow): string {
+  return `${m.name}${m.roles ? ` (${m.roles})` : ""}${m.former ? ", former" : ""}`;
 }
 
 /** "BND-0042", "bnd 42", or "42" -> 42. Null for anything else. */
