@@ -36,7 +36,7 @@ type Step = "file" | "columns" | "towns" | "review" | "done";
 export function ImportWizard({ existing }: { existing: Existing[] }) {
   const [step, setStep] = useState<Step>("file");
   const [sheet, setSheet] = useState<Sheet | null>(null);
-  const [kind, setKind] = useState<SheetKind>("venues");
+  const [kind, setKind] = useState<SheetKind>("bands");
   const [status, setStatus] = useState<ConnectionStatus>("neutral");
   const [mapping, setMapping] = useState<Target[]>([]);
   const [defaultTown, setDefaultTown] = useState("");
