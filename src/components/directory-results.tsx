@@ -18,12 +18,14 @@ import { StickyGroups } from "@/components/sticky-groups";
 import { SelectBox, SelectionProvider, useSelectClick } from "@/components/selection";
 
 // The directory's rows or cards, grouped by status, a page at a time.
-// "Show More" fetches the next page and appends it in place; a group that
-// runs across pages just keeps going. Group headings count the whole group,
-// not just what's loaded.
+// Scrolling near the end loads the next page and appends it in place; a
+// group that runs across pages just keeps going. Group headings count the
+// whole group, not just what's loaded.
 //
-// Show More is a real link (?after=…) so it still works before the page's
-// script loads; with script it loads in place and the URL stays put.
+// Show More stays for keyboards and as the fallback: it's a real link
+// (?after=…) so it still works before the page's script loads, and with
+// script it loads in place and the URL stays put. After a failed load,
+// scrolling stops loading until Show More is pressed.
 export function DirectoryResults({
   initialItems,
   initialNext,
@@ -77,16 +79,19 @@ export function DirectoryResults({
     ? `${basePath}?${query ? `${query}&` : ""}after=${encodeURIComponent(JSON.stringify(next))}`
     : null;
 
-  function loadMore(e: React.MouseEvent) {
-    if (!next || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
+  // One load at a time, whichever started it.
+  const loading = useRef(false);
+  function fetchMore({ focus }: { focus: boolean }) {
+    if (!next || loading.current) return;
+    loading.current = true;
     setFailed(false);
     startTransition(async () => {
       try {
         const page = await loadMoreConnections(query, next);
         const seen = new Set(items.map((c) => c.id));
         const fresh = page.items.filter((c) => !seen.has(c.id));
-        focusId.current = fresh[0]?.id ?? null;
+        // Pressing Show More moves focus to the first new one; scrolling doesn't.
+        focusId.current = focus ? (fresh[0]?.id ?? null) : null;
         setItems([...items, ...fresh]);
         setNext(page.next);
         setAnnounce(`${fresh.length} more loaded, ${items.length + fresh.length} of ${matched}.`);
@@ -94,11 +99,37 @@ export function DirectoryResults({
         setFailed(true);
         setAnnounce("Couldn't load more. Try again.");
       } finally {
-        // The link didn't navigate, so the page wait it started ends here.
-        document.dispatchEvent(new Event(STAY_EVENT));
+        loading.current = false;
+        // A pressed link didn't navigate, so the page wait it started ends here.
+        if (focus) document.dispatchEvent(new Event(STAY_EVENT));
       }
     });
   }
+
+  function loadMore(e: React.MouseEvent) {
+    if (!next || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    fetchMore({ focus: true });
+  }
+
+  // Near the end of the list, the next page loads on its own.
+  const end = useRef<HTMLDivElement>(null);
+  const autoLoad = useRef(fetchMore);
+  useEffect(() => {
+    autoLoad.current = fetchMore;
+  });
+  useEffect(() => {
+    const el = end.current;
+    if (!el || !next || failed || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) autoLoad.current({ focus: false });
+      },
+      { rootMargin: "0px 0px 800px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [next, failed, items.length]);
 
   // Our own band isn't in the directory; the header's band chip opens it (#123).
   const byStatus = (status: (typeof STATUSES)[number]) => ({
@@ -135,7 +166,7 @@ export function DirectoryResults({
       ))}
 
       {moreHref ? (
-        <div className="flex flex-wrap items-center gap-3">
+        <div ref={end} className="flex flex-wrap items-center gap-3">
           <Link href={moreHref} onClick={loadMore} className="button-secondary" aria-disabled={pending || undefined}>
             {pending ? "Loading…" : "Show More"}
           </Link>
