@@ -6,6 +6,8 @@ import { parseLineup } from "../affiliations/lineup.ts";
 
 /** One band from a Seeens export, with what it already has. */
 export type ExportBand = {
+  /** What it is: Look up does bands, venues, and labels. */
+  type: LookUpType;
   catalogNo: string;
   name: string;
   town: string;
@@ -15,6 +17,11 @@ export type ExportBand = {
   email: string;
   links: { label: string; url: string }[];
 };
+
+export type LookUpType = "band" | "venue" | "label";
+export const LOOK_UP_TYPES: LookUpType[] = ["band", "venue", "label"];
+const TYPE_LABEL: Record<LookUpType, string> = { band: "Band", venue: "Venue", label: "Label" };
+const NOUN: Record<LookUpType, string> = { band: "band", venue: "venue", label: "record label" };
 
 export type Field = "instagram" | "bandcamp" | "website" | "email";
 export const FIELDS: Field[] = ["instagram", "bandcamp", "website", "email"];
@@ -40,6 +47,8 @@ export type SiteScan = {
   instagram: string[];
   bandcamp: string[];
   image: string | null;
+  /** The site's logo, for labels (and venues with no photo). */
+  logo: string | null;
   pages: string[];
 };
 
@@ -57,10 +66,13 @@ const split = (v: string) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-/** An export row, or null when it isn't a band we'd look up (another type, or our own band). */
+/** An export row, or null when it isn't a band, venue, or label we'd look up (or it's our own band). */
 export function readExportRow(row: Record<string, string>): ExportBand | null {
   const get = (k: string) => unwrap(row[k]);
-  if (get("kind") !== "group" || !/\bband\b/i.test(get("types")) || get("our_band") === "yes") return null;
+  if (get("kind") !== "group" || get("our_band") === "yes") return null;
+  const types = get("types");
+  const type = LOOK_UP_TYPES.find((t) => new RegExp(`\\b${t}\\b`, "i").test(types));
+  if (!type) return null;
   if (get("archived_on") || get("not_active_since")) return null;
   const name = get("name");
   const catalogNo = get("catalog_no");
@@ -70,6 +82,7 @@ export function readExportRow(row: Record<string, string>): ExportBand | null {
     return m ? { label: m[1].trim(), url: m[2] } : { label: "", url: l };
   });
   return {
+    type,
     catalogNo,
     name,
     town: get("town"),
@@ -128,10 +141,12 @@ export function bandcampRoot(url: string): string | null {
   return `https://${h}`;
 }
 
-/** Which fields this band is missing. Website counts only the band's own site. */
+/** Which fields it's missing. Website counts only its own site; venues don't get Bandcamp. */
 export function gapsFor(b: ExportBand): Field[] {
   const kinds = new Set(b.links.map((l) => kindOf(l.url)));
-  return FIELDS.filter((f) => (f === "email" ? !b.email : !kinds.has(f)));
+  return FIELDS.filter((f) =>
+    f === "bandcamp" && b.type === "venue" ? false : f === "email" ? !b.email : !kinds.has(f),
+  );
 }
 
 /** The search prompt: scoped and anchored, never a bare name. */
@@ -142,21 +157,25 @@ export function promptFor(b: ExportBand, gaps: Field[]): string {
     b.scenes.length ? `Scenes: ${b.scenes.join(", ")}` : null,
     ...b.links.map((l) => `Known link: ${l.url}`),
   ].filter(Boolean);
+  const noun = NOUN[b.type];
+  const band = b.type === "band";
   return [
-    `Find public details for this band.`,
+    `Find public details for this ${noun}.`,
     ``,
-    `Band: ${b.name}`,
+    `${TYPE_LABEL[b.type]}: ${b.name}`,
     ...anchors,
     ``,
-    `Find: ${gaps.join(", ")}, and its current members.`,
-    `- website: the band's own site only (not a label page, link-in-bio page, or streaming profile)`,
-    `- email: only an address the band posted publicly for booking or contact`,
-    `- members: current members, one per person, with what they play in "role". Use names as the source gives them, stage names included.`,
+    band ? `Find: ${gaps.join(", ")}, and its current members.` : `Find: ${gaps.join(", ")}.`,
+    `- website: the ${noun}'s own site only (not ${band ? "a label page" : "a listing on someone else's site"}, a link-in-bio page, or a streaming profile)`,
+    `- email: only an address the ${noun} posted publicly for ${band ? "booking or contact" : b.type === "venue" ? "booking shows or contact" : "demos or contact"}`,
+    band
+      ? `- members: current members, one per person, with what they play in "role". Use names as the source gives them, stage names included.`
+      : `- members: leave empty`,
     ``,
     `Rules:`,
-    `- Many bands share a name. Only report something when a source ties it to this band through a known link or the place. Say which anchor matched.`,
+    `- Many ${noun}s share a name. Only report something when a source ties it to this ${noun} through a known link or the place. Say which anchor matched.`,
     `- Every value needs the URL of the page that shows it. Leave out anything you can't source.`,
-    `- If you're not sure it's the same band, say so and report nothing.`,
+    `- If you're not sure it's the same ${noun}, say so and report nothing.`,
     `- Keep "why" under 15 words. List at most 3 possible confusions, a few words each.`,
     ``,
     `Answer with only this JSON, in a \`\`\`json block:`,
@@ -321,7 +340,28 @@ export function scanSite(html: string, pageUrl: string): SiteScan {
     .map((v) => abs(v.replace(/&amp;/g, "&")))
     .filter((v): v is string => Boolean(v));
   const image = shared.find(looksLikePhoto) ?? null;
-  return { emails: [...emails], instagram, bandcamp, image, pages };
+  // A logo, for labels: a share image named like one, then an image on the
+  // page marked as the logo, then the site's app icon. Raster only: the
+  // copier can't open an SVG.
+  const raster = (u: string) => /^https?:/i.test(u) && !/\.(svg|ico)(\?|$)/i.test(new URL(u).pathname);
+  const tags = (re: RegExp) => [...html.matchAll(re)].map((m) => m[0]);
+  const attr = (tag: string, name: string) =>
+    new RegExp(`\\b${name}\\s*=\\s*["']([^"']+)["']`, "i").exec(tag)?.[1]?.replace(/&amp;/g, "&");
+  const logoImgs = tags(/<img\b[^>]*>/gi)
+    .filter((t) => /logo/i.test(t))
+    .map((t) => attr(t, "src"))
+    .filter((v): v is string => Boolean(v))
+    .map(abs);
+  const touchIcons = tags(/<link\b[^>]*>/gi)
+    .filter((t) => /rel\s*=\s*["'][^"']*apple-touch-icon/i.test(t))
+    .map((t) => attr(t, "href"))
+    .filter((v): v is string => Boolean(v))
+    .map(abs);
+  const logo =
+    [...shared.filter((u) => /logo|wordmark/i.test(u)), ...logoImgs, ...touchIcons].find(
+      (u): u is string => Boolean(u) && raster(u!),
+    ) ?? null;
+  return { emails: [...emails], instagram, bandcamp, image, logo, pages };
 }
 
 /**
@@ -348,6 +388,7 @@ export function looksLikePhoto(url: string): boolean {
 export type OutRow = {
   catalog_no: string;
   name: string;
+  /** Band, Venue, or Label: Import as A Mix reads it. */
   type: string;
   instagram: string;
   bandcamp: string;
@@ -410,10 +451,20 @@ export function rowFor(
   if (gaps.includes("website") && !pick.website && siteUrl) pick.website = siteUrl;
 
   // One per member, in the importer's terms: "Name - Roles; Name".
-  const members = answer.members.map((m) => (m.roles ? `${m.name} - ${m.roles}` : m.name));
+  const members = b.type === "band" ? answer.members.map((m) => (m.roles ? `${m.name} - ${m.roles}` : m.name)) : [];
   if (members.length) notes.push(`Members: ${[...new Set(answer.members.map((m) => m.source))].join(", ")}`);
-  const photo = site?.image ?? "";
-  if (photo) notes.push(`Photo: the band's website (${siteUrl}); Import adds it`);
+  // Bands get a photo, never a logo; labels get their logo; venues a photo
+  // of the room if there is one, else their logo.
+  const photo =
+    (b.type === "label"
+      ? (site?.logo ?? site?.image)
+      : b.type === "venue"
+        ? (site?.image ?? site?.logo)
+        : site?.image) ?? "";
+  if (photo) {
+    const what = photo === site?.logo ? "Logo" : "Photo";
+    notes.push(`${what}: the ${NOUN[b.type]}'s website (${siteUrl}); Import adds it`);
+  }
 
   if (!Object.keys(pick).length && !members.length && !photo) return null;
   if (answer.confusions.length) {
@@ -429,7 +480,7 @@ export function rowFor(
   return {
     catalog_no: b.catalogNo,
     name: b.name,
-    type: "Band",
+    type: TYPE_LABEL[b.type],
     instagram: pick.instagram ?? "",
     bandcamp: pick.bandcamp ?? "",
     website: pick.website ?? "",

@@ -33,7 +33,7 @@ const exported = {
   archived_on: "",
 };
 
-test("export rows: bands only, not our own, not archived", () => {
+test("export rows: bands, venues, and labels; not our own, not archived", () => {
   const b = readExportRow(exported);
   assert.equal(b?.catalogNo, "BND-0042");
   assert.deepEqual(b?.scenes, ["Portland DIY", "Punk"]);
@@ -41,7 +41,10 @@ test("export rows: bands only, not our own, not archived", () => {
     { label: "Instagram", url: "https://instagram.com/soda_pdx" },
     { label: "Website", url: "https://soda.example" },
   ]);
-  assert.equal(readExportRow({ ...exported, types: "Venue" }), null);
+  assert.equal(readExportRow({ ...exported, types: "Venue" })?.type, "venue");
+  assert.equal(readExportRow({ ...exported, types: "Label" })?.type, "label");
+  assert.equal(readExportRow({ ...exported, types: "Promoter" }), null);
+  assert.equal(readExportRow({ ...exported, kind: "person", types: "Musician" }), null);
   assert.equal(readExportRow({ ...exported, our_band: "yes" }), null);
   assert.equal(readExportRow({ ...exported, archived_on: "2026-11-01" }), null);
   assert.equal(readExportRow({ ...exported, not_active_since: "2026-11-01" }), null, "Not Active (#335)");
@@ -141,6 +144,7 @@ test("a band's site: emails, profiles, its share image, and pages worth a look",
     instagram: ["https://instagram.com/soda_pdx"],
     bandcamp: ["https://soda.bandcamp.com"],
     image: "https://soda.example/img/press.jpg",
+    logo: null,
     pages: ["https://soda.example/about/", "https://soda.example/contact"],
   });
 });
@@ -171,6 +175,7 @@ test("the row: blanks only, the website wins, every source noted", () => {
     instagram: ["https://instagram.com/soda_pdx"],
     bandcamp: ["https://soda.bandcamp.com"],
     image: "https://soda.example/press.jpg",
+    logo: null,
     pages: [],
   };
   const row = rowFor(b, gapsFor(b), answer, site, "https://soda.example", "2026-11-13")!;
@@ -210,4 +215,41 @@ test("a site's pages: press first, and logos passed over for photos", () => {
     "https://soda.example/about",
     "https://soda.example/contact",
   ]);
+});
+
+test("venues and labels: their own fields, their own words", () => {
+  const venue = { ...readExportRow({ ...exported, types: "Venue", links: "" })!, name: "Dantes Example" };
+  assert.deepEqual(gapsFor(venue), ["instagram", "website", "email"], "no Bandcamp for a venue");
+  const p = promptFor(venue, gapsFor(venue));
+  assert.match(p, /^Find public details for this venue\./);
+  assert.match(p, /Venue: Dantes Example/);
+  assert.match(p, /members: leave empty/);
+  const label = readExportRow({ ...exported, types: "Label", name: "Moodkiller Example", links: "" })!;
+  assert.match(promptFor(label, gapsFor(label)), /Many record labels share a name/);
+});
+
+test("a label gets its logo; a band never does", () => {
+  const html = `<head>
+    <meta property="og:image" content="https://label.example/img/store-front.jpg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png"></head>
+    <body><a href="/"><img class="site-logo" src="/img/label-mark.png" alt="Moodkiller Example"></a>
+    <img src="/img/logo.svg" alt="logo"></body>`;
+  const scan = scanSite(html, "https://label.example/");
+  assert.equal(scan.image, "https://label.example/img/store-front.jpg");
+  assert.equal(scan.logo, "https://label.example/img/label-mark.png", "raster logos only, before the app icon");
+  const answer = { sameBand: true, confusions: [], dropped: [], found: {}, members: [] };
+  const label = readExportRow({ ...exported, types: "Label", links: "" })!;
+  const band = readExportRow({ ...exported, links: "" })!;
+  const venue = readExportRow({ ...exported, types: "Venue", links: "" })!;
+  const pic = (b: typeof band, site: typeof scan) =>
+    rowFor(b, gapsFor(b), answer, site, "https://label.example/", "2026-11-14")?.photo;
+  assert.equal(pic(label, scan), "https://label.example/img/label-mark.png");
+  assert.equal(pic(band, scan), "https://label.example/img/store-front.jpg");
+  assert.equal(
+    pic(venue, { ...scan, image: null }),
+    "https://label.example/img/label-mark.png",
+    "a venue falls back to its logo",
+  );
+  assert.equal(pic(band, { ...scan, image: null }) ?? "", "", "a band never gets a logo");
+  assert.equal(rowFor(label, gapsFor(label), answer, scan, "https://label.example/", "2026-11-14")?.type, "Label");
 });

@@ -6,7 +6,17 @@ export function imageSearchUrl(c: {
   group_type: string | null;
   town?: string | null;
 }) {
-  const what = c.kind === "group" && c.group_type === "band" ? "band" : c.group_type === "venue" ? "venue" : "";
+  // Labels want their logo, not a photo.
+  const what =
+    c.kind !== "group"
+      ? ""
+      : c.group_type === "band"
+        ? "band"
+        : c.group_type === "venue"
+          ? "venue"
+          : c.group_type === "label"
+            ? "record label logo"
+            : "";
   const q = [`"${c.name.replace(/"/g, "")}"`, what, c.town ?? ""].filter(Boolean).join(" ");
   return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
 }
