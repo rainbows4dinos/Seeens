@@ -9,7 +9,7 @@ create temp table tc as select * from public.connections with no data;
 alter table tc add column status public.connection_status, add column played_together boolean,
   add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
 
-select plan(12);
+select plan(19);
 
 insert into auth.users (id, email) values ('d1111111-1111-1111-1111-111111111111', 'import-alex@example.com');
 insert into public.workspaces (id, name) values ('d1aaaaaa-0000-0000-0000-0000000000a1', 'Import Band');
@@ -20,7 +20,9 @@ values ('d1aaaaaa-0000-0000-0000-0000000000a1', 'd1111111-1111-1111-1111-1111111
 insert into tc (id, workspace_id, name, kind, person_roles, group_type, status, email, notes, attributes) values
   ('d1c00000-0000-0000-0000-000000000001', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Dantes', 'group', '{}', 'venue', 'homies',
    'old@dantes.example', 'We love it here.', '{"ages": "21_plus", "checked_on": "2025-01-01"}'),
-  ('d1c00000-0000-0000-0000-000000000002', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Joel', 'person', '{booker}', null, 'neutral', null, null, '{}');
+  ('d1c00000-0000-0000-0000-000000000002', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Joel', 'person', '{booker}', null, 'neutral', null, null, '{}'),
+  ('d1c00000-0000-0000-0000-000000000003', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Riley Example', 'person', '{musician}', null, 'neutral', null, null, '{}'),
+  ('d1c00000-0000-0000-0000-000000000004', 'd1aaaaaa-0000-0000-0000-0000000000a1', 'Chris', 'person', '{booker}', null, 'neutral', null, null, '{}');
 insert into public.connections (id, workspace_id, name, kind, person_roles, group_type, attributes) select id, workspace_id, name, kind, person_roles, group_type, attributes from tc;
 update public.connection_band_details d set status = coalesce(t.status, d.status), email = t.email, notes = t.notes from tc t where d.connection_id = t.id;
 truncate tc;
@@ -43,7 +45,7 @@ select is(
      "links": [{"label": "Website", "url": "https://DANTES.example"}, {"label": "Instagram", "url": "https://instagram.com/dantes"}],
      "scenes": ["Portland DIY"], "venue": {"ages": "all_ages", "capacity": "150_300"}, "booked_by": ["Ian"]}
   ]$$::jsonb),
-  '{"added": 2, "filled": 1, "bookers_added": 2, "booking_links": 3}'::jsonb,
+  '{"added": 2, "filled": 1, "bookers_added": 2, "booking_links": 3, "member_links": 0}'::jsonb,
   'adds new rows, fills one, and links bookers');
 
 -- New rows land like a form save.
@@ -74,6 +76,45 @@ select is((select array_agg(b.name || ':' || b.kind::text || ':' || coalesce(b.g
   where a.kind = 'books'),
   array['Honey Latte Presents:group:promoter_collective', 'Ian:person:booker', 'Joel:person:booker'],
   'existing Joel is reused; new bookers and promoters are added');
+
+-- Filling in a band (#321): the same page however it's written, one
+-- Instagram and one Bandcamp, and its members.
+select is(
+  public.import_connections('d1aaaaaa-0000-0000-0000-0000000000a1', format($$[
+    {"name": "Barf Bags", "match_id": "%s", "kind": "group", "group_type": "band",
+     "links": [{"label": "Instagram", "url": "https://www.instagram.com/BarfBags/?hl=en"},
+               {"label": "Instagram", "url": "https://instagram.com/someone_else"},
+               {"label": "Bandcamp", "url": "https://barfbags.bandcamp.com"},
+               {"label": "Bandcamp", "url": "https://barfbagsofficial.bandcamp.com"},
+               {"label": "Website", "url": "https://barfbags.example/?ref=x"},
+               {"label": "Website", "url": "http://barfbags.example"},
+               {"label": "Website", "url": "https://barfbags-merch.example"}],
+     "scenes": [], "venue": {}, "booked_by": [], "members": ["Riley Example", "Chris", "Chris", "Sam Example"]}
+  ]$$, (select id from public.connections where name = 'The Barf Bags'))::jsonb),
+  '{"added": 0, "filled": 1, "bookers_added": 0, "booking_links": 0, "member_links": 3}'::jsonb,
+  'fills in a band with links and members');
+select is((select array_agg(l.url order by l.position) from public.connection_links l
+    join public.connections c on c.id = l.connection_id where c.name = 'The Barf Bags'),
+  array['https://instagram.com/barfbags', 'https://barfbags.bandcamp.com', 'https://barfbags.example/?ref=x',
+    'https://barfbags-merch.example'],
+  'no second copy of a page, no second Instagram or Bandcamp; more than one website is fine');
+select is((select array_agg(p.name || ':' || array_to_string(p.person_roles, ',') order by p.name)
+  from public.affiliations a join public.connections p on p.id = a.from_connection_id
+  join public.connections b on b.id = a.to_connection_id
+  where a.kind = 'member' and b.name = 'The Barf Bags'),
+  array['Chris:musician', 'Riley Example:musician', 'Sam Example:musician'], 'members are linked');
+select is((select count(*)::int from public.connections where name = 'Riley Example'), 1,
+  'a full name that''s one person here is reused');
+select is((select count(*)::int from public.connections where name = 'Chris'), 2,
+  'a first name alone isn''t matched to someone else');
+select is(
+  public.import_connections('d1aaaaaa-0000-0000-0000-0000000000a1', format($$[
+    {"name": "Barf Bags", "match_id": "%s", "kind": "group", "group_type": "band",
+     "links": [], "scenes": [], "venue": {}, "booked_by": [], "members": ["Chris", "Sam Example"]}
+  ]$$, (select id from public.connections where name = 'The Barf Bags'))::jsonb) ->> 'member_links',
+  '0', 'importing the same members again changes nothing');
+select is((select count(*)::int from public.connections where name in ('Chris', 'Sam Example')), 3,
+  'and adds no one');
 
 -- All or nothing.
 select throws_ok(

@@ -42,7 +42,8 @@ export async function lookupTowns(texts: string[]): Promise<TownMatches[]> {
 export type ImportRow = Omit<DraftRow, "line" | "town"> & { place_id: number | null; match_id: string | null };
 
 export type ImportResult =
-  { ok: true; added: number; filled: number; bookersAdded: number } | { ok: false; error: string };
+  | { ok: true; added: number; filled: number; bookersAdded: number; membersLinked: number }
+  | { ok: false; error: string };
 
 export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
   const membership = await getMembership();
@@ -56,6 +57,7 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
     notes: r.notes?.slice(0, 5000) ?? null,
     links: r.links.filter((l) => /^https?:\/\/\S+\.\S+/i.test(l.url)).slice(0, 20),
     scenes: r.scenes.map((s) => s.slice(0, 120)).slice(0, 20),
+    members: r.members.map((m) => m.slice(0, 200)).slice(0, 30),
   }));
 
   const supabase = await createClient();
@@ -65,6 +67,12 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
   });
   if (error || !data) return { ok: false, error: "The import didn't go through. Nothing was saved; try again." };
   revalidatePath("/", "layout");
-  const d = data as { added: number; filled: number; bookers_added: number };
-  return { ok: true, added: d.added, filled: d.filled, bookersAdded: d.bookers_added };
+  const d = data as { added: number; filled: number; bookers_added: number; member_links?: number };
+  return {
+    ok: true,
+    added: d.added,
+    filled: d.filled,
+    bookersAdded: d.bookers_added,
+    membersLinked: d.member_links ?? 0,
+  };
 }

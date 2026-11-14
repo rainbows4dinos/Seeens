@@ -12,14 +12,20 @@ import {
   TARGETS,
   buildRows,
   guessMapping,
-  matchKey,
+  matchRows,
   unwrapCell,
   type DraftRow,
   type SheetKind,
   type Target,
 } from "@/lib/import/rows";
 
-type Existing = { id: string; name: string; kind: "person" | "group"; group_type: string | null };
+type Existing = {
+  id: string;
+  name: string;
+  kind: "person" | "group";
+  group_type: string | null;
+  catalog_no: number | null;
+};
 type Sheet = { fileName: string; headers: string[]; data: string[][] };
 type Step = "file" | "columns" | "towns" | "review" | "done";
 
@@ -44,18 +50,16 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
     [sheet, mapping, kind, status],
   );
 
-  // Who each row fills in, if they're already here: same name and kind.
-  const matches = useMemo(() => {
-    const byKey = new Map<string, Existing[]>();
-    for (const e of existing) byKey.set(matchKey(e.name), [...(byKey.get(matchKey(e.name)) ?? []), e]);
-    const out = new Map<number, Existing>();
-    for (const r of built?.rows ?? []) {
-      const m = (byKey.get(matchKey(r.name)) ?? []).find(
-        (e) => e.kind === r.kind && (!e.group_type || !r.group_type || e.group_type === r.group_type),
-      );
-      if (m) out.set(r.line, m);
-    }
-    return out;
+  // Who each row fills in, if they're already here: the same catalog number,
+  // or else the same name and kind. A catalog number that isn't ours is skipped.
+  const { matches, rows, skipped } = useMemo(() => {
+    const { matches, strays } = matchRows(built?.rows ?? [], existing);
+    const stray = new Set(strays.map((s) => s.line));
+    return {
+      matches,
+      rows: (built?.rows ?? []).filter((r) => !stray.has(r.line)),
+      skipped: [...(built?.skipped ?? []), ...strays].sort((a, b) => a.line - b.line),
+    };
   }, [built, existing]);
 
   function readFile(file: File) {
@@ -106,7 +110,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
   function save() {
     if (!built) return;
     setError("");
-    const rows = built.rows
+    const picked = rows
       .filter((r) => !excluded.has(r.line))
       .map(({ line, town, ...r }) => ({
         ...r,
@@ -114,7 +118,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
         match_id: matches.get(line)?.id ?? null,
       }));
     startTransition(async () => {
-      const res = await runImport(rows);
+      const res = await runImport(picked);
       if (res.ok) {
         setResult(res);
         setStep("done");
@@ -122,7 +126,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
     });
   }
 
-  const included = (built?.rows ?? []).filter((r) => !excluded.has(r.line));
+  const included = rows.filter((r) => !excluded.has(r.line));
   const nNew = included.filter((r) => !matches.has(r.line)).length;
   const nFill = included.length - nNew;
 
@@ -280,18 +284,18 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
           <p className="text-sm">
             <strong>{nNew}</strong> new, <strong>{nFill}</strong> already here (only their blanks get filled in; nothing
             they have is changed)
-            {built.skipped.length ? (
+            {skipped.length ? (
               <>
-                , <strong>{built.skipped.length}</strong> skipped
+                , <strong>{skipped.length}</strong> skipped
               </>
             ) : null}
             . Untick any you don&rsquo;t want.
           </p>
-          {built.skipped.length ? (
+          {skipped.length ? (
             <details className="text-sm">
               <summary className="cursor-pointer text-muted">Skipped lines</summary>
               <ul className="flex flex-col gap-1 pt-2">
-                {built.skipped.map((s) => (
+                {skipped.map((s) => (
                   <li key={s.line}>
                     Line {s.line}: {s.reason}
                   </li>
@@ -300,7 +304,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
             </details>
           ) : null}
           <ul className="flex flex-col divide-y divide-[var(--color-border-subtle)] border border-strong bg-surface">
-            {built.rows.map((r) => (
+            {rows.map((r) => (
               <ReviewRow
                 key={r.line}
                 row={r}
@@ -339,7 +343,10 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
             Added {result.added}
             {result.filled ? `, filled in ${result.filled}` : ""}
             {result.bookersAdded
-              ? `, and ${result.bookersAdded} new ${result.bookersAdded === 1 ? "booker" : "bookers"}`
+              ? `, ${result.bookersAdded} new ${result.bookersAdded === 1 ? "booker" : "bookers"}`
+              : ""}
+            {result.membersLinked
+              ? `, ${result.membersLinked} ${result.membersLinked === 1 ? "band member" : "band members"}`
               : ""}
             .
           </p>
@@ -473,6 +480,7 @@ function ReviewRow({
     venueLine(r.venue),
     r.venue.special_terms ? `Terms: ${r.venue.special_terms}` : null,
     r.booked_by.length ? `Booked by ${r.booked_by.join(", ")}` : null,
+    r.members.length ? `Members: ${r.members.join(", ")}` : null,
     r.links.length ? `${r.links.length} ${r.links.length === 1 ? "link" : "links"}` : null,
     r.email,
   ].filter(Boolean);

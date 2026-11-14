@@ -13,6 +13,8 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-13
 
+- **Import fills in the right record.** A sheet from **Export** keeps its catalog numbers, so importing it back fills in exactly those listings, even when two bands share a name. Links a listing already has aren’t added twice, and neither is a second Instagram or Bandcamp.
+- **Import band members.** Add a Members column to a band sheet, like “Riley Example, Sam Example,” and Import links them to the band, reusing anyone already listed.
 - **“The” doesn’t count in the Directory’s order.** The Shitfits sorts under S, not T.
 
 ## 2026-11-12
