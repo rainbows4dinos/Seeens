@@ -17,9 +17,11 @@ type State =
   | { phase: "finished"; added: number; failed: number }
   | { phase: "none" };
 
-export function ImportPhotos({ wanted }: { wanted: Wanted[] }) {
+export function ImportPhotos({ wanted, onBusy }: { wanted: Wanted[]; onBusy?: (busy: boolean) => void }) {
   const [state, setState] = useState<State>({ phase: wanted.length ? "checking" : "none" });
   const started = useRef(false);
+  const busy = state.phase === "checking" || state.phase === "adding";
+  useEffect(() => onBusy?.(busy), [busy, onBusy]);
 
   useEffect(() => {
     if (started.current || !wanted.length) return;
@@ -56,7 +58,7 @@ export function ImportPhotos({ wanted }: { wanted: Wanted[] }) {
     <p className="text-sm" role="status" aria-live="polite">
       {state.phase === "checking" ? "Checking for photos…" : null}
       {state.phase === "adding"
-        ? `Adding photos: ${state.done} of ${state.total}. Stay on this page until it’s done.`
+        ? `Adding photos: ${state.done} of ${state.total}. Stay on this page until it’s done.${state.failed ? ` ${state.failed} couldn’t be added so far.` : ""}`
         : null}
       {state.phase === "finished"
         ? `Added ${plural(state.added)}.${state.failed ? ` ${plural(state.failed)} couldn’t be added; add those by hand.` : ""}`

@@ -130,7 +130,12 @@ if (!dryRun) {
   const rows = bands
     .map((x) => cache[x.band.catalogNo])
     .filter((c): c is Cached => Boolean(c?.row))
-    .map((c) => ({ ...c.row!, catalog_no: `="${c.row!.catalog_no}"` }));
+    // Rows cached before the column was renamed keep their photo.
+    .map((c) => ({
+      ...c.row!,
+      photo: c.row!.photo ?? (c.row as { photo_to_upload?: string }).photo_to_upload ?? "",
+      catalog_no: `="${c.row!.catalog_no}"`,
+    }));
   writeFileSync(out, Papa.unparse({ fields: OUT_COLUMNS, data: rows.map((r) => OUT_COLUMNS.map((c) => r[c])) }));
   console.log(
     `\n${plural(rows.length, "band", "bands")} with something to fill in: ${out}` +

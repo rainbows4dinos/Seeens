@@ -47,6 +47,8 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
   const [result, setResult] = useState<Extract<ImportResult, { ok: true }> | null>(null);
   // Photo links to run through the copier once the import's saved (#321).
   const [photos, setPhotos] = useState<{ id: string; url: string }[]>([]);
+  // Leaving stops the photo pass, so the way out waits for it.
+  const [addingPhotos, setAddingPhotos] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const built = useMemo(
@@ -355,17 +357,24 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
               : ""}
             .
           </p>
-          <ImportPhotos wanted={photos} />
+          <ImportPhotos wanted={photos} onBusy={setAddingPhotos} />
           <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/directory?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}${result.importId ? `&import=${result.importId}` : ""}`}
-              className="button-primary"
-            >
-              See Them in the Directory
-            </Link>
+            {addingPhotos ? (
+              <button type="button" className="button-primary" disabled>
+                Adding Photos…
+              </button>
+            ) : (
+              <Link
+                href={`/directory?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}${result.importId ? `&import=${result.importId}` : ""}`}
+                className="button-primary"
+              >
+                See Them in the Directory
+              </Link>
+            )}
             <button
               type="button"
               className="button-secondary"
+              disabled={addingPhotos}
               onClick={() => {
                 setSheet(null);
                 setResult(null);
