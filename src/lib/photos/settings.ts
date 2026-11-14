@@ -16,7 +16,7 @@ export type CopierSettings = {
   plate: Plate;
   /** Plate misregistration in px, measured on a 600px-wide copy. */
   offset: number;
-  /** Which grain: "New grain" picks another. */
+  /** Which grain, 0 to 999: the Grain slider picks one. */
   seed: number;
 };
 
@@ -24,6 +24,7 @@ export const EXPOSURE = { min: -0.5, max: 0.5, step: 0.05 };
 export const CONTRAST = { min: 1, max: 4, step: 0.1 };
 export const GRIT = { min: 0, max: 1, step: 0.05 };
 export const OFFSET = { min: 0, max: 12, step: 1 };
+export const SEED = { min: 0, max: 999, step: 1 };
 const DEFAULT_OFFSET = 4;
 
 // The plate starts on the status color, like the tape. Clear tape, no plate.
