@@ -42,7 +42,15 @@ export async function lookupTowns(texts: string[]): Promise<TownMatches[]> {
 export type ImportRow = Omit<DraftRow, "line" | "town"> & { place_id: number | null; match_id: string | null };
 
 export type ImportResult =
-  | { ok: true; added: number; filled: number; bookersAdded: number; membersLinked: number }
+  | {
+      ok: true;
+      added: number;
+      filled: number;
+      bookersAdded: number;
+      membersLinked: number;
+      /** For See Them in the Directory: just this import's listings (#321). */
+      importId: string | null;
+    }
   | { ok: false; error: string };
 
 export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
@@ -70,12 +78,19 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
   });
   if (error || !data) return { ok: false, error: "The import didn't go through. Nothing was saved; try again." };
   revalidatePath("/", "layout");
-  const d = data as { added: number; filled: number; bookers_added: number; member_links?: number };
+  const d = data as {
+    added: number;
+    filled: number;
+    bookers_added: number;
+    member_links?: number;
+    import_id?: string | null;
+  };
   return {
     ok: true,
     added: d.added,
     filled: d.filled,
     bookersAdded: d.bookers_added,
     membersLinked: d.member_links ?? 0,
+    importId: d.import_id ?? null,
   };
 }

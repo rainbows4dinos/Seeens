@@ -58,11 +58,14 @@ export type DirectoryFilters = {
   scope: "network" | "all";
   /** Missing (#321): listings without this. Only read for moderators and admins. */
   missing: Missing | "";
+  /** One import's listings (#321), from its done screen: the import's id. */
+  import: string;
 };
 
 type Params = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim() ?? "";
 const all = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Old directory views (?view=) from before the tabs still land on the right list.
 const VIEW_STATUS: Record<string, ConnectionStatus> = {
@@ -90,6 +93,7 @@ export function readFilters(params: Params): DirectoryFilters {
     noStatus: all(params.status).includes("none"),
     scope: "all",
     missing: first(params.missing) in MISSING ? (first(params.missing) as Missing) : "",
+    import: UUID.test(first(params.import)) ? first(params.import).toLowerCase() : "",
   };
 }
 
@@ -105,6 +109,7 @@ export function hasFilters(f: DirectoryFilters) {
     f.ages ||
     f.capacity ||
     f.space ||
-    f.missing,
+    f.missing ||
+    f.import,
   );
 }

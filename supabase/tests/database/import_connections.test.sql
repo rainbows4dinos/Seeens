@@ -9,7 +9,7 @@ create temp table tc as select * from public.connections with no data;
 alter table tc add column status public.connection_status, add column played_together boolean,
   add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
 
-select plan(22);
+select plan(25);
 
 insert into auth.users (id, email) values ('d1111111-1111-1111-1111-111111111111', 'import-alex@example.com');
 insert into public.workspaces (id, name) values ('d1aaaaaa-0000-0000-0000-0000000000a1', 'Import Band');
@@ -44,7 +44,7 @@ select is(
      "email": "new@dantes.example", "notes": "Not sure: booked by Chris?",
      "links": [{"label": "Website", "url": "https://DANTES.example"}, {"label": "Instagram", "url": "https://instagram.com/dantes"}],
      "scenes": ["Portland DIY"], "venue": {"ages": "all_ages", "capacity": "150_300"}, "booked_by": ["Ian"]}
-  ]$$::jsonb),
+  ]$$::jsonb) - 'import_id',
   '{"added": 2, "filled": 1, "bookers_added": 2, "booking_links": 3, "member_links": 0}'::jsonb,
   'adds new rows, fills one, and links bookers');
 
@@ -90,7 +90,7 @@ select is(
                {"label": "Website", "url": "http://barfbags.example"},
                {"label": "Website", "url": "https://barfbags-merch.example"}],
      "scenes": [], "venue": {}, "booked_by": [], "members": ["Riley Example", "Chris", "Chris", "Sam Example"]}
-  ]$$, (select id from public.connections where name = 'The Barf Bags'))::jsonb),
+  ]$$, (select id from public.connections where name = 'The Barf Bags'))::jsonb) - 'import_id',
   '{"added": 0, "filled": 1, "bookers_added": 0, "booking_links": 0, "member_links": 3}'::jsonb,
   'fills in a band with links and members');
 select is((select array_agg(l.url order by l.position) from public.connection_links l
@@ -133,6 +133,25 @@ select is((select array_agg(p.name || ':' || coalesce(a.role, '-') || ':' || a.i
   array['Dee Example:Drums:false', 'Sam Example:Bass, Vocals:true'],
   'roles are kept, and a former member is linked as former');
 select is((select count(*)::int from public.connections where name = 'Sam Example'), 1, 'and no one is added twice');
+
+-- See Them in the Directory (#321): an import keeps its records, for the
+-- band that ran it.
+create temp table last_import as
+select (public.import_connections('d1aaaaaa-0000-0000-0000-0000000000a1', format($$[
+    {"name": "Barf Bags", "match_id": "%s", "kind": "group", "group_type": "band",
+     "links": [], "scenes": [], "venue": {}, "booked_by": []},
+    {"name": "New Example Band", "kind": "group", "group_type": "band", "status": "neutral",
+     "links": [], "scenes": [], "venue": {}, "booked_by": []}
+  ]$$, (select id from public.connections where name = 'The Barf Bags'))::jsonb) ->> 'import_id')::uuid as id;
+select is((select array_agg(c.name order by c.name)
+  from jsonb_array_elements(public.directory_page('d1aaaaaa-0000-0000-0000-0000000000a1', false,
+    p_limit => 100, p_import => (select id from last_import)) -> 'rows') r
+  join public.connections c on c.id = (r ->> 'id')::uuid),
+  array['New Example Band', 'The Barf Bags'], 'the Directory shows just the import''s listings');
+select is(cardinality(private.import_ids((select id from last_import), 'd1aaaaaa-0000-0000-0000-0000000000a1')), 2,
+  'the band that ran it reads it back');
+select is(cardinality(private.import_ids((select id from last_import), 'd1aaaaaa-0000-0000-0000-0000000000ff')), 0,
+  'and no one else does');
 
 -- All or nothing.
 select throws_ok(

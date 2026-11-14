@@ -169,6 +169,7 @@ export async function loadDirectoryPage(
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
     p_missing: (moderator && filters.missing) || undefined,
+    p_import: filters.import || undefined,
     // Avoid sorts last instead of hiding (#273).
     p_hide_avoid: false,
     p_after: after ?? undefined,
