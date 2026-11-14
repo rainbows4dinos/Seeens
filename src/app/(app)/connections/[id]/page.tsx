@@ -25,6 +25,7 @@ import { isStale, readVenueDetails, venueLine, venueTypeLabels } from "@/lib/con
 import { createClient } from "@/lib/supabase/server";
 import { statusLabel, historyLine, formatDate, formatLocality, formatType } from "@/lib/connections/labels";
 import { linksPanelProps } from "@/lib/affiliations/rows";
+import { imageSearchUrl } from "@/lib/photos/search";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
 import { KeepPrivate } from "@/components/keep-private";
@@ -200,6 +201,7 @@ async function Connection({
             settings={readSettings(c.photo_settings)}
             alt={c.photo_alt}
             defaults={defaultSettings(c.status, ours)}
+            searchUrl={imageSearchUrl({ ...c, town: c.localities?.name })}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             {/* The name, and how saving is going where Edit Profile used to be. */}

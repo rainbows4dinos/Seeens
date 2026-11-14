@@ -34,6 +34,8 @@ export type PhotoProps = {
   alt: string | null;
   /** Settings for a new photo: the plate follows the status. */
   defaults: CopierSettings;
+  /** A Search Images link for finding a photo (#321), if there's something to search for. */
+  searchUrl?: string | null;
   /**
    * A connection that isn't saved yet (the Add form): Save Photo hands the
    * encoded files back instead of uploading, and Remove clears them.
@@ -130,6 +132,7 @@ function CopierBody({
   alt: savedAlt,
   defaults,
   capture,
+  searchUrl,
   onClose,
 }: PhotoProps & { onClose: () => void }) {
   const ids = useId();
@@ -209,6 +212,57 @@ function CopierBody({
       setError("Couldn't open that photo. Try a JPEG, PNG, or WebP.");
     }
   }
+
+  // A photo from a link (#321): Copy Image Address, a dragged-in image, or a
+  // pasted address. Seeens fetches it, since a page can't read another
+  // site's image; data: links (some image search thumbnails) load here.
+  async function pickUrl(raw: string) {
+    let url = raw.trim().split(/\s/)[0];
+    // An image search result's page link: the image's own address is inside it.
+    try {
+      const u = new URL(url);
+      const inner = /(^|\.)google\.[a-z.]+$/.test(u.hostname) ? u.searchParams.get("imgurl") : null;
+      if (inner) url = inner;
+    } catch {}
+    if (!/^(https?:|data:image\/)/i.test(url)) return false;
+    setError("");
+    setMessage("Getting the photo…");
+    try {
+      const res = url.startsWith("data:")
+        ? await fetch(url)
+        : await fetch(`/api/photo-fetch?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error((await res.text().catch(() => "")) || "Couldn't get that photo.");
+      const blob = await res.blob();
+      await pick(new File([blob], "photo", { type: blob.type }));
+    } catch (e) {
+      setMessage("");
+      const text = e instanceof Error && e.message.length < 120 ? e.message : "";
+      setError(`${text || "Couldn't get that photo."} Try saving it and choosing the file instead.`);
+    }
+    return true;
+  }
+
+  // Paste (#321): a screenshot or a copied image, or a copied image address.
+  // Typing in a field pastes text there as usual.
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      const file = [...(e.clipboardData?.items ?? [])].find((i) => i.kind === "file" && i.type.startsWith("image/"));
+      if (file) {
+        e.preventDefault();
+        pick(file.getAsFile() ?? undefined);
+        return;
+      }
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("input, textarea, [contenteditable]")) return;
+      const text = e.clipboardData?.getData("text/plain") ?? "";
+      if (/^\s*(https?:|data:image\/)/i.test(text)) {
+        e.preventDefault();
+        pickUrl(text);
+      }
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  });
 
   const set = <K extends keyof CopierSettings>(key: K, value: CopierSettings[K]) =>
     setSettings((s) => ({ ...s, [key]: value }));
@@ -334,7 +388,11 @@ function CopierBody({
           onDrop={(e) => {
             e.preventDefault();
             setDragging(false);
-            pick(e.dataTransfer.files[0]);
+            // A file, or an image dragged in from another tab (#321).
+            const file = e.dataTransfer.files[0];
+            if (file) return void pick(file);
+            const link = e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
+            if (link) pickUrl(link);
           }}
         >
           {source ? (
@@ -363,7 +421,14 @@ function CopierBody({
                   <button type="button" className="button-primary" onClick={() => fileInput.current?.click()}>
                     Choose a Photo
                   </button>
-                  <p className="text-sm text-muted max-sm:hidden">or drop one here</p>
+                  <p className="text-sm text-muted max-sm:hidden">
+                    or drop one here. Paste a screenshot or an image link with <kbd>{isMac() ? "⌘V" : "Ctrl+V"}</kbd>.
+                  </p>
+                  {searchUrl ? (
+                    <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="link text-sm">
+                      Search Images
+                    </a>
+                  ) : null}
                 </>
               )}
             </div>
@@ -512,6 +577,11 @@ function CopierBody({
             <button type="button" className="button-secondary" onClick={() => fileInput.current?.click()}>
               {source ? "Different Photo" : "Choose a Photo"}
             </button>
+            {source && searchUrl ? (
+              <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="button-secondary">
+                Search Images
+              </a>
+            ) : null}
             <input
               ref={fileInput}
               type="file"
@@ -583,4 +653,8 @@ function CopierBody({
       </div>
     </div>
   );
+}
+
+function isMac() {
+  return typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 }

@@ -6,6 +6,7 @@ import { defaultSettings, readSettings } from "@/lib/photos/settings";
 import { PhotoPanel } from "@/components/photo-panel";
 import { QuickPlaceEdit } from "@/components/quick-edit";
 import { linksPanelProps } from "@/lib/affiliations/rows";
+import { imageSearchUrl } from "@/lib/photos/search";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { catalogNo, initials } from "@/lib/connections/card";
 import { formatLocality, formatType } from "@/lib/connections/labels";
@@ -59,6 +60,7 @@ export async function QuickView({ params }: { params: Promise<{ id: string }> })
               settings={readSettings(c.photo_settings)}
               alt={c.photo_alt}
               defaults={defaultSettings(c.status, detail.ours)}
+              searchUrl={imageSearchUrl({ ...c, town: c.localities?.name })}
             />
           ) : (
             <span className="quick-view-thumb" aria-hidden="true">
