@@ -70,7 +70,9 @@ export default function AiPage() {
         <p>
           <strong>There&rsquo;s no AI in Seeens.</strong> Nothing in the app writes, makes, or guesses anything, and
           nothing you put in it is sent to an AI service. Larry builds Seeens with an AI coding helper, since it&rsquo;s
-          one person working nights and weekends.
+          one person working nights and weekends. He also uses AI search, outside the app, to look up bands&rsquo;
+          public links and members so listings fill in faster. He checks every result and where it came from before
+          anything goes in, and it never reads Bandcamp or Instagram.
         </p>
       </section>
 
