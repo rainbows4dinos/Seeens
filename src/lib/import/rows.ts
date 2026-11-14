@@ -60,6 +60,8 @@ export const TARGETS = {
   special_terms: { label: "Special terms", venue: true },
   scenes: { label: "Scenes" },
   members: { label: "Members" },
+  // A link to a photo (#321): added through the copier after the import.
+  photo: { label: "Photo (Link)" },
   status: { label: "Status" },
   played: { label: "Played together" },
   notes: { label: "Add to notes" },
@@ -84,6 +86,7 @@ const HEADER_GUESSES: [RegExp, Target][] = [
   [/e-?mail/i, "email"],
   [/phone|cell|tel\b/i, "phone"],
   [/insta|^ig$/i, "instagram"],
+  [/photo|image|picture|press shot/i, "photo"],
   [/web|site|url|link|bandcamp|facebook|spotify|soundcloud|youtube/i, "link"],
   [/address|street/i, "address"],
   [/all.?ages|^ages?$|age polic|21\+/i, "ages"],
@@ -116,7 +119,7 @@ export function guessMapping(headers: string[], sheet: SheetKind): Target[] {
   const out = headers.map((h) => guessTarget(h, sheet));
   if (!out.includes("name") && headers.length) out[0] = "name";
   // Only one name and one town column.
-  for (const t of ["name", "town", "type", "catalog_no"] as Target[]) {
+  for (const t of ["name", "town", "type", "catalog_no", "photo"] as Target[]) {
     let seen = false;
     out.forEach((v, i) => {
       if (v !== t) return;
@@ -150,6 +153,8 @@ export type DraftRow = {
   catalog_no: number | null;
   /** Band members, read like a pasted lineup: people Seeens finds or adds, linked as members. */
   members: LineupRow[];
+  /** A photo to add after the import (#321), if the listing has none. */
+  photo_url: string | null;
 };
 
 export type Built = { rows: DraftRow[]; skipped: { line: number; reason: string }[] };
@@ -366,6 +371,7 @@ export function buildRows(
       booked_by: [],
       catalog_no: null,
       members: [],
+      photo_url: null,
     };
     let typed = sheet !== "mixed";
 
@@ -430,6 +436,12 @@ export function buildRows(
         case "phone":
           row.phone ??= raw;
           return;
+        case "photo": {
+          const url = toUrl(raw);
+          if (url && /^https?:\/\//i.test(url)) row.photo_url ??= url;
+          else note();
+          return;
+        }
         case "link": {
           const url = toUrl(raw);
           if (url) row.links.push({ label: detectLinkType(url), url });
