@@ -353,7 +353,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/directory?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}`}
+              href={`/directory?type=${kind === "venues" ? "venues" : kind === "people" ? "people" : kind === "mixed" ? "all" : "bands"}${result.importId ? `&import=${result.importId}` : ""}`}
               className="button-primary"
             >
               See Them in the Directory

@@ -207,6 +207,8 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
               {/* The archived view says so first, with the way back (Archived
                   lives here, not in the filter bar: it's a different half). */}
               {archived ? <p className="font-medium text-primary">Archived</p> : null}
+              {/* From an import's done screen (#321); Clear Filters goes back to everyone. */}
+              {filters.import ? <p className="font-medium text-primary">From Your Import</p> : null}
               <p>
                 {/* How many match, never how many are loaded (that's under the list). */}
                 {filtering
@@ -294,6 +296,7 @@ const EMPTY: DirectoryFilters = {
   noStatus: false,
   scope: "all",
   missing: "",
+  import: "",
 };
 
 // One tab per kind of connection (#122), each with its count under the
@@ -365,6 +368,7 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (tab === "venues" && f.space) p.set("space", f.space);
   // Only what fits the tab: no Bandcamp on People.
   if (f.missing && missingFor(tab).includes(f.missing)) p.set("missing", f.missing);
+  if (f.import) p.set("import", f.import);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
   return qs ? `/directory?${qs}` : "/directory";
@@ -460,6 +464,8 @@ function FilterForm({
       {tab !== DEFAULT_TAB ? <input type="hidden" name="type" value={tab} /> : null}
       {/* The archived view keeps its half while you search and filter. */}
       {f.archived ? <input type="hidden" name="archived" value="1" /> : null}
+      {/* An import's listings (#321) stay put while you search and filter them. */}
+      {f.import ? <input type="hidden" name="import" value={f.import} /> : null}
       <FilterDisclosure
         initialOpen={open}
         active={active}

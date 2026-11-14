@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-13
 
+- **See what you just imported.** After an import, **See Them in the Directory** shows just the listings it added or filled in. **Clear Filters** goes back to everyone.
 - **Export just the ones you pick.** Select listings in the Directory and press **Export Selected** to download only those as a spreadsheet. **Select All** picks everything that’s loaded.
 - **Import fills in the right record.** A sheet from **Export** keeps its catalog numbers, so importing it back fills in exactly those listings, even when two bands share a name. Links a listing already has aren’t added twice, and neither is a second Instagram or Bandcamp.
 - **Import band members.** Add a Members column to a band sheet and Import links them to the band, reusing anyone already listed. Write it like you’d paste a lineup: “Riley Example, Sam Example,” or “Jo Example - vocals/guitar; Lee Example (drums),” and what each person plays comes along too.
