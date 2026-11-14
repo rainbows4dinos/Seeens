@@ -1,7 +1,7 @@
 import "server-only";
 import { liftBand, liftOther } from "./band-details";
 import { readVenueDetails, venueLine, venueTypeLabels } from "./venue-details";
-import { requireWorkspaceId, getUsConnection } from "@/lib/auth/dal";
+import { isModerator, requireWorkspaceId, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { listSceneOptions, sceneAndChildren } from "@/lib/scenes/queries";
 import { readFilters, type DirectoryFilters } from "./filters";
@@ -144,7 +144,13 @@ export async function loadDirectoryPage(
   { tab, filters }: DirectoryQuery,
   { after = null, counts = true }: { after?: Cursor | null; counts?: boolean } = {},
 ) {
-  const [supabase, ws, scenes] = await Promise.all([createClient(), requireWorkspaceId(), listSceneOptions()]);
+  const [supabase, ws, scenes, moderator] = await Promise.all([
+    createClient(),
+    requireWorkspaceId(),
+    listSceneOptions(),
+    // Missing (#321) is for moderators and admins; anyone else's ?missing= is ignored.
+    filters.missing ? isModerator() : false,
+  ]);
   const archived = filters.archived;
 
   const { data, error } = await supabase.rpc("directory_page", {
@@ -162,6 +168,7 @@ export async function loadDirectoryPage(
     p_space: filters.space || undefined,
     p_scene_ids: filters.scene ? [...sceneAndChildren(scenes, filters.scene)] : undefined,
     p_town: filters.town || undefined,
+    p_missing: (moderator && filters.missing) || undefined,
     // Avoid sorts last instead of hiding (#273).
     p_hide_avoid: false,
     p_after: after ?? undefined,

@@ -8,7 +8,9 @@ import type { WordSet } from "@/lib/connections/status-words";
 import { STAY_EVENT } from "@/components/busy-pointer";
 
 // Bulk status (#243): select listings in the directory, then set a status
-// (or played together) for all of them from a bar at the bottom.
+// (or played together) for all of them from a bar at the bottom. Export
+// Selected (#321) downloads just those listings as CSV, and Select All picks
+// every listing that's loaded.
 //
 // - The photo is the checkbox: it shows on hover or focus, and on every
 //   listing once something's selected.
@@ -19,7 +21,10 @@ import { STAY_EVENT } from "@/components/busy-pointer";
 
 type Selection = {
   selected: ReadonlySet<string>;
+  /** How many listings are loaded, for Select All. */
+  loaded: number;
   toggle: (id: string, range?: boolean) => void;
+  selectAll: () => void;
   clear: () => void;
 };
 const SelectionContext = createContext<Selection | null>(null);
@@ -48,6 +53,8 @@ export function SelectionProvider({
 
   const value: Selection = {
     selected,
+    loaded: visible.size,
+    selectAll: () => setPicked(new Set(visibleIds)),
     clear: () => {
       setPicked(new Set());
       anchor.current = null;
@@ -263,6 +270,17 @@ function SelectionBar({ words }: { words: WordSet }) {
       >
         Played<span className="max-sm:hidden"> Together</span>
       </button>
+      <form method="post" action="/api/export" className="contents">
+        <input type="hidden" name="ids" value={[...s.selected].join(",")} />
+        <button type="submit" className="button-secondary max-sm:hidden" disabled={!n || pending}>
+          Export<span className="max-sm:hidden"> Selected</span>
+        </button>
+      </form>
+      {n && n < s.loaded ? (
+        <button type="button" className="button-secondary max-sm:hidden" onClick={s.selectAll}>
+          Select All {s.loaded}
+        </button>
+      ) : null}
       <p className="select-bar-done text-sm" aria-live="polite">
         {done && "error" in done ? <span className="text-error">{done.error}</span> : null}
         {done && "text" in done ? (

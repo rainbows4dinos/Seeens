@@ -11,9 +11,30 @@ import {
   type VenueType,
 } from "./venue-details";
 
-// Directory filters live in the URL (?q=&status=&scene=&town=&plays=&ages=&cap=&space=&archived=1), so
+// Directory filters live in the URL (?q=&status=&scene=&town=&plays=&ages=&cap=&space=&missing=&archived=1), so
 // a filtered view can be bookmarked or shared with a bandmate. The type tab
 // (?type=) is separate: it's where you are, not a filter (see directory.ts).
+// Missing (#321): what a listing doesn't have yet. Moderators and admins only.
+export const MISSING = {
+  any: "Missing Anything",
+  instagram: "No Instagram",
+  bandcamp: "No Bandcamp",
+  website: "No Website",
+  email: "No Email",
+  members: "No Members",
+  photo: "No Photo",
+  town: "No Town",
+} as const;
+export type Missing = keyof typeof MISSING;
+
+/** What can be missing on each tab: Bandcamp and members are for bands, a website for groups. */
+export function missingFor(tab: string): Missing[] {
+  if (tab === "people") return ["any", "instagram", "email", "photo", "town"];
+  if (tab === "venues") return ["any", "instagram", "website", "email", "photo", "town"];
+  if (tab === "more") return ["any", "instagram", "bandcamp", "website", "email", "photo", "town"];
+  return Object.keys(MISSING) as Missing[];
+}
+
 export type DirectoryFilters = {
   q: string;
   /** Empty: everyone, Avoid last (#273). The status select sets one. */
@@ -35,6 +56,8 @@ export type DirectoryFilters = {
    * or touched). The Directory shows everyone (#273).
    */
   scope: "network" | "all";
+  /** Missing (#321): listings without this. Only read for moderators and admins. */
+  missing: Missing | "";
 };
 
 type Params = Record<string, string | string[] | undefined>;
@@ -66,12 +89,22 @@ export function readFilters(params: Params): DirectoryFilters {
     archived: first(params.archived) === "1" || view === "archived",
     noStatus: all(params.status).includes("none"),
     scope: "all",
+    missing: first(params.missing) in MISSING ? (first(params.missing) as Missing) : "",
   };
 }
 
 /** Filters that narrow the list: search, status, scene, town. Archived is a different half, not a narrowing. */
 export function hasFilters(f: DirectoryFilters) {
   return Boolean(
-    f.q || f.statuses.length || f.noStatus || f.scene || f.town || f.instrument || f.ages || f.capacity || f.space,
+    f.q ||
+    f.statuses.length ||
+    f.noStatus ||
+    f.scene ||
+    f.town ||
+    f.instrument ||
+    f.ages ||
+    f.capacity ||
+    f.space ||
+    f.missing,
   );
 }

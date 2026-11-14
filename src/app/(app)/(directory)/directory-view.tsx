@@ -7,6 +7,7 @@ import {
   Bar,
   Events,
   Building,
+  Incomplete,
   EventsAlt,
   LocationStar,
   Music,
@@ -29,7 +30,7 @@ import { TypeMenu } from "@/components/type-menu";
 import { LAYOUT_COOKIE, readLayout, type DirectoryLayout } from "@/lib/connections/card";
 import { wordSetForTab } from "@/lib/connections/tabs";
 import { AGES, CAPACITY, VENUE_TYPES, type VenueType } from "@/lib/connections/venue-details";
-import { getMembership } from "@/lib/auth/dal";
+import { getMembership, isModerator } from "@/lib/auth/dal";
 import {
   DEFAULT_TAB,
   TABS,
@@ -43,7 +44,7 @@ import { NO_STATUS, STATUSES, STATUS_WORDS, formatLocality } from "@/lib/connect
 import { NoWorkspace } from "@/components/no-workspace";
 import { todayISO } from "@/lib/outreach/labels";
 import { nestScenes } from "@/lib/scenes/queries";
-import { hasFilters, type DirectoryFilters } from "@/lib/connections/filters";
+import { MISSING, hasFilters, missingFor, type DirectoryFilters } from "@/lib/connections/filters";
 import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
 import { countDuplicates } from "@/lib/connections/merge";
 import { PageLoader } from "@/components/metronome";
@@ -83,8 +84,14 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
   };
   const read = readDirectoryQuery(params);
   const tab = read.tab;
+  // Missing (#321): moderators and admins only.
+  const moderator = await isModerator();
   // Archived is this band's own.
-  const filters: DirectoryFilters = { ...read.filters, scope: read.filters.archived ? "network" : "all" };
+  const filters: DirectoryFilters = {
+    ...read.filters,
+    scope: read.filters.archived ? "network" : "all",
+    missing: moderator ? read.filters.missing : "",
+  };
   // An old ?scope=all link: Everyone is the default now.
   if (params.scope !== undefined) redirect(directoryHref(tab, filters));
   // Old links (?view=lets_play, ?type=group:venue) go to their tab and status.
@@ -108,7 +115,8 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
     filters.instrument ||
     filters.ages ||
     filters.capacity ||
-    filters.space,
+    filters.space ||
+    filters.missing,
   );
 
   return (
@@ -132,6 +140,7 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
               scenes={nestScenes(scenes)}
               towns={towns}
               instruments={c.instruments}
+              showMissing={moderator}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
               clearHref={filtering ? directoryHref(tab, { ...EMPTY, archived }) : null}
@@ -284,6 +293,7 @@ const EMPTY: DirectoryFilters = {
   archived: false,
   noStatus: false,
   scope: "all",
+  missing: "",
 };
 
 // One tab per kind of connection (#122), each with its count under the
@@ -353,6 +363,8 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (tab === "venues" && f.ages) p.set("ages", f.ages);
   if (tab === "venues" && f.capacity) p.set("cap", f.capacity);
   if (tab === "venues" && f.space) p.set("space", f.space);
+  // Only what fits the tab: no Bandcamp on People.
+  if (f.missing && missingFor(tab).includes(f.missing)) p.set("missing", f.missing);
   if (f.archived) p.set("archived", "1");
   const qs = p.toString();
   return qs ? `/directory?${qs}` : "/directory";
@@ -401,6 +413,7 @@ function FilterForm({
   scenes,
   towns,
   instruments,
+  showMissing,
   open,
   layoutToggle,
   add,
@@ -416,6 +429,8 @@ function FilterForm({
   }[];
   towns: (readonly [string, string])[];
   instruments: Instrument[];
+  /** Missing (#321): moderators and admins. */
+  showMissing: boolean;
   open: boolean;
   layoutToggle: React.ReactNode;
   add: React.ReactNode;
@@ -425,9 +440,16 @@ function FilterForm({
 }) {
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
   const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
-  const active = [f.statuses.length, f.scene, f.town, showPlays && f.instrument, f.ages, f.capacity, f.space].filter(
-    Boolean,
-  ).length;
+  const active = [
+    f.statuses.length,
+    f.scene,
+    f.town,
+    showPlays && f.instrument,
+    f.ages,
+    f.capacity,
+    f.space,
+    showMissing && f.missing,
+  ].filter(Boolean).length;
   return (
     <AutoFilterForm
       action="/directory"
@@ -604,6 +626,23 @@ function FilterForm({
                 autoSubmit
               />
             </>
+          ) : null}
+          {/* Missing (#321): find gaps to fill in, for moderators and admins. */}
+          {showMissing ? (
+            <Combobox
+              label="Missing"
+              icon={<Incomplete size={16} />}
+              labelClassName="sr-only"
+              name="missing"
+              multiple={false}
+              placeholder="Missing"
+              options={missingFor(tab).map((value) => ({
+                value,
+                label: MISSING[value],
+              }))}
+              defaultValue={f.missing ? [f.missing] : []}
+              autoSubmit
+            />
           ) : null}
         </div>
       </FilterDisclosure>
