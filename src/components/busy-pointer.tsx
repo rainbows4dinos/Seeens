@@ -36,7 +36,7 @@ if (typeof window !== "undefined") {
  */
 export const STAY_EVENT = "seeens:stay";
 
-// Waiting means a link was clicked and the new page hasn't arrived, a page
+// Waiting means a link was clicked (or a search or filter sent) and the new page hasn't arrived, a page
 // loader is on screen, or a pressed button is still working (PressedButton). Whoever has the metronome when a wait starts keeps it
 // to the end, so it never jumps: the pointer, when there's a mouse whose
 // position is known; otherwise the page loader (a phone, the keyboard, or a
@@ -68,12 +68,29 @@ export function BusyPointer() {
       from.current = location.href;
       setNavigating(true);
     };
+    // A search or filter form (GET, like the Directory's) loads a page too,
+    // whether it's sent with Enter or a menu sends it as it changes.
+    const onSubmit = (e: SubmitEvent) => {
+      const form = e.target as HTMLFormElement | null;
+      if (!(form instanceof HTMLFormElement) || form.method.toLowerCase() !== "get") return;
+      if (form.target && form.target !== "_self") return;
+      const url = new URL(form.action, location.href);
+      if (url.origin !== location.origin) return;
+      const params = new URLSearchParams();
+      for (const [k, v] of new FormData(form, e.submitter)) if (typeof v === "string") params.append(k, v);
+      url.search = params.toString();
+      if (url.pathname === location.pathname && url.search === location.search) return;
+      from.current = location.href;
+      setNavigating(true);
+    };
     // A link click that didn't navigate: the wait ends (STAY_EVENT).
     const stay = () => setNavigating(false);
     document.addEventListener("click", onClick, true);
+    document.addEventListener("submit", onSubmit, true);
     document.addEventListener(STAY_EVENT, stay);
     return () => {
       document.removeEventListener("click", onClick, true);
+      document.removeEventListener("submit", onSubmit, true);
       document.removeEventListener(STAY_EVENT, stay);
     };
   }, []);
