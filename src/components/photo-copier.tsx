@@ -278,7 +278,7 @@ function CopierBody({
             resetCopier();
             copy(source, preview.current!, settings);
           }
-          if (isBlank(preview.current!)) throw new Error("Couldn't run the copier. Try again.");
+          if (isBlank(preview.current!)) throw new Error("Couldn't run the Photo Copier. Try again.");
           const o = await encode(original, 0.85);
           const c = await encode(preview.current!, 0.9);
           capture({
@@ -325,7 +325,7 @@ function CopierBody({
           resetCopier();
           copy(source, preview.current!, settings);
         }
-        if (isBlank(preview.current!)) throw new Error("Couldn't run the copier. Try saving again.");
+        if (isBlank(preview.current!)) throw new Error("Couldn't run the Photo Copier. Try saving again.");
         const { blob, ext } = await encode(preview.current!, 0.9);
         const nextPath = `${folder}${id}.${ext}`;
         const { error } = await bucket.upload(nextPath, blob, { contentType: blob.type, upsert: false });
@@ -370,7 +370,7 @@ function CopierBody({
   return (
     <div className="flex flex-col">
       <div className="dialog-title">
-        <h2 id="copier-title">The copier · {name}</h2>
+        <h2 id="copier-title">The Photo Copier · {name}</h2>
         <button type="button" className="dialog-close" onClick={onClose} aria-label="Close">
           ×
         </button>
@@ -612,7 +612,7 @@ function CopierBody({
 
           {webgl ? null : (
             <p className="text-sm text-muted">
-              This browser can&rsquo;t run the copier, so photos get a plain black-and-white look.
+              This browser can&rsquo;t run the Photo Copier, so photos get a plain black-and-white look.
             </p>
           )}
 

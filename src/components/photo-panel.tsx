@@ -74,7 +74,7 @@ export function NewPhotoPanel({
         ) : null}
       </button>
       <p className="text-sm text-muted">
-        {photo ? "Uploads when you save." : "Optional. Run it through the copier now; it uploads when you save."}
+        {photo ? "Uploads when you save." : "Optional. Run it through the Photo Copier now; it uploads when you save."}
       </p>
       <PhotoCopier
         connectionId=""
