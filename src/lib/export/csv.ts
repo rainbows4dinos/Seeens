@@ -43,6 +43,8 @@ export const EXPORT_COLUMNS = [
   // #262: what kind of venue, "Dive Bar; Art Space or Gallery". Added last, so
   // older columns stay where they were.
   "venue_types",
+  // #335: the date a listing was marked Not Active; blank while active.
+  "not_active_since",
 ] as const;
 
 export type ExportRow = Record<(typeof EXPORT_COLUMNS)[number], string>;

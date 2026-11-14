@@ -209,15 +209,19 @@ export async function StatusShelf({ status }: { status: "homies" | "lets_play" |
     .eq("status", status)
     .is("archived_at", null);
   const ids = (marked ?? []).map((m) => m.connection_id);
+  const query = () =>
+    supabase
+      .from("connections")
+      .select(
+        "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
+      )
+      .in("id", ids)
+      .is("merged_into", null)
+      .order("name");
+  // Not Active (#335): nobody to play with, so not in Let's Play or Want to
+  // Play. Homies stay Homies.
   const { data: rows } = ids.length
-    ? await supabase
-        .from("connections")
-        .select(
-          "id, name, kind, group_type, person_roles, photo_path, localities ( name, region, region_code, country, country_code )",
-        )
-        .in("id", ids)
-        .is("merged_into", null)
-        .order("name")
+    ? await (status === "homies" ? query() : query().is("inactive_since", null))
     : { data: [] };
   const all = rows ?? [];
   const shown = all.slice(0, 12);
@@ -271,6 +275,8 @@ export async function NewOnSeeens() {
       )
       .neq("workspace_id", ws)
       .eq("band.workspace_id", ws)
+      // Not Active (#335) isn't news.
+      .is("inactive_since", null)
       .order("created_at", { ascending: false })
       .limit(40),
   ]);

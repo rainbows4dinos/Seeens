@@ -27,3 +27,16 @@ export async function setKeepPrivate(ids: string[], keepPrivate: boolean): Promi
   updateTag(PREVIEW_TAG);
   return refused ? { refused } : {};
 }
+
+export type NotActiveResult = { error?: string; since?: string | null };
+
+// Not Active (#335): a fact about the listing every band sees. Its band, a
+// moderator, or whoever claimed it can change it; the database checks.
+export async function setNotActive(id: string, inactive: boolean): Promise<NotActiveResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("set_not_active", { p_id: id, p_inactive: inactive });
+  if (error) return { error: error.code === "42501" ? "Its band decides this one." : "Couldn't save. Try again." };
+  revalidatePath("/", "layout");
+  updateTag(PREVIEW_TAG);
+  return { since: data ?? null };
+}

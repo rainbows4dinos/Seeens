@@ -28,6 +28,7 @@ import { linksPanelProps } from "@/lib/affiliations/rows";
 import { SECTION_ORDER } from "@/lib/affiliations/options";
 import { ArchiveControl } from "@/components/archive-control";
 import { KeepPrivate } from "@/components/keep-private";
+import { NotActive } from "@/components/not-active";
 import { SharedRecord } from "./shared-record";
 import { MergeWith } from "@/components/merge-with";
 import { MergedNotice, UnmergedNotice } from "@/components/merged-notice";
@@ -141,6 +142,7 @@ async function Connection({
           end={
             <>
               {admin && !claim ? <InviteBandLink connection={c} /> : null}
+              <NotActive key={String(c.inactive_since)} id={c.id} initial={Boolean(c.inactive_since)} />
               {ours ? null : (
                 <KeepPrivate
                   key={String(c.keep_private)}
@@ -211,6 +213,9 @@ async function Connection({
             {/* Where things stand in time: the latest outreach and the next plan. */}
             <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
             <div className="flex flex-wrap gap-2 pt-1 empty:hidden">
+              {c.inactive_since ? (
+                <span className="tag font-semibold">Not Active since {formatMonth(c.inactive_since, tz)}</span>
+              ) : null}
               {ours ? <span className="tag font-semibold">This is us</span> : null}
               {isYou ? (
                 <span className="tag font-semibold">This is you</span>

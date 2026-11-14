@@ -43,6 +43,7 @@ test("export rows: bands only, not our own, not archived", () => {
   assert.equal(readExportRow({ ...exported, types: "Venue" }), null);
   assert.equal(readExportRow({ ...exported, our_band: "yes" }), null);
   assert.equal(readExportRow({ ...exported, archived_on: "2026-11-01" }), null);
+  assert.equal(readExportRow({ ...exported, not_active_since: "2026-11-01" }), null, "Not Active (#335)");
 });
 
 test("gaps: a website is the band's own site, not a platform", () => {

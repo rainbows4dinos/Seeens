@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-13
 
+- **Not Active.** Band broke up, on a break, or someone stepped away? Check **Not Active** at the top of their page. Every band sees it, it’s sorted after the active ones, and it stays out of Let’s Play, Want to Play, and suggestions. Uncheck it when they’re back. Unlike archiving, nothing is hidden.
 - **See what you just imported.** After an import, **See Them in the Directory** shows just the listings it added or filled in. **Clear Filters** goes back to everyone.
 - **Export just the ones you pick.** Select listings in the Directory and press **Export Selected** to download only those as a spreadsheet. **Select All** picks everything that’s loaded.
 - **Import fills in the right record.** A sheet from **Export** keeps its catalog numbers, so importing it back fills in exactly those listings, even when two bands share a name. Links a listing already has aren’t added twice, and neither is a second Instagram or Bandcamp.

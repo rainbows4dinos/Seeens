@@ -17,7 +17,7 @@ const BY_TYPE = byTypeThenName(
 );
 
 const SELECT =
-  "catalog_no, name, kind, person_roles, group_type, attributes, is_us, can_help_with, created_at, updated_at, band:connection_band_details ( status, played_together, notes, email, phone, archived_at ), localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )";
+  "catalog_no, name, kind, person_roles, group_type, attributes, is_us, can_help_with, created_at, updated_at, inactive_since, band:connection_band_details ( status, played_together, notes, email, phone, archived_at ), localities ( name, region, country ), connection_scenes ( scenes ( name ) ), connection_links ( label, url, position ), next_actions ( description, due_on, status, assignee:workspace_members!next_actions_workspace_id_assignee_id_fkey ( display_name ) )";
 
 /** Most listings Export Selected takes at once. */
 export const MAX_SELECTED = 2000;
@@ -118,6 +118,7 @@ export async function buildExportRows({ includeArchived, ids }: { includeArchive
           special_terms: v.special_terms ?? "",
           details_checked_on: v.checked_on ?? "",
           venue_types: venueTypeLabels(v).join(LIST_SEPARATOR),
+          not_active_since: c.inactive_since ?? "",
         };
       })
   );

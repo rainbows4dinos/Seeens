@@ -83,6 +83,15 @@ export function formatLocality(
 }
 
 // A timestamp as a date in the band's time zone: "Nov 2, 2026".
+/** "Nov 2026", from a calendar date ("2026-11-14"), as written. */
+export function formatMonth(day: string) {
+  return new Date(`${day.slice(0, 10)}T12:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export function formatDate(iso: string, timeZone = DEFAULT_TIME_ZONE) {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",

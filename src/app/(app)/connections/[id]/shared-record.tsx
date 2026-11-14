@@ -1,6 +1,13 @@
 import { catalogNo, initials } from "@/lib/connections/card";
 import { directoryHrefFor } from "@/lib/connections/directory";
-import { formatDate, formatLocality, formatType, historyLine, statusLabel } from "@/lib/connections/labels";
+import {
+  formatDate,
+  formatLocality,
+  formatMonth,
+  formatType,
+  historyLine,
+  statusLabel,
+} from "@/lib/connections/labels";
 import type { ConnectionDetail } from "@/lib/connections/queries";
 import { toFormValues } from "@/lib/connections/queries";
 import { photoUrl } from "@/lib/photos/urls";
@@ -13,6 +20,7 @@ import { Photo } from "@/components/photo";
 import { AutosaveForm, AutosaveProvider, SaveStatus } from "@/components/profile/autosave";
 import { BandNoteFields, FormError, ModeratorFields } from "@/components/profile/fields";
 import { KeepPrivate } from "@/components/keep-private";
+import { NotActive } from "@/components/not-active";
 import { ProfilePanel } from "@/components/profile/panel";
 import { QuickStatus } from "@/components/quick-status";
 import { Facts } from "@/components/quick-view";
@@ -62,6 +70,10 @@ export function SharedRecord({
           end={
             <>
               {admin && !claim ? <InviteBandLink connection={c} /> : null}
+              {/* Not Active (#335): its band, a moderator, or whoever claimed it. */}
+              {canFix ? (
+                <NotActive key={String(c.inactive_since)} id={c.id} initial={Boolean(c.inactive_since)} />
+              ) : null}
               {moderator && !c.is_us ? (
                 <KeepPrivate
                   key={String(c.keep_private)}
@@ -96,6 +108,9 @@ export function SharedRecord({
             <p className="text-muted">{[formatType(c), place, catalogNo(c)].filter(Boolean).join(" · ")}</p>
             <DateLines lastOutreach={detail.outreach[0]} nextAction={nextAction} today={today} />
             <div className="flex flex-wrap gap-2 pt-1">
+              {c.inactive_since ? (
+                <span className="tag font-semibold">Not Active since {formatMonth(c.inactive_since)}</span>
+              ) : null}
               {ours ? <span className="tag font-semibold">This is us</span> : null}
               {you ? <span className="tag font-semibold">This is you</span> : null}
               {claim?.joined && !ours ? <span className="tag">Uses Seeens</span> : null}
