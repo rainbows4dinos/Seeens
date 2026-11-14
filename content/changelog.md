@@ -13,7 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-14
 
-- **Grain is a slider.** In the photo copier, slide **Grain** through the copier’s grain patterns and stop on one you like, instead of pressing New Grain until one sticks.
+- **Grain is a slider.** In the Photo Copier, slide **Grain** through its grain patterns and stop on one you like, instead of pressing New Grain until one sticks.
 
 ## 2026-11-13
 
