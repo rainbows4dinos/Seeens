@@ -61,7 +61,7 @@ const split = (v: string) =>
 export function readExportRow(row: Record<string, string>): ExportBand | null {
   const get = (k: string) => unwrap(row[k]);
   if (get("kind") !== "group" || !/\bband\b/i.test(get("types")) || get("our_band") === "yes") return null;
-  if (get("archived_on")) return null;
+  if (get("archived_on") || get("not_active_since")) return null;
   const name = get("name");
   const catalogNo = get("catalog_no");
   if (!name || !catalogNo) return null;

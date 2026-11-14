@@ -185,7 +185,7 @@ export async function loadDirectoryPage(
     ? await supabase
         .from("connections")
         .select(
-          "id, workspace_id, name, kind, person_roles, group_type, is_us, catalog_no, photo_path, photo_alt, attributes, added_by:workspaces!connections_workspace_id_fkey ( name ), band:connection_band_details ( status, played_together, notes ), localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) )",
+          "id, workspace_id, name, kind, person_roles, group_type, is_us, catalog_no, photo_path, photo_alt, attributes, inactive_since, added_by:workspaces!connections_workspace_id_fkey ( name ), band:connection_band_details ( status, played_together, notes ), localities ( name, region, region_code, country, country_code ), connection_scenes ( scene_id ), outreach_entries ( occurred_on, summary ), next_actions ( description, due_on ), incoming:affiliations!affiliations_workspace_id_to_connection_id_fkey ( kind, is_current, other:connections!affiliations_workspace_id_from_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) ), outgoing:affiliations!affiliations_workspace_id_from_connection_id_fkey ( kind, is_current, role, other:connections!affiliations_workspace_id_to_connection_id_fkey ( name, band:connection_band_details ( archived_at ) ) )",
         )
         .in("id", ids)
         // Other bands' records too (#185), with this band's layer, plans, and outreach on them.
@@ -215,7 +215,17 @@ export async function loadDirectoryPage(
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads
-    const { connection_scenes, notes, incoming, outgoing, attributes, workspace_id, added_by, ...rest } = d;
+    const {
+      connection_scenes,
+      notes,
+      incoming,
+      outgoing,
+      attributes,
+      workspace_id,
+      added_by,
+      inactive_since,
+      ...rest
+    } = d;
     // Current, unarchived members only, in name order.
     const names = (
       links: { kind: string; is_current: boolean; other: { name: string; archived_at: string | null } | null }[],
@@ -228,9 +238,12 @@ export async function loadDirectoryPage(
       {
         ...rest,
         is_us: rest.is_us || rest.id === usId,
-        tags: [r.label_mate ? "Label mate" : null, r.shares_member ? "Shares a member" : null].filter(
-          (t): t is string => Boolean(t),
-        ),
+        tags: [
+          // Not Active (#335): first, so it's never missed.
+          inactive_since ? "Not Active" : null,
+          r.label_mate ? "Label mate" : null,
+          r.shares_member ? "Shares a member" : null,
+        ].filter((t): t is string => Boolean(t)),
         scenes: connection_scenes.map((cs) => sceneNames.get(cs.scene_id)).filter((n): n is string => Boolean(n)),
         // The status that groups the row: their own, or via a band (#140).
         status: r.status ?? rest.status,
