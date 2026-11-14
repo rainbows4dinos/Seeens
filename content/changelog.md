@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-13
 
+- **Fixes.** Searching or filtering the Directory shows the loading metronome while the results load.
 - **Faster photos.** In the photo window, paste a screenshot or a copied image (⌘V), paste or drag in an image link from another tab, or press **Search Images** to look for one. No saving files first.
 - **Not Active.** Band broke up, on a break, or someone stepped away? Check **Not Active** at the top of their page. Every band sees it, it’s sorted after the active ones, and it stays out of Let’s Play, Want to Play, and suggestions. Uncheck it when they’re back. Unlike archiving, nothing is hidden.
 - **Import photos.** A Photo column of links to pictures adds each one through the photo copier, with the usual settings, for listings that don’t have a photo yet. Stay on the page while it says it’s adding them.
