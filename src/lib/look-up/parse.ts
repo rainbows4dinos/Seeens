@@ -2,6 +2,8 @@
 // A Seeens export goes in; a sheet the importer fills blanks from comes out.
 // Nothing here touches the network, so the tests run it directly.
 
+import { parseLineup } from "../affiliations/lineup.ts";
+
 /** One band from a Seeens export, with what it already has. */
 export type ExportBand = {
   catalogNo: string;
@@ -20,12 +22,15 @@ export const FIELDS: Field[] = ["instagram", "bandcamp", "website", "email"];
 /** A value, where it came from, and why we think it's this band. */
 export type Finding = { value: string; source: string; why: string };
 
+/** A member as the importer reads one: a name, and roles if the source gave them. */
+export type Member = { name: string; roles: string; source: string };
+
 /** What the search call answers, after checking. */
 export type Answer = {
   sameBand: boolean;
   confusions: string[];
   found: Partial<Record<Field, Finding>>;
-  members: Finding[];
+  members: Member[];
   dropped: string[];
 };
 
@@ -146,18 +151,19 @@ export function promptFor(b: ExportBand, gaps: Field[]): string {
     `Find: ${gaps.join(", ")}, and its current members.`,
     `- website: the band's own site only (not a label page, link-in-bio page, or streaming profile)`,
     `- email: only an address the band posted publicly for booking or contact`,
-    `- members: names as the source gives them, with a source for each`,
+    `- members: current members, one per person, with what they play in "role". Use names as the source gives them, stage names included.`,
     ``,
     `Rules:`,
     `- Many bands share a name. Only report something when a source ties it to this band through a known link or the place. Say which anchor matched.`,
     `- Every value needs the URL of the page that shows it. Leave out anything you can't source.`,
     `- If you're not sure it's the same band, say so and report nothing.`,
+    `- Keep "why" under 15 words. List at most 3 possible confusions, a few words each.`,
     ``,
     `Answer with only this JSON, in a \`\`\`json block:`,
     `{"same_band": true, "possible_confusions": ["..."],`,
     ` "instagram": {"value": "url", "source": "url", "why": "anchor that matched"} or null,`,
     ` "bandcamp": ..., "website": ..., "email": ...,`,
-    ` "members": [{"value": "name", "source": "url", "why": "..."}]}`,
+    ` "members": [{"value": "name", "role": "drums", "source": "url"}]}`,
   ].join("\n");
 }
 
@@ -223,14 +229,25 @@ export function readAnswer(text: string, searched: string[]): Answer {
   }
 
   const members = Array.isArray(data.members) ? data.members : [];
+  const named = new Set<string>();
   for (const m of members) {
     const f = finding(m);
     if (!f) continue;
-    if (!cited(f)) out.dropped.push(`member ${f.value}: its source wasn't in the search results`);
-    // The importer splits a cell on these, so a name can't hold one.
-    else if (f.value.length > 80 || /[,;/&+]|\band\b/i.test(f.value))
+    if (!cited(f)) {
+      out.dropped.push(`member ${f.value}: its source wasn't in the search results`);
+      continue;
+    }
+    // Read like a pasted lineup, so "Kay Test (vox/guitar)" is Kay Test, who
+    // plays vocals and guitar, whether the role came separately or not.
+    const role = typeof (m as { role?: unknown }).role === "string" ? (m as { role: string }).role.trim() : "";
+    const [row] = parseLineup(role ? `${f.value} - ${role}` : f.value);
+    if (!row || row.name.length > 120) {
       out.dropped.push(`member "${f.value}" isn't a name`);
-    else out.members.push(f);
+      continue;
+    }
+    if (named.has(row.name.toLowerCase())) continue;
+    named.add(row.name.toLowerCase());
+    out.members.push({ name: row.name, roles: row.roles, source: f.source });
   }
   return out;
 }
@@ -358,18 +375,26 @@ export function rowFor(
       if (searched && !agrees) notes.push(`  The search said ${searched.value} (${searched.source}); the website wins`);
     } else if (searched) {
       pick[field] = searched.value;
-      notes.push(`${label(field)}: ${searched.source}${searched.why ? ` (${searched.why})` : ""}`);
+      notes.push(`${label(field)}: ${searched.source}${searched.why ? ` (${short(searched.why, 120)})` : ""}`);
     }
   }
   if (gaps.includes("website") && !pick.website && siteUrl) pick.website = siteUrl;
 
-  const members = answer.members.map((m) => m.value);
+  // One per member, in the importer's terms: "Name - Roles; Name".
+  const members = answer.members.map((m) => (m.roles ? `${m.name} - ${m.roles}` : m.name));
   if (members.length) notes.push(`Members: ${[...new Set(answer.members.map((m) => m.source))].join(", ")}`);
   const photo = site?.image ?? "";
   if (photo) notes.push(`Photo: the website's share image; upload it if it's right`);
 
   if (!Object.keys(pick).length && !members.length && !photo) return null;
-  if (answer.confusions.length) notes.push(`Not to be confused with: ${answer.confusions.join("; ")}`);
+  if (answer.confusions.length) {
+    notes.push(
+      `Not to be confused with: ${answer.confusions
+        .slice(0, 3)
+        .map((c) => short(c, 80))
+        .join("; ")}`,
+    );
+  }
   notes.unshift(`Look up, ${day}. Sources:`);
 
   return {
@@ -384,6 +409,11 @@ export function rowFor(
     photo_to_upload: photo,
     notes: notes.join("\n"),
   };
+}
+
+function short(text: string, max: number) {
+  const t = text.replace(/\s+/g, " ").trim();
+  return t.length <= max ? t : `${t.slice(0, max - 1).replace(/\s+\S*$/, "")}…`;
 }
 
 function label(f: Field) {

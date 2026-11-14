@@ -81,7 +81,10 @@ test("answers keep only what cites a page the search returned", () => {
  "instagram": {"value": "https://instagram.com/p/xyz", "source": "https://soda.bandcamp.com/", "why": "linked"},
  "website": null,
  "members": [{"value": "Riley Example", "source": "https://pdxpunk.example/soda-interview", "why": "interview"},
-             {"value": "Sam and Jo", "source": "https://pdxpunk.example/soda-interview", "why": ""},
+             {"value": "Kay Test (vox/guitar)", "source": "https://pdxpunk.example/soda-interview"},
+             {"value": "Creep 1", "role": "guitar or bass", "source": "https://pdxpunk.example/soda-interview"},
+             {"value": "John Example - Drums", "source": "https://soda.bandcamp.com/"},
+             {"value": "riley example", "source": "https://soda.bandcamp.com/"},
              {"value": "Dee", "source": "https://nowhere.example", "why": ""}]}
 \`\`\``;
   const a = readAnswer(text, searched);
@@ -93,14 +96,19 @@ test("answers keep only what cites a page the search returned", () => {
   });
   assert.equal(a.found.email, undefined);
   assert.equal(a.found.instagram, undefined);
+  // Read like a pasted lineup: roles split off the name, stage names kept, no repeats.
   assert.deepEqual(
-    a.members.map((m) => m.value),
-    ["Riley Example"],
+    a.members.map((m) => [m.name, m.roles]),
+    [
+      ["Riley Example", ""],
+      ["Kay Test", "Vocals, Guitar"],
+      ["Creep 1", "Guitar, Bass"],
+      ["John Example", "Drums"],
+    ],
   );
   assert.deepEqual(a.dropped, [
     'instagram: "https://instagram.com/p/xyz" isn\'t one',
     "email: its source wasn't in the search results",
-    'member "Sam and Jo" isn\'t a name',
     "member Dee: its source wasn't in the search results",
   ]);
   assert.deepEqual(a.confusions, ["Soda (cover band, Ohio)"]);
@@ -139,14 +147,22 @@ test("the row: blanks only, the website wins, every source noted", () => {
   const b = readExportRow({ ...exported, links: "" })!;
   const answer: Answer = {
     sameBand: true,
-    confusions: [],
     dropped: [],
     found: {
       instagram: { value: "https://instagram.com/soda_other", source: "https://a.example", why: "" },
       bandcamp: { value: "https://soda.bandcamp.com", source: "https://soda.bandcamp.com", why: "lists Portland" },
       website: { value: "https://soda.example", source: "https://soda.example", why: "" },
     },
-    members: [{ value: "Riley Example", source: "https://pdxpunk.example/x", why: "" }],
+    members: [
+      { name: "Riley Example", roles: "Drums", source: "https://pdxpunk.example/x" },
+      { name: "Sam Example", roles: "", source: "https://pdxpunk.example/x" },
+    ],
+    confusions: [
+      "A very long description of some other band from somewhere else that goes on and on and on",
+      "B",
+      "C",
+      "D",
+    ],
   };
   const site = {
     emails: ["booking@soda.example"],
@@ -160,7 +176,8 @@ test("the row: blanks only, the website wins, every source noted", () => {
   assert.equal(row.bandcamp, "https://soda.bandcamp.com");
   assert.equal(row.website, "https://soda.example");
   assert.equal(row.email, "booking@soda.example");
-  assert.equal(row.members, "Riley Example");
+  assert.equal(row.members, "Riley Example - Drums; Sam Example");
+  assert.match(row.notes, /Not to be confused with: A very long description[^;]{0,60}…; B; C$/);
   assert.equal(row.photo_to_upload, "https://soda.example/press.jpg");
   assert.match(row.notes, /^Look up, 2026-11-13\. Sources:/);
   assert.match(row.notes, /The search said https:\/\/instagram\.com\/soda_other .*the website wins/);

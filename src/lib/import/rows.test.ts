@@ -12,6 +12,7 @@ import {
   guessVenueTypes,
   matchRows,
   readCatalogNo,
+  readMembers,
 } from "./rows.ts";
 
 test("names: flipped articles, spelling doubts, spaces", () => {
@@ -172,7 +173,10 @@ test("catalog numbers from an export fill in exactly that record (#321)", () => 
     ],
   );
   assert.deepEqual(skipped, [{ line: 4, reason: "Soda again: same catalog number as line 2" }]);
-  assert.deepEqual(rows[0].members, ["Riley Example", "Sam"]);
+  assert.deepEqual(
+    rows[0].members.map((m) => m.name),
+    ["Riley Example", "Sam"],
+  );
   assert.match(rows[0].notes ?? "", /Not sure: member Chris\?/);
 
   const existing = [
@@ -193,4 +197,30 @@ test("members only mean something on a band", () => {
   });
   assert.deepEqual(rows[0].members, []);
   assert.equal(rows[0].notes, "Members: Joel");
+});
+
+test("a Members cell reads like a pasted lineup", () => {
+  const m = (name: string, roles = "", former = false) => ({ name, roles, former });
+  assert.deepEqual(readMembers("Riley Example, Sam Example & Jo Example"), [
+    m("Riley Example"),
+    m("Sam Example"),
+    m("Jo Example"),
+  ]);
+  assert.deepEqual(readMembers("John Example - Drums; Stan Sample - Guitar; Kay Test (vox/guitar)"), [
+    m("John Example", "Drums"),
+    m("Stan Sample", "Guitar"),
+    m("Kay Test", "Vocals, Guitar"),
+  ]);
+  // Commas inside brackets don't split; "or" splits roles.
+  assert.deepEqual(readMembers("Lee Example (bass, vocals), Creep 1 (guitar or bass)"), [
+    m("Lee Example", "Bass, Vocals"),
+    m("Creep 1", "Guitar, Bass"),
+  ]);
+  // One member with roles after a colon; stage names stay as given.
+  assert.deepEqual(readMembers("Jo Example: vox, keys"), [m("Jo Example", "Vocals, Keyboards")]);
+  assert.deepEqual(readMembers("Brent (Burnt Example) - Bass/Vocals\nDee Example (drums) (former)"), [
+    m("Brent (Burnt Example)", "Bass, Vocals"),
+    m("Dee Example", "Drums", true),
+  ]);
+  assert.deepEqual(readMembers("Sam; sam"), [m("Sam")]);
 });

@@ -13,6 +13,7 @@ import {
   buildRows,
   guessMapping,
   matchRows,
+  memberLabel,
   unwrapCell,
   type DraftRow,
   type SheetKind,
@@ -480,7 +481,7 @@ function ReviewRow({
     venueLine(r.venue),
     r.venue.special_terms ? `Terms: ${r.venue.special_terms}` : null,
     r.booked_by.length ? `Booked by ${r.booked_by.join(", ")}` : null,
-    r.members.length ? `Members: ${r.members.join(", ")}` : null,
+    r.members.length ? `Members: ${r.members.map(memberLabel).join("; ")}` : null,
     r.links.length ? `${r.links.length} ${r.links.length === 1 ? "link" : "links"}` : null,
     r.email,
   ].filter(Boolean);

@@ -47,8 +47,8 @@ const SMALL_WORDS = new Set(["and", "of", "the", "on", "in", "a", "an"]);
 const PART_SEPARATOR = /\s+[-–—]\s+|\s*[:|\t]\s*|\s+[–—]\s*|\s*[–—]\s+|\s+\/\s+/;
 // "Lee Example (drums)": roles in brackets at the end.
 const BRACKETED = /^(.+?)\s*[([]([^)\]]+)[)\]]\s*$/;
-// Roles are split on any of these.
-const ROLE_SEPARATOR = /\s*(?:\/|,|&|\+|;|\band\b)\s*/i;
+// Roles are split on any of these. "guitar or bass" is two roles too.
+const ROLE_SEPARATOR = /\s*(?:\/|,|&|\+|;|\band\b|\bor\b)\s*/i;
 // Marks a single line as a former member: "(former)", "[ex]", "- ex-member".
 const FORMER_MARK = /\s*[([]\s*(?:former|ex|ex-member|past|formerly)\s*[)\]]\s*/i;
 // A heading line: "Lineup", "Members:", "Current lineup", "Past members".

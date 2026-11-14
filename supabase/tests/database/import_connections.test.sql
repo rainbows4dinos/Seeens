@@ -9,7 +9,7 @@ create temp table tc as select * from public.connections with no data;
 alter table tc add column status public.connection_status, add column played_together boolean,
   add column notes text, add column email text, add column phone text, add column archived_at timestamptz;
 
-select plan(19);
+select plan(22);
 
 insert into auth.users (id, email) values ('d1111111-1111-1111-1111-111111111111', 'import-alex@example.com');
 insert into public.workspaces (id, name) values ('d1aaaaaa-0000-0000-0000-0000000000a1', 'Import Band');
@@ -115,6 +115,24 @@ select is(
   '0', 'importing the same members again changes nothing');
 select is((select count(*)::int from public.connections where name in ('Chris', 'Sam Example')), 3,
   'and adds no one');
+
+-- Members with roles, like Paste Lineup (#321): roles go on the link,
+-- former members are linked as former, and a member with no roles gets them.
+select is(
+  public.import_connections('d1aaaaaa-0000-0000-0000-0000000000a1', format($$[
+    {"name": "Barf Bags", "match_id": "%s", "kind": "group", "group_type": "band",
+     "links": [], "scenes": [], "venue": {}, "booked_by": [],
+     "members": [{"name": "Sam Example", "roles": "Bass, Vocals", "former": false},
+                 {"name": "Dee Example", "roles": "Drums", "former": true}]}
+  ]$$, (select id from public.connections where name = 'The Barf Bags'))::jsonb) ->> 'member_links',
+  '1', 'a new member is linked; one already there isn''t linked twice');
+select is((select array_agg(p.name || ':' || coalesce(a.role, '-') || ':' || a.is_current::text order by p.name)
+  from public.affiliations a join public.connections p on p.id = a.from_connection_id
+  join public.connections b on b.id = a.to_connection_id
+  where a.kind = 'member' and b.name = 'The Barf Bags' and p.name in ('Sam Example', 'Dee Example')),
+  array['Dee Example:Drums:false', 'Sam Example:Bass, Vocals:true'],
+  'roles are kept, and a former member is linked as former');
+select is((select count(*)::int from public.connections where name = 'Sam Example'), 1, 'and no one is added twice');
 
 -- All or nothing.
 select throws_ok(

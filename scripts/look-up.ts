@@ -87,9 +87,17 @@ const bands = parsed.data
 
 const todo = bands.filter((x) => !fresh(cache[x.band.catalogNo])).slice(0, limit);
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-const later = bands.length - todo.length;
+const cached = bands.filter((x) => fresh(cache[x.band.catalogNo])).length;
+const waiting = bands.length - cached - todo.length;
 console.log(
-  `${plural(bands.length, "band", "bands")} missing details; ${later ? `${later} cached or past the limit, ` : ""}looking up ${todo.length}.`,
+  [
+    `${plural(bands.length, "band", "bands")} missing details`,
+    cached ? `${cached} looked up in the last ${CACHE_DAYS} days` : null,
+    `looking up ${todo.length} now`,
+    waiting ? `${waiting} left for later runs (--limit ${limit})` : null,
+  ]
+    .filter(Boolean)
+    .join("; ") + ".",
 );
 
 let searches = 0;

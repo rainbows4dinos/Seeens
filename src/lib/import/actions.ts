@@ -57,7 +57,10 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
     notes: r.notes?.slice(0, 5000) ?? null,
     links: r.links.filter((l) => /^https?:\/\/\S+\.\S+/i.test(l.url)).slice(0, 20),
     scenes: r.scenes.map((s) => s.slice(0, 120)).slice(0, 20),
-    members: r.members.map((m) => m.slice(0, 200)).slice(0, 30),
+    members: r.members
+      .map((m) => ({ name: m.name.slice(0, 200), roles: m.roles.slice(0, 80), former: Boolean(m.former) }))
+      .filter((m) => m.name)
+      .slice(0, 40),
   }));
 
   const supabase = await createClient();
