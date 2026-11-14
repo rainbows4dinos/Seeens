@@ -195,7 +195,7 @@ With email set up, each app admin gets an email for every new item (reply to ans
 ### Roles
 
 - **Members** add records, edit what their band added, and keep their band's own statuses and notes.
-- **Moderators** are trusted people an app admin picks by name under **Moderators** in the account menu (`/admin/moderators`). A new moderator gets an email (when email is set up) and a one-time note in the app explaining the role. They can fix the details of any record other bands share: name, type, town, links, what someone can help with, and venue details. Every moderator edit is logged in `connection_edits`, and the record's band sees "Last fixed by a moderator" on it.
+- **Moderators** are trusted people an app admin picks by name under **Moderators** in the account menu (`/admin/moderators`). A new moderator gets an email (when email is set up) and a one-time note in the app explaining the role. They can fix the details of any record other bands share: name, type, town, links, what someone can help with, and venue details. Every moderator edit is logged in `connection_edits`, and the record's band sees "Last fixed by a moderator" on it. Moderators and admins also get a **Missing** filter in the Directory (no Instagram, Bandcamp, website, email, members, photo, or town), for finding gaps to fill in; select the results and **Export Selected** to run them through Look up.
 - **App admins** can do everything moderators can, make moderators, and invite bands.
 
 Keep Private follows roles too. A venue, band, or other group can only be kept private by an owner of its band, or a moderator. A person is their own call once they've linked Your Page; until then, the band that added them decides. Changes go through `set_keep_private`, which applies these rules.
@@ -216,7 +216,7 @@ Town search uses the GeoNames `cities1000` list (towns with 1,000+ people), load
 
 ## Look up (admin script)
 
-`scripts/look-up.ts` fills in missing band details from public pages, outside the app (#321). Export the directory, then:
+`scripts/look-up.ts` fills in missing band details from public pages, outside the app (#321). Export the directory (or filter by **Missing**, select, and **Export Selected**), then:
 
 ```sh
 npm run look-up -- ~/Downloads/seeens-export.csv --limit 10
