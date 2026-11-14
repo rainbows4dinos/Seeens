@@ -224,3 +224,19 @@ test("a Members cell reads like a pasted lineup", () => {
   ]);
   assert.deepEqual(readMembers("Sam; sam"), [m("Sam")]);
 });
+
+test("a Photo column keeps a link to add later", () => {
+  const { rows } = buildRows(
+    ["Name", "photo"],
+    [
+      ["Soda", "https://soda.example/band.jpg"],
+      ["Aggro", "not a link"],
+    ],
+    guessMapping(["Name", "photo"], "bands"),
+    "bands",
+    { status: "neutral" },
+  );
+  assert.equal(rows[0].photo_url, "https://soda.example/band.jpg");
+  assert.equal(rows[1].photo_url, null);
+  assert.equal(rows[1].notes, "photo: not a link");
+});

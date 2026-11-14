@@ -10,6 +10,7 @@ import {
   linkKey,
   promptFor,
   readAnswer,
+  looksLikePhoto,
   readExportRow,
   robotsAllow,
   rowFor,
@@ -139,7 +140,7 @@ test("a band's site: emails, profiles, its share image, and pages worth a look",
     instagram: ["https://instagram.com/soda_pdx"],
     bandcamp: ["https://soda.bandcamp.com"],
     image: "https://soda.example/img/press.jpg",
-    pages: ["https://soda.example/contact", "https://soda.example/about/"],
+    pages: ["https://soda.example/about/", "https://soda.example/contact"],
   });
 });
 
@@ -178,11 +179,34 @@ test("the row: blanks only, the website wins, every source noted", () => {
   assert.equal(row.email, "booking@soda.example");
   assert.equal(row.members, "Riley Example - Drums; Sam Example");
   assert.match(row.notes, /Not to be confused with: A very long description[^;]{0,60}…; B; C$/);
-  assert.equal(row.photo_to_upload, "https://soda.example/press.jpg");
+  assert.equal(row.photo, "https://soda.example/press.jpg");
   assert.match(row.notes, /^Look up, 2026-11-13\. Sources:/);
   assert.match(row.notes, /The search said https:\/\/instagram\.com\/soda_other .*the website wins/);
   assert.match(row.notes, /Bandcamp: from the band's website \(https:\/\/soda\.example\), and the search agrees/);
 
   const nothing = rowFor(b, gapsFor(b), { ...answer, found: {}, members: [] }, null, null, "2026-11-13");
   assert.equal(nothing, null);
+});
+
+test("share images: photos, not logos or graphics", () => {
+  assert.equal(looksLikePhoto("https://soda.example/img/band-2025.jpg"), true);
+  assert.equal(looksLikePhoto("http://static1.squarespace.com/static/1/t/2/3/IMG_4410.jpg?format=1500w"), true);
+  assert.equal(looksLikePhoto("https://soda.example/couragelogo.jpg"), false);
+  assert.equal(looksLikePhoto("http://static1.squarespace.com/static/1/t/2/3/LMS-font.png?format=1500w"), false);
+  assert.equal(looksLikePhoto("http://static1.squarespace.com/static/1/t/2/3/Untitled+design-4.png"), false);
+  assert.equal(looksLikePhoto("https://soda.example/mark.svg"), false);
+});
+
+test("a site's pages: press first, and logos passed over for photos", () => {
+  const html = `<head>
+    <meta property="og:image" content="https://soda.example/logo.png">
+    <meta name="twitter:image" content="https://soda.example/live-at-the-basement.jpg"></head>
+    <a href="/contact">C</a><a href="/about">A</a><a href="/press-kit">P</a>`;
+  const scan = scanSite(html, "https://soda.example/");
+  assert.equal(scan.image, "https://soda.example/live-at-the-basement.jpg");
+  assert.deepEqual(scan.pages, [
+    "https://soda.example/press-kit",
+    "https://soda.example/about",
+    "https://soda.example/contact",
+  ]);
 });

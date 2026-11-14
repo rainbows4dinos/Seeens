@@ -6,6 +6,8 @@ import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { readSettings } from "./settings";
 import { PHOTO_BUCKET } from "./urls";
+import { layerOf } from "@/lib/connections/band-details";
+import type { ConnectionStatus } from "@/lib/connections/labels";
 
 // Saving a photo (#37). The browser uploads the files straight to storage
 // (storage policies check the folder), then calls savePhoto to point the
@@ -103,4 +105,46 @@ export async function discardUpload(connectionId: string, paths: string[]): Prom
   const mine = paths.filter((p) => (inFolder(p, folder, false) || inFolder(p, folder, true)) && !keep.has(p));
   if (mine.length) await supabase.storage.from(PHOTO_BUCKET).remove(mine);
   return {};
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export type PhotoTarget = {
+  id: string;
+  name: string;
+  workspaceId: string;
+  status: ConnectionStatus | null;
+  isUs: boolean;
+};
+
+/**
+ * Import photos (#321): of these records, the ones this band can give a photo
+ * and that don't have one yet, with what the copier's default settings need.
+ */
+export async function photoTargets(ids: string[]): Promise<PhotoTarget[]> {
+  const membership = await getMembership();
+  if (!membership || !Array.isArray(ids)) return [];
+  const wanted = [...new Set(ids.filter((id) => typeof id === "string" && UUID.test(id)))].slice(0, 1000);
+  if (!wanted.length) return [];
+  const supabase = await createClient();
+  const out: PhotoTarget[] = [];
+  for (let i = 0; i < wanted.length; i += 150) {
+    const { data } = await supabase
+      .from("connections")
+      .select("id, name, workspace_id, is_us, band:connection_band_details ( status )")
+      .in("id", wanted.slice(i, i + 150))
+      .eq("workspace_id", membership.workspaceId)
+      .eq("band.workspace_id", membership.workspaceId)
+      .is("photo_path", null);
+    for (const c of data ?? []) {
+      out.push({
+        id: c.id,
+        name: c.name,
+        workspaceId: c.workspace_id,
+        status: layerOf(c.band)?.status ?? null,
+        isUs: c.is_us,
+      });
+    }
+  }
+  return out;
 }
