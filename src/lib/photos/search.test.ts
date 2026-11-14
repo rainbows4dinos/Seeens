@@ -10,6 +10,10 @@ test("image search: quoted name, what it is, and town", () => {
     '"Soda" band Portland',
   );
   assert.equal(q(imageSearchUrl({ name: "Dantes", kind: "group", group_type: "venue", town: null })), '"Dantes" venue');
+  assert.equal(
+    q(imageSearchUrl({ name: "Moodkiller Example", kind: "group", group_type: "label", town: "Portland" })),
+    '"Moodkiller Example" record label logo Portland',
+  );
   assert.equal(q(imageSearchUrl({ name: 'Jo "JJ" Example', kind: "person", group_type: null })), '"Jo JJ Example"');
   assert.equal(
     new URL(imageSearchUrl({ name: "x", kind: "person", group_type: null })).searchParams.get("tbm"),
