@@ -15,7 +15,7 @@ import {
   resize,
 } from "@/lib/photos/copier";
 import { discardUpload, removePhoto, savePhoto } from "@/lib/photos/actions";
-import { CONTRAST, EXPOSURE, GRIT, OFFSET, PLATES, type CopierSettings, type Plate } from "@/lib/photos/settings";
+import { CONTRAST, EXPOSURE, GRIT, OFFSET, PLATES, SEED, type CopierSettings, type Plate } from "@/lib/photos/settings";
 
 // Add or change a connection's photo (#37). Pick or drop a photo (phones get
 // the camera or library), tune the copier, and save. The copier runs here;
@@ -511,6 +511,28 @@ function CopierBody({
             />
           </div>
 
+          {/* Which grain (was New Grain): slide through them and stop on one you like. */}
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between">
+              <label htmlFor={`${ids}-seed`} className="label">
+                Grain
+              </label>
+              <output htmlFor={`${ids}-seed`} className="label tabular-nums">
+                No. {settings.seed % 1000}
+              </output>
+            </div>
+            <input
+              id={`${ids}-seed`}
+              type="range"
+              className="range"
+              {...SEED}
+              value={settings.seed % 1000}
+              disabled={!source || !webgl}
+              aria-valuetext={`Grain number ${settings.seed % 1000}`}
+              onChange={(e) => set("seed", Number(e.target.value))}
+            />
+          </div>
+
           <fieldset className="flex flex-col gap-1" disabled={!source}>
             <legend className="label pb-1">Ink plate</legend>
             <div className="segmented segmented-radio">
@@ -566,14 +588,6 @@ function CopierBody({
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="button-secondary"
-              disabled={!source || !webgl}
-              onClick={() => set("seed", (settings.seed + 1 + Math.floor(Math.random() * 997)) % 1000)}
-            >
-              New Grain
-            </button>
             <button type="button" className="button-secondary" onClick={() => fileInput.current?.click()}>
               {source ? "Different Photo" : "Choose a Photo"}
             </button>

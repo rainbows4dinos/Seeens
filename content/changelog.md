@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-14
+
+- **Grain is a slider.** In the photo copier, slide **Grain** through the copier’s grain patterns and stop on one you like, instead of pressing New Grain until one sticks.
+
 ## 2026-11-13
 
 - **Fixes.** Searching or filtering the Directory shows the loading metronome while the results load.
