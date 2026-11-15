@@ -2,11 +2,13 @@
 
 import { Add, Subtract } from "@carbon/icons-react";
 import { useEffect, useRef, type ReactNode } from "react";
+import { loadFoldedPanels, savePanelFolded } from "@/lib/panels/actions";
 
 // A profile panel (Figma Window, #126): an ink title bar that folds the
-// panel away. Folded, the bar shows a one-line summary. Each device
-// remembers which panels you keep folded. A <details>, so it works before
-// the page's script loads.
+// panel away. Folded, the bar shows a one-line summary. Which panels you keep
+// folded is saved to your account (#314), so it follows you across devices;
+// this device's copy applies first, so there's no flash. A <details>, so it
+// works before the page's script loads.
 export function ProfilePanel({
   id,
   title,
@@ -21,14 +23,42 @@ export function ProfilePanel({
   const ref = useRef<HTMLDetailsElement>(null);
   const key = `seeens:panel:${id}`;
 
+  // What we last set or saw, so the toggle event from setting it ourselves
+  // (or from the initial open) doesn't save anything.
+  const known = useRef(true);
+
   useEffect(() => {
     // A link straight to this panel (#band-invite) opens it, folded or not.
     if (location.hash === `#${id}`) return;
+    const apply = (open: boolean) => {
+      known.current = open;
+      if (ref.current && ref.current.open !== open) ref.current.open = open;
+    };
+    let local: string | null = null;
     try {
-      if (localStorage.getItem(key) === "closed" && ref.current) ref.current.open = false;
+      local = localStorage.getItem(key);
     } catch {
-      // Storage blocked: everything starts open.
+      // Storage blocked: the account's copy still applies below.
     }
+    if (local === "closed") apply(false);
+    let live = true;
+    folded().then(({ ids, saved }) => {
+      if (!live) return;
+      if (!saved) {
+        // Nothing on the account yet: carry this device's fold over, once.
+        if (local === "closed" && !ids.has(id)) {
+          ids.add(id);
+          void savePanelFolded(id, true);
+        }
+        return;
+      }
+      const open = !ids.has(id);
+      apply(open);
+      remember(key, open);
+    });
+    return () => {
+      live = false;
+    };
   }, [key, id]);
 
   return (
@@ -38,11 +68,15 @@ export function ProfilePanel({
       open
       className="profile-panel"
       onToggle={(e) => {
-        try {
-          localStorage.setItem(key, e.currentTarget.open ? "open" : "closed");
-        } catch {
-          // Storage blocked: it just won't be remembered.
-        }
+        const open = e.currentTarget.open;
+        if (open === known.current) return;
+        known.current = open;
+        remember(key, open);
+        void folded().then(({ ids }) => {
+          if (open) ids.delete(id);
+          else ids.add(id);
+        });
+        void savePanelFolded(id, !open);
       }}
     >
       <summary className="profile-panel-title">
@@ -58,4 +92,22 @@ export function ProfilePanel({
       <div className="profile-panel-body">{children}</div>
     </details>
   );
+}
+
+// Loaded once per page load and shared by every panel; toggles keep it current.
+let foldedIds: Promise<{ ids: Set<string>; saved: boolean }> | null = null;
+function folded() {
+  foldedIds ??= loadFoldedPanels().then(
+    (ids) => ({ ids: new Set(ids ?? []), saved: ids !== null }),
+    () => ({ ids: new Set<string>(), saved: false }),
+  );
+  return foldedIds;
+}
+
+function remember(key: string, open: boolean) {
+  try {
+    localStorage.setItem(key, open ? "open" : "closed");
+  } catch {
+    // Storage blocked: the account still remembers.
+  }
 }
