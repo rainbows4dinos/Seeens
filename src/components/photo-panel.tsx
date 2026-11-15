@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Add } from "@carbon/icons-react";
 import { PhotoCopier, type CapturedPhoto, type PhotoProps } from "@/components/photo-copier";
 import type { CopierSettings } from "@/lib/photos/settings";
 import { initials } from "@/lib/connections/card";
 import { Photo } from "@/components/photo";
+import { imageSearchUrl } from "@/lib/photos/search";
 
 // The connection header's photo (Figma Connection view): a small square
 // print, or initials on photo paper when there's none. It opens the copier.
@@ -50,12 +51,36 @@ export function NewPhotoPanel({
   onChange: (photo: CapturedPhoto | null) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // Search Images (#321) uses what's typed so far: the name, type, and town.
+  const [searchUrl, setSearchUrl] = useState<string | null>(null);
+  const [typedName, setTypedName] = useState("");
+  const box = useRef<HTMLDivElement>(null);
+  const openCopier = () => {
+    const form = box.current?.closest("form");
+    const fd = form ? new FormData(form) : null;
+    const name = String(fd?.get("name") ?? "").trim();
+    setTypedName(name);
+    setSearchUrl(
+      name
+        ? imageSearchUrl({
+            name,
+            kind: fd?.get("kind") === "person" ? "person" : "group",
+            group_type: String(fd?.get("group_type") ?? "") || null,
+            town:
+              String(fd?.get("place_text") ?? "")
+                .split(",")[0]
+                .trim() || null,
+          })
+        : null,
+    );
+    setOpen(true);
+  };
   return (
-    <div className="flex items-center gap-3">
+    <div ref={box} className="flex items-center gap-3">
       <button
         type="button"
         className="photo-thumb"
-        onClick={() => setOpen(true)}
+        onClick={openCopier}
         aria-label={photo ? "Change the photo" : "Add a photo"}
         aria-haspopup="dialog"
       >
@@ -79,7 +104,7 @@ export function NewPhotoPanel({
       <PhotoCopier
         connectionId=""
         workspaceId=""
-        name="the new listing"
+        name={typedName || "the new listing"}
         photoUrl={photo?.copyUrl ?? null}
         originalUrl={photo?.originalUrl ?? null}
         photoPath={photo ? "pending" : null}
@@ -87,6 +112,7 @@ export function NewPhotoPanel({
         settings={photo?.settings ?? null}
         alt={photo?.alt ?? null}
         defaults={defaults}
+        searchUrl={searchUrl}
         capture={onChange}
         open={open}
         onClose={() => setOpen(false)}
