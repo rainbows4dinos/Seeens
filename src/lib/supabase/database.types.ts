@@ -457,6 +457,10 @@ isOneToOne: false
 { Args: { "p_workspace_id": string }; Returns: { "shown": string[],"hidden": string[] }[] },
             "set_home_layout":
 { Args: { "p_workspace_id": string,"p_shown": string[] | null,"p_hidden": string[] | null }; Returns: undefined },
+            "my_folded_panels":
+{ Args: never; Returns: string[] | null },
+            "set_panel_folded":
+{ Args: { "p_panel": string,"p_folded": boolean }; Returns: undefined },
             "invitable_bands":
 { Args: never; Returns: { "connection_id": string,"name": string,"town": string | null,"added_by": string,"group_type": "band" | "label" }[] },
             "invitable_people":

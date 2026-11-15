@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-15
+
+- **Folded panels follow you.** Fold Notes, Members, or any other panel and it stays folded on your phone and your laptop. It’s just for you; your bandmates keep their own.
+
 ## 2026-11-14
 
 - **Search Images when adding.** The Photo Copier on the Add form has **Search Images** too, searching for the name, type, and town you’ve typed so far. Pasting a screenshot or image link works there as well.
