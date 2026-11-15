@@ -105,6 +105,22 @@ async function Band() {
         </Link>
       </ProfilePanel>
 
+      {/* Import and export together (also on the Directory: Add's menu and the count line). */}
+      <ProfilePanel id="band-data" title="Your Data">
+        <p>
+          Bring in a spreadsheet you already keep, or take everything {membership.workspaceName} has added with you as
+          a CSV.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/import" className="button-secondary">
+            Import a Spreadsheet
+          </Link>
+          <Link href="/export" className="button-secondary">
+            Export CSV
+          </Link>
+        </div>
+      </ProfilePanel>
+
       {membership.kind === "label" ? (
         <ProfilePanel id="band-roster" title={`Roster (${roster.length})`}>
           {roster.length ? (
