@@ -39,6 +39,20 @@ export function readKnown(rows: Record<string, string>[], towns: string[]): Know
   return { names, local };
 }
 
+/**
+ * What Seeens is for (#321): DIY and DIY-adjacent, punk and its neighbors.
+ * Every Discover prompt keeps to this unless --genres changes it or
+ * --any-genre drops it.
+ */
+export const DEFAULT_FOCUS =
+  "punk, post-punk, indie rock, and their neighbors: hardcore, post-hardcore, doom and sludge, noise rock, art rock, no wave, garage, goth and deathrock, synth punk, emo, shoegaze, riot grrrl, queercore, folk punk, power pop, and lo-fi";
+
+/** The focus line: DIY first, in these genres (or any, if focus is empty). */
+function focusLine(noun: string, focus: string): string {
+  const diy = `DIY ${noun}s first, then DIY-adjacent ones (independent, small, community-run). Skip major-label, corporate, and big touring acts.`;
+  return focus ? `${diy} Genres: ${focus}. Skip ones outside these, like jazz, country, cover and tribute acts.` : diy;
+}
+
 /** The scenes to keep to: the one asked for, then the ones your listings there are in. */
 function scenesFor(known: Known, scene?: string): string[] {
   return [...new Set([...(scene ? [scene] : []), ...known.local.slice(0, 25).flatMap((k) => k.scenes)])].slice(0, 6);
@@ -49,13 +63,16 @@ export function discoverPrompt(
   town: string,
   type: LookUpType,
   known: Known,
-  { scene, limit }: { scene?: string; limit: number },
+  { scene, limit, focus = DEFAULT_FOCUS }: { scene?: string; limit: number; focus?: string },
 ): string {
   const noun = NOUN[type];
   const here = known.local.slice(0, 25);
   const scenes = scenesFor(known, scene);
   return [
     `List independent and DIY ${noun}s active in or right around ${town}.`,
+    type === "venue"
+      ? `Rooms that book DIY and DIY-adjacent shows${focus ? ` in these genres: ${focus}` : ""}. Skip arenas and big theaters that mostly book touring headliners.`
+      : focusLine(noun, focus),
     scene ? `Focus on this scene: ${scene}.` : scenes.length ? `Scenes we know there: ${scenes.join(", ")}.` : null,
     here.length
       ? `Already known there (use them to find who they play with, and don't list them): ${here.map((k) => `${k.name} (${k.type})`).join("; ")}.`
@@ -94,7 +111,7 @@ export function venueBillsPrompt(
   town: string,
   venue: { name: string; website?: string },
   known: Known,
-  { limit, scene }: { limit: number; scene?: string },
+  { limit, scene, focus = DEFAULT_FOCUS }: { limit: number; scene?: string; focus?: string },
 ): string {
   const skip = known.local
     .filter((k) => /band/i.test(k.type))
@@ -104,6 +121,7 @@ export function venueBillsPrompt(
   return [
     `List local bands, based in or right around ${town}, that played shows at ${venue.name} in the last two years.`,
     venue.website ? `Its website: ${venue.website}` : null,
+    focusLine("band", focus),
     scenes.length ? `Only bands that fit these scenes: ${scenes.join(", ")}.` : null,
     skip.length ? `Already known (don't list them): ${skip.join("; ")}.` : null,
     ``,

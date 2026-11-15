@@ -111,3 +111,22 @@ test("venue kinds: DIY rooms' bills first, theaters last", () => {
     ["Basement Example", "Bar Example", "Big Theater Example"],
   );
 });
+
+test("the focus: DIY first, punk and its neighbors, unless changed", () => {
+  const k = readKnown(rows, ["Olympia, WA"]);
+  const band = discoverPrompt("Olympia, WA", "band", k, { limit: 10 });
+  assert.match(band, /DIY bands first, then DIY-adjacent ones/);
+  assert.match(band, /Genres: punk, post-punk, indie rock, and their neighbors/);
+  assert.match(band, /like jazz, country, cover and tribute acts/);
+  assert.match(discoverPrompt("Olympia, WA", "label", k, { limit: 10 }), /DIY record labels first/);
+  assert.match(
+    discoverPrompt("Olympia, WA", "venue", k, { limit: 10 }),
+    /Rooms that book DIY and DIY-adjacent shows in these genres: punk/,
+  );
+  const custom = discoverPrompt("Olympia, WA", "band", k, { limit: 10, focus: "hardcore" });
+  assert.match(custom, /Genres: hardcore\./);
+  const any = discoverPrompt("Olympia, WA", "band", k, { limit: 10, focus: "" });
+  assert.doesNotMatch(any, /Genres:/);
+  assert.match(any, /DIY bands first/);
+  assert.match(venueBillsPrompt("Olympia, WA", { name: "X" }, k, { limit: 5 }), /Genres: punk, post-punk/);
+});
