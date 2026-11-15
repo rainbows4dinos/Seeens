@@ -18,7 +18,8 @@
     "db:test": "supabase test db",
     "test": "node --test --experimental-strip-types \"src/**/*.test.ts\"",
     "screenshots": "node scripts/screenshots.mjs",
-    "look-up": "node --env-file-if-exists=.env.local --experimental-strip-types --no-warnings=ExperimentalWarning scripts/look-up.ts"
+    "look-up": "node --env-file-if-exists=.env.local --experimental-strip-types --no-warnings=ExperimentalWarning scripts/look-up.ts",
+    "discover": "node --env-file-if-exists=.env.local --experimental-strip-types --no-warnings=ExperimentalWarning scripts/discover.ts"
   },
   "dependencies": {
     "@carbon/icons-react": "^11.90.0",

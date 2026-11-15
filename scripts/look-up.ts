@@ -22,6 +22,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import Papa from "papaparse";
+import { needKey, plural, search, sleep, usage } from "./claude-search.ts";
 import {
   LOOK_UP_TYPES,
   OUT_COLUMNS,
@@ -40,8 +41,6 @@ import {
   type SiteScan,
 } from "../src/lib/look-up/parse.ts";
 
-const MODEL = process.env.LOOK_UP_MODEL || "claude-sonnet-5-5";
-const API = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/$/, "");
 const MAX_SEARCHES = 3;
 const MAX_PAGES = 4;
 const CACHE_DAYS = 30;
@@ -76,13 +75,10 @@ const only = option("only")
 const out = option("out") ?? input.replace(/\.csv$/i, "") + ".look-up.csv";
 const cachePath = out.replace(/\.csv$/i, "") + "-cache.json";
 const dryRun = flag("dry-run");
-const key = process.env.ANTHROPIC_API_KEY;
-if (!dryRun && !key) {
-  console.error("Set ANTHROPIC_API_KEY (in the environment or .env.local), or use --dry-run.");
-  process.exit(1);
-}
+if (!dryRun) needKey();
 
-const today = new Date().toISOString().slice(0, 10);
+// Your own date, not UTC's: an evening run is still today.
+const today = new Date().toLocaleDateString("en-CA");
 const cache: Record<string, Cached> = existsSync(cachePath) ? JSON.parse(readFileSync(cachePath, "utf8")) : {};
 const fresh = (c: Cached | undefined) =>
   c && !flag("fresh") && (Date.parse(today) - Date.parse(c.day)) / 86_400_000 < CACHE_DAYS;
@@ -100,7 +96,6 @@ const bands = parsed.data
   .filter((x) => x.gaps.length);
 
 const todo = bands.filter((x) => !fresh(cache[x.band.catalogNo])).slice(0, limit);
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const cached = bands.filter((x) => fresh(cache[x.band.catalogNo])).length;
 const waiting = bands.length - cached - todo.length;
 console.log(
@@ -114,10 +109,6 @@ console.log(
     .join("; ") + ".",
 );
 
-let searches = 0;
-let tokensIn = 0;
-let tokensOut = 0;
-
 for (const { band, gaps } of todo) {
   const prompt = promptFor(band, gaps);
   if (dryRun) {
@@ -125,7 +116,7 @@ for (const { band, gaps } of todo) {
     continue;
   }
   try {
-    const { text, searched } = await search(prompt);
+    const { text, searched } = await search(prompt, { maxSearches: MAX_SEARCHES });
     const answer = readAnswer(text, searched);
     const siteUrl = band.links.find((l) => kindOf(l.url) === "website")?.url ?? answer.found.website?.value ?? null;
     const site = siteUrl ? await scanWebsite(siteUrl) : null;
@@ -152,7 +143,7 @@ if (!dryRun) {
   writeFileSync(out, Papa.unparse({ fields: OUT_COLUMNS, data: rows.map((r) => OUT_COLUMNS.map((c) => r[c])) }));
   console.log(
     `\n${plural(rows.length, "listing", "listings")} with something to fill in: ${out}` +
-      `\nThis run: ${plural(searches, "search", "searches")}, ${tokensIn} input and ${tokensOut} output tokens.` +
+      `\nThis run: ${plural(usage.searches, "search", "searches")}, ${usage.tokensIn} input and ${usage.tokensOut} output tokens.` +
       `\nCheck the sheet, delete anything wrong, then Import it as ${importAs(rows.map((r) => r.type))}.`,
   );
 }
@@ -164,52 +155,6 @@ function summary(a: Answer, row: OutRow | null): string {
   const parts = [got.length ? `found ${got.join(", ")}` : "nothing to fill in"];
   if (a.dropped.length) parts.push(`left out: ${a.dropped.join("; ")}`);
   return parts.join(". ");
-}
-
-// One Claude call with web search. Returns its text and every page it saw.
-async function search(prompt: string): Promise<{ text: string; searched: string[] }> {
-  const messages: { role: "user" | "assistant"; content: unknown }[] = [{ role: "user", content: prompt }];
-  const searched: string[] = [];
-  let text = "";
-  for (let turn = 0; turn < 3; turn++) {
-    const res = await call({
-      model: MODEL,
-      max_tokens: 2000,
-      messages,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: MAX_SEARCHES }],
-    });
-    tokensIn += res.usage?.input_tokens ?? 0;
-    tokensOut += res.usage?.output_tokens ?? 0;
-    searches += res.usage?.server_tool_use?.web_search_requests ?? 0;
-    for (const block of res.content ?? []) {
-      if (block.type === "web_search_tool_result" && Array.isArray(block.content)) {
-        for (const r of block.content) if (r?.url) searched.push(r.url);
-      }
-      if (block.type === "text") {
-        text += block.text;
-        for (const c of block.citations ?? []) if (c?.url) searched.push(c.url);
-      }
-    }
-    // A long search turn can pause; send it back to let it finish.
-    if (res.stop_reason !== "pause_turn") break;
-    messages.push({ role: "assistant", content: res.content });
-  }
-  return { text, searched };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function call(body: unknown, attempt = 0): Promise<any> {
-  const res = await fetch(`${API}/v1/messages`, {
-    method: "POST",
-    headers: { "x-api-key": key!, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if ((res.status === 429 || res.status === 529 || res.status >= 500) && attempt < 3) {
-    await sleep(Number(res.headers.get("retry-after") ?? 0) * 1000 || 5000 * (attempt + 1));
-    return call(body, attempt + 1);
-  }
-  if (!res.ok) throw new Error(`the API said ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  return res.json();
 }
 
 // The band's own website: its homepage plus a few contact, about, or press pages.
@@ -246,10 +191,6 @@ async function get(url: string): Promise<string> {
   // Only the band's own site, even after a redirect.
   if (kindOf(res.url) !== "website") throw new Error("redirected off-site");
   return (await res.text()).slice(0, 2_000_000);
-}
-
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
 }
 
 // Which choice in Import's "What's in it?": one type, or A Mix (the sheet's
