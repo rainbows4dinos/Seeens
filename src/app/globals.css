@@ -1394,6 +1394,30 @@
   .type-more > summary::-webkit-details-marker {
     display: none;
   }
+  /* Split Add: one listing, or the chevron for Import a Spreadsheet. A paper
+     hairline divides the two halves. */
+  .add-split {
+    display: inline-flex;
+    position: relative;
+  }
+  .add-split > .button-primary {
+    flex: 1;
+  }
+  .add-more > summary {
+    height: 100%;
+    padding-inline: 8px;
+    border-left-color: var(--color-bg-surface);
+    list-style: none;
+    cursor: pointer;
+  }
+  .add-more > summary::-webkit-details-marker {
+    display: none;
+  }
+  .add-more[open] > summary {
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    border-left-color: var(--color-border-strong);
+  }
   .type-menu {
     position: absolute;
     top: calc(100% + 4px);

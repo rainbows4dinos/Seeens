@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Combobox } from "@/components/combobox";
 import { AutoFilterForm, FilterDisclosure } from "@/components/filter-form";
 import {
-  Add,
   Bar,
   Events,
   Building,
@@ -48,6 +47,7 @@ import { MISSING, hasFilters, missingFor, type DirectoryFilters } from "@/lib/co
 import { INSTRUMENTS, type Instrument } from "@/lib/affiliations/instruments";
 import { countDuplicates } from "@/lib/connections/merge";
 import { PageLoader } from "@/components/metronome";
+import { AddMenu } from "@/components/add-menu";
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -239,6 +239,12 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
                   <DuplicatesLink />
                 </Suspense>
               )}
+              {/* Up top, since the list loads as you scroll and the bottom keeps moving. */}
+              {archived ? null : (
+                <Link href="/export" className="link">
+                  Export CSV
+                </Link>
+              )}
             </div>
 
             {c.matched === 0 && filtering ? (
@@ -266,18 +272,6 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
             />
           </>
         )}
-
-        {c.view ? (
-          <p className="rule-top pt-4">
-            <Link href="/export" className="action-link text-sm">
-              Export the directory as CSV
-            </Link>
-            {" · "}
-            <Link href="/import" className="action-link text-sm">
-              Import a spreadsheet
-            </Link>
-          </p>
-        ) : null}
       </div>
     </LayoutProvider>
   );
@@ -656,23 +650,13 @@ function FilterForm({
   );
 }
 
-// Add, named for the tab and opening the form with its type set.
-// Short in the search row on smaller screens: "+ Add", still named in full
-// for screen readers and as a tooltip.
+// Add, named for the tab and opening the form with its type set, with
+// Import a Spreadsheet beside it. Short in the search row on smaller
+// screens: "+ Add", still named in full for screen readers and as a tooltip.
 function AddConnection({ tab, className, short = false }: { tab: Tab; className: string; short?: boolean }) {
   const t = TABS.find((x) => x.id === tab)!;
   const href = t.addType ? `/add?type=${t.addType}` : "/add";
-  return (
-    <Link
-      href={href}
-      className={`button-primary ${className}`}
-      aria-label={short ? t.add : undefined}
-      title={short ? t.add : undefined}
-    >
-      <Add size={16} aria-hidden="true" />
-      {short ? "Add" : t.add}
-    </Link>
-  );
+  return <AddMenu href={href} label={t.add} short={short} className={className} />;
 }
 
 // "2 possible duplicates" (#169), across the whole directory. Loads on its

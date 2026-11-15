@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-15
 
+- **Import and export, easier to find.** Now that the Directory loads as you scroll, they’ve moved up: **Import a Spreadsheet** is in Add’s menu (the arrow beside it), **Export CSV** is next to the count, and both are under **Your Data** in Band Settings.
 - **Folded panels follow you.** Fold Notes, Members, or any other panel and it stays folded on your phone and your laptop. It’s just for you; your bandmates keep their own.
 
 ## 2026-11-14
