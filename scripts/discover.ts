@@ -6,9 +6,9 @@
 // For each type, one Claude call with web search (5 searches at most), scoped
 // to the town and anchored by the listings your export already has there:
 // venues first, then labels, then bands. Bands also come from the recent
-// bills of up to --venues venues there (yours, then ones just found), one
-// call each, since a broad search finds few bands; those keep their own home
-// town, or none.
+// bills of up to --venues venues there (yours, then ones just found, DIY
+// rooms first), one call each, since a broad search finds few bands. Only
+// local bands with a home town a page shows count there.
 // Every entry must cite a page the search returned; anything already in your
 // export is left out. Writes discover-<town>-<date>.csv next to the export.
 // Check it, delete what's wrong, then Import it as A Mix: they're added as new
@@ -26,6 +26,7 @@ import { needKey, plural, search, sleep, usage } from "./claude-search.ts";
 import {
   DISCOVER_COLUMNS,
   discoverPrompt,
+  billsOrder,
   discoverRow,
   venueBillsPrompt,
   readDiscoverAnswer,
@@ -127,15 +128,19 @@ for (const type of order) {
   await run(type, type, discoverPrompt(town, type, known, { scene, limit }), type, town);
   if (type !== "band" || venueBills === 0) continue;
   // The venues to mine: ones you know there, then ones just found.
+  // DIY rooms first, then bars; a theater's bills are mostly touring acts.
   const venues = [
     ...known.local.filter((k) => /venue/i.test(k.type)).map((k) => ({ name: k.name })),
-    ...all.filter((c) => c.type === "venue").map((c) => ({ name: c.name, website: c.website || undefined })),
+    ...billsOrder(all.filter((c) => c.type === "venue")).map((c) => ({
+      name: c.name,
+      website: c.website || undefined,
+    })),
   ].slice(0, venueBills);
   for (const v of venues) {
     await run(
       `band@${v.name.toLowerCase()}`,
       `bands at ${v.name}`,
-      venueBillsPrompt(town, v, known, { limit }),
+      venueBillsPrompt(town, v, known, { limit, scene }),
       "band",
       null,
     );
