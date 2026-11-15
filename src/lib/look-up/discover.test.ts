@@ -2,7 +2,7 @@
 // Fixture bands, towns, and sites are fictional.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { discoverPrompt, discoverRow, readDiscoverAnswer, readKnown, townKey } from "./discover.ts";
+import { discoverPrompt, discoverRow, readDiscoverAnswer, readKnown, townKey, venueBillsPrompt } from "./discover.ts";
 
 const rows = [
   { name: '="Soda Example"', town: "Olympia", types: "Band", scenes: "Oly DIY; Punk" },
@@ -61,4 +61,20 @@ test("answers: cited, new, once, and the right kind of links", () => {
     "Discover, 2026-11-14. Source: https://showlist.example/oly (Played the Grange)\nLast seen: Show, Aug 2026",
   );
   assert.deepEqual(readDiscoverAnswer("nope", [], "band", "x", new Set()).dropped, ["the answer wasn't readable"]);
+});
+
+test("bands from a venue's bills keep their own town, or none", () => {
+  const k = readKnown(rows, ["Olympia, WA"]);
+  const p = venueBillsPrompt("Olympia, WA", { name: "The Grange Example", website: "https://grange.example" }, k, {
+    limit: 20,
+  });
+  assert.match(p, /^List bands that played shows at The Grange Example in Olympia, WA/);
+  assert.match(p, /Its website: https:\/\/grange\.example/);
+  assert.match(p, /Already known \(don't list them\): Soda Example\./, "bands only, not the venue itself");
+  const text =
+    '```json\n{"found": [{"name": "Touring Example", "town": null, "source": "https://grange.example/events"}]}\n```';
+  const { found } = readDiscoverAnswer(text, ["https://grange.example/events"], "band", null, k.names);
+  assert.equal(found[0].town, "");
+  assert.match(discoverPrompt("Olympia, WA", "label", k, { limit: 10 }), /cassette or tape labels/);
+  assert.match(discoverPrompt("Olympia, WA", "band", k, { limit: 10 }), /"unknown" if you can't tell/);
 });

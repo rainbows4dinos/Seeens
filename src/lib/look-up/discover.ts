@@ -56,10 +56,11 @@ export function discoverPrompt(
       ? `Already known there (use them to find who they play with, and don't list them): ${here.map((k) => `${k.name} (${k.type})`).join("; ")}.`
       : null,
     ``,
-    `Find up to ${limit}. Good places to look: local venue calendars and show listings, community and college radio, local zines and blogs, label rosters, and Bandcamp pages that name the town.`,
+    `Find up to ${limit}. ${WHERE[type]}`,
+    `Search more than one way: try different words for "${noun}" and the town, and the places above. Don't stop at the first list you find.`,
     ``,
     `Rules:`,
-    `- Active means a show, a release, or a post in the last two years. Say what and when in "last_seen".`,
+    `- Prefer ones active in the last two years (a show, a release, or a post). Say what and when in "last_seen", or "unknown" if you can't tell; don't leave one out just for that.`,
     `- Only list a ${noun} when a source ties it to ${town} (or a town right next to it). Many names are shared, so say what tied it in "why".`,
     `- Every entry needs the URL of the page that shows it. Leave out anything you can't source.`,
     `- Links (instagram, bandcamp, website) only if a page you found shows them; otherwise null.`,
@@ -67,6 +68,49 @@ export function discoverPrompt(
     ``,
     `Answer with only this JSON, in a \`\`\`json block:`,
     `{"found": [{"name": "...", "town": "...", "source": "url", "why": "...", "last_seen": "...",`,
+    `  "instagram": "url or null", "bandcamp": "url or null", "website": "url or null"}]}`,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
+// Where each type shows up, since a broad search mostly finds venues (#321).
+const WHERE: Record<LookUpType, string> = {
+  band: `Bands rarely have pages of their own: look at local show listings and venue calendars, Bandcamp pages and tags that name the town, local labels' rosters, community and college radio playlists, and local zines and blogs.`,
+  venue: `Look at local show listings, venue calendars, and local zines and blogs. Include DIY spaces, bars, record stores, and all-ages rooms that put on shows.`,
+  label: `Small labels are often cassette or tape labels, collectives, or a person's Bandcamp label page. Look at Bandcamp label pages that name the town, "released by" credits on local bands' releases, local record stores, and local zines and blogs.`,
+};
+
+/**
+ * Bands from one venue's recent bills (#321): what a broad search misses.
+ * Out-of-town bands come too, with their own home town (or none).
+ */
+export function venueBillsPrompt(
+  town: string,
+  venue: { name: string; website?: string },
+  known: Known,
+  { limit }: { limit: number },
+): string {
+  const skip = known.local
+    .filter((k) => /band/i.test(k.type))
+    .slice(0, 25)
+    .map((k) => k.name);
+  return [
+    `List bands that played shows at ${venue.name} in ${town} in the last two years.`,
+    venue.website ? `Its website: ${venue.website}` : null,
+    skip.length ? `Already known (don't list them): ${skip.join("; ")}.` : null,
+    ``,
+    `Find up to ${limit}. Look at its calendar and past events, show listings for the town, event pages, and flyers posted online.`,
+    ``,
+    `Rules:`,
+    `- Only bands a page shows on a bill at ${venue.name}. Say the date and who they played with in "why".`,
+    `- "town" is the band's own home town if a page says it, otherwise null. Don't assume ${town}.`,
+    `- Every entry needs the URL of the page that shows it. Leave out anything you can't source.`,
+    `- Links (instagram, bandcamp, website) only if a page you found shows them; otherwise null.`,
+    `- Keep "why" and "last_seen" under 15 words each.`,
+    ``,
+    `Answer with only this JSON, in a \`\`\`json block:`,
+    `{"found": [{"name": "...", "town": "... or null", "source": "url", "why": "...", "last_seen": "...",`,
     `  "instagram": "url or null", "bandcamp": "url or null", "website": "url or null"}]}`,
   ]
     .filter((l) => l !== null)
@@ -95,7 +139,8 @@ export function readDiscoverAnswer(
   text: string,
   searched: string[],
   type: LookUpType,
-  town: string,
+  /** The town to assume when the answer gives none; null keeps it blank (a venue's bills). */
+  town: string | null,
   known: Set<string>,
 ): { found: Candidate[]; dropped: string[] } {
   const dropped: string[] = [];
@@ -125,7 +170,7 @@ export function readDiscoverAnswer(
     found.push({
       name,
       type,
-      town: str(o.town, 80) || town,
+      town: (str(o.town, 80).replace(/^null$/i, "") || town) ?? "",
       source,
       why: str(o.why),
       lastSeen: str(o.last_seen),
