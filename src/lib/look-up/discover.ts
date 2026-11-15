@@ -39,18 +39,40 @@ export function readKnown(rows: Record<string, string>[], towns: string[]): Know
   return { names, local };
 }
 
+/**
+ * What Seeens is for (#321): DIY and DIY-adjacent, punk and its neighbors.
+ * Every Discover prompt keeps to this unless --genres changes it or
+ * --any-genre drops it.
+ */
+export const DEFAULT_FOCUS =
+  "punk, post-punk, indie rock, and their neighbors: hardcore, post-hardcore, doom and sludge, noise rock, art rock, no wave, garage, goth and deathrock, synth punk, emo, shoegaze, riot grrrl, queercore, folk punk, power pop, and lo-fi";
+
+/** The focus line: DIY first, in these genres (or any, if focus is empty). */
+function focusLine(noun: string, focus: string): string {
+  const diy = `DIY ${noun}s first, then DIY-adjacent ones (independent, small, community-run). Skip major-label, corporate, and big touring acts.`;
+  return focus ? `${diy} Genres: ${focus}. Skip ones outside these, like jazz, country, cover and tribute acts.` : diy;
+}
+
+/** The scenes to keep to: the one asked for, then the ones your listings there are in. */
+function scenesFor(known: Known, scene?: string): string[] {
+  return [...new Set([...(scene ? [scene] : []), ...known.local.slice(0, 25).flatMap((k) => k.scenes)])].slice(0, 6);
+}
+
 /** The search prompt: one type, one town, anchored by who you already know there. */
 export function discoverPrompt(
   town: string,
   type: LookUpType,
   known: Known,
-  { scene, limit }: { scene?: string; limit: number },
+  { scene, limit, focus = DEFAULT_FOCUS }: { scene?: string; limit: number; focus?: string },
 ): string {
   const noun = NOUN[type];
   const here = known.local.slice(0, 25);
-  const scenes = [...new Set([...(scene ? [scene] : []), ...here.flatMap((k) => k.scenes)])].slice(0, 6);
+  const scenes = scenesFor(known, scene);
   return [
     `List independent and DIY ${noun}s active in or right around ${town}.`,
+    type === "venue"
+      ? `Rooms that book DIY and DIY-adjacent shows${focus ? ` in these genres: ${focus}` : ""}. Skip arenas and big theaters that mostly book touring headliners.`
+      : focusLine(noun, focus),
     scene ? `Focus on this scene: ${scene}.` : scenes.length ? `Scenes we know there: ${scenes.join(", ")}.` : null,
     here.length
       ? `Already known there (use them to find who they play with, and don't list them): ${here.map((k) => `${k.name} (${k.type})`).join("; ")}.`
@@ -67,7 +89,7 @@ export function discoverPrompt(
     `- Keep "why" and "last_seen" under 15 words each.`,
     ``,
     `Answer with only this JSON, in a \`\`\`json block:`,
-    `{"found": [{"name": "...", "town": "...", "source": "url", "why": "...", "last_seen": "...",`,
+    `{"found": [{"name": "...", "town": "...", "source": "url", "why": "...", "last_seen": "...",${type === "venue" ? ` "kind": "diy",` : ""}`,
     `  "instagram": "url or null", "bandcamp": "url or null", "website": "url or null"}]}`,
   ]
     .filter((l) => l !== null)
@@ -77,7 +99,7 @@ export function discoverPrompt(
 // Where each type shows up, since a broad search mostly finds venues (#321).
 const WHERE: Record<LookUpType, string> = {
   band: `Bands rarely have pages of their own: look at local show listings and venue calendars, Bandcamp pages and tags that name the town, local labels' rosters, community and college radio playlists, and local zines and blogs.`,
-  venue: `Look at local show listings, venue calendars, and local zines and blogs. Include DIY spaces, bars, record stores, and all-ages rooms that put on shows.`,
+  venue: `Look at local show listings, venue calendars, and local zines and blogs. Include DIY spaces, bars, record stores, and all-ages rooms that put on shows. Say what kind each is in "kind": "diy" (house shows, DIY spaces, record stores, all-ages rooms), "bar" (a bar or small club), "theater" (a theater or big room), or "other".`,
   label: `Small labels are often cassette or tape labels, collectives, or a person's Bandcamp label page. Look at Bandcamp label pages that name the town, "released by" credits on local bands' releases, local record stores, and local zines and blogs.`,
 };
 
@@ -89,28 +111,32 @@ export function venueBillsPrompt(
   town: string,
   venue: { name: string; website?: string },
   known: Known,
-  { limit }: { limit: number },
+  { limit, scene, focus = DEFAULT_FOCUS }: { limit: number; scene?: string; focus?: string },
 ): string {
   const skip = known.local
     .filter((k) => /band/i.test(k.type))
     .slice(0, 25)
     .map((k) => k.name);
+  const scenes = scenesFor(known, scene);
   return [
-    `List bands that played shows at ${venue.name} in ${town} in the last two years.`,
+    `List local bands, based in or right around ${town}, that played shows at ${venue.name} in the last two years.`,
     venue.website ? `Its website: ${venue.website}` : null,
+    focusLine("band", focus),
+    scenes.length ? `Only bands that fit these scenes: ${scenes.join(", ")}.` : null,
     skip.length ? `Already known (don't list them): ${skip.join("; ")}.` : null,
     ``,
     `Find up to ${limit}. Look at its calendar and past events, show listings for the town, event pages, and flyers posted online.`,
     ``,
     `Rules:`,
     `- Only bands a page shows on a bill at ${venue.name}. Say the date and who they played with in "why".`,
-    `- "town" is the band's own home town if a page says it, otherwise null. Don't assume ${town}.`,
+    `- Leave out touring acts from elsewhere, big-name headliners, and tribute or cover bands. They're not the local scene.`,
+    `- "town" is the band's own home town, from a page that says so (its Bandcamp, a bio, a listing). If you can't find one in or near ${town}, leave the band out; don't assume it.`,
     `- Every entry needs the URL of the page that shows it. Leave out anything you can't source.`,
     `- Links (instagram, bandcamp, website) only if a page you found shows them; otherwise null.`,
     `- Keep "why" and "last_seen" under 15 words each.`,
     ``,
     `Answer with only this JSON, in a \`\`\`json block:`,
-    `{"found": [{"name": "...", "town": "... or null", "source": "url", "why": "...", "last_seen": "...",`,
+    `{"found": [{"name": "...", "town": "...", "source": "url", "why": "...", "last_seen": "...",`,
     `  "instagram": "url or null", "bandcamp": "url or null", "website": "url or null"}]}`,
   ]
     .filter((l) => l !== null)
@@ -127,7 +153,17 @@ export type Candidate = {
   instagram: string;
   bandcamp: string;
   website: string;
+  /** For venues: diy, bar, theater, or other. DIY rooms' bills are read first. */
+  kind?: string;
 };
+
+const VENUE_KINDS = ["diy", "bar", "theater", "other"];
+
+/** Venues to read bills from, smallest first: DIY rooms, then bars; theaters only if that's all there is. */
+export function billsOrder<T extends { kind?: string }>(venues: T[]): T[] {
+  const rank = (v: T) => ({ diy: 0, bar: 1, other: 2, theater: 3 })[v.kind ?? "other"] ?? 2;
+  return [...venues].sort((a, b) => rank(a) - rank(b));
+}
 
 const str = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
@@ -167,10 +203,18 @@ export function readDiscoverAnswer(
     if (!key || taken.has(key)) continue;
     taken.add(key);
     const site = str(o.website, 500);
+    const ownTown = str(o.town, 80).replace(/^null$/i, "");
+    // From a venue's bills (town null): no home town, no listing.
+    if (town === null && !ownTown) {
+      dropped.push(`${name}: no home town given`);
+      continue;
+    }
+    const kind = str(o.kind, 20).toLowerCase();
     found.push({
       name,
       type,
-      town: (str(o.town, 80).replace(/^null$/i, "") || town) ?? "",
+      ...(type === "venue" ? { kind: VENUE_KINDS.includes(kind) ? kind : "other" } : {}),
+      town: ownTown || town || "",
       source,
       why: str(o.why),
       lastSeen: str(o.last_seen),
@@ -214,6 +258,9 @@ export function discoverRow(c: Candidate, day: string): DiscoverRow {
     notes: [
       `Discover, ${day}. Source: ${c.source}${c.why ? ` (${c.why})` : ""}`,
       c.lastSeen ? `Last seen: ${c.lastSeen}` : null,
+      c.kind
+        ? `Kind: ${{ diy: "DIY space", bar: "bar or small club", theater: "theater", other: "other" }[c.kind] ?? c.kind}`
+        : null,
     ]
       .filter(Boolean)
       .join("\n"),

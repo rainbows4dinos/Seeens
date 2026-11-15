@@ -1,14 +1,19 @@
 // Discover (#321), outside the app: who's active in a town you don't know well.
 //
 //   npm run discover -- "Olympia, WA" --export path/to/seeens-export.csv
-//     [--types band,venue,label] [--scene punk] [--limit 15] [--venues 4] [--fresh] [--dry-run]
+//     [--types band,venue,label] [--scene punk] [--genres "..."] [--any-genre]
+//     [--limit 15] [--venues 4] [--fresh] [--dry-run]
+//
+// It keeps to DIY and DIY-adjacent bands, labels, and rooms in punk,
+// post-punk, indie rock, and their neighbors; --genres replaces that list
+// and --any-genre drops it.
 //
 // For each type, one Claude call with web search (5 searches at most), scoped
 // to the town and anchored by the listings your export already has there:
 // venues first, then labels, then bands. Bands also come from the recent
-// bills of up to --venues venues there (yours, then ones just found), one
-// call each, since a broad search finds few bands; those keep their own home
-// town, or none.
+// bills of up to --venues venues there (yours, then ones just found, DIY
+// rooms first), one call each, since a broad search finds few bands. Only
+// local bands with a home town a page shows count there.
 // Every entry must cite a page the search returned; anything already in your
 // export is left out. Writes discover-<town>-<date>.csv next to the export.
 // Check it, delete what's wrong, then Import it as A Mix: they're added as new
@@ -26,6 +31,8 @@ import { needKey, plural, search, sleep, usage } from "./claude-search.ts";
 import {
   DISCOVER_COLUMNS,
   discoverPrompt,
+  DEFAULT_FOCUS,
+  billsOrder,
   discoverRow,
   venueBillsPrompt,
   readDiscoverAnswer,
@@ -43,12 +50,12 @@ const option = (name: string) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : undefined;
 };
-const valued = ["--export", "--types", "--scene", "--limit", "--venues"];
+const valued = ["--export", "--types", "--scene", "--limit", "--venues", "--genres"];
 const town = args.find((a, i) => !a.startsWith("--") && !valued.includes(args[i - 1]));
 const exportPath = option("export");
 if (!town || !exportPath || !existsSync(exportPath)) {
   console.error(
-    'Usage: npm run discover -- "Olympia, WA" --export path/to/seeens-export.csv [--types band,venue,label] [--scene punk] [--limit 15] [--venues 4] [--fresh] [--dry-run]',
+    'Usage: npm run discover -- "Olympia, WA" --export path/to/seeens-export.csv [--types band,venue,label] [--scene punk] [--genres "..."] [--any-genre] [--limit 15] [--venues 4] [--fresh] [--dry-run]',
   );
   process.exit(1);
 }
@@ -57,6 +64,9 @@ const types = (option("types") ?? LOOK_UP_TYPES.join(","))
   .map((t) => t.trim().toLowerCase().replace(/s$/, ""))
   .filter((t): t is LookUpType => (LOOK_UP_TYPES as string[]).includes(t));
 const scene = option("scene");
+// DIY first, in punk, post-punk, indie rock and their neighbors, unless
+// --genres says otherwise or --any-genre drops it.
+const focus = flag("any-genre") ? "" : (option("genres") ?? DEFAULT_FOCUS);
 const limit = Math.min(30, Number(option("limit") ?? 15));
 // How many venues' recent bills to read for bands (one search call each).
 const venueBills = Math.max(0, Math.min(10, Number(option("venues") ?? 4)));
@@ -73,10 +83,14 @@ const dir = dirname(exportPath);
 const out = join(dir, `discover-${slug}-${today}.csv`);
 const cachePath = join(dir, `discover-${slug}.cache.json`);
 
-type Cached = { day: string; scene: string; found: Candidate[] };
+type Cached = { day: string; scene: string; focus?: string; found: Candidate[] };
 const cache: Record<string, Cached> = existsSync(cachePath) ? JSON.parse(readFileSync(cachePath, "utf8")) : {};
 const fresh = (c: Cached | undefined) =>
-  c && !flag("fresh") && c.scene === (scene ?? "") && (Date.parse(today) - Date.parse(c.day)) / 86_400_000 < CACHE_DAYS;
+  c &&
+  !flag("fresh") &&
+  c.scene === (scene ?? "") &&
+  (c.focus ?? DEFAULT_FOCUS) === focus &&
+  (Date.parse(today) - Date.parse(c.day)) / 86_400_000 < CACHE_DAYS;
 
 const rows = Papa.parse<Record<string, string>>(readFileSync(exportPath, "utf8"), {
   header: true,
@@ -103,7 +117,7 @@ async function run(cacheKey: string, label: string, prompt: string, type: LookUp
       const { text, searched } = await search(prompt, { maxSearches: MAX_SEARCHES, maxTokens: 4000 });
       const answer = readDiscoverAnswer(text, searched, type, assumeTown, known.names);
       found = answer.found;
-      cache[cacheKey] = { day: today, scene: scene ?? "", found };
+      cache[cacheKey] = { day: today, scene: scene ?? "", focus, found };
       writeFileSync(cachePath, JSON.stringify(cache, null, 2));
       console.log(
         `${label}: ${plural(found.length, "new one", "new ones")}${answer.dropped.length ? `. Left out: ${answer.dropped.join("; ")}` : ""}`,
@@ -124,18 +138,22 @@ async function run(cacheKey: string, label: string, prompt: string, type: LookUp
 // and their recent bills are where the town's bands show up (#321).
 const order = (["venue", "label", "band"] as LookUpType[]).filter((t) => types.includes(t));
 for (const type of order) {
-  await run(type, type, discoverPrompt(town, type, known, { scene, limit }), type, town);
+  await run(type, type, discoverPrompt(town, type, known, { scene, limit, focus }), type, town);
   if (type !== "band" || venueBills === 0) continue;
   // The venues to mine: ones you know there, then ones just found.
+  // DIY rooms first, then bars; a theater's bills are mostly touring acts.
   const venues = [
     ...known.local.filter((k) => /venue/i.test(k.type)).map((k) => ({ name: k.name })),
-    ...all.filter((c) => c.type === "venue").map((c) => ({ name: c.name, website: c.website || undefined })),
+    ...billsOrder(all.filter((c) => c.type === "venue")).map((c) => ({
+      name: c.name,
+      website: c.website || undefined,
+    })),
   ].slice(0, venueBills);
   for (const v of venues) {
     await run(
       `band@${v.name.toLowerCase()}`,
       `bands at ${v.name}`,
-      venueBillsPrompt(town, v, known, { limit }),
+      venueBillsPrompt(town, v, known, { limit, scene, focus }),
       "band",
       null,
     );

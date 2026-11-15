@@ -2,7 +2,15 @@
 // Fixture bands, towns, and sites are fictional.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { discoverPrompt, discoverRow, readDiscoverAnswer, readKnown, townKey, venueBillsPrompt } from "./discover.ts";
+import {
+  billsOrder,
+  discoverPrompt,
+  discoverRow,
+  readDiscoverAnswer,
+  readKnown,
+  townKey,
+  venueBillsPrompt,
+} from "./discover.ts";
 
 const rows = [
   { name: '="Soda Example"', town: "Olympia", types: "Band", scenes: "Oly DIY; Punk" },
@@ -63,18 +71,62 @@ test("answers: cited, new, once, and the right kind of links", () => {
   assert.deepEqual(readDiscoverAnswer("nope", [], "band", "x", new Set()).dropped, ["the answer wasn't readable"]);
 });
 
-test("bands from a venue's bills keep their own town, or none", () => {
+test("bands from a venue's bills: local ones only, with their own town", () => {
   const k = readKnown(rows, ["Olympia, WA"]);
   const p = venueBillsPrompt("Olympia, WA", { name: "The Grange Example", website: "https://grange.example" }, k, {
     limit: 20,
   });
-  assert.match(p, /^List bands that played shows at The Grange Example in Olympia, WA/);
+  assert.match(p, /^List local bands, based in or right around Olympia, WA, that played shows at The Grange Example/);
   assert.match(p, /Its website: https:\/\/grange\.example/);
+  assert.match(p, /Only bands that fit these scenes: Oly DIY, Punk/);
   assert.match(p, /Already known \(don't list them\): Soda Example\./, "bands only, not the venue itself");
+  assert.match(p, /Leave out touring acts/);
   const text =
-    '```json\n{"found": [{"name": "Touring Example", "town": null, "source": "https://grange.example/events"}]}\n```';
-  const { found } = readDiscoverAnswer(text, ["https://grange.example/events"], "band", null, k.names);
-  assert.equal(found[0].town, "");
+    '```json\n{"found": [{"name": "Touring Example", "town": null, "source": "https://grange.example/events"},' +
+    ' {"name": "Local Example", "town": "Olympia, WA", "source": "https://grange.example/events"}]}\n```';
+  const { found, dropped } = readDiscoverAnswer(text, ["https://grange.example/events"], "band", null, k.names);
+  assert.deepEqual(
+    found.map((c) => [c.name, c.town]),
+    [["Local Example", "Olympia, WA"]],
+  );
+  assert.deepEqual(dropped, ["Touring Example: no home town given"]);
   assert.match(discoverPrompt("Olympia, WA", "label", k, { limit: 10 }), /cassette or tape labels/);
   assert.match(discoverPrompt("Olympia, WA", "band", k, { limit: 10 }), /"unknown" if you can't tell/);
+});
+
+test("venue kinds: DIY rooms' bills first, theaters last", () => {
+  const k = readKnown(rows, ["Olympia, WA"]);
+  assert.match(discoverPrompt("Olympia, WA", "venue", k, { limit: 10 }), /"kind": "diy"/);
+  const text =
+    '```json\n{"found": [{"name": "Big Theater Example", "kind": "theater", "source": "https://x.example"},' +
+    ' {"name": "Basement Example", "kind": "DIY", "source": "https://x.example"},' +
+    ' {"name": "Bar Example", "kind": "pub", "source": "https://x.example"}]}\n```';
+  const { found } = readDiscoverAnswer(text, ["https://x.example"], "venue", "Olympia, WA", k.names);
+  assert.deepEqual(
+    found.map((c) => c.kind),
+    ["theater", "diy", "other"],
+  );
+  assert.deepEqual(
+    billsOrder(found).map((c) => c.name),
+    ["Basement Example", "Bar Example", "Big Theater Example"],
+  );
+});
+
+test("the focus: DIY first, punk and its neighbors, unless changed", () => {
+  const k = readKnown(rows, ["Olympia, WA"]);
+  const band = discoverPrompt("Olympia, WA", "band", k, { limit: 10 });
+  assert.match(band, /DIY bands first, then DIY-adjacent ones/);
+  assert.match(band, /Genres: punk, post-punk, indie rock, and their neighbors/);
+  assert.match(band, /like jazz, country, cover and tribute acts/);
+  assert.match(discoverPrompt("Olympia, WA", "label", k, { limit: 10 }), /DIY record labels first/);
+  assert.match(
+    discoverPrompt("Olympia, WA", "venue", k, { limit: 10 }),
+    /Rooms that book DIY and DIY-adjacent shows in these genres: punk/,
+  );
+  const custom = discoverPrompt("Olympia, WA", "band", k, { limit: 10, focus: "hardcore" });
+  assert.match(custom, /Genres: hardcore\./);
+  const any = discoverPrompt("Olympia, WA", "band", k, { limit: 10, focus: "" });
+  assert.doesNotMatch(any, /Genres:/);
+  assert.match(any, /DIY bands first/);
+  assert.match(venueBillsPrompt("Olympia, WA", { name: "X" }, k, { limit: 5 }), /Genres: punk, post-punk/);
 });
