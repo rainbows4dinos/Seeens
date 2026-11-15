@@ -8,6 +8,8 @@ import {
   discoverRow,
   readDiscoverAnswer,
   readKnown,
+  recentFirst,
+  seenRank,
   townKey,
   venueBillsPrompt,
 } from "./discover.ts";
@@ -129,4 +131,33 @@ test("the focus: DIY first, punk and its neighbors, unless changed", () => {
   assert.doesNotMatch(any, /Genres:/);
   assert.match(any, /DIY bands first/);
   assert.match(venueBillsPrompt("Olympia, WA", { name: "X" }, k, { limit: 5 }), /Genres: punk, post-punk/);
+});
+
+test("recent first: by the latest date in last seen, unknowns at the bottom", () => {
+  assert.equal(seenRank("Show at The Mortuary, May 27, 2026"), 2026 * 12 + 4);
+  assert.equal(seenRank("2026-10-24, Capitol Theater"), 2026 * 12 + 9);
+  assert.equal(seenRank("Album Bucolic Gone, Mar 2025"), 2025 * 12 + 2);
+  assert.equal(seenRank("Mentioned in 2023 OPB episode"), 2023 * 12);
+  assert.equal(seenRank("Nov 8, 2025 (also listed Nov 9, 2026)"), 2026 * 12 + 10);
+  assert.equal(seenRank("unknown"), -1);
+  const c = (name: string, type: "band" | "label", lastSeen: string) => ({
+    name,
+    type,
+    lastSeen,
+    town: "",
+    source: "",
+    why: "",
+    instagram: "",
+    bandcamp: "",
+    website: "",
+  });
+  assert.deepEqual(
+    recentFirst([
+      c("Some Velvet Example", "band", "unknown"),
+      c("Old Example", "band", "Discomania released Apr 2024"),
+      c("Tape Example", "label", "unknown"),
+      c("New Example", "band", "Show, May 27, 2026"),
+    ]).map((x) => x.name),
+    ["Tape Example", "New Example", "Old Example", "Some Velvet Example"],
+  );
 });

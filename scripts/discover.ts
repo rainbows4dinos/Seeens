@@ -34,6 +34,7 @@ import {
   DEFAULT_FOCUS,
   billsOrder,
   discoverRow,
+  recentFirst,
   venueBillsPrompt,
   readDiscoverAnswer,
   readKnown,
@@ -161,7 +162,8 @@ for (const type of order) {
 }
 
 if (!dryRun) {
-  const data = all.map((c) => discoverRow(c, today));
+  // Most recently seen first in each type, so the old names sit at the bottom.
+  const data = recentFirst(all).map((c) => discoverRow(c, today));
   writeFileSync(
     out,
     Papa.unparse({ fields: DISCOVER_COLUMNS, data: data.map((r) => DISCOVER_COLUMNS.map((k) => r[k])) }),
