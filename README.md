@@ -228,6 +228,16 @@ For each band, venue, or label missing an Instagram, Bandcamp (not venues), webs
 
 It needs `ANTHROPIC_API_KEY` in the environment or `.env.local`; `LOOK_UP_MODEL` overrides the model. Results are cached for 30 days in `<export>.look-up-cache.json` (`--fresh` ignores it, `--only BND-0042` runs one band, `--dry-run` prints the prompts). Both files hold real contacts and are gitignored; keep them out of the repo. Seeens itself runs no AI: see [docs/ai-constitution.md](docs/ai-constitution.md).
 
+## Discover (admin script)
+
+`scripts/discover.ts` finds who's active in a town you don't know well (#321):
+
+```sh
+npm run discover -- "Olympia, WA" --export ~/Downloads/seeens-export.csv
+```
+
+For each type (`--types band,venue,label`, all by default), one Claude call with web search (5 searches at most) asks for independent and DIY ones active there in the last two years, anchored by the listings your export already has in that town (`--scene punk` narrows it; `--limit` caps each type, 15 by default). Every entry must cite a page the search returned, and anything already in your export is left out. It writes `discover-<town>-<date>.csv` next to the export, with each source and when it was last seen in the notes: check it, delete what's wrong, then Import it as A Mix (new listings, with the status you pick). Run Look up on them afterward for emails, members, and photos. Results are cached for 30 days per town and type; both files are gitignored.
+
 ## Project documentation
 
 - [Product context and data model](docs/context.md)
