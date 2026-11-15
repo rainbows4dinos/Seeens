@@ -1,17 +1,21 @@
 // Discover (#321), outside the app: who's active in a town you don't know well.
 //
 //   npm run discover -- "Olympia, WA" --export path/to/seeens-export.csv
-//     [--types band,venue,label] [--scene punk] [--limit 15] [--fresh] [--dry-run]
+//     [--types band,venue,label] [--scene punk] [--limit 15] [--venues 4] [--fresh] [--dry-run]
 //
 // For each type, one Claude call with web search (5 searches at most), scoped
-// to the town and anchored by the listings your export already has there.
+// to the town and anchored by the listings your export already has there:
+// venues first, then labels, then bands. Bands also come from the recent
+// bills of up to --venues venues there (yours, then ones just found), one
+// call each, since a broad search finds few bands; those keep their own home
+// town, or none.
 // Every entry must cite a page the search returned; anything already in your
 // export is left out. Writes discover-<town>-<date>.csv next to the export.
 // Check it, delete what's wrong, then Import it as A Mix: they're added as new
 // listings with the status you pick, and the source in their notes. Run Look
 // up on them afterward for emails, members, and photos.
 //
-// Results are cached for 30 days per town and type in
+// Results are cached for 30 days per town and search in
 // discover-<town>.cache.json. Needs ANTHROPIC_API_KEY, in the environment or
 // .env.local.
 
@@ -23,6 +27,7 @@ import {
   DISCOVER_COLUMNS,
   discoverPrompt,
   discoverRow,
+  venueBillsPrompt,
   readDiscoverAnswer,
   readKnown,
   type Candidate,
@@ -38,12 +43,12 @@ const option = (name: string) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : undefined;
 };
-const valued = ["--export", "--types", "--scene", "--limit"];
+const valued = ["--export", "--types", "--scene", "--limit", "--venues"];
 const town = args.find((a, i) => !a.startsWith("--") && !valued.includes(args[i - 1]));
 const exportPath = option("export");
 if (!town || !exportPath || !existsSync(exportPath)) {
   console.error(
-    'Usage: npm run discover -- "Olympia, WA" --export path/to/seeens-export.csv [--types band,venue,label] [--scene punk] [--limit 15] [--fresh] [--dry-run]',
+    'Usage: npm run discover -- "Olympia, WA" --export path/to/seeens-export.csv [--types band,venue,label] [--scene punk] [--limit 15] [--venues 4] [--fresh] [--dry-run]',
   );
   process.exit(1);
 }
@@ -53,6 +58,8 @@ const types = (option("types") ?? LOOK_UP_TYPES.join(","))
   .filter((t): t is LookUpType => (LOOK_UP_TYPES as string[]).includes(t));
 const scene = option("scene");
 const limit = Math.min(30, Number(option("limit") ?? 15));
+// How many venues' recent bills to read for bands (one search call each).
+const venueBills = Math.max(0, Math.min(10, Number(option("venues") ?? 4)));
 const dryRun = flag("dry-run");
 if (!dryRun) needKey();
 
@@ -81,34 +88,58 @@ console.log(
 );
 
 const all: Candidate[] = [];
-for (const type of types) {
-  const prompt = discoverPrompt(town, type, known, { scene, limit });
+// One search call, cached for 30 days under its own key, adding what's new.
+async function run(cacheKey: string, label: string, prompt: string, type: LookUpType, assumeTown: string | null) {
   if (dryRun) {
-    console.log(`\n--- ${type}\n${prompt}`);
-    continue;
+    console.log(`\n--- ${label}\n${prompt}`);
+    return [];
   }
   let found: Candidate[];
-  if (fresh(cache[type])) {
-    found = cache[type].found;
-    console.log(`${type}: ${plural(found.length, "found", "found")} (looked up in the last ${CACHE_DAYS} days)`);
+  if (fresh(cache[cacheKey])) {
+    found = cache[cacheKey].found;
+    console.log(`${label}: ${plural(found.length, "found", "found")} (looked up in the last ${CACHE_DAYS} days)`);
   } else {
     try {
       const { text, searched } = await search(prompt, { maxSearches: MAX_SEARCHES, maxTokens: 4000 });
-      const answer = readDiscoverAnswer(text, searched, type, town, known.names);
+      const answer = readDiscoverAnswer(text, searched, type, assumeTown, known.names);
       found = answer.found;
-      cache[type] = { day: today, scene: scene ?? "", found };
+      cache[cacheKey] = { day: today, scene: scene ?? "", found };
       writeFileSync(cachePath, JSON.stringify(cache, null, 2));
       console.log(
-        `${type}: ${plural(found.length, "new one", "new ones")}${answer.dropped.length ? `. Left out: ${answer.dropped.join("; ")}` : ""}`,
+        `${label}: ${plural(found.length, "new one", "new ones")}${answer.dropped.length ? `. Left out: ${answer.dropped.join("; ")}` : ""}`,
       );
     } catch (e) {
-      console.log(`${type}: skipped, ${(e as Error).message}`);
-      continue;
+      console.log(`${label}: skipped, ${(e as Error).message}`);
+      return [];
     }
     await sleep(1000);
   }
-  // Not already known, and not found twice under two types.
-  for (const c of found) if (!all.some((a) => a.name.toLowerCase() === c.name.toLowerCase())) all.push(c);
+  // Not already known, and not found twice.
+  const added = found.filter((c) => !all.some((a) => a.name.toLowerCase() === c.name.toLowerCase()));
+  all.push(...added);
+  return added;
+}
+
+// Venues first, then labels, then bands: a broad search finds venues well,
+// and their recent bills are where the town's bands show up (#321).
+const order = (["venue", "label", "band"] as LookUpType[]).filter((t) => types.includes(t));
+for (const type of order) {
+  await run(type, type, discoverPrompt(town, type, known, { scene, limit }), type, town);
+  if (type !== "band" || venueBills === 0) continue;
+  // The venues to mine: ones you know there, then ones just found.
+  const venues = [
+    ...known.local.filter((k) => /venue/i.test(k.type)).map((k) => ({ name: k.name })),
+    ...all.filter((c) => c.type === "venue").map((c) => ({ name: c.name, website: c.website || undefined })),
+  ].slice(0, venueBills);
+  for (const v of venues) {
+    await run(
+      `band@${v.name.toLowerCase()}`,
+      `bands at ${v.name}`,
+      venueBillsPrompt(town, v, known, { limit }),
+      "band",
+      null,
+    );
+  }
 }
 
 if (!dryRun) {
