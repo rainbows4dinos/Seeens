@@ -226,6 +226,35 @@ export function readDiscoverAnswer(
   return { found, dropped };
 }
 
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/**
+ * When it was last seen, as a sortable number (year * 12 + month), from
+ * "Aug 31, 2026", "2026-10-24", "Mar 2025", or "2023"; -1 when there's no
+ * year ("unknown"). The latest date in the text wins.
+ */
+export function seenRank(lastSeen: string): number {
+  const text = lastSeen.toLowerCase();
+  let best = -1;
+  for (const m of text.matchAll(/\b(19[6-9]\d|20\d\d)-(\d\d)\b/g)) best = Math.max(best, +m[1] * 12 + (+m[2] - 1));
+  for (const m of text.matchAll(
+    /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(?:\d{1,2},?\s+)?(19[6-9]\d|20\d\d)\b/g,
+  )) {
+    best = Math.max(best, +m[2] * 12 + MONTHS.indexOf(m[1]));
+  }
+  for (const m of text.matchAll(/\b(19[6-9]\d|20\d\d)\b/g)) best = Math.max(best, +m[1] * 12);
+  return best;
+}
+
+/** Each type together (venues, labels, bands), most recently seen first; unknowns last. */
+export function recentFirst(found: Candidate[]): Candidate[] {
+  const typeRank = { venue: 0, label: 1, band: 2 } as const;
+  return found
+    .map((c, i) => ({ c, i, seen: seenRank(c.lastSeen) }))
+    .sort((a, b) => typeRank[a.c.type] - typeRank[b.c.type] || b.seen - a.seen || a.i - b.i)
+    .map((x) => x.c);
+}
+
 export type DiscoverRow = {
   name: string;
   type: string;
