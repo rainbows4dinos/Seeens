@@ -108,8 +108,8 @@ async function Band() {
       {/* Import and export together (also on the Directory: Add's menu and the count line). */}
       <ProfilePanel id="band-data" title="Your Data">
         <p>
-          Bring in a spreadsheet you already keep, or take everything {membership.workspaceName} has added with you as
-          a CSV.
+          Bring in a spreadsheet you already keep, or take everything {membership.workspaceName} has added with you as a
+          CSV.
         </p>
         <div className="flex flex-wrap gap-3">
           <Link href="/import" className="button-secondary">

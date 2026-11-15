@@ -272,7 +272,6 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
             />
           </>
         )}
-
       </div>
     </LayoutProvider>
   );
