@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-14
 
+- **Search Images when adding.** The Photo Copier on the Add form has **Search Images** too, searching for the name, type, and town you’ve typed so far. Pasting a screenshot or image link works there as well.
 - **Keep scrolling.** The Directory loads more as you reach the end of the list, no Show More needed. Show More is still there if you’re using the keyboard.
 - **Grain is a slider.** In the Photo Copier, slide **Grain** through its grain patterns and stop on one you like, instead of pressing New Grain until one sticks.
 
