@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(9);
+select plan(12);
 
 insert into auth.users (id, email) values
   ('6a111111-1111-1111-1111-111111111111', 'gs-one@example.com'),
@@ -26,10 +26,30 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"6a111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 
 select is(public.getting_started('6aaaaaaa-0000-0000-0000-0000000000a1') - 'listing_id',
-  '{"dismissed": false, "listing_filled": false, "members": 1, "network": 0, "linked": false}'::jsonb, 'a new band starts empty');
+  '{"dismissed": false, "listing_filled": false, "members": 1, "invited": false, "network": 0, "linked": false}'::jsonb, 'a new band starts empty');
 select is(public.getting_started('6aaaaaaa-0000-0000-0000-0000000000a1') ->> 'listing_id', '6acccccc-0000-0000-0000-000000000001',
   'its page is the listing it claimed');
 select is(public.getting_started('6aaaaaaa-0000-0000-0000-0000000000b2'), null, 'not for a band you''re not in');
+
+-- An invite out finishes the invite step (#354); a revoked or expired one doesn't.
+reset role;
+insert into public.invites (workspace_id, email, token_hash, invited_by_name, revoked_at) values
+  ('6aaaaaaa-0000-0000-0000-0000000000a1', 'gs-gone@example.com', 'gs-hash-revoked', 'One', now());
+insert into public.invites (workspace_id, email, token_hash, invited_by_name, expires_at) values
+  ('6aaaaaaa-0000-0000-0000-0000000000a1', 'gs-late@example.com', 'gs-hash-expired', 'One', now() - interval '1 day');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"6a111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+select is((public.getting_started('6aaaaaaa-0000-0000-0000-0000000000a1') ->> 'invited')::boolean, false,
+  'a revoked or expired invite doesn''t count');
+reset role;
+insert into public.invites (workspace_id, email, token_hash, invited_by_name) values
+  ('6aaaaaaa-0000-0000-0000-0000000000a1', 'gs-new@example.com', 'gs-hash-open', 'One');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"6a111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+select is((public.getting_started('6aaaaaaa-0000-0000-0000-0000000000a1') ->> 'invited')::boolean, true,
+  'an open invite counts');
+select is((public.getting_started('6aaaaaaa-0000-0000-0000-0000000000a1') ->> 'members')::int, 1,
+  'before anyone joins');
 
 -- Giving a shared venue a status puts it in the network; its own page doesn't count.
 reset role;

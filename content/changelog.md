@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-17
+
+- **Getting Started, clearer.** Sending an invite checks off the invite step, without waiting for them to join. Tap any checked step to see what finished it, like a page someone filled in before you got here.
+
 ## 2026-11-15
 
 - **Import and export, easier to find.** Now that the Directory loads as you scroll, they’ve moved up: **Import a Spreadsheet** is in Add’s menu (the arrow beside it), **Export CSV** is next to the count, and both are under **Your Data** in Band Settings.

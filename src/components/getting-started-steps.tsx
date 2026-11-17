@@ -8,6 +8,8 @@ export type Step = {
   done: boolean;
   title: string;
   body: string;
+  /** What shows instead of the body once it's done, and why (#355). */
+  doneNote?: string;
   /** How far along this step is, like "1 of 3". */
   progress?: string | null;
   /** Something to do right here, above the links. */
@@ -18,7 +20,8 @@ export type Step = {
 // Getting Started shows one step at a time: the first one not done. Skip
 // moves on to the next one not done (for this visit), and comes back around.
 // The numbered blocks show where you are, check off what's done, and jump
-// to any step that isn't.
+// to any step, done or not. A done step says what did it, since some are
+// done before you got here (#355).
 export function GettingStartedSteps({
   welcome,
   note,
@@ -32,9 +35,11 @@ export function GettingStartedSteps({
   putAway: ReactNode;
 }) {
   const todo = steps.map((s, i) => (s.done ? -1 : i)).filter((i) => i >= 0);
-  const [pos, setPos] = useState(0);
-  const at = todo[pos % todo.length];
+  const [picked, setPicked] = useState<number | null>(null);
+  const at = picked ?? todo[0] ?? 0;
   const s = steps[at];
+  // The next step not done after this one, coming back around.
+  const next = todo.find((i) => i > at) ?? todo[0];
 
   return (
     <div className="flex flex-col gap-5">
@@ -46,41 +51,45 @@ export function GettingStartedSteps({
           <ol className="getting-started-blocks" aria-label="Steps">
             {steps.map((x, i) => (
               <li key={x.title}>
-                {x.done ? (
-                  <span className="step-block" data-done="">
-                    <Checkmark size={16} aria-hidden="true" />
-                    <span className="sr-only">
-                      Step {i + 1}, done: {x.title}
-                    </span>
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    className="step-block"
-                    aria-current={i === at ? "step" : undefined}
-                    aria-label={`Step ${i + 1}: ${x.title}`}
-                    title={x.title}
-                    onClick={() => setPos(todo.indexOf(i))}
-                  >
-                    {i + 1}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="step-block"
+                  data-done={x.done ? "" : undefined}
+                  aria-current={i === at ? "step" : undefined}
+                  aria-label={`Step ${i + 1}${x.done ? ", done" : ""}: ${x.title}`}
+                  title={x.title}
+                  onClick={() => setPicked(i)}
+                >
+                  {x.done ? <Checkmark size={16} aria-hidden="true" /> : i + 1}
+                </button>
               </li>
             ))}
           </ol>
           <p className="text-sm text-muted" aria-hidden="true">
             Step {at + 1} of {steps.length}
-            {s.progress ? ` · ${s.progress}` : ""}
+            {s.done ? " · Done" : s.progress ? ` · ${s.progress}` : ""}
           </p>
         </div>
         <h3 id="getting-started-step" className="text-lg font-medium">
           {s.title}
         </h3>
-        <p className="text-muted">{s.body}</p>
-        {s.extra}
+        {s.done ? (
+          <p className="flex items-start gap-2">
+            <Checkmark size={16} aria-hidden="true" className="mt-1 shrink-0" />
+            <span>
+              <span className="sr-only">Done. </span>
+              {s.doneNote ?? s.body}
+            </span>
+          </p>
+        ) : (
+          <>
+            <p className="text-muted">{s.body}</p>
+            {s.extra}
+          </>
+        )}
         <div className="flex flex-wrap gap-3 pt-1">
           {s.links.map((l, j) => {
-            const cls = j === 0 && !s.extra ? "button-primary" : "button-secondary";
+            const cls = j === 0 && !s.extra && !s.done ? "button-primary" : "button-secondary";
             return l.plain ? (
               <a key={l.href} href={l.href} className={cls}>
                 {l.label}
@@ -94,12 +103,12 @@ export function GettingStartedSteps({
         </div>
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {todo.length > 1 ? (
-          <button
-            type="button"
-            className="action-link link text-sm"
-            onClick={() => setPos((n) => (n % todo.length) + 1)}
-          >
+        {s.done && next !== undefined ? (
+          <button type="button" className="action-link link text-sm" onClick={() => setPicked(next)}>
+            Next Step
+          </button>
+        ) : todo.length > 1 ? (
+          <button type="button" className="action-link link text-sm" onClick={() => setPicked(next)}>
             Skip for Now
           </button>
         ) : (
