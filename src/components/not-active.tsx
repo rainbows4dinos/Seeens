@@ -6,7 +6,7 @@ import { setNotActive, type NotActiveResult } from "@/lib/connections/sharing-ac
 
 // Not Active (#335): broke up, on hiatus, or stepped away. Not archived: every
 // band sees it, it can flip back, and it keeps the listing out of
-// suggestions. Saves on change; pinned at the top of the record page.
+// suggestions. Saves on change; at the foot of the record page, beside Archive.
 export function NotActive({ id, initial }: { id: string; initial: boolean }) {
   const [on, setOn] = useState(initial);
   const [error, setError] = useState("");
@@ -30,7 +30,7 @@ export function NotActive({ id, initial }: { id: string; initial: boolean }) {
     ? "Not active right now. Every band sees this, and it stays out of suggestions. Uncheck it when they're back."
     : "Broke up, on a break, or stepped away? Every band sees it, and it can change back.";
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <label className="choice" title={hint}>
         <input
           type="checkbox"
@@ -47,6 +47,6 @@ export function NotActive({ id, initial }: { id: string; initial: boolean }) {
       <p role="alert" className="keep-private-error empty:hidden">
         {error ? `Error: ${error}` : ""}
       </p>
-    </>
+    </div>
   );
 }

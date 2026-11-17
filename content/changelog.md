@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-17
 
+- **Not Active moved.** It’s at the bottom of a listing’s page now, next to Archive.
 - **Getting Started, clearer.** Sending an invite checks off the invite step, without waiting for them to join. Tap any checked step to see what finished it, like a page someone filled in before you got here.
 
 ## 2026-11-15
