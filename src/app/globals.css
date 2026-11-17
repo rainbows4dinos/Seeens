@@ -2929,6 +2929,10 @@
     background: var(--color-bg-inverse);
     color: var(--color-text-inverse);
   }
+  button.step-block[data-done]:hover {
+    background: var(--color-bg-inverse);
+    opacity: 0.85;
+  }
   .step-block[aria-current="step"] {
     border-width: 2px;
     box-shadow: 2px 2px 0 var(--color-border-strong);

@@ -20,6 +20,8 @@ type Progress = {
   listing_id: string | null;
   listing_filled: boolean;
   members: number;
+  /** An invite is out, or was taken (#354). */
+  invited: boolean;
   network: number;
   linked: boolean;
 };
@@ -39,9 +41,9 @@ const loadProgress = cache(async (asked: boolean) => {
   const saved = data as Progress | null;
   if (!saved) return null;
   const p: Progress = preview
-    ? { ...saved, dismissed: false, listing_filled: false, members: 1, network: 0, linked: false }
+    ? { ...saved, dismissed: false, listing_filled: false, members: 1, invited: false, network: 0, linked: false }
     : saved;
-  const done = p.network >= NETWORK_GOAL && p.listing_filled && p.linked && p.members > 1;
+  const done = p.network >= NETWORK_GOAL && p.listing_filled && p.linked && (p.members > 1 || p.invited);
   if (p.dismissed || done) return null;
   return { membership, supabase, preview, p };
 });
@@ -74,6 +76,7 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
         ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They show up here on Home.`
         : "The Directory has the bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They show up here on Home.",
       progress: p.network ? `${Math.min(p.network, NETWORK_GOAL)} of ${NETWORK_GOAL}` : null,
+      doneNote: `${p.network} listings in your network. See them on Home.`,
       extra: suggested?.length ? <SuggestedBands bands={suggested.slice(0, 4)} preview={preview} /> : null,
       links: [
         {
@@ -89,6 +92,8 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
       body: label
         ? "Add your town, a link or two (Bandcamp, Instagram), and the bands on your label, so bands can find you."
         : "Add your town and a link or two (Bandcamp, Instagram), so other bands can find you.",
+      // Often done before you joined, by whoever set up the page (#355).
+      doneNote: `${band}'s page has a town or a link, so bands can find it. Anyone in ${band} can add more.`,
       links: [
         {
           href: p.listing_id ? `/connections/${p.listing_id}` : "/add?us=1",
@@ -101,15 +106,18 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
       done: p.linked,
       title: "Find yourself",
       body: "You might already be in the directory. Link your login to your person, so other bands see you use Seeens.",
+      // An invite that named you links you when you join (#355).
+      doneNote: "Your login is linked to you in the Directory, so other bands see you use Seeens.",
       links: [{ href: "/account#account-you", label: "Find Yourself" }],
     },
     {
-      done: p.members > 1,
+      done: p.members > 1 || p.invited,
       title: `Invite ${words.mates}`,
-      body:
+      body: `From ${words.settings}, by email or with a link you send them.`,
+      doneNote:
         p.members > 1
           ? `${p.members} of you are in ${band}.`
-          : `From ${words.settings}, by email or with a link you send them.`,
+          : `Your invite is out. It's under Pending Invites in ${words.settings} until they join.`,
       links: [{ href: "/band#band-invite", label: label ? "Invite People" : "Invite Bandmates" }],
     },
   ];
