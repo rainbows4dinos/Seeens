@@ -70,10 +70,6 @@ export function SharedRecord({
           end={
             <>
               {admin && !claim ? <InviteBandLink connection={c} /> : null}
-              {/* Not Active (#335): its band, a moderator, or whoever claimed it. */}
-              {canFix ? (
-                <NotActive key={String(c.inactive_since)} id={c.id} initial={Boolean(c.inactive_since)} />
-              ) : null}
               {moderator && !c.is_us ? (
                 <KeepPrivate
                   key={String(c.keep_private)}
@@ -230,6 +226,8 @@ export function SharedRecord({
           </p>
           <div className="flex flex-wrap items-start gap-3">
             <ArchiveControl id={c.id} name={c.name} archived={archived} />
+            {/* Not Active (#335): its band, a moderator, or whoever claimed it. */}
+            {canFix ? <NotActive key={String(c.inactive_since)} id={c.id} initial={Boolean(c.inactive_since)} /> : null}
           </div>
         </footer>
       </article>

@@ -143,7 +143,6 @@ async function Connection({
           end={
             <>
               {admin && !claim ? <InviteBandLink connection={c} /> : null}
-              <NotActive key={String(c.inactive_since)} id={c.id} initial={Boolean(c.inactive_since)} />
               {ours ? null : (
                 <KeepPrivate
                   key={String(c.keep_private)}
@@ -462,6 +461,7 @@ async function Connection({
           <div className="flex flex-wrap items-start gap-3">
             <MergeWith id={c.id} name={c.name} options={mergeOptions(c, detail.candidates)} />
             <ArchiveControl id={c.id} name={c.name} archived={archived} />
+            <NotActive key={String(c.inactive_since)} id={c.id} initial={Boolean(c.inactive_since)} />
           </div>
         </footer>
       </article>
