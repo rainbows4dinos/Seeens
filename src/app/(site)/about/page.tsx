@@ -198,8 +198,10 @@ export default function AboutPage() {
           <p>
             Only people in a band can see Seeens, apart from a few shared bands and venues with photos that drift past
             on the sign-in page (name, town, scenes, and photo). Keep Private takes a listing off it. The band that
-            added a listing is the one that can change it. Nothing is sold or used for ads. You can export your
-            band&rsquo;s listings, and you can delete your account from Account Settings.
+            added a listing is the one that can change it. Nothing is sold or used for ads. Seeens counts page visits
+            with Vercel Web Analytics, which uses no cookies and doesn&rsquo;t know who you are; what you search for and
+            filter by isn&rsquo;t sent. You can export your band&rsquo;s listings, and you can delete your account from
+            Account Settings.
           </p>
         </section>
 
