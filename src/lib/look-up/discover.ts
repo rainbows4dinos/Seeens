@@ -4,7 +4,16 @@
 // a sheet Import adds as new listings. Nothing here touches the network.
 
 import { matchKey } from "../import/rows.ts";
-import { bandcampRoot, instagramProfile, kindOf, linkKey, unwrap, type LookUpType } from "./parse.ts";
+import {
+  bandcampRoot,
+  instagramProfile,
+  kindOf,
+  linkKey,
+  unwrap,
+  type ExportBand,
+  type LookUpType,
+  type OutRow,
+} from "./parse.ts";
 
 const NOUN: Record<LookUpType, string> = { band: "band", venue: "venue", label: "record label" };
 const TYPE_LABEL: Record<LookUpType, string> = { band: "Band", venue: "Venue", label: "Label" };
@@ -262,6 +271,9 @@ export type DiscoverRow = {
   instagram: string;
   bandcamp: string;
   website: string;
+  email: string;
+  members: string;
+  photo: string;
   notes: string;
 };
 
@@ -272,8 +284,41 @@ export const DISCOVER_COLUMNS: (keyof DiscoverRow)[] = [
   "instagram",
   "bandcamp",
   "website",
+  "email",
+  "members",
+  "photo",
   "notes",
 ];
+
+/** The candidate as Look up sees it: a listing with only the links Discover found. */
+export function asExportBand(c: Candidate): ExportBand {
+  return {
+    type: c.type,
+    catalogNo: "",
+    name: c.name,
+    town: c.town,
+    region: "",
+    country: "",
+    scenes: [],
+    email: "",
+    links: [c.instagram, c.bandcamp, c.website].filter(Boolean).map((url) => ({ label: "", url })),
+  };
+}
+
+/** Fill a Discover row's blanks from a Look up row, and add its notes. */
+export function withDetails(row: DiscoverRow, more: OutRow | null): DiscoverRow {
+  if (!more) return row;
+  return {
+    ...row,
+    instagram: row.instagram || more.instagram,
+    bandcamp: row.bandcamp || more.bandcamp,
+    website: row.website || more.website,
+    email: more.email,
+    members: more.members,
+    photo: more.photo,
+    notes: [row.notes, more.notes].filter(Boolean).join("\n"),
+  };
+}
 
 /** A row for Import (as A Mix): a new listing, with where it was found in its notes. */
 export function discoverRow(c: Candidate, day: string): DiscoverRow {
@@ -284,6 +329,9 @@ export function discoverRow(c: Candidate, day: string): DiscoverRow {
     instagram: c.instagram,
     bandcamp: c.bandcamp,
     website: c.website,
+    email: "",
+    members: "",
+    photo: "",
     notes: [
       `Discover, ${day}. Source: ${c.source}${c.why ? ` (${c.why})` : ""}`,
       c.lastSeen ? `Last seen: ${c.lastSeen}` : null,

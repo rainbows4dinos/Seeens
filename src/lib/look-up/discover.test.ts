@@ -6,6 +6,8 @@ import {
   billsOrder,
   discoverPrompt,
   discoverRow,
+  asExportBand,
+  withDetails,
   readDiscoverAnswer,
   readKnown,
   recentFirst,
@@ -160,4 +162,39 @@ test("recent first: by the latest date in last seen, unknowns at the bottom", ()
     ]).map((x) => x.name),
     ["Tape Example", "New Example", "Old Example", "Some Velvet Example"],
   );
+});
+
+test("Look up's details fill a Discover row's blanks, never its links", () => {
+  const c = {
+    name: "Gutter Example",
+    type: "band" as const,
+    town: "Olympia, WA",
+    source: "https://showlist.example/oly",
+    why: "",
+    lastSeen: "",
+    instagram: "",
+    bandcamp: "https://gutterexample.bandcamp.com",
+    website: "",
+  };
+  const band = asExportBand(c);
+  assert.deepEqual(band.links, [{ label: "", url: "https://gutterexample.bandcamp.com" }]);
+  const row = withDetails(discoverRow(c, "2026-11-20"), {
+    catalog_no: "",
+    name: "Gutter Example",
+    type: "Band",
+    instagram: "https://www.instagram.com/gutterexample/",
+    bandcamp: "https://wrong.bandcamp.com",
+    website: "",
+    email: "gutter@example.com",
+    members: "Ann - Drums; Bo",
+    photo: "https://example.com/press.jpg",
+    notes: "Look up, 2026-11-20.",
+  });
+  assert.equal(row.bandcamp, "https://gutterexample.bandcamp.com");
+  assert.equal(row.instagram, "https://www.instagram.com/gutterexample/");
+  assert.equal(row.email, "gutter@example.com");
+  assert.equal(row.members, "Ann - Drums; Bo");
+  assert.equal(row.photo, "https://example.com/press.jpg");
+  assert.match(row.notes, /^Discover, 2026-11-20\..*\nLook up, 2026-11-20\.$/s);
+  assert.deepEqual(withDetails(row, null), row);
 });
