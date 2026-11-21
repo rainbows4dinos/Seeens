@@ -195,6 +195,6 @@ test("Look up's details fill a Discover row's blanks, never its links", () => {
   assert.equal(row.email, "gutter@example.com");
   assert.equal(row.members, "Ann - Drums; Bo");
   assert.equal(row.photo, "https://example.com/press.jpg");
-  assert.match(row.notes, /^Discover, 2026-11-20\..*\nLook up, 2026-11-20\.$/s);
+  assert.match(row.notes, /^Discover, 2026-11-20\.[\s\S]*\nLook up, 2026-11-20\.$/);
   assert.deepEqual(withDetails(row, null), row);
 });
