@@ -27,7 +27,7 @@ type Place = {
 } | null;
 
 /** A small print: the photo, or initials on photo paper. */
-function Print({ name, path, size }: { name: string; path: string | null; size: "s" | "m" }) {
+export function Print({ name, path, size }: { name: string; path: string | null; size: "s" | "m" }) {
   const src = photoUrl(path, size === "s" ? 160 : 320);
   return (
     <span className={`home-print home-print-${size}`} aria-hidden="true">

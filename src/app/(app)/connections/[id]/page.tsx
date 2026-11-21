@@ -42,6 +42,8 @@ import { PhotoPanel } from "@/components/photo-panel";
 import { photoUrl } from "@/lib/photos/urls";
 import { defaultSettings, readSettings } from "@/lib/photos/settings";
 import { PageLoader } from "@/components/metronome";
+import { ListingRoster } from "@/components/listing-roster";
+import { loadRoster } from "@/lib/band/roster";
 
 export default function ConnectionPage({ params, searchParams }: PageProps<"/connections/[id]">) {
   return (
@@ -66,17 +68,23 @@ async function Connection({
     searchParams,
   ]);
   const tz = membership.timeZone;
-  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople, moderator, claim, admin] = await Promise.all([
-    getConnection(id),
-    getCurrentUser(),
-    listSceneOptions(),
-    loadUndoableMerge(id, tz),
-    typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
-    getLinkedPeople(),
-    isModerator(),
-    getListingClaim(id),
-    isAppAdmin(),
-  ]);
+  const [detail, user, sceneOptions, lastMerge, undone, linkedPeople, moderator, claim, admin, roster] =
+    await Promise.all([
+      getConnection(id),
+      getCurrentUser(),
+      listSceneOptions(),
+      loadUndoableMerge(id, tz),
+      typeof unmerged === "string" ? loadUndoneMerge(id, unmerged) : null,
+      getLinkedPeople(),
+      isModerator(),
+      getListingClaim(id),
+      isAppAdmin(),
+      loadRoster(),
+    ]);
+  // One of this label's current bands (#357).
+  const onRoster = roster.some((b) => b.id === id && b.is_current);
+  const labelListing = (c: { kind: string; group_type: string | null }) =>
+    c.kind === "group" && c.group_type === "label";
   const today = todayISO(new Date(), tz);
   // Another band's record (#185): theirs to change, ours to keep notes on.
   if (!detail.mine) {
@@ -91,6 +99,8 @@ async function Connection({
         claim={claim}
         admin={admin}
         you={membership.connectionId === id}
+        onRoster={onRoster}
+        roster={labelListing(detail.connection) ? <ListingRoster id={id} label={detail.connection.name} /> : null}
       />
     );
   }
@@ -226,6 +236,7 @@ async function Connection({
               {claim?.joined && !claim.mine ? <span className="tag">Uses Seeens</span> : null}
               {isLabelMateWithUs ? <span className="tag">Label mate</span> : null}
               {ourLabel ? <span className="tag font-semibold">Our label</span> : null}
+              {onRoster ? <span className="tag font-semibold">On Our Roster</span> : null}
               {sharedWithUs.length ? (
                 <span className="tag">Shares a member with us: {sharedWithUs.join(", ")}</span>
               ) : null}
@@ -368,6 +379,8 @@ async function Connection({
             </div>
           </ProfilePanel>
         )}
+
+        {labelListing(c) ? <ListingRoster id={c.id} label={c.name} /> : null}
 
         <ProfilePanel
           id="connections"

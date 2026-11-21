@@ -1,4 +1,5 @@
 import "server-only";
+import { loadRoster } from "@/lib/band/roster";
 import { liftBand, liftOther } from "./band-details";
 import { readVenueDetails, venueLine, venueTypeLabels } from "./venue-details";
 import { isModerator, requireWorkspaceId, getUsConnection } from "@/lib/auth/dal";
@@ -170,6 +171,8 @@ export async function loadDirectoryPage(
     p_town: filters.town || undefined,
     p_missing: (moderator && filters.missing) || undefined,
     p_import: filters.import || undefined,
+    // A label's own bands (#357); nothing for a band.
+    p_roster: filters.roster || undefined,
     // Avoid sorts last instead of hiding (#273).
     p_hide_avoid: false,
     p_after: after ?? undefined,
@@ -179,6 +182,8 @@ export async function loadDirectoryPage(
   if (error || !data) throw new Error("Couldn't load the directory.");
   const page = data as unknown as RpcResult;
   const ids = page.rows.map((r) => r.id);
+  // A label's current bands get an On Roster tag (#357).
+  const onRoster = new Set((await loadRoster()).filter((b) => b.is_current).map((b) => b.id));
 
   // The page's details in one more round trip.
   const { data: details, error: detailError } = ids.length
@@ -241,6 +246,7 @@ export async function loadDirectoryPage(
         tags: [
           // Not Active (#335): first, so it's never missed.
           inactive_since ? "Not Active" : null,
+          onRoster.has(rest.id) ? "On Roster" : null,
           r.label_mate ? "Label mate" : null,
           r.shares_member ? "Shares a member" : null,
         ].filter((t): t is string => Boolean(t)),

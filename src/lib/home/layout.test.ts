@@ -9,8 +9,8 @@ test("nothing saved is the default order", () => {
   assert.ok(isDefault(l, "band"));
 });
 
-test("labels get the roster", () => {
-  assert.equal(resolveLayout(null, "label").shown[1], "roster");
+test("labels get the roster, first (#357)", () => {
+  assert.equal(resolveLayout(null, "label").shown[0], "roster");
 });
 
 test("a saved order is kept, and new rows go at the end", () => {

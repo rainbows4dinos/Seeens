@@ -3,8 +3,9 @@
 // aren't arranged.
 
 export const HOME_ROWS = [
-  { key: "up_next", label: "Up Next" },
+  // A label's bands lead its Home (#357).
   { key: "roster", label: "Roster", labelOnly: true },
+  { key: "up_next", label: "Up Next" },
   { key: "homies", label: "Homies" },
   { key: "lets_play", label: "Both Down" },
   { key: "new_near_you", label: "New Near You" },

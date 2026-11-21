@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { catalogNo, initials } from "@/lib/connections/card";
 import { directoryHrefFor } from "@/lib/connections/directory";
 import {
@@ -42,6 +43,8 @@ export function SharedRecord({
   claim = null,
   admin = false,
   you = false,
+  onRoster = false,
+  roster = null,
 }: {
   detail: ConnectionDetail;
   band: string;
@@ -53,6 +56,10 @@ export function SharedRecord({
   admin?: boolean;
   /** Your own person, linked from this band (#68). */
   you?: boolean;
+  /** One of this label's current bands (#357). */
+  onRoster?: boolean;
+  /** A label's roster panel (#357), for a label listing. */
+  roster?: ReactNode;
 }) {
   const ours = Boolean(claim?.mine);
   const canFix = moderator || ours || you;
@@ -110,6 +117,7 @@ export function SharedRecord({
               {ours ? <span className="tag font-semibold">This is us</span> : null}
               {you ? <span className="tag font-semibold">This is you</span> : null}
               {claim?.joined && !ours ? <span className="tag">Uses Seeens</span> : null}
+              {onRoster ? <span className="tag font-semibold">On Our Roster</span> : null}
               <span className="tag">From {detail.sharedBy}</span>
             </div>
           </div>
@@ -190,6 +198,8 @@ export function SharedRecord({
             </ProfilePanel>
           </>
         )}
+
+        {roster}
 
         <ProfilePanel id="shared-details" title="Details" summary={`From ${detail.sharedBy}`}>
           {canFix ? (
