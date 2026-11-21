@@ -73,3 +73,80 @@ export async function inviteRosterBand(_prev: BandState, formData: FormData): Pr
   await supabase.rpc("mark_invite_sent", { p_invite_id: row.invite_id });
   return { done: `Invited ${band}. We emailed ${email}.`, link };
 }
+
+// A label runs its roster from its own page (#365): find a band anyone
+// shared, or add a new one, and take one off.
+
+export type RosterResult = { error?: string; id?: string };
+
+export type BandMatch = { id: string; name: string; town: string | null };
+
+/** Bands you can see whose name has this in it, for Add to Roster. */
+export async function searchRosterBands(q: string): Promise<BandMatch[]> {
+  const membership = await getMembership();
+  const term = q.trim().slice(0, 80);
+  if (!membership || membership.kind !== "label" || term.length < 2) return [];
+  const supabase = await createClient();
+  const pattern = `%${term.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+  const { data } = await supabase
+    .from("connections")
+    .select("id, name, localities ( name, region_code )")
+    .eq("kind", "group")
+    .eq("group_type", "band")
+    .is("merged_into", null)
+    .ilike("name", pattern)
+    .order("name")
+    .limit(8);
+  return (data ?? []).map((b) => {
+    const loc = Array.isArray(b.localities) ? b.localities[0] : b.localities;
+    return { id: b.id, name: b.name, town: loc ? [loc.name, loc.region_code].filter(Boolean).join(", ") : null };
+  });
+}
+
+function rosterError(message: string) {
+  if (message.includes("only a label")) return "Only the label's members can change its roster.";
+  if (message.includes("only bands")) return "Only bands go on a roster.";
+  if (message.includes("a name is required")) return "Type the band's name.";
+  return "Couldn't save. Try again.";
+}
+
+export async function addToRoster(connectionId: string): Promise<RosterResult> {
+  const membership = await getMembership();
+  if (!membership || membership.kind !== "label") return { error: "Only labels have a roster." };
+  if (!UUID.test(connectionId)) return { error: "Couldn't find that band. Refresh the page." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("roster_add", {
+    p_workspace_id: membership.workspaceId,
+    p_connection_id: connectionId,
+  });
+  if (error) return { error: rosterError(error.message) };
+  revalidatePath("/", "layout");
+  return { id: connectionId };
+}
+
+export async function addNewToRoster(name: string): Promise<RosterResult> {
+  const membership = await getMembership();
+  if (!membership || membership.kind !== "label") return { error: "Only labels have a roster." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("roster_add_new", {
+    p_workspace_id: membership.workspaceId,
+    p_name: name.trim(),
+  });
+  if (error || !data) return { error: rosterError(error?.message ?? "") };
+  revalidatePath("/", "layout");
+  return { id: data };
+}
+
+export async function removeFromRoster(connectionId: string): Promise<RosterResult> {
+  const membership = await getMembership();
+  if (!membership || membership.kind !== "label") return { error: "Only labels have a roster." };
+  if (!UUID.test(connectionId)) return { error: "Couldn't find that band. Refresh the page." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("roster_remove", {
+    p_workspace_id: membership.workspaceId,
+    p_connection_id: connectionId,
+  });
+  if (error) return { error: rosterError(error.message) };
+  revalidatePath("/", "layout");
+  return {};
+}
