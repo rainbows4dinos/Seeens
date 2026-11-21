@@ -7,7 +7,7 @@ import { emailConfigured } from "@/lib/email/send";
 import { formatDate } from "@/lib/connections/labels";
 import { ProfilePanel } from "@/components/profile/panel";
 import { PageLoader } from "@/components/metronome";
-import { CancelInviteButton, InviteBandForm, NewLinkButton } from "./invite-band-form";
+import { CancelInviteButton, InviteBandForm, NewLinkButton, ResendBandInvite } from "./invite-band-form";
 
 export const metadata: Metadata = { title: "Bands and Labels · Seeens" };
 
@@ -88,7 +88,7 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
             const expired = waiting && b.invite_expires_at && new Date(b.invite_expires_at) <= new Date();
             return (
               <li key={b.workspace_id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <div className="flex min-w-0 flex-col gap-1">
+                <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1">
                   <p className="font-medium break-words">
                     {b.name}
                     {b.kind === "label" ? <span className="text-sm font-normal text-muted"> · Label</span> : null}
@@ -109,6 +109,7 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
                 </div>
                 {waiting ? (
                   <div className="flex flex-wrap items-start gap-3 sm:justify-end">
+                    {b.invite_email ? <ResendBandInvite id={b.invite_id!} band={b.name} /> : null}
                     <NewLinkButton id={b.invite_id!} band={b.name} />
                     <CancelInviteButton id={b.invite_id!} band={b.name} />
                   </div>

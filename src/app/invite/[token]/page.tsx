@@ -64,7 +64,7 @@ async function Invite({
   if (inv.status === "revoked")
     return <Closed title="This invite was cancelled.">Ask {inv.invited_by} for a new one if you still want in.</Closed>;
   if (inv.status === "expired")
-    return <Closed title="This invite ran out.">Invites work for 7 days. Ask {inv.invited_by} for a new one.</Closed>;
+    return <Closed title="This invite ran out.">Invites work for 30 days. Ask {inv.invited_by} for a new one.</Closed>;
 
   const signedInEmail = typeof auth?.claims?.email === "string" ? auth.claims.email.toLowerCase() : null;
   const signedIn = Boolean(auth?.claims?.sub);

@@ -74,8 +74,15 @@ export async function removeMember(userId: string): Promise<BandState> {
 
 const inviteLink = async (token: string) => `${await siteOrigin()}/invite/${token}`;
 
-async function emailInvite(to: string, link: string, inviter: string, bandName: string, kind: WorkspaceKind) {
-  return sendEmail({ to, ...memberInvite({ from: inviter, band: bandName, kind, link }) });
+async function emailInvite(
+  to: string,
+  link: string,
+  inviter: string,
+  bandName: string,
+  kind: WorkspaceKind,
+  note?: string | null,
+) {
+  return sendEmail({ to, ...memberInvite({ from: inviter, band: bandName, kind, link, note }) });
 }
 
 /** Invite by email (sent if email is set up) or as a link to copy. */
@@ -126,7 +133,7 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
 
   const link = await inviteLink(row.token);
   revalidatePath("/band");
-  if (asLink) return { done: "Invite link ready. It works once, for 7 days.", link };
+  if (asLink) return { done: "Invite link ready. It works once, for 30 days.", link };
 
   const already = row.existing ? `${row.first_sent_by ?? "Someone"} already invited ${email}. ` : "";
   if (!emailConfigured()) {
@@ -167,7 +174,8 @@ export async function renewInviteLink(inviteId: string): Promise<BandState> {
   };
 }
 
-export async function resendInvite(inviteId: string): Promise<BandState> {
+/** Send it again with a fresh link, and a note if there is one (#367). */
+export async function resendInvite(inviteId: string, note?: string): Promise<BandState> {
   const m = await band();
   const renewed = await renewInviteLink(inviteId);
   if (!renewed.link) return renewed;
@@ -178,7 +186,14 @@ export async function resendInvite(inviteId: string): Promise<BandState> {
       done: "Email isn't set up yet, so send this link yourself.",
       link: renewed.link,
     };
-  const sent = await emailInvite(inv.email, renewed.link, m.displayName, m.workspaceName, m.kind);
+  const sent = await emailInvite(
+    inv.email,
+    renewed.link,
+    m.displayName,
+    m.workspaceName,
+    m.kind,
+    note?.trim().slice(0, 1000) || null,
+  );
   if (!sent)
     return {
       done: "Couldn't send the email. Send this link yourself.",

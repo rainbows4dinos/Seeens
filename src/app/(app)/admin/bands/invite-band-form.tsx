@@ -4,8 +4,14 @@ import { useActionState, useState, useTransition } from "react";
 import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
 import { Combobox, type ComboOption } from "@/components/combobox";
-import { LinkBox, Note } from "@/components/band-settings";
-import { cancelBandInvite, inviteBand, renewBandInvite, type InviteBandState } from "@/lib/band/invite-band-actions";
+import { LinkBox, Note, ResendInvite } from "@/components/band-settings";
+import {
+  cancelBandInvite,
+  inviteBand,
+  renewBandInvite,
+  resendBandInvite,
+  type InviteBandState,
+} from "@/lib/band/invite-band-actions";
 
 const unreachable = offline<InviteBandState>({
   error: "Couldn't reach Seeens. Try again.",
@@ -219,6 +225,11 @@ export function NewLinkButton({ id, band }: { id: string; band: string }) {
       {state.link ? <LinkBox key={state.link} link={state.link} /> : null}
     </div>
   );
+}
+
+/** Email the waiting owner again, with a note (#367). */
+export function ResendBandInvite({ id, band }: { id: string; band: string }) {
+  return <ResendInvite send={(note) => resendBandInvite(id, note)} label={band} />;
 }
 
 /** Cancel a waiting band's invite, after a second press to be sure. */
