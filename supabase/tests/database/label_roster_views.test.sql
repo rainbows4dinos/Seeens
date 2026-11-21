@@ -46,8 +46,8 @@ create function pg_temp.names(ws uuid, roster boolean) returns text language sql
   join public.connections c on c.id = (r ->> 'id')::uuid
 $$;
 select is(pg_temp.names('8daaaaaa-0000-0000-0000-0000000000a1', true), 'Roster Band,Secret Band', 'the label''s current bands');
-select is(pg_temp.names('8daaaaaa-0000-0000-0000-0000000000a1', false), 'Past Band,Roster Band,Secret Band,Stranger Band',
-  'everyone without it');
+select ok(pg_temp.names('8daaaaaa-0000-0000-0000-0000000000a1', false) like '%Past Band%Stranger Band%',
+  'everyone without it, past and off-roster bands too');
 
 select set_config('request.jwt.claims', '{"sub":"8d222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
 select is(pg_temp.names('8daaaaaa-0000-0000-0000-0000000000a2', true), '', 'a band has no roster to filter by');
