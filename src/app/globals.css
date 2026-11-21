@@ -1122,6 +1122,11 @@
       max-width: none;
     }
   }
+  /* Search on Home goes wider than the Directory bar's: it's the page's
+     way in. */
+  .home-search > .search-field {
+    max-width: 32rem;
+  }
   .search-field > svg {
     position: absolute;
     top: 50%;

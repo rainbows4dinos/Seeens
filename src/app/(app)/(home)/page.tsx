@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HomeSearch } from "@/components/home-search";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { HomeArrange, HomeRow } from "@/components/arrange-home";
@@ -36,6 +37,7 @@ async function Home({ searchParams }: { searchParams: Promise<Params> }) {
       <Suspense fallback={null}>
         <HomeHeader />
       </Suspense>
+      <HomeSearch />
       {/* A new member's first steps (#68). */}
       <Suspense fallback={null}>
         <GettingStarted preview={preview} />
