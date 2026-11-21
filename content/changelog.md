@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-21
+
+- **Labels: your roster, easier to find.** Roster is the first row on a label’s Home. In the Directory, pick **On Our Roster** from the status menu to see just your bands, and they’re tagged **On Roster** there and on their pages. A label’s page shows its roster to everyone.
+
 ## 2026-11-20
 
 - **New statuses.** Statuses now say how you feel about playing together: **Homies**, **Both Down** (they told you they're in too), **Down to Play** (you're into it, first time or again), or **Avoid**. Let's Play is now Both Down, and Want to Play is now Down to Play. Heard Of is gone: those listings have no status now, and Played Together still shows who you've played with. Venues, people, and labels get their own words, like **Down to Play Here**.

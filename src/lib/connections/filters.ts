@@ -51,6 +51,8 @@ export type DirectoryFilters = {
   archived: boolean;
   /** Only records with no status (#192): ?status=none. */
   noStatus: boolean;
+  /** Only a label's own roster (#357): ?status=roster. Not a status, but it sits in the same menu. */
+  roster: boolean;
   /**
    * Everyone; or, in the archived view, only this band's own (what it added
    * or touched). The Directory shows everyone (#273).
@@ -91,6 +93,7 @@ export function readFilters(params: Params): DirectoryFilters {
         : "",
     archived: first(params.archived) === "1" || view === "archived",
     noStatus: all(params.status).includes("none"),
+    roster: all(params.status).includes("roster"),
     scope: "all",
     missing: first(params.missing) in MISSING ? (first(params.missing) as Missing) : "",
     import: UUID.test(first(params.import)) ? first(params.import).toLowerCase() : "",
@@ -103,6 +106,7 @@ export function hasFilters(f: DirectoryFilters) {
     f.q ||
     f.statuses.length ||
     f.noStatus ||
+    f.roster ||
     f.scene ||
     f.town ||
     f.instrument ||

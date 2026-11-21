@@ -141,6 +141,7 @@ async function Directory({ searchParams }: { searchParams: Promise<Params> }) {
               towns={towns}
               instruments={c.instruments}
               showMissing={moderator}
+              label={membership.kind === "label"}
               open={filtersOpen}
               layoutToggle={<LayoutToggle hrefs={layoutHrefs} />}
               clearHref={filtering ? directoryHref(tab, { ...EMPTY, archived }) : null}
@@ -288,6 +289,7 @@ const EMPTY: DirectoryFilters = {
   space: "",
   archived: false,
   noStatus: false,
+  roster: false,
   scope: "all",
   missing: "",
   import: "",
@@ -352,6 +354,7 @@ function directoryHref(tab: Tab, f: DirectoryFilters) {
   if (f.q) p.set("q", f.q);
   f.statuses.forEach((st) => p.append("status", st));
   if (f.noStatus) p.set("status", "none");
+  if (f.roster) p.set("status", "roster");
   if (f.scene) p.set("scene", f.scene);
   if (f.town) p.set("town", f.town);
   // Plays only means something where there are people.
@@ -412,6 +415,7 @@ function FilterForm({
   towns,
   instruments,
   showMissing,
+  label,
   open,
   layoutToggle,
   add,
@@ -429,6 +433,8 @@ function FilterForm({
   instruments: Instrument[];
   /** Missing (#321): moderators and admins. */
   showMissing: boolean;
+  /** A label: On Our Roster in the status menu (#357). */
+  label: boolean;
   open: boolean;
   layoutToggle: React.ReactNode;
   add: React.ReactNode;
@@ -439,7 +445,7 @@ function FilterForm({
   // Plays (#140) is for people: on People and All, and only if anyone plays something.
   const showPlays = (tab === "people" || tab === "all") && (instruments.length > 0 || Boolean(f.instrument));
   const active = [
-    f.statuses.length,
+    f.statuses.length || f.noStatus || f.roster,
     f.scene,
     f.town,
     showPlays && f.instrument,
@@ -516,7 +522,7 @@ function FilterForm({
               id="f-status"
               name="status"
               className="field"
-              defaultValue={f.noStatus ? "none" : f.statuses.length === 1 ? f.statuses[0] : ""}
+              defaultValue={f.roster ? "roster" : f.noStatus ? "none" : f.statuses.length === 1 ? f.statuses[0] : ""}
             >
               {/* Everyone, Avoid last (#273). */}
               <option value="">Everyone</option>
@@ -527,6 +533,8 @@ function FilterForm({
               ))}
               {/* Not sorted yet (#192). */}
               <option value="none">{NO_STATUS}</option>
+              {/* A label's bands (#357): a shared fact, not a status, but this is where you'd look. */}
+              {label || f.roster ? <option value="roster">On Our Roster</option> : null}
             </select>
           </span>
           <Combobox

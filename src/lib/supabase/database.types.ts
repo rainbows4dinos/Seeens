@@ -471,6 +471,8 @@ isOneToOne: false
 { Args: never; Returns: { "workspace_id": string,"name": string,"created_at": string,"members": number,"listing_from": string | null,"invite_id": string | null,"invite_email": string | null,"invite_expires_at": string | null,"kind": "band" | "label" }[] },
             "label_roster":
 { Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"is_current": boolean,"joined": boolean,"invited": boolean,"by_us": boolean }[] },
+            "listing_roster":
+{ Args: { "p_connection_id": string }; Returns: { "connection_id": string,"name": string,"photo_path": string | null,"is_current": boolean }[] },
             "invite_roster_band":
 { Args: { "p_workspace_id": string,"p_listing_id": string,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
             "listing_claim":
@@ -526,7 +528,7 @@ isOneToOne: false
             "import_connections":
 { Args: { "p_rows": Json,"p_workspace_id": string }; Returns: Json },
 "directory_page":
-{ Args: { "p_ages"?: string,"p_capacity"?: string,"p_space"?: string,"p_instrument"?: string,"p_after"?: Json,"p_archived": boolean,"p_counts"?: boolean,"p_group_type"?: Database["public"]['Enums']["group_type"],"p_hide_avoid"?: boolean,"p_kind"?: Database["public"]['Enums']["connection_kind"],"p_limit"?: number,"p_list_status"?: Database["public"]['Enums']["connection_status"],"p_person_role"?: Database["public"]['Enums']["person_role"],"p_q"?: string,"p_scene_ids"?: (string)[],"p_statuses"?: (Database["public"]['Enums']["connection_status"])[],"p_town"?: string,"p_type"?: string,"p_workspace_id": string,"p_scope"?: string,"p_no_status"?: boolean,"p_missing"?: string,"p_import"?: string }; Returns: Json },
+{ Args: { "p_ages"?: string,"p_capacity"?: string,"p_space"?: string,"p_instrument"?: string,"p_after"?: Json,"p_archived": boolean,"p_counts"?: boolean,"p_group_type"?: Database["public"]['Enums']["group_type"],"p_hide_avoid"?: boolean,"p_kind"?: Database["public"]['Enums']["connection_kind"],"p_limit"?: number,"p_list_status"?: Database["public"]['Enums']["connection_status"],"p_person_role"?: Database["public"]['Enums']["person_role"],"p_q"?: string,"p_scene_ids"?: (string)[],"p_statuses"?: (Database["public"]['Enums']["connection_status"])[],"p_town"?: string,"p_type"?: string,"p_workspace_id": string,"p_scope"?: string,"p_no_status"?: boolean,"p_missing"?: string,"p_import"?: string,"p_roster"?: boolean }; Returns: Json },
             "create_linked_connection":
 { Args: { "p_locality_id"?: string,"p_played_together"?: boolean,"p_scene_ids"?: (string)[],"p_affiliation_kind": Database["public"]['Enums']["affiliation_kind"],"p_group_type"?: Database["public"]['Enums']["group_type"],"p_is_current": boolean,"p_kind": Database["public"]['Enums']["connection_kind"],"p_name": string,"p_new_is_from": boolean,"p_other_id": string,"p_person_roles": (Database["public"]['Enums']["person_role"])[],"p_role"?: string,"p_workspace_id": string }; Returns: string },
 "save_connection":
