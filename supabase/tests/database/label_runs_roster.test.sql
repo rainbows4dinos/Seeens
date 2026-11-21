@@ -47,8 +47,11 @@ select is((select workspace_id from public.connections where name = 'Brand New B
 -- The label fixes its roster band, logged as the label's.
 select lives_ok($$ select public.moderate_connection('8ecccccc-0000-0000-0000-000000000002', 'Shared Band!', 'group', '{}', 'band', '{}', '[]'::jsonb) $$,
   'the label fixes its roster band''s details');
+reset role;
 select is((select by_band from public.connection_edits where connection_id = '8ecccccc-0000-0000-0000-000000000002' order by edited_at desc limit 1),
   'Pole Tapes', 'logged as the label''s');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"8e111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 select throws_ok($$ select public.moderate_connection('8ecccccc-0000-0000-0000-000000000002', 'Shared Band', 'person', '{dj}', null, '{}', '[]'::jsonb) $$,
   '23514', null, 'it stays a band');
 select lives_ok($$ select public.set_not_active('8ecccccc-0000-0000-0000-000000000002', true) $$, 'and can mark it Not Active');
