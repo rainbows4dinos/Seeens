@@ -34,7 +34,7 @@ type PersonRole =
   | "writer"
   | "radio_host"
   | "other";
-type Status = "homies" | "lets_play" | "prospect" | "neutral" | "avoid";
+type Status = "homies" | "lets_play" | "prospect" | "avoid";
 
 /** Where a column goes. "notes" keeps it, labeled with the header; "skip" drops it. */
 export const TARGETS = {
@@ -138,7 +138,8 @@ export type DraftRow = {
   kind: Kind;
   group_type: GroupType | null;
   person_roles: PersonRole[];
-  status: Status;
+  /** Null: no status (#358). */
+  status: Status | null;
   played_together: boolean;
   /** The sheet's town text; the import page turns it into a place. */
   town: string | null;
@@ -278,12 +279,15 @@ function instagramUrl(v: string): string | null {
   return handle ? `https://instagram.com/${handle}` : null;
 }
 
-export function readStatus(v: string): Status | undefined {
+/** A Status cell: a status, null for one that means none, or undefined when unread. */
+export function readStatus(v: string): Status | null | undefined {
   const t = v.trim().toLowerCase();
   if (/homie|favou?rite|friend/.test(t)) return "homies";
-  if (/let.?s (play|book|collab)/.test(t)) return "lets_play";
-  if (/eyeing|crush|prospect|want/.test(t)) return "prospect";
-  if (/known|heard of|neutral/.test(t)) return "neutral";
+  // Both Down, and the old Let's Play words (#358).
+  if (/both down|let.?s (play|book|collab)/.test(t)) return "lets_play";
+  if (/down to|eyeing|crush|prospect|want/.test(t)) return "prospect";
+  // Heard Of is retired (#358): no status.
+  if (/known|heard of|neutral|no status/.test(t)) return null;
   if (/avoid|nope|never/.test(t)) return "avoid";
   return undefined;
 }
@@ -344,7 +348,7 @@ export function buildRows(
   data: string[][],
   mapping: Target[],
   sheet: SheetKind,
-  defaults: { status: Status },
+  defaults: { status: Status | null },
 ): Built {
   const rows: DraftRow[] = [];
   const skipped: Built["skipped"] = [];
@@ -500,7 +504,7 @@ export function buildRows(
           return;
         case "status": {
           const st = readStatus(raw);
-          if (st) row.status = st;
+          if (st !== undefined) row.status = st;
           else note();
           return;
         }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InlineNav, SideNav, type SideNavSection } from "@/components/side-nav";
-import { NO_STATUS, STATUS_HINT_WORDS, STATUS_WORDS } from "@/lib/connections/status-words";
+import { NO_STATUS, STATUS_WORDS } from "@/lib/connections/status-words";
 import { ABOUT_FAQ } from "@/lib/help/faq";
 
 export const metadata: Metadata = {
@@ -13,14 +13,13 @@ export const metadata: Metadata = {
 // only (no statuses, notes, or contacts). Leave null until there is one.
 const SCREENSHOT: { src: string; alt: string } | null = null;
 
-const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
+const STATUS_ORDER = ["homies", "lets_play", "prospect", "avoid"] as const;
 const NO_STATUS_MEANING =
-  "Not sorted yet. Everything starts here, and most of the shared directory will stay here, which is fine.";
+  "No strong feelings, or not sorted yet. Everything starts here, and most of the shared directory will stay here, which is fine.";
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
-  lets_play: "You both want to play together; it just isn't booked.",
-  prospect: "You'd like to. They don't know yet, or it isn't mutual.",
-  neutral: STATUS_HINT_WORDS.band.neutral.replace("We know", "You know"),
+  lets_play: "They told you they're in too; it just isn't booked.",
+  prospect: "You're into it, for the first time or again. They don't know yet, or it isn't mutual.",
   avoid: "Not for you. They sit at the very end of the directory, and never on your Home.",
 };
 
@@ -153,12 +152,12 @@ export default function AboutPage() {
           </h2>
           <ul>
             <li>Find the venues, bands, and people other bands already know, and add the ones you know.</li>
-            <li>Mark how you feel about each: Homies, Let&rsquo;s Play, Want to Play, Heard Of, or Avoid.</li>
+            <li>Mark how you feel about each: Homies, Both Down, Down to Play, or Avoid.</li>
             <li>Group them by scene and town, so planning a run starts with who you already know there.</li>
             <li>Log what happened and plan what&rsquo;s next, with a date and whose turn it is.</li>
             <li>
-              Open Home to see what&rsquo;s up next, your Homies and Let&rsquo;s Play, and what other bands just added
-              near you.
+              Open Home to see what&rsquo;s up next, your Homies, Both Down, and Down to Play, and what other bands just
+              added near you.
             </li>
             <li>Import the spreadsheet you&rsquo;ve been keeping, and export it all as a CSV whenever you want.</li>
           </ul>

@@ -6,14 +6,13 @@ import { FAQ } from "@/lib/help/faq";
 
 export const metadata: Metadata = { title: "Help · Seeens" };
 
-const STATUS_ORDER = ["homies", "lets_play", "prospect", "neutral", "avoid"] as const;
+const STATUS_ORDER = ["homies", "lets_play", "prospect", "avoid"] as const;
 const NO_STATUS_MEANING =
-  "Not sorted yet. Everything starts here until your band picks a status, and you can clear one back to this.";
+  "No strong feelings either way, or not sorted yet. Everything starts here, and you can clear a status back to this.";
 const STATUS_MEANING: Record<(typeof STATUS_ORDER)[number], string> = {
   homies: "Your people. You look out for each other.",
-  lets_play: "You both want to. It just isn't booked yet.",
-  prospect: "You'd like to. It isn't mutual yet.",
-  neutral: "You know of them. No plans.",
+  lets_play: "They told you they're in too. It just isn't booked yet.",
+  prospect: "You're into it, for the first time or again. Not mutual yet, as far as you know.",
   avoid: "Not for you. They sit at the very end of the directory, and never on your Home.",
 };
 
@@ -36,7 +35,7 @@ const WORDS: [string, string, string][] = [
   ],
   [
     "Home",
-    "Your band's own page: what's up next, your Homies and Let's play, and what other bands added near you.",
+    "Your band's own page: what's up next, your Homies, Both Down, and Down to Play, and what other bands added near you.",
     "Main nav",
   ],
   [
@@ -141,9 +140,8 @@ const SHORTCUTS: [string, string][] = [
   ["1", `Status: ${STATUS_WORDS.band.homies}`],
   ["2", `Status: ${STATUS_WORDS.band.lets_play}`],
   ["3", `Status: ${STATUS_WORDS.band.prospect}`],
-  ["4", `Status: ${STATUS_WORDS.band.neutral}`],
-  ["5", `Status: ${STATUS_WORDS.band.avoid}`],
-  ["6", `Status: ${NO_STATUS}`],
+  ["4", `Status: ${STATUS_WORDS.band.avoid}`],
+  ["5", `Status: ${NO_STATUS}`],
   ["Esc", "Close the quick view"],
 ];
 
@@ -151,7 +149,7 @@ const SHORTCUTS: [string, string][] = [
 const SELECT_SHORTCUTS: [string, string][] = [
   ["Cmd-click", "Select a listing, or deselect it (Ctrl-click on Windows)"],
   ["Shift-click", "Select everything from the last one you picked"],
-  ["1–6", "In the Set Status menu, pick a status"],
+  ["1–5", "In the Set Status menu, pick a status"],
   ["Esc", "Clear the selection"],
 ];
 
@@ -183,9 +181,10 @@ export default function HelpPage() {
             Statuses
           </h2>
           <p>
-            Every listing can have one status from your band. The five never change, but the words fit what you&rsquo;re
-            looking at: you play with a band, book a venue, and collab with a person. Statuses say how you feel, not
-            what happened; that&rsquo;s what Played Together is for.
+            Every listing can have one status from your band: how you feel about playing (or working) with them. The
+            four never change, but the words fit what you&rsquo;re looking at: you play with a band, play at a venue,
+            and collab with a person. Statuses say how you feel, not what happened; that&rsquo;s what Played Together is
+            for. Down to Play and Played Together together mean you&rsquo;d play with them again.
           </p>
           <div className="overflow-x-auto">
             <table className="about-table status-table">

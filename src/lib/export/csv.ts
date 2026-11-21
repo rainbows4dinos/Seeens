@@ -25,8 +25,8 @@ export const EXPORT_COLUMNS = [
   "archived_on",
   "added_on",
   "updated_on",
-  // #139: "status" is the stored value (homies, lets_play, prospect, neutral,
-  // avoid), which never changes; this is the word the connection's type uses.
+  // #139: "status" is the stored value (homies, lets_play, prospect, avoid;
+  // neutral is retired, #358), which never changes; this is the word the connection's type uses.
   "status_label",
   // #48: venue details, as shown (blank when not sure).
   "ages",

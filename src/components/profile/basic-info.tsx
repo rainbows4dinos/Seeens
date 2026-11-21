@@ -12,6 +12,7 @@ import {
   GROUP_TYPE_LABELS,
   PERSON_ROLES,
   PERSON_ROLE_LABELS,
+  NO_STATUS,
   STATUSES,
   playedWords,
   statusLabel,
@@ -147,6 +148,7 @@ export function BasicInfoFields({
               className="field min-w-28 flex-1 basis-28 sm:max-w-80"
               {...invalid("p-status", errors.status)}
             >
+              <option value="">{NO_STATUS}</option>
               {STATUSES.map((st) => (
                 <option key={st} value={st}>
                   {statusLabel(st, typed)}

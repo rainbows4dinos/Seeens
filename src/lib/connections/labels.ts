@@ -62,7 +62,10 @@ export {
 export const KINDS = Object.keys(KIND_LABELS) as ConnectionKind[];
 export const PERSON_ROLES = Object.keys(PERSON_ROLE_LABELS) as PersonRole[];
 export const GROUP_TYPES = Object.keys(GROUP_TYPE_LABELS) as GroupType[];
-export const STATUSES = Object.keys(STATUS_LABELS) as ConnectionStatus[];
+// The ones you can pick (#358): Heard Of is retired, kept only for old history.
+export const STATUSES: ConnectionStatus[] = (Object.keys(STATUS_LABELS) as ConnectionStatus[]).filter(
+  (s) => s !== "neutral",
+);
 
 // "Band" for a group; "Musician, DJ" for a person.
 export function formatType(c: { kind: ConnectionKind; person_roles: PersonRole[]; group_type: GroupType | null }) {

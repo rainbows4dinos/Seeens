@@ -82,7 +82,7 @@ export const EMPTY_FORM: ConnectionFormValues = {
   kind: "group",
   personRoles: [],
   groupType: "",
-  status: "neutral",
+  status: "",
   playedTogether: false,
   isUs: false,
   canHelpWith: "",
@@ -238,7 +238,7 @@ export function validate(
     errors.isUs = "Only a band can be ours. Change the type back to Band, or untick this.";
   }
 
-  // Empty is no status (#192); anything else must be one of the five.
+  // Empty is no status (#192); anything else must be one of the four (#358).
   if (values.status && !STATUSES.includes(values.status as ConnectionStatus)) errors.status = "Choose a status.";
 
   if (values.email && !EMAIL_RE.test(values.email)) errors.email = "That email doesn't look right.";

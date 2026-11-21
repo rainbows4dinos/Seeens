@@ -37,7 +37,7 @@ const STATUS_PLATE: Record<ConnectionStatus, Plate> = {
 };
 
 export function defaultSettings(status: ConnectionStatus | null, isUs: boolean): CopierSettings {
-  // No status (#192) takes Heard of's plate.
+  // No status (#192) takes the clear plate, like retired Heard Of.
   return {
     exposure: 0,
     contrast: 2.4,

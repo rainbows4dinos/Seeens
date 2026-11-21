@@ -12,6 +12,7 @@ import {
   guessVenueTypes,
   matchRows,
   readCatalogNo,
+  readStatus,
   readMembers,
 } from "./rows.ts";
 
@@ -75,7 +76,7 @@ test("a venue sheet like Tiffany's", () => {
   ];
   const mapping = guessMapping(headers, "venues");
   mapping[5] = "special_terms";
-  const { rows, skipped } = buildRows(headers, data, mapping, "venues", { status: "neutral" });
+  const { rows, skipped } = buildRows(headers, data, mapping, "venues", { status: null });
   assert.equal(rows.length, 3);
   assert.deepEqual(
     skipped.map((s) => s.line),
@@ -95,7 +96,7 @@ test("a venue sheet like Tiffany's", () => {
 
 test("a band name list", () => {
   const { rows } = buildRows(["Band"], [["Barf Bags, The"], ["Shitfits (sp?)"]], ["name"], "bands", {
-    status: "neutral",
+    status: null,
   });
   assert.deepEqual(
     rows.map((r) => [r.name, r.group_type, r.notes]),
@@ -161,7 +162,7 @@ test("catalog numbers from an export fill in exactly that record (#321)", () => 
     ],
     ["catalog_no", "name", "members"],
     "bands",
-    { status: "neutral" },
+    { status: null },
   );
   // Two bands can share a name; two rows can't share a record.
   assert.deepEqual(
@@ -193,7 +194,7 @@ test("catalog numbers from an export fill in exactly that record (#321)", () => 
 
 test("members only mean something on a band", () => {
   const { rows } = buildRows(["Name", "Members"], [["Dantes", "Joel"]], ["name", "members"], "venues", {
-    status: "neutral",
+    status: null,
   });
   assert.deepEqual(rows[0].members, []);
   assert.equal(rows[0].notes, "Members: Joel");
@@ -234,9 +235,19 @@ test("a Photo column keeps a link to add later", () => {
     ],
     guessMapping(["Name", "photo"], "bands"),
     "bands",
-    { status: "neutral" },
+    { status: null },
   );
   assert.equal(rows[0].photo_url, "https://soda.example/band.jpg");
   assert.equal(rows[1].photo_url, null);
   assert.equal(rows[1].notes, "photo: not a link");
+});
+
+test("status words, old and new (#358)", () => {
+  assert.equal(readStatus("Both Down"), "lets_play");
+  assert.equal(readStatus("Let's Play"), "lets_play");
+  assert.equal(readStatus("Down to Play"), "prospect");
+  assert.equal(readStatus("Want to play"), "prospect");
+  assert.equal(readStatus("Heard of"), null, "retired: no status");
+  assert.equal(readStatus("Avoid"), "avoid");
+  assert.equal(readStatus("??"), undefined);
 });

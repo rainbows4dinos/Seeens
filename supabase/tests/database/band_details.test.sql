@@ -21,11 +21,11 @@ insert into public.connections (id, workspace_id, name, kind, person_roles, grou
 
 select hasnt_column('public', 'connections', 'status', 'status is gone from the record');
 select hasnt_column('public', 'connections', 'notes', 'and notes');
-select is((select status::text || '|' || played_together || '|' || (archived_at is null)
+select is((select coalesce(status::text, '-') || '|' || played_together || '|' || (archived_at is null)
   from public.connection_band_details where connection_id = 'cc500000-0000-0000-0000-000000000001'),
-  'neutral|false|true', 'a new record gets its band''s row');
+  '-|false|true', 'a new record gets its band''s row, with no status (#358)');
 select is((select count(*)::int from public.connection_status_changes
-  where connection_id = 'cc500000-0000-0000-0000-000000000001'), 1, 'with a starting status');
+  where connection_id = 'cc500000-0000-0000-0000-000000000001'), 0, 'and no history yet');
 
 -- A status set while the record is being created is its starting status.
 update public.connection_band_details set status = 'prospect' where connection_id = 'cc500000-0000-0000-0000-000000000001';

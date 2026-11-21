@@ -27,14 +27,14 @@ test("each type gets its words; the shared ones stay shared", () => {
   );
   assert.deepEqual(
     [band, venue, person(), label].map((c) => statusLabel("lets_play", c)),
-    ["Let's play", "Let's book", "Let's collab", "Let's collab"],
+    ["Both Down", "Both Down", "Both Down", "Both Down"],
   );
   assert.deepEqual(
     [band, venue, person(), label].map((c) => statusLabel("prospect", c)),
-    ["Want to play", "Want to book", "Want to collab", "Want to collab"],
+    ["Down to Play", "Down to Play Here", "Down to Collab", "Down to Work With"],
   );
   for (const c of [band, venue, person(), label]) {
-    assert.equal(statusLabel("neutral", c), "Heard of");
+    assert.equal(statusLabel("neutral", c), "Heard Of (old)", "retired (#358), for old history");
     assert.equal(statusLabel("avoid", c), "Avoid");
   }
   assert.equal(statusLabel("homies"), "Homies", "no type: band words");
@@ -59,9 +59,9 @@ test("played together says what it means for the type", () => {
 });
 
 test("history lines: a first status, a change, a clear (#192)", () => {
-  assert.equal(historyLine({ from_status: null, to_status: "neutral" }, band), "Set to Heard of");
+  assert.equal(historyLine({ from_status: null, to_status: "neutral" }, band), "Set to Heard Of (old)");
   assert.equal(historyLine({ from_status: null, to_status: "homies" }, band, "Added as"), "Added as Homies");
-  assert.equal(historyLine({ from_status: "prospect", to_status: "lets_play" }, band), "Want to play to Let's play");
-  assert.equal(historyLine({ from_status: "neutral", to_status: null }, band), "Cleared (was Heard of)");
+  assert.equal(historyLine({ from_status: "prospect", to_status: "lets_play" }, band), "Down to Play to Both Down");
+  assert.equal(historyLine({ from_status: "neutral", to_status: null }, band), "Cleared (was Heard Of (old))");
   assert.equal(statusLabel(null, band), "No status");
 });

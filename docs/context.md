@@ -4,7 +4,7 @@
 
 Seeens is a private shared network directory for Merwulf. The October 27, 2026 restart supersedes the earlier public scene-discovery concept. See [../README.md](../README.md) for release scope and schedule.
 
-The core questions are: Who do we know in this scene? Who are our Homies, and who do we keep saying "let's play" with? Who could we connect with next, and why? What did we last do, and who will follow up?
+The core questions are: Who do we know in this scene? Who are our Homies, and who are we both down to play with? Who could we connect with next, and why? What did we last do, and who will follow up?
 
 ## Working data model
 
@@ -19,20 +19,20 @@ The core questions are: Who do we know in this scene? Who are our Homies, and wh
 - **Us:** one group per workspace can be marked as the band itself ("This is our band"). Seeens uses it to show label mates (bands on a label with us) and bands that share a member with us. Us isn't listed in the directory; the band chip in the header opens its page (or offers to add it).
 - **Venue details (#48):** address (a street gets a map link; "Ask a punk" is fine for a house), ages (all ages, 21+, varies), capacity (under 50, 50–150, 150–300, 300–600, 600+), type of space (#262: any of a fixed list, from Club or Music Venue to House Shows and Outdoor; DIY or licensed follows from the type, with a DIY toggle for the ones that go either way), PA, sound engineer, backline, how to book (a method that points at the venue's own email or links, so contacts aren't kept twice), accessibility, and special terms (pay to play, door split). Blank means not sure; nothing is guessed. Stored in `connections.attributes`, stamped with the day they last changed so old facts show their age. Who books a room is a link, not a field: a person or promoter "books" a venue, with a role and Former, like a band member.
 - **Can help with:** free-form skills or services on a person (for example music videos, DJ sets, gear, screen printing), so members can find who to ask for a need, not only who plays where.
-- **Status:** one band-wide choice per connection, set in a single tap:
+- **Status:** one band-wide choice per connection, set in a single tap. It answers one question: how do we feel about playing (or working) with them? What happened is Played Together's job (#358).
   - **Homies:** the ultimate band-to-band relationship. Love playing together, love each other's music, love hanging out, support each other, top tour-mate candidates.
-  - **Let's play:** mutual "we should play together," not booked yet. The booking backlog of agreed admiration and opportunity.
-  - **Want to play:** we'd like to; not mutual yet. Pairs with Let's play: you want to, then you both do. Stored as `prospect`. (Was Eyeing, which read as creepy, and before that Crush.)
-  - **Heard of:** we know of them, no particular plans. Where a record the band adds starts. Stored as `neutral`. (Was Known, and before that Heard of: Known read as "we know them".)
-  - **No status:** the band hasn't sorted it yet. Every record another band shares starts here, and a status can be cleared back to it (#192). Stored as null.
+  - **Both Down:** they told us they're in too; it just isn't booked. The booking backlog of mutual admiration. Set by hand, since most bands aren't on Seeens yet; later it can be set when two bands mark each other Down to Play. Stored as `lets_play` (was Let's play).
+  - **Down to Play:** we're into it, for the first time or again. Not mutual yet, as far as we know. With Played Together it means "we'd play again"; without, a prospect. Stored as `prospect` (was Want to play, Eyeing, Crush).
+  - **No status:** no strong feelings, or not sorted yet. Every record starts here, and a status can be cleared back to it (#192). Stored as null.
   - **Avoid:** the honest "nope" (cold shoulder, or played once and that was enough). Kept, not archived, and can change.
-    Each type has its own words for the same five statuses (#139). Words say how we feel, never what happened; "played together" carries that.
-  - Venues and promoters: Favorite, Let's book, Want to book, Heard of, Avoid.
-  - People: Homie, Let's collab, Want to collab, Heard of, Avoid.
-  - Labels, studios, radio, press: Homies, Let's collab, Want to collab, Heard of, Avoid.
+  - **Retired: Heard of** (`neutral`, #358). It mixed "how well we know them" into "how we feel," and read wrong next to Played Together. Every Heard of became no status; old status history still names it ("Heard Of (old)"), and nothing new can pick it.
+    Each type has its own words for the same four statuses (#139). Words say how we feel, never what happened; "played together" carries that.
+  - Venues and promoters: Favorite, Both Down, Down to Play Here, Avoid.
+  - People: Homie, Both Down, Down to Collab, Avoid.
+  - Labels, studios, radio, press: Homies, Both Down, Down to Work With, Avoid.
   - "Played together" reads as played here (venues), booked us (promoters, bookers), recorded here (studios), been on (radio), covered us (press, writers), or worked together (everyone else). Musicians and DJs keep "played together".
     The All tab's status menu uses the band words.
-    A stored status is never changed through affiliations. A person left at Heard of, or with no status, is only shown under the closest status of a band they're currently in (Homies, then Let's play, then Want to play), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
+    A stored status is never changed through affiliations. A person with no status is only shown under the closest status of a band they're currently in (Homies, then Both Down, then Down to Play), marked "via" that band; their own status wins, and an Avoid band never pulls anyone into Avoid (#140). Changes are logged.
 - **Network and Explore (#192, renamed from My Network and Full Directory):** two pages in the main nav (Network, Explore, Follow-ups, Scenes). Network, at `/`, is what the band added or has touched (a status, notes, contacts, played together, an archive, a plan, or outreach); clearing a status alone doesn't drop a record that has anything else. Explore, at `/directory`, is every record the band can see. For now both group by status; Explore should get its own organization (#194). Follow-ups may later fold into a Today home page.
 - **Roles (#195):** members add records, edit what their band added, and keep their band's own layer. Moderators, picked by an app admin, can fix any shared record's details (logged), and keep any record private. App admins are moderators too. Keep Private: groups only by an owner of their band or a moderator; a person by themselves once linked, else by the band that added them.
 - **Played together:** a separate fact, what has already happened, versus how the band feels and what's next. Distinguishes warm leads from cold ones when planning a town.
