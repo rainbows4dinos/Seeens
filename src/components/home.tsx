@@ -218,7 +218,7 @@ export async function StatusShelf({ status }: { status: "homies" | "lets_play" |
       .in("id", ids)
       .is("merged_into", null)
       .order("name");
-  // Not Active (#335): nobody to play with, so not in Let's Play or Want to
+  // Not Active (#335): nobody to play with, so not in Both Down or Down to
   // Play. Homies stay Homies.
   const { data: rows } = ids.length
     ? await (status === "homies" ? query() : query().is("inactive_since", null))

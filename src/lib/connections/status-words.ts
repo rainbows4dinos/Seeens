@@ -6,59 +6,81 @@ type PersonRole = Enums["person_role"];
 type GroupType = Enums["group_type"];
 type ConnectionStatus = Enums["connection_status"];
 
-// Status words by type (#139). The five stored statuses never change; each
-// kind of connection gets its own words for them, and its own way of saying
-// "played together". Words say how we feel, never what happened (that's the
-// played fact), so the two can't contradict each other.
+// Status words by type (#139). The stored statuses never change; each kind
+// of connection gets its own words for them, and its own way of saying
+// "played together". Words say how we feel about playing (or working)
+// together, never what happened (that's the played fact), so the two can't
+// contradict each other.
+//
+// #358: four statuses. lets_play is Both Down (they told us they're in too)
+// and prospect is Down to Play. neutral (Heard Of) is retired: it's out of
+// every picker and moved to no status, but old history still names it.
 export type WordSet = "band" | "venue" | "people" | "collab";
+
+/** Retired (#358): only old status history still has it. */
+export const RETIRED_STATUSES = ["neutral"] as const;
 
 // Order matters: this is also the directory's grouping order.
 export const STATUS_WORDS: Record<WordSet, Record<ConnectionStatus, string>> = {
-  band: { homies: "Homies", lets_play: "Let's play", prospect: "Want to play", neutral: "Heard of", avoid: "Avoid" },
-  venue: { homies: "Favorite", lets_play: "Let's book", prospect: "Want to book", neutral: "Heard of", avoid: "Avoid" },
+  band: {
+    homies: "Homies",
+    lets_play: "Both Down",
+    prospect: "Down to Play",
+    neutral: "Heard Of (old)",
+    avoid: "Avoid",
+  },
+  venue: {
+    homies: "Favorite",
+    lets_play: "Both Down",
+    prospect: "Down to Play Here",
+    neutral: "Heard Of (old)",
+    avoid: "Avoid",
+  },
   people: {
     homies: "Homie",
-    lets_play: "Let's collab",
-    prospect: "Want to collab",
-    neutral: "Heard of",
+    lets_play: "Both Down",
+    prospect: "Down to Collab",
+    neutral: "Heard Of (old)",
     avoid: "Avoid",
   },
   collab: {
     homies: "Homies",
-    lets_play: "Let's collab",
-    prospect: "Want to collab",
-    neutral: "Heard of",
+    lets_play: "Both Down",
+    prospect: "Down to Work With",
+    neutral: "Heard Of (old)",
     avoid: "Avoid",
   },
 };
 
+const OLD = "A status from before Heard Of was retired.";
+
 export const STATUS_HINT_WORDS: Record<WordSet, Record<ConnectionStatus, string>> = {
   band: {
     homies: "Love playing together, love hanging out, top tour-mate pick.",
-    lets_play: "We both want to play together. Just haven't booked it.",
-    prospect: "We'd like to. Not mutual yet.",
-    neutral: "We know of them. No plans.",
+    lets_play: "They told us they're in too. Just haven't booked it.",
+    prospect: "We're into it, first time or again. Not mutual yet.",
+    neutral: OLD,
     avoid: "Nope.",
   },
   venue: {
     homies: "One of our favorites.",
-    lets_play: "We want a date and they're into it.",
-    prospect: "We'd like a show with them. Not there yet.",
-    neutral: "We know of them. No plans.",
+    lets_play: "They said send dates. Just haven't booked it.",
+    prospect: "We'd play here, first time or again.",
+    neutral: OLD,
     avoid: "Not for us.",
   },
   people: {
     homies: "A friend. We look out for each other.",
-    lets_play: "We both want to make something together.",
-    prospect: "We'd like to meet or work with them.",
-    neutral: "We know of them. No plans.",
+    lets_play: "They told us they're in too.",
+    prospect: "We'd like to make something with them.",
+    neutral: OLD,
     avoid: "Nope.",
   },
   collab: {
     homies: "We look out for each other.",
-    lets_play: "We both want to work together.",
+    lets_play: "They told us they're in too.",
     prospect: "We'd like to work with them. Not mutual yet.",
-    neutral: "We know of them. No plans.",
+    neutral: OLD,
     avoid: "Nope.",
   },
 };
@@ -79,7 +101,7 @@ export function wordSetFor(c: Typed): WordSet {
 
 /** What a band calls a record it hasn't given a status (#192). */
 export const NO_STATUS = "No status";
-export const NO_STATUS_HINT = "Not sorted yet.";
+export const NO_STATUS_HINT = "No strong feelings, or not sorted yet.";
 
 export function statusLabel(status: ConnectionStatus | null, c?: Typed | null) {
   return status ? STATUS_WORDS[c ? wordSetFor(c) : "band"][status] : NO_STATUS;

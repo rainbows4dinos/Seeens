@@ -1078,7 +1078,7 @@
       min-width: 7rem;
     }
   }
-  /* Status headings (Homies, Let's play…) pin under the pinned bar, each
+  /* Status headings (Homies, Both Down…) pin under the pinned bar, each
      within its own section, so the next one pushes it away. --bar-h is the
      bar's height (StickyGroups). Pinned, they float like a detail page's
      pinned actions: 12px under the bar, lifted (Shadow/Soft), with the
@@ -1479,7 +1479,7 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 16px;
-    /* Neutral tags (Heard of, Not sorted) sit on white, so they read over cards. */
+    /* Plain tags (No status) sit on white, so they read over cards. */
     background: var(--color-bg-surface);
   }
   .tag-homies {

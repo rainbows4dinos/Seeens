@@ -73,8 +73,8 @@ export async function GettingStarted({ preview: asked = false }: { preview?: boo
       done: p.network >= NETWORK_GOAL,
       title: suggested?.length ? "Start with bands you might know" : `Give ${NETWORK_GOAL} listings a status`,
       body: suggested?.length
-        ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Want to play. They show up here on Home.`
-        : "The Directory has the bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Want to play. They show up here on Home.",
+        ? `Give ${left === NETWORK_GOAL ? NETWORK_GOAL : `${left} more`} a status, like Homies or Down to Play. They show up here on Home.`
+        : "The Directory has the bands, venues, and people other bands shared. Give the ones you know a status, like Homies or Down to Play. They show up here on Home.",
       progress: p.network ? `${Math.min(p.network, NETWORK_GOAL)} of ${NETWORK_GOAL}` : null,
       doneNote: `${p.network} listings in your network. See them on Home.`,
       extra: suggested?.length ? <SuggestedBands bands={suggested.slice(0, 4)} preview={preview} /> : null,

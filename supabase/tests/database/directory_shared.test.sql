@@ -46,17 +46,17 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"cf222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
 
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000b2'),
-  'A Us:-,A Venue:-,B Band:neutral',
+  'A Us:-,A Venue:-,B Band:-',
   'B sees its records and A''s shared ones with no status of B''s, and not A''s private person or its own page');
 
 insert into public.connection_band_details (workspace_id, connection_id, status)
   values ('cfaaaaaa-0000-0000-0000-0000000000b2', 'cf500000-0000-0000-0000-000000000002', 'lets_play');
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000b2'),
-  'A Us:-,A Venue:lets_play,B Band:neutral', 'with B''s own status once it sets one');
+  'A Us:-,A Venue:lets_play,B Band:-', 'with B''s own status once it sets one');
 
 update public.connection_band_details set archived_at = now()
   where workspace_id = 'cfaaaaaa-0000-0000-0000-0000000000b2' and connection_id = 'cf500000-0000-0000-0000-000000000002';
-select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000b2'), 'A Us:-,B Band:neutral', 'archiving hides it for B');
+select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000b2'), 'A Us:-,B Band:-', 'archiving hides it for B');
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000b2', true), 'A Venue:lets_play', 'into B''s archived view');
 select is((public.directory_page('cfaaaaaa-0000-0000-0000-0000000000b2', false) -> 'counts' ->> 'archived')::int, 1,
   'and B''s archived count');
@@ -68,17 +68,17 @@ select is((select jsonb_array_length(public.directory_page('cfaaaaaa-0000-0000-0
 select is((public.directory_page('cfaaaaaa-0000-0000-0000-0000000000b2', false) -> 'counts' -> 'towns' -> 0 ->> 'id')::uuid,
   'cf400000-0000-0000-0000-0000000000b1'::uuid, 'as B''s own locality');
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000b2', false, 'cf400000-0000-0000-0000-0000000000b1'),
-  'A Venue:lets_play,B Band:neutral', 'and filtering by it finds both bands'' records there');
+  'A Venue:lets_play,B Band:-', 'and filtering by it finds both bands'' records there');
 
 select set_config('request.jwt.claims', '{"sub":"cf111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000a1'),
-  'A Person:neutral,A Venue:homies,B Band:-,B Us:-', 'A''s side: its own status, untouched by B''s');
+  'A Person:-,A Venue:homies,B Band:-,B Us:-', 'A''s side: its own status, untouched by B''s');
 
 -- My network and no status (#192).
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000a1', scope => 'network'),
-  'A Person:neutral,A Venue:homies', 'My network: what A added');
+  'A Person:-,A Venue:homies', 'My network: what A added');
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000a1', no_status => true),
-  'B Band:-,B Us:-', 'No status: what A hasn''t sorted');
+  'A Person:-,B Band:-,B Us:-', 'No status: what A hasn''t sorted');
 select is((public.directory_page('cfaaaaaa-0000-0000-0000-0000000000a1', false) -> 'counts' -> 'scopes'),
   '{"network": 2, "all": 4}'::jsonb, 'with both scopes counted');
 
@@ -86,7 +86,7 @@ select is((public.directory_page('cfaaaaaa-0000-0000-0000-0000000000a1', false) 
 insert into public.connection_band_details (workspace_id, connection_id, notes)
   values ('cfaaaaaa-0000-0000-0000-0000000000a1', 'cf500000-0000-0000-0000-000000000005', 'Saw them at the Hall');
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000a1', scope => 'network'),
-  'A Person:neutral,A Venue:homies,B Band:-', 'a note brings it into My network, with no status');
+  'A Person:-,A Venue:homies,B Band:-', 'a note brings it into My network, with no status');
 select is((select count(*)::int from public.connection_status_changes where connection_id = 'cf500000-0000-0000-0000-000000000005'
   and workspace_id = 'cfaaaaaa-0000-0000-0000-0000000000a1'), 0, 'and no status history');
 -- Clearing a status: logged, sorts after the five, stays in the network.
@@ -96,7 +96,7 @@ select is((select string_agg(coalesce(from_status::text, '-') || '>' || coalesce
   from public.connection_status_changes where connection_id = 'cf500000-0000-0000-0000-000000000002'
   and workspace_id = 'cfaaaaaa-0000-0000-0000-0000000000a1'), '->homies,homies>-', 'clearing a status is logged');
 select is(pg_temp.names('cfaaaaaa-0000-0000-0000-0000000000a1', scope => 'network'),
-  'A Person:neutral,A Venue:-,B Band:-', 'and it stays in My network, with no status');
+  'A Person:-,A Venue:-,B Band:-', 'and it stays in My network, with no status');
 
 select * from finish();
 rollback;

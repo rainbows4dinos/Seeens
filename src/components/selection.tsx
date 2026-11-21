@@ -17,7 +17,7 @@ import { STAY_EVENT } from "@/components/busy-pointer";
 // - Cmd-click (Ctrl on Windows) adds or removes one; Shift-click selects the
 //   range from the last one picked. A plain click still opens the listing.
 // - Touch: long-press a listing to start; then taps select instead of open.
-// - Escape clears. In the Set Status menu, 1–6 pick.
+// - Escape clears. In the Set Status menu, 1–5 pick.
 
 type Selection = {
   selected: ReadonlySet<string>;
@@ -196,7 +196,7 @@ function SelectionBar({ words }: { words: WordSet }) {
     });
   }
 
-  // 1–6 pick from the open menu; Escape closes it.
+  // 1–5 pick from the open menu; Escape closes it.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

@@ -23,8 +23,8 @@ export const FAQ: [string, string, FaqLink?][] = [
     "Yes. Set a status, add notes, plan a next step, or archive it, just like your own. Its name and details stay the other band's to edit.",
   ],
   [
-    "What's the difference between Homies and Let's Play?",
-    "Homies are your people already. Let's Play means you both want to play together and haven't booked it yet. The table above has all five.",
+    "What's the difference between Both Down and Down to Play?",
+    "Down to Play means you're into it. Both Down means they told you they're in too, and it just isn't booked yet. The table above has all four.",
   ],
   [
     "We've played with them. Why isn't that a status?",
@@ -36,7 +36,7 @@ export const FAQ: [string, string, FaqLink?][] = [
   ],
   [
     "Are there keyboard shortcuts?",
-    "Yes, in the quick view: J and K step through listings, 1 to 6 set the status, and Esc closes it.",
+    "Yes, in the quick view: J and K step through listings, 1 to 5 set the status, and Esc closes it.",
     { href: "/help#shortcuts", label: "All the shortcuts" },
   ],
   [

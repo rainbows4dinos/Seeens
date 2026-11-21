@@ -6,11 +6,11 @@ export const HOME_ROWS = [
   { key: "up_next", label: "Up Next" },
   { key: "roster", label: "Roster", labelOnly: true },
   { key: "homies", label: "Homies" },
-  { key: "lets_play", label: "Let’s Play" },
+  { key: "lets_play", label: "Both Down" },
   { key: "new_near_you", label: "New Near You" },
   { key: "might_know", label: "Bands You Might Know" },
   // Added with #313, so it goes last for anyone who already knows Home.
-  { key: "prospect", label: "Want to Play" },
+  { key: "prospect", label: "Down to Play" },
 ] as const;
 
 export type HomeRowKey = (typeof HOME_ROWS)[number]["key"];

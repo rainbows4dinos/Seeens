@@ -153,9 +153,9 @@ export function QuickLog({ connectionId, today }: { connectionId: string; today:
   ) : null;
 }
 
-// Number keys 1 to 6, in the dropdown's order with No status last (#244).
+// Number keys 1 to 5, in the dropdown's order with No status last (#244, #358).
 type StatusSetter = (status: (typeof KEY_STATUSES)[number]) => void;
-const KEY_STATUSES = ["homies", "lets_play", "prospect", "neutral", "avoid", null] as const;
+const KEY_STATUSES = ["homies", "lets_play", "prospect", "avoid", null] as const;
 const StatusKeysContext = createContext<{ current: StatusSetter | null } | null>(null);
 
 /** Lets the number keys set this status while it's in the quick view. */
@@ -226,7 +226,7 @@ function inField(e: KeyboardEvent) {
   return Boolean(t?.closest("input, textarea, select, [contenteditable], dialog[open]"));
 }
 
-// Previous and Next (#244), with J and K, and 1 to 6 for the status.
+// Previous and Next (#244), with J and K, and 1 to 5 for the status.
 function Steps({ statusKeysRef }: { statusKeysRef: { current: StatusSetter | null } }) {
   const router = useRouter();
   const { prev, next } = useNeighbors();
@@ -243,7 +243,7 @@ function Steps({ statusKeysRef }: { statusKeysRef: { current: StatusSetter | nul
     } else if (key === "k" && prev) {
       e.preventDefault();
       go(prev);
-    } else if (/^[1-6]$/.test(key) && statusKeysRef.current) {
+    } else if (/^[1-5]$/.test(key) && statusKeysRef.current) {
       e.preventDefault();
       statusKeysRef.current(KEY_STATUSES[Number(key) - 1]);
     }

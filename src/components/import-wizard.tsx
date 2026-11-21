@@ -4,7 +4,8 @@ import Link from "next/link";
 import Papa from "papaparse";
 import { Upload } from "@carbon/icons-react";
 import { useId, useMemo, useState, useTransition } from "react";
-import { STATUSES, STATUS_LABELS, formatType, type ConnectionStatus } from "@/lib/connections/labels";
+import { NO_STATUS, STATUSES, STATUS_LABELS, formatType, type ConnectionStatus } from "@/lib/connections/labels";
+
 import { venueLine, venueTypeLabels } from "@/lib/connections/venue-details";
 import { ImportPhotos } from "@/components/import-photos";
 import { lookupTowns, runImport, type ImportResult, type TownMatches } from "@/lib/import/actions";
@@ -20,6 +21,9 @@ import {
   type SheetKind,
   type Target,
 } from "@/lib/import/rows";
+
+// Heard Of is retired (#358).
+type Pickable = Exclude<ConnectionStatus, "neutral">;
 
 type Existing = {
   id: string;
@@ -37,7 +41,7 @@ export function ImportWizard({ existing }: { existing: Existing[] }) {
   const [step, setStep] = useState<Step>("file");
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const [kind, setKind] = useState<SheetKind>("bands");
-  const [status, setStatus] = useState<ConnectionStatus>("neutral");
+  const [status, setStatus] = useState<Pickable | null>(null);
   const [mapping, setMapping] = useState<Target[]>([]);
   const [defaultTown, setDefaultTown] = useState("");
   const [towns, setTowns] = useState<TownMatches[]>([]);
@@ -403,10 +407,10 @@ function FileStep({
 }: {
   sheet: Sheet | null;
   kind: SheetKind;
-  status: ConnectionStatus;
+  status: Pickable | null;
   onFile: (f: File) => void;
   onKind: (k: SheetKind) => void;
-  onStatus: (s: ConnectionStatus) => void;
+  onStatus: (s: Pickable | null) => void;
   onNext: () => void;
 }) {
   const fileId = useId();
@@ -456,9 +460,10 @@ function FileStep({
         <select
           id="import-status"
           className="field sm:max-w-80"
-          value={status}
-          onChange={(e) => onStatus(e.target.value as ConnectionStatus)}
+          value={status ?? ""}
+          onChange={(e) => onStatus((e.target.value || null) as Pickable | null)}
         >
+          <option value="">{NO_STATUS}</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>
               {STATUS_LABELS[s]}

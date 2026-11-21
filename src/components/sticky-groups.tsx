@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-// The directory's status headings (Homies, Let's play…) pin under the
+// The directory's status headings (Homies, Both Down…) pin under the
 // pinned filter bar as you scroll, each for its own section: the next one
 // pushes it away. This keeps --bar-h (the pinned bar's height, which
 // changes when filters open or the layout shifts) on the page for their

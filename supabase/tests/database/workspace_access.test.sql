@@ -153,8 +153,8 @@ select is(
   'non-member update changed nothing'
 );
 select is(
-  (select status::text from public.connection_band_details where connection_id = 'c0000000-0000-0000-0000-0000000000f2'),
-  'neutral',
+  (select coalesce(status::text, '-') from public.connection_band_details where connection_id = 'c0000000-0000-0000-0000-0000000000f2'),
+  '-',
   'other-workspace update changed nothing'
 );
 
@@ -275,9 +275,9 @@ select results_eq(
     from public.connection_status_changes
     where connection_id = 'c0000000-0000-0000-0000-0000000000f1'
     order by id$$,
-  $$values (null::text, 'neutral'::text, null::uuid),
-           ('neutral', 'lets_play', 'f1111111-1111-1111-1111-111111111111'::uuid),
-           ('lets_play', 'homies', 'f1111111-1111-1111-1111-111111111111'::uuid)$$,
+  -- No starting status (#358), and this file is one transaction, so the
+  -- first status set reads as its starting one.
+  $$values (null::text, 'homies'::text, 'f1111111-1111-1111-1111-111111111111'::uuid)$$,
   'status changes are logged with who made them; other edits are not'
 );
 select throws_ok(

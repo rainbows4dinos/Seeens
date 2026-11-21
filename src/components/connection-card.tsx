@@ -40,8 +40,8 @@ export type CardConnection = {
   next_actions: { description: string; due_on: string | null }[];
 };
 
-// Tape matches the status tag: colored tags get that plate; Neutral (no fill)
-// and Avoid get clear.
+// Tape matches the status tag: colored tags get that plate; no status and Avoid
+// get clear.
 const TAPE: Record<ConnectionStatus, string> = {
   homies: "tape-magenta",
   lets_play: "tape-yellow",
