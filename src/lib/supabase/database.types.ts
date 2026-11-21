@@ -472,7 +472,13 @@ isOneToOne: false
             "label_roster":
 { Args: { "p_workspace_id": string }; Returns: { "connection_id": string,"is_current": boolean,"joined": boolean,"invited": boolean,"by_us": boolean }[] },
             "listing_roster":
-{ Args: { "p_connection_id": string }; Returns: { "connection_id": string,"name": string,"photo_path": string | null,"is_current": boolean }[] },
+{ Args: { "p_connection_id": string }; Returns: { "connection_id": string,"name": string,"photo_path": string | null,"is_current": boolean,"added_here": boolean }[] },
+            "roster_add":
+{ Args: { "p_workspace_id": string,"p_connection_id": string }; Returns: undefined },
+            "roster_add_new":
+{ Args: { "p_workspace_id": string,"p_name": string }; Returns: string },
+            "roster_remove":
+{ Args: { "p_workspace_id": string,"p_connection_id": string }; Returns: undefined },
             "invite_roster_band":
 { Args: { "p_workspace_id": string,"p_listing_id": string,"p_email": string | null,"p_name": string | null }; Returns: { "workspace_id": string,"invite_id": string,"token": string,"band": string }[] },
             "listing_claim":

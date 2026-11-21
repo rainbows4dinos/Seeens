@@ -334,7 +334,7 @@ export async function Roster() {
   if (!membership || membership.kind !== "label") return null;
   const [shown, us] = await Promise.all([loadRoster(), getUsConnection()]);
   const waiting = membership.role === "owner" && shown.some((b) => !b.joined && !(b.invited && !b.by_us));
-  const addHref = us ? `/connections/${us.id}` : "/add?us=1";
+  const addHref = us ? `/connections/${us.id}#roster` : "/add?us=1";
 
   return (
     <section aria-labelledby="home-roster" className="flex flex-col gap-3">
@@ -376,7 +376,7 @@ export async function Roster() {
       ) : (
         <div className="window flex flex-wrap items-center justify-between gap-3 p-4">
           <p className="text-muted">
-            No bands on {membership.workspaceName} yet. Add them on your label&rsquo;s page, and they show up here.
+            No bands on {membership.workspaceName} yet. Add them from your label&rsquo;s page, and they show up here.
           </p>
           <a href={addHref} className="button-secondary">
             Add Bands

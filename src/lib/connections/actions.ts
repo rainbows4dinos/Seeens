@@ -1,5 +1,6 @@
 "use server";
 
+import { loadRoster } from "@/lib/band/roster";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getMembership, isModerator } from "@/lib/auth/dal";
@@ -275,10 +276,13 @@ export async function autosaveConnection(id: string, groups: string[], formData:
       const own = valid.filter((g) => g in BAND_GROUPS);
       const shared = valid.filter((g) => !(g in BAND_GROUPS));
       if (shared.length) {
+        const claim = await getListingClaim(id);
         const canFix =
           (await isModerator()) ||
-          Boolean((await getListingClaim(id))?.mine) ||
-          (await getMembership())?.connectionId === id;
+          Boolean(claim?.mine) ||
+          (await getMembership())?.connectionId === id ||
+          // A label's roster band nobody's claimed (#365).
+          (!claim && (await loadRoster()).some((b) => b.id === id && b.is_current));
         if (shared.some((g) => g === "scenes" || g === "isUs") || !canFix) {
           return { ok: false, errors: { form: "Only the band that shared this can change it." } };
         }

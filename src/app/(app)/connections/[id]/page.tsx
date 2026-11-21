@@ -83,6 +83,9 @@ async function Connection({
     ]);
   // One of this label's current bands (#357).
   const onRoster = roster.some((b) => b.id === id && b.is_current);
+  // The label fixes its roster bands' details until they claim their own (#365).
+  const rosterEdit = onRoster && !claim;
+  const label = membership.kind === "label";
   const labelListing = (c: { kind: string; group_type: string | null }) =>
     c.kind === "group" && c.group_type === "label";
   const today = todayISO(new Date(), tz);
@@ -100,7 +103,12 @@ async function Connection({
         admin={admin}
         you={membership.connectionId === id}
         onRoster={onRoster}
-        roster={labelListing(detail.connection) ? <ListingRoster id={id} label={detail.connection.name} /> : null}
+        rosterEdit={rosterEdit}
+        roster={
+          labelListing(detail.connection) ? (
+            <ListingRoster id={id} label={detail.connection.name} manage={label && Boolean(claim?.mine)} />
+          ) : null
+        }
       />
     );
   }
@@ -380,7 +388,7 @@ async function Connection({
           </ProfilePanel>
         )}
 
-        {labelListing(c) ? <ListingRoster id={c.id} label={c.name} /> : null}
+        {labelListing(c) ? <ListingRoster id={c.id} label={c.name} manage={label && ours} /> : null}
 
         <ProfilePanel
           id="connections"

@@ -44,6 +44,7 @@ export function SharedRecord({
   admin = false,
   you = false,
   onRoster = false,
+  rosterEdit = false,
   roster = null,
 }: {
   detail: ConnectionDetail;
@@ -58,11 +59,13 @@ export function SharedRecord({
   you?: boolean;
   /** One of this label's current bands (#357). */
   onRoster?: boolean;
+  /** On this label's roster and not claimed: the label fixes its details (#365). */
+  rosterEdit?: boolean;
   /** A label's roster panel (#357), for a label listing. */
   roster?: ReactNode;
 }) {
   const ours = Boolean(claim?.mine);
-  const canFix = moderator || ours || you;
+  const canFix = moderator || ours || you || rosterEdit;
   const { connection: c, nextAction, statusHistory } = detail;
   const place = formatLocality(c.localities);
   const archived = Boolean(c.archived_at);
@@ -130,7 +133,9 @@ export function SharedRecord({
               ? `This is you. ${detail.sharedBy} added you, and you keep your details up to date; changes are logged.`
               : moderator
                 ? `${detail.sharedBy} shared this. As a moderator you can fix its details; your changes are logged.`
-                : `${detail.sharedBy} shared this, so only they can change its details.`}{" "}
+                : rosterEdit
+                  ? `${detail.sharedBy} shared this. It's on ${band}'s roster, so you can fix its details until the band joins Seeens; changes are logged.`
+                  : `${detail.sharedBy} shared this, so only they can change its details.`}{" "}
           Status, plans, outreach, notes, and contacts here are {band}&rsquo;s own. Nobody else sees them.
         </p>
 
