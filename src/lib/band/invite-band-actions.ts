@@ -63,7 +63,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
   const link = await inviteLink(row.token);
   if (asLink)
     return {
-      done: `Invite ready for ${band}. Send this link to its owner. It works once, for 7 days.`,
+      done: `Invite ready for ${band}. Send this link to its owner. It works once, for 30 days.`,
       link,
     };
 
@@ -97,6 +97,32 @@ export async function renewBandInvite(inviteId: string): Promise<InviteBandState
   };
 }
 
+/** Email a waiting owner again (#367): a fresh link, and a note if there is one. */
+export async function resendBandInvite(inviteId: string, note?: string): Promise<InviteBandState> {
+  if (!UUID.test(inviteId)) return { error: "Couldn't resend it. Try again." };
+  const supabase = await createClient();
+  const { data: bands } = await supabase.rpc("list_bands");
+  const row = (bands ?? []).find((b) => b.invite_id === inviteId);
+  if (!row?.invite_email) return { error: "That invite has no email. Refresh Link and send it yourself." };
+  const renewed = await renewBandInvite(inviteId);
+  if (!renewed.link) return renewed;
+  if (!emailConfigured())
+    return { done: `Email isn't set up, so send this link to ${row.invite_email} yourself.`, link: renewed.link };
+  const sent = await emailOwner(
+    row.invite_email,
+    renewed.link,
+    row.name,
+    "",
+    row.kind === "label" ? "label" : "band",
+    note?.trim().slice(0, 1000) || null,
+  ).catch(() => false);
+  if (!sent)
+    return { done: `The email didn't go out. Send this link to ${row.invite_email} yourself.`, link: renewed.link };
+  await supabase.rpc("mark_invite_sent", { p_invite_id: inviteId });
+  revalidatePath("/admin/bands");
+  return { done: `Sent to ${row.invite_email} again, with a new link good for 30 days.` };
+}
+
 /** Cancel a waiting band's invite: the band goes, its link stops working. */
 export async function cancelBandInvite(inviteId: string): Promise<InviteBandState> {
   if (!UUID.test(inviteId)) return { error: "Couldn't cancel it. Try again." };
@@ -110,12 +136,19 @@ export async function cancelBandInvite(inviteId: string): Promise<InviteBandStat
   return { done: `Canceled ${data}'s invite.` };
 }
 
-async function emailOwner(to: string, link: string, band: string, name: string, kind: WorkspaceKind) {
+async function emailOwner(
+  to: string,
+  link: string,
+  band: string,
+  name: string,
+  kind: WorkspaceKind,
+  note?: string | null,
+) {
   const [me, membership] = await Promise.all([getCurrentUser(), getMembership()]);
   const admin = membership?.displayName || "Seeens";
   return sendEmail({
     to,
     replyTo: me.email ?? undefined,
-    ...ownerInvite({ from: admin, replyName: admin, band, kind, name, link }),
+    ...ownerInvite({ from: admin, replyName: admin, band, kind, name, link, note }),
   });
 }

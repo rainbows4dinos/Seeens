@@ -49,7 +49,7 @@ export const FAQ: [string, string, FaqLink?][] = [
   ],
   [
     "How do I add my bandmates?",
-    "Band Settings, then Invite a Bandmate. Send it by email or copy a link to text them. Links work once, for 7 days.",
+    "Band Settings, then Invite a Bandmate. Send it by email or copy a link to text them. Links work once, for 30 days.",
   ],
   [
     "I'm in two bands. How do I switch?",

@@ -9,6 +9,13 @@ import type { WorkspaceKind } from "@/lib/band/kind";
 
 const STOP = `Don't want email from Seeens? Open the link and choose "Don't email me again."`;
 
+/** A note from the sender (#367), quoted after the opening line, or nothing. */
+function noteLines(from: string, note?: string | null) {
+  const text = note?.trim();
+  if (!text) return [];
+  return [`${from} wrote:`, ...text.split(/\r?\n/).map((l) => `> ${l}`), ""];
+}
+
 /** An owner's invite: from an admin, or from a label inviting a band on its roster. */
 export function ownerInvite(o: {
   /** Who it's from, as the opening line names them: "Larry", or "Tim at Moodkiller Records". */
@@ -19,6 +26,8 @@ export function ownerInvite(o: {
   kind: WorkspaceKind;
   name: string;
   link: string;
+  /** A note from the sender, like when resending (#367). */
+  note?: string | null;
 }) {
   const label = o.kind === "label";
   return {
@@ -28,6 +37,7 @@ export function ownerInvite(o: {
       "",
       `${o.from} invited ${o.band} to Seeens and made you its owner.`,
       "",
+      ...noteLines(o.from, o.note),
       label
         ? "Seeens is a directory bands and labels keep together. Keep track of the bands, venues, and bookers you work with, what you've got planned with each, and what's next, in one place everyone at the label can see."
         : "Seeens is a directory bands keep together. Keep track of the venues, bookers, and bands you know, who you've played with, and what's next, in one place the whole band can see.",
@@ -35,7 +45,7 @@ export function ownerInvite(o: {
       `It's in beta and invite only, so you'd be one of the first ${label ? "labels" : "bands"} on it. Tell us what's missing.`,
       "",
       `Join here: ${o.link}`,
-      "The link works once, for 7 days.",
+      "The link works once, for 30 days.",
       "",
       label
         ? "Once you're in, your label's listing is yours to keep up to date, and you can invite the people you work with from Label Settings."
@@ -49,19 +59,27 @@ export function ownerInvite(o: {
 }
 
 /** A member inviting someone into their band (or label). */
-export function memberInvite(o: { from: string; band: string; kind: WorkspaceKind; link: string }) {
+export function memberInvite(o: {
+  from: string;
+  band: string;
+  kind: WorkspaceKind;
+  link: string;
+  /** A note from the sender, like when resending (#367). */
+  note?: string | null;
+}) {
   const label = o.kind === "label";
   return {
     subject: `${o.from} invited you to ${o.band} on Seeens`,
     text: [
       `${o.from} invited you to ${o.band} on Seeens.`,
       "",
+      ...noteLines(o.from, o.note),
       label
         ? `It's where ${o.band} keeps track of the bands, venues, and bookers you all work with, and what's next with each.`
         : `It's where ${o.band} keeps track of the venues, bookers, and bands you all know: who you've played with, who books what, and what's next. Anyone in the band can add to it, so nobody has to remember it all.`,
       "",
       `Join ${o.band}: ${o.link}`,
-      "The link works once, for 7 days.",
+      "The link works once, for 30 days.",
       "",
       STOP,
     ].join("\n"),

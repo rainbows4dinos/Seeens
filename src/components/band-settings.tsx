@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState, useTransition } from "react";
+import { useActionState, useId, useRef, useState, useTransition } from "react";
 import { Combobox } from "@/components/combobox";
 import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
@@ -59,7 +59,7 @@ export function LinkBox({ link }: { link: string }) {
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <p className="text-sm text-muted">Send it however you talk: a DM, a text. It works once, for 7 days.</p>
+      <p className="text-sm text-muted">Send it however you talk: a DM, a text. It works once, for 30 days.</p>
     </div>
   );
 }
@@ -297,6 +297,69 @@ export function InviteForm({
   );
 }
 
+/**
+ * Resend an invite by email (#367): a fresh link, and a note to go with it,
+ * like "the last link ran out." The note is optional.
+ */
+export function ResendInvite({ send, label }: { send: (note: string) => Promise<BandState>; label: string }) {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [state, setState] = useState<BandState>({});
+  const [pending, start] = useTransition();
+  if (!open)
+    return (
+      <div className="flex flex-col gap-2 sm:items-end">
+        <button type="button" className="button-secondary" onClick={() => setOpen(true)}>
+          Resend<span className="sr-only"> to {label}</span>
+        </button>
+        <Note state={state} />
+        {state.link ? <LinkBox key={state.link} link={state.link} /> : null}
+      </div>
+    );
+  return (
+    <div role="group" aria-labelledby={`${id}-label`} className="flex basis-full flex-col gap-2 panel p-4">
+      <label id={`${id}-label`} htmlFor={id} className="label">
+        Resend to {label}
+      </label>
+      <textarea
+        id={id}
+        className="field"
+        rows={3}
+        maxLength={1000}
+        placeholder="Add a note (optional), like: The last link ran out, here's a fresh one."
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        autoFocus
+      />
+      <p className="text-sm text-muted">It goes with a fresh link, good for 30 days. The old link stops working.</p>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          className="button-primary"
+          disabled={pending}
+          onClick={() =>
+            start(async () => {
+              const r = await send(note).catch(unreachable);
+              setState(r);
+              if (!r.error) {
+                setOpen(false);
+                setNote("");
+              }
+            })
+          }
+        >
+          {pending ? "Sending…" : "Send Invite"}
+        </button>
+        <button type="button" className="button-secondary" disabled={pending} onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
+      <Note state={state} />
+    </div>
+  );
+}
+
 export function PendingInviteActions({ id, hasEmail, label }: { id: string; hasEmail: boolean; label: string }) {
   const [state, setState] = useState<BandState>({});
   const [pending, start] = useTransition();
@@ -307,16 +370,7 @@ export function PendingInviteActions({ id, hasEmail, label }: { id: string; hasE
   return (
     <div className="flex basis-full flex-col gap-2 sm:basis-auto sm:items-end">
       <div className="flex flex-wrap gap-3 sm:justify-end">
-        {hasEmail ? (
-          <button
-            type="button"
-            className="button-secondary"
-            disabled={pending}
-            onClick={() => run(() => resendInvite(id))}
-          >
-            Resend<span className="sr-only"> to {label}</span>
-          </button>
-        ) : null}
+        {hasEmail ? <ResendInvite send={(note) => resendInvite(id, note)} label={label} /> : null}
         <button
           type="button"
           className="button-secondary"
