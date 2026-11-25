@@ -8,6 +8,7 @@ import { readSettings } from "./settings";
 import { PHOTO_BUCKET } from "./urls";
 import { layerOf } from "@/lib/connections/band-details";
 import type { ConnectionStatus } from "@/lib/connections/labels";
+import { isUuid, UUID_SOURCE } from "@/lib/ids";
 
 // Saving a photo (#37). The browser uploads the files straight to storage
 // (storage policies check the folder), then calls savePhoto to point the
@@ -16,7 +17,7 @@ import type { ConnectionStatus } from "@/lib/connections/labels";
 type Result = { error?: string };
 
 const SAVE_FAILED = "Couldn't save the photo. Try again.";
-const FILE = /^[0-9a-f-]{36}(-original)?\.(webp|jpg)$/;
+const FILE = new RegExp(`^${UUID_SOURCE}(-original)?\\.(webp|jpg)$`);
 
 function inFolder(path: unknown, folder: string, original: boolean): path is string {
   if (typeof path !== "string" || !path.startsWith(folder)) return false;
@@ -107,8 +108,6 @@ export async function discardUpload(connectionId: string, paths: string[]): Prom
   return {};
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 export type PhotoTarget = {
   id: string;
   name: string;
@@ -124,7 +123,7 @@ export type PhotoTarget = {
 export async function photoTargets(ids: string[]): Promise<PhotoTarget[]> {
   const membership = await getMembership();
   if (!membership || !Array.isArray(ids)) return [];
-  const wanted = [...new Set(ids.filter((id) => typeof id === "string" && UUID.test(id)))].slice(0, 1000);
+  const wanted = [...new Set(ids.filter((id) => typeof id === "string" && isUuid(id)))].slice(0, 1000);
   if (!wanted.length) return [];
   const supabase = await createClient();
   const out: PhotoTarget[] = [];

@@ -9,10 +9,9 @@ import { BackButton } from "@/components/back-button";
 import { MergeReview } from "@/components/merge-review";
 import { NoWorkspace } from "@/components/no-workspace";
 import { PageLoader } from "@/components/metronome";
+import { isUuid } from "@/lib/ids";
 
 export const metadata: Metadata = { title: "Merge duplicates · Seeens" };
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Compare duplicates side by side and pick the one to keep (#169).
 // /merge?ids=a&ids=b[&keep=a]
@@ -32,7 +31,7 @@ async function Merge({ searchParams }: { searchParams: PageProps<"/merge">["sear
   if (!membership) return <NoWorkspace />;
   const params = await searchParams;
   const raw = params.ids;
-  const ids = [...new Set((Array.isArray(raw) ? raw : raw ? [raw] : []).filter((id) => UUID.test(id)))].slice(0, 20);
+  const ids = [...new Set((Array.isArray(raw) ? raw : raw ? [raw] : []).filter((id) => isUuid(id)))].slice(0, 20);
   const candidates = ids.length > 1 ? await loadMergeCandidates(ids, todayISO(new Date(), membership.timeZone)) : [];
 
   if (candidates.length < 2) {

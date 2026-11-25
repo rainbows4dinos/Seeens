@@ -3,14 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { isUuid } from "@/lib/ids";
 
 // Town nicknames (#234): where a scene name like "LA Punk" or "PDX Garage"
 // finds its town. Suggestions on the Scenes page; the list itself is kept
 // by moderators.
 
 export type NicknameState = { error?: string; done?: string };
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Take one suggestion, or every one the band has ("all"). */
 export async function applySceneSuggestion(formData: FormData) {
@@ -21,7 +20,7 @@ export async function applySceneSuggestion(formData: FormData) {
     if (!membership) return;
     const { data } = await supabase.rpc("scene_suggestions", { p_workspace_id: membership.workspaceId });
     for (const s of data ?? []) await supabase.rpc("apply_scene_suggestion", { p_scene_id: s.scene_id });
-  } else if (UUID.test(id)) {
+  } else if (isUuid(id)) {
     await supabase.rpc("apply_scene_suggestion", { p_scene_id: id });
   }
   revalidatePath("/scenes");
@@ -29,7 +28,7 @@ export async function applySceneSuggestion(formData: FormData) {
 
 export async function dismissSceneSuggestion(formData: FormData) {
   const id = String(formData.get("scene_id") ?? "");
-  if (!UUID.test(id)) return;
+  if (!isUuid(id)) return;
   const supabase = await createClient();
   await supabase.rpc("dismiss_scene_suggestion", { p_scene_id: id });
   revalidatePath("/scenes");

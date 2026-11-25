@@ -2,23 +2,16 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getMembership } from "@/lib/auth/dal";
+import { requireMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { pairsOf } from "./duplicates";
 import { PHOTO_BUCKET } from "@/lib/photos/urls";
+import { isUuid } from "@/lib/ids";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
 
 // Merging duplicates (#169). The database does the work in one transaction
 // (merge_connections, undo_merge); these just call it and refresh pages.
-
-async function requireWorkspace() {
-  const membership = await getMembership();
-  if (!membership) redirect("/");
-  return membership.workspaceId;
-}
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function mergeError(error: { code?: string; message?: string }) {
   if (error.message?.includes("our band can only be merged into a group")) {
@@ -31,11 +24,11 @@ function mergeError(error: { code?: string; message?: string }) {
 export type MergeState = { error?: string };
 
 export async function mergeConnections(_prev: MergeState, formData: FormData): Promise<MergeState> {
-  await requireWorkspace();
+  await requireMembership();
   const keep = String(formData.get("keep") ?? "");
   const ids = formData.getAll("ids").map(String);
   const merge = [...new Set(ids)].filter((id) => id !== keep);
-  if (!UUID.test(keep) || !merge.length || !merge.every((id) => UUID.test(id))) {
+  if (!isUuid(keep) || !merge.length || !merge.every((id) => isUuid(id))) {
     return { error: "Pick the one to keep." };
   }
 
@@ -106,8 +99,8 @@ async function copyPhoto(supabase: Client, keep: string, merge: string[]) {
 export type UndoState = { error?: string };
 
 export async function undoMerge(mergeId: string): Promise<UndoState> {
-  await requireWorkspace();
-  if (!UUID.test(mergeId)) return { error: "Couldn't undo. Try again." };
+  await requireMembership();
+  if (!isUuid(mergeId)) return { error: "Couldn't undo. Try again." };
   const supabase = await createClient();
   // A photo the merge copied in, to delete if undo takes it off.
   const { data: merge } = await supabase
@@ -144,8 +137,8 @@ export async function undoMerge(mergeId: string): Promise<UndoState> {
 
 /** Marks every pair among these as "not the same", so they stop showing up together. */
 export async function markNotDuplicates(ids: string[]): Promise<{ error?: string }> {
-  const workspaceId = await requireWorkspace();
-  if (ids.length < 2 || !ids.every((id) => UUID.test(id))) return { error: "Couldn't save. Try again." };
+  const { workspaceId } = await requireMembership();
+  if (ids.length < 2 || !ids.every((id) => isUuid(id))) return { error: "Couldn't save. Try again." };
   const supabase = await createClient();
   const { error } = await supabase.from("connection_not_duplicates").upsert(
     pairsOf(ids).map(([a, b]) => ({ workspace_id: workspaceId, connection_a: a, connection_b: b })),
@@ -158,9 +151,8 @@ export async function markNotDuplicates(ids: string[]): Promise<{ error?: string
 
 /** Takes one connection out of a group: not the same as any of the others. */
 export async function markNotDuplicateOf(id: string, others: string[]): Promise<{ error?: string }> {
-  const workspaceId = await requireWorkspace();
-  if (!UUID.test(id) || !others.length || !others.every((o) => UUID.test(o)))
-    return { error: "Couldn't save. Try again." };
+  const { workspaceId } = await requireMembership();
+  if (!isUuid(id) || !others.length || !others.every((o) => isUuid(o))) return { error: "Couldn't save. Try again." };
   const supabase = await createClient();
   const { error } = await supabase.from("connection_not_duplicates").upsert(
     others

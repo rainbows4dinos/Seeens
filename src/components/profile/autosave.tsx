@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { autosaveConnection } from "@/lib/connections/actions";
 import { groupForField, type AutosaveGroup, type ConnectionFormErrors } from "@/lib/connections/form";
 
@@ -149,6 +158,10 @@ export function AutosaveForm({
     }, delay);
   }
 
+  // The listeners below are set up once, and always call the latest save.
+  const saveNow = useEffectEvent((el: HTMLFormElement | null) => save(el));
+  const scheduleSave = useEffectEvent((ms: number) => schedule(ms));
+
   // What's on screen at first is what's saved.
   useEffect(() => {
     // Kept here: by the time the cleanup runs, React has let go of the ref.
@@ -167,7 +180,7 @@ export function AutosaveForm({
             ),
         )
       ) {
-        schedule(300);
+        scheduleSave(300);
       }
     });
     if (el) watch.observe(el, { subtree: true, childList: true, attributes: true, attributeFilter: ["value"] });
@@ -178,7 +191,7 @@ export function AutosaveForm({
       if (document.visibilityState === "hidden" && timer.current) {
         clearTimeout(timer.current);
         timer.current = null;
-        void save(el);
+        void saveNow(el);
       }
     };
     const warn = (e: BeforeUnloadEvent) => {
@@ -194,11 +207,9 @@ export function AutosaveForm({
       if (timer.current) {
         clearTimeout(timer.current);
         timer.current = null;
-        void save(el);
+        void saveNow(el);
       }
     };
-    // Runs once; save reads refs.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const named = (e: { target: EventTarget }) => {

@@ -8,6 +8,7 @@ import { duplicateGroups, pairKey } from "./duplicates";
 import { formatLocality, formatType, type ConnectionKind, type GroupType, type PersonRole } from "./labels";
 import { statusLabel } from "./status-words";
 import { formatDay } from "@/lib/outreach/labels";
+import { isUuid } from "@/lib/ids";
 
 // Reads for merging duplicates (#169). Merged-away connections are hidden
 // by RLS, so nothing here has to filter them out.
@@ -235,7 +236,7 @@ export async function loadUndoableMerge(keepId: string, timeZone: string) {
 
 /** A merge into this connection that was just undone, for the "Merge undone" notice. */
 export async function loadUndoneMerge(keepId: string, mergeId: string) {
-  if (!/^[0-9a-f-]{36}$/i.test(mergeId)) return null;
+  if (!isUuid(mergeId)) return null;
   const supabase = await createClient();
   const { data } = await supabase
     .from("connection_merges")

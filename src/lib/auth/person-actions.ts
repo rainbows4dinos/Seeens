@@ -2,24 +2,18 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getMembership } from "@/lib/auth/dal";
+import { requireMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { isUuid } from "@/lib/ids";
 
 // Your page in the band's directory (#44): link your account to your person,
 // or make one. The database only lets you link yourself.
 
 export type LinkState = { error?: string };
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-async function band() {
-  const m = await getMembership();
-  if (!m) redirect("/");
-  return m;
-}
 
 export async function linkMe(connectionId: string): Promise<LinkState> {
-  const m = await band();
-  if (!UUID.test(connectionId)) return { error: "Pick yourself from the list." };
+  const m = await requireMembership();
+  if (!isUuid(connectionId)) return { error: "Pick yourself from the list." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("link_me_to_person", {
     p_workspace_id: m.workspaceId,
@@ -38,7 +32,7 @@ export async function linkMe(connectionId: string): Promise<LinkState> {
 }
 
 export async function unlinkMe(): Promise<LinkState> {
-  const m = await band();
+  const m = await requireMembership();
   const supabase = await createClient();
   const { error } = await supabase.rpc("unlink_me", {
     p_workspace_id: m.workspaceId,
@@ -50,7 +44,7 @@ export async function unlinkMe(): Promise<LinkState> {
 
 /** A new person, named as you are in the band, in your band, linked to you. Opens it. */
 export async function makeMyPage(): Promise<LinkState> {
-  const m = await band();
+  const m = await requireMembership();
   const supabase = await createClient();
   const { data: id, error } = await supabase.rpc("create_my_person", {
     p_workspace_id: m.workspaceId,

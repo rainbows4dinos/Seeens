@@ -7,6 +7,7 @@ import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { ownerInvite } from "@/lib/email/invites";
 import { siteOrigin } from "@/lib/origin";
 import type { WorkspaceKind } from "@/lib/band/kind";
+import { isUuid } from "@/lib/ids";
 
 // Invite a band (#68) or a label (#298), for app admins: its first owner gets an invite, and
 // the band claims its listing in the directory (or gets a new one). The
@@ -14,7 +15,6 @@ import type { WorkspaceKind } from "@/lib/band/kind";
 
 export type InviteBandState = { error?: string; done?: string; link?: string };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const inviteLink = async (token: string) => `${await siteOrigin()}/invite/${token}`;
 
 export async function inviteBand(_prev: InviteBandState, formData: FormData): Promise<InviteBandState> {
@@ -25,8 +25,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
   const personId = String(formData.get("person_id") ?? "");
   const newKind = formData.get("new_kind") === "label" ? "label" : "band";
   const asLink = formData.get("mode") === "link";
-  if (!UUID.test(listingId) && !newBand)
-    return { error: "Pick the band or label, or type its name if it isn't listed." };
+  if (!isUuid(listingId) && !newBand) return { error: "Pick the band or label, or type its name if it isn't listed." };
   if (!asLink && !email)
     return {
       error: "Add the owner's email, like sam@example.com. Or copy a link instead.",
@@ -34,11 +33,11 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("invite_band", {
-    p_listing_id: UUID.test(listingId) ? listingId : null,
+    p_listing_id: isUuid(listingId) ? listingId : null,
     p_band: newBand || null,
     p_email: asLink ? null : email,
     p_name: name || null,
-    p_person_id: UUID.test(personId) ? personId : null,
+    p_person_id: isUuid(personId) ? personId : null,
     p_kind: newKind,
   });
   const row = data?.[0];
@@ -84,7 +83,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
 
 /** A fresh link for a band's waiting owner; the old one stops working. */
 export async function renewBandInvite(inviteId: string): Promise<InviteBandState> {
-  if (!UUID.test(inviteId)) return { error: "Couldn't make a link. Try again." };
+  if (!isUuid(inviteId)) return { error: "Couldn't make a link. Try again." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("renew_band_invite", {
     p_invite_id: inviteId,
@@ -99,7 +98,7 @@ export async function renewBandInvite(inviteId: string): Promise<InviteBandState
 
 /** Email a waiting owner again (#367): a fresh link, and a note if there is one. */
 export async function resendBandInvite(inviteId: string, note?: string): Promise<InviteBandState> {
-  if (!UUID.test(inviteId)) return { error: "Couldn't resend it. Try again." };
+  if (!isUuid(inviteId)) return { error: "Couldn't resend it. Try again." };
   const supabase = await createClient();
   const { data: bands } = await supabase.rpc("list_bands");
   const row = (bands ?? []).find((b) => b.invite_id === inviteId);
@@ -125,7 +124,7 @@ export async function resendBandInvite(inviteId: string, note?: string): Promise
 
 /** Cancel a waiting band's invite: the band goes, its link stops working. */
 export async function cancelBandInvite(inviteId: string): Promise<InviteBandState> {
-  if (!UUID.test(inviteId)) return { error: "Couldn't cancel it. Try again." };
+  if (!isUuid(inviteId)) return { error: "Couldn't cancel it. Try again." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("cancel_band_invite", { p_invite_id: inviteId });
   if (error || !data) {

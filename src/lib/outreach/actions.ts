@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser, getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { CHANNELS, isISODate, todayISO, type OutreachChannel } from "./labels";
+import { isUuid } from "@/lib/ids";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // ---------------------------------------------------------------------------
 // Outreach log: what already happened. Entries are history; changing the
@@ -103,7 +103,7 @@ export async function setNextAction(
   if (!values.description) errors.description = "Say what the next step is.";
   else if (values.description.length > 1000) errors.description = "Keep it under 1,000 characters.";
   if (values.dueOn && !isISODate(values.dueOn)) errors.dueOn = "Use a real date, or leave it empty.";
-  if (values.assigneeId && !UUID_RE.test(values.assigneeId)) errors.assigneeId = "Pick someone in the band.";
+  if (values.assigneeId && !isUuid(values.assigneeId)) errors.assigneeId = "Pick someone in the band.";
   if (Object.keys(errors).length) return { values, errors, attempt: Date.now() };
 
   const [supabase, workspaceId] = await Promise.all([createClient(), requireWorkspaceId()]);

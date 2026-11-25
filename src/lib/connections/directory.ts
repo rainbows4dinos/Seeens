@@ -9,6 +9,7 @@ import { readFilters, type DirectoryFilters } from "./filters";
 import type { ConnectionKind, ConnectionStatus, GroupType, PersonRole } from "./labels";
 import { readTab, type Tab } from "./tabs";
 import { INSTRUMENTS, playsLine, type Instrument } from "@/lib/affiliations/instruments";
+import { isUuid } from "@/lib/ids";
 
 export { DEFAULT_TAB, TABS, detailFor, directoryHrefFor, readTab, tabFor, type Tab } from "./tabs";
 
@@ -26,10 +27,7 @@ export type Cursor = { rank: number; name: string; id: string };
 export function readCursor(value: unknown): Cursor | null {
   if (!value || typeof value !== "object") return null;
   const c = value as Record<string, unknown>;
-  return typeof c.rank === "number" &&
-    typeof c.name === "string" &&
-    typeof c.id === "string" &&
-    /^[0-9a-f-]{36}$/i.test(c.id)
+  return typeof c.rank === "number" && typeof c.name === "string" && isUuid(c.id)
     ? { rank: c.rank, name: c.name, id: c.id }
     : null;
 }
@@ -145,6 +143,13 @@ export async function loadDirectoryPage(
   { tab, filters }: DirectoryQuery,
   { after = null, counts = true }: { after?: Cursor | null; counts?: boolean } = {},
 ) {
+  // Neither depends on the page, so they load while the RPC runs.
+  const rosterLoad = loadRoster();
+  const usLoad = getUsConnection();
+  // If something below throws first, these never get awaited; don't let that
+  // surface as an unhandled rejection. Awaiting them still rethrows.
+  rosterLoad.catch(() => {});
+  usLoad.catch(() => {});
   const [supabase, ws, scenes, moderator] = await Promise.all([
     createClient(),
     requireWorkspaceId(),
@@ -182,8 +187,6 @@ export async function loadDirectoryPage(
   if (error || !data) throw new Error("Couldn't load the directory.");
   const page = data as unknown as RpcResult;
   const ids = page.rows.map((r) => r.id);
-  // A label's current bands get an On Roster tag (#357).
-  const onRoster = new Set((await loadRoster()).filter((b) => b.is_current).map((b) => b.id));
 
   // The page's details in one more round trip.
   const { data: details, error: detailError } = ids.length
@@ -204,6 +207,8 @@ export async function loadDirectoryPage(
         .limit(1, { referencedTable: "outreach_entries" })
     : { data: [], error: null };
   if (detailError) throw new Error("Couldn't load the directory.");
+  // A label's current bands get an On Roster tag (#357).
+  const onRoster = new Set((await rosterLoad).filter((b) => b.is_current).map((b) => b.id));
 
   // This band's private layer (#181) lifted onto each record and each linked one.
   const byId = new Map(
@@ -216,7 +221,7 @@ export async function loadDirectoryPage(
   );
   const sceneNames = new Map(scenes.map((s) => [s.id, s.name]));
   // The listing your band claimed is its own page too (#191), for display.
-  const usId = (await getUsConnection())?.id;
+  const usId = (await usLoad)?.id;
   const items: DirectoryItem[] = page.rows.flatMap((r) => {
     const d = byId.get(r.id);
     if (!d) return []; // deleted between the two reads

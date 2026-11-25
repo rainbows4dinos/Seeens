@@ -10,6 +10,7 @@ import {
 } from "./labels";
 import { joinLinkLabel } from "./link-types";
 import { VENUE_KEYS, venueDetailsFromForm, type VenueDetails } from "./venue-details";
+import { isUuid } from "@/lib/ids";
 
 export type VenueKey = (typeof VENUE_KEYS)[number];
 const EMPTY_VENUE = Object.fromEntries(VENUE_KEYS.map((k) => [k, ""])) as Record<VenueKey, string>;
@@ -142,8 +143,6 @@ export function normalizeUrl(raw: string): string | null {
     return null;
   }
 }
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // "Portland DIY, Pacific Northwest" -> two names, duplicates dropped.
 export function splitList(raw: string) {
@@ -288,7 +287,7 @@ export function validate(
         .map((s) => s.trim())
         .filter(Boolean),
       locality: placeId ? { placeId } : values.keepLocalityId ? { keepLocalityId: values.keepLocalityId } : null,
-      scene_ids: [...new Set(values.sceneIds.filter((id) => UUID_RE.test(id)))],
+      scene_ids: [...new Set(values.sceneIds.filter((id) => isUuid(id)))],
       new_scenes: newScenes,
       email: optional(values.email),
       phone: optional(values.phone),

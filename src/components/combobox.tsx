@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useId, useMemo, useRef, useState } from "react";
 import { noAutofill } from "@/lib/no-autofill";
 
 // search: extra text the box also matches, like a catalog number.
@@ -98,19 +98,22 @@ export function Combobox({
   }, [options, query, created, create, multiple, selected, byValue]);
 
   // Tell the parent, and submit the form if asked, after picks change.
+  // onChange is a callback prop: read the latest one, but only the picks
+  // themselves set this off.
+  const picksChanged = useEffectEvent((selected: string[], created: string[], autoSubmit: boolean) => {
+    onChange?.(selected, created);
+    // Picks that only caught up with the URL (filters cleared by a link)
+    // are already applied; submitting them again would navigate twice.
+    if (autoSubmit && selected.join("\u0000") !== defaultKey)
+      (inputRef.current?.form ?? wrapRef.current?.closest("form"))?.requestSubmit();
+  });
   const first = useRef(true);
   useEffect(() => {
     if (first.current) {
       first.current = false;
       return;
     }
-    onChange?.(selected, created);
-    // Picks that only caught up with the URL (filters cleared by a link)
-    // are already applied; submitting them again would navigate twice.
-    if (autoSubmit && selected.join("\u0000") !== defaultKey)
-      (inputRef.current?.form ?? wrapRef.current?.closest("form"))?.requestSubmit();
-    // onChange is a callback prop; only react to the picks themselves.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    picksChanged(selected, created, autoSubmit);
   }, [selected, created, autoSubmit]);
 
   function choose(item: Item) {

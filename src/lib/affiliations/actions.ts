@@ -7,6 +7,7 @@ import { GROUP_TYPES, type GroupType, type PersonRole } from "@/lib/connections/
 import { createClient } from "@/lib/supabase/server";
 import { addOptionsFor, fitsTarget, newGroupTypes } from "./options";
 import { MAX_NAME_LENGTH, MAX_ROLE_LENGTH, MAX_ROWS } from "./lineup";
+import { isUuid } from "@/lib/ids";
 
 export type LinkState = { ok?: boolean; error?: string; attempt?: number };
 
@@ -185,8 +186,6 @@ export type MemberRowInput = {
 };
 export type AddMembersResult = { ok: true; added: number; skipped: number } | { ok: false; error: string };
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 export async function addBandMembers(
   bandId: string,
   rows: MemberRowInput[],
@@ -201,7 +200,7 @@ export async function addBandMembers(
       .replace(/\s+/g, " ")
       .trim();
     const roles = String(r?.roles ?? "").trim();
-    const personId = r?.personId && UUID_RE.test(r.personId) ? r.personId : null;
+    const personId = r?.personId && isUuid(r.personId) ? r.personId : null;
     if (!personId && !name) return { ok: false, error: "Every new person needs a name." };
     if (name.length > MAX_NAME_LENGTH) return { ok: false, error: `Keep names under ${MAX_NAME_LENGTH} characters.` };
     if (roles.length > MAX_ROLE_LENGTH)

@@ -2,26 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getCurrentUser, getMembership, rememberBand } from "@/lib/auth/dal";
+import { getCurrentUser, requireMembership, rememberBand } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { memberInvite } from "@/lib/email/invites";
 import type { WorkspaceKind } from "@/lib/band/kind";
 import { siteOrigin } from "@/lib/origin";
+import { isUuid } from "@/lib/ids";
 
 // Band Settings and invites (#69). The database checks who may do what;
 // these turn its answers into plain messages.
 
 export type BandState = { error?: string; done?: string; link?: string };
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-async function band() {
-  const membership = await getMembership();
-  if (!membership) redirect("/");
-  return membership;
-}
 
 function ownersOnly(error: { message?: string }) {
   if (error.message?.includes("owners only")) return "Only owners can do that.";
@@ -31,7 +24,7 @@ function ownersOnly(error: { message?: string }) {
 }
 
 export async function renameBand(name: string): Promise<BandState> {
-  const m = await band();
+  const m = await requireMembership();
   const supabase = await createClient();
   const { error } = await supabase.rpc("rename_band", {
     p_workspace_id: m.workspaceId,
@@ -46,8 +39,8 @@ export async function renameBand(name: string): Promise<BandState> {
 }
 
 export async function setMemberRole(userId: string, role: "owner" | "member"): Promise<BandState> {
-  const m = await band();
-  if (!UUID.test(userId)) return { error: "Couldn't save. Try again." };
+  const m = await requireMembership();
+  if (!isUuid(userId)) return { error: "Couldn't save. Try again." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_member_role", {
     p_workspace_id: m.workspaceId,
@@ -60,8 +53,8 @@ export async function setMemberRole(userId: string, role: "owner" | "member"): P
 }
 
 export async function removeMember(userId: string): Promise<BandState> {
-  const m = await band();
-  if (!UUID.test(userId)) return { error: "Couldn't remove them. Try again." };
+  const m = await requireMembership();
+  if (!isUuid(userId)) return { error: "Couldn't remove them. Try again." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("remove_member", {
     p_workspace_id: m.workspaceId,
@@ -87,7 +80,7 @@ async function emailInvite(
 
 /** Invite by email (sent if email is set up) or as a link to copy. */
 export async function createInvite(_prev: BandState, formData: FormData): Promise<BandState> {
-  const m = await band();
+  const m = await requireMembership();
   const asLink = formData.get("mode") === "link";
   const email = asLink
     ? ""
@@ -110,7 +103,7 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
     p_email: asLink ? null : email,
     p_name: name || null,
     p_role: role,
-    p_person_id: UUID.test(personId) ? personId : null,
+    p_person_id: isUuid(personId) ? personId : null,
   });
   const row = data?.[0];
   if (error || !row) {
@@ -156,8 +149,8 @@ export async function createInvite(_prev: BandState, formData: FormData): Promis
 
 /** A fresh link for a pending invite; the old one stops working. */
 export async function renewInviteLink(inviteId: string): Promise<BandState> {
-  await band();
-  if (!UUID.test(inviteId)) return { error: "Couldn't make a link. Try again." };
+  await requireMembership();
+  if (!isUuid(inviteId)) return { error: "Couldn't make a link. Try again." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("renew_invite_link", {
     p_invite_id: inviteId,
@@ -176,7 +169,7 @@ export async function renewInviteLink(inviteId: string): Promise<BandState> {
 
 /** Send it again with a fresh link, and a note if there is one (#367). */
 export async function resendInvite(inviteId: string, note?: string): Promise<BandState> {
-  const m = await band();
+  const m = await requireMembership();
   const renewed = await renewInviteLink(inviteId);
   if (!renewed.link) return renewed;
   const supabase = await createClient();
@@ -204,8 +197,8 @@ export async function resendInvite(inviteId: string, note?: string): Promise<Ban
 }
 
 export async function revokeInvite(inviteId: string): Promise<BandState> {
-  await band();
-  if (!UUID.test(inviteId)) return { error: "Couldn't revoke it. Try again." };
+  await requireMembership();
+  if (!isUuid(inviteId)) return { error: "Couldn't revoke it. Try again." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("revoke_invite", {
     p_invite_id: inviteId,

@@ -3,7 +3,7 @@
 import { loadRoster } from "@/lib/band/roster";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getMembership, isModerator } from "@/lib/auth/dal";
+import { getMembership, requireMembership, isModerator } from "@/lib/auth/dal";
 import { getListingClaim } from "@/lib/connections/claim";
 import { createClient } from "@/lib/supabase/server";
 import { STATUSES, type ConnectionStatus } from "./labels";
@@ -46,12 +46,6 @@ function saveErrors(error: unknown): ConnectionFormState["errors"] {
     return { form: "This is your band's listing, so it stays a band." };
   if (e?.message?.includes("you stay a person")) return { form: "This is you, so it stays a person." };
   return { form: SAVE_FAILED };
-}
-
-async function requireWorkspace() {
-  const membership = await getMembership();
-  if (!membership) redirect("/");
-  return membership.workspaceId;
 }
 
 // Saves the connection, its town, links, and scene tags (adding any new
@@ -123,7 +117,7 @@ export async function createConnection(_prev: ConnectionFormState, formData: For
   if (!result.ok) return { values, errors: result.errors, attempt: Date.now() };
 
   // Outside the try: redirect() works by throwing.
-  const workspaceId = await requireWorkspace();
+  const { workspaceId } = await requireMembership();
   let id: string;
   try {
     id = await saveConnection(workspaceId, null, result.data);
@@ -140,7 +134,7 @@ export async function createConnection(_prev: ConnectionFormState, formData: For
 export type ArchiveState = { error?: string };
 
 async function setArchived(id: string, archived: boolean): Promise<ArchiveState> {
-  const workspaceId = await requireWorkspace();
+  const { workspaceId } = await requireMembership();
   const supabase = await createClient();
   // Archiving is this band's own (#181): it hides the record from this
   // band's directory, another band's record included (#185).
@@ -175,7 +169,7 @@ export async function quickUpdate(
   id: string,
   change: { status: ConnectionStatus | null } | { playedTogether: boolean },
 ): Promise<QuickResult> {
-  const workspaceId = await requireWorkspace();
+  const { workspaceId } = await requireMembership();
   const supabase = await createClient();
   const patch =
     "status" in change
@@ -217,7 +211,7 @@ export type MarkResult = { ok: true; marked: number } | { ok: false };
 // in one update. Only current relatives of that connection are touched, and
 // only "played together" changes; status and its history stay as they are.
 export async function markPlayedTogether(sourceId: string, ids: string[]): Promise<MarkResult> {
-  const workspaceId = await requireWorkspace();
+  const { workspaceId } = await requireMembership();
   const supabase = await createClient();
   const offer = await loadPlayedOffer(supabase, workspaceId, sourceId);
   const allowed = new Set(offer?.relatives.filter((r) => !r.playedTogether).map((r) => r.id) ?? []);
@@ -262,7 +256,7 @@ async function saveBandFields(
 export async function autosaveConnection(id: string, groups: string[], formData: FormData): Promise<AutosaveResult> {
   const valid = groups.filter((g): g is AutosaveGroup => g in AUTOSAVE_GROUPS);
   if (!valid.length) return { ok: true };
-  const workspaceId = await requireWorkspace();
+  const { workspaceId } = await requireMembership();
   const incoming = readForm(formData);
 
   for (let attempt = 0; attempt < 2; attempt++) {
