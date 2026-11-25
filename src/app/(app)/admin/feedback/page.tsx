@@ -19,6 +19,7 @@ import { Camera, ChevronDown } from "@carbon/icons-react";
 import { FeedbackControls } from "./feedback-controls";
 import { FeedbackItem } from "./feedback-item";
 import { PageLoader } from "@/components/metronome";
+import { isUuid } from "@/lib/ids";
 
 export const metadata: Metadata = { title: "Feedback Inbox · Seeens" };
 
@@ -35,7 +36,6 @@ export default function FeedbackInboxPage({ searchParams }: PageProps<"/admin/fe
 }
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-const UUID = /^[0-9a-f-]{36}$/;
 
 async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedback">["searchParams"] }) {
   const supabase = await createClient();
@@ -59,7 +59,7 @@ async function Inbox({ searchParams }: { searchParams: PageProps<"/admin/feedbac
     .limit(200);
   if (isKind(kind)) query = query.eq("kind", kind);
   if (isStatus(status)) query = query.eq("status", status);
-  if (tester && UUID.test(tester)) query = query.eq("user_id", tester);
+  if (tester && isUuid(tester)) query = query.eq("user_id", tester);
   const [{ data: items }, { data: senders }, { data: open }] = await Promise.all([
     query,
     supabase.from("feedback").select("user_id, sender_name").not("user_id", "is", null),

@@ -1,10 +1,12 @@
+import { UUID_SOURCE } from "@/lib/ids";
 export const PHOTO_BUCKET = "connection-photos";
 
 /** Widths the photo route serves besides the full copy: list rows, the page header, cards. */
 export const PHOTO_WIDTHS = [160, 320, 640] as const;
 export type PhotoWidth = (typeof PHOTO_WIDTHS)[number];
 
-const PATH = /^[0-9a-f-]{36}\/[0-9a-f-]{36}\/[0-9a-f-]{36}(-original)?\.(webp|jpg)$/;
+// workspace/connection/file, as the copier writes them.
+const PATH = new RegExp(`^${UUID_SOURCE}/${UUID_SOURCE}/${UUID_SOURCE}(-original)?\\.(webp|jpg)$`);
 export const isPhotoPath = (p: string) => PATH.test(p);
 
 /**

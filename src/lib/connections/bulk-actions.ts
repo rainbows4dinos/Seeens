@@ -5,6 +5,7 @@ import { getMembership, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { writeBandLayer } from "./band-layer";
 import { STATUSES, type ConnectionStatus } from "./labels";
+import { isUuid } from "@/lib/ids";
 
 // Bulk status (#243): one change for every selected listing. Status and
 // played together are this band's own (#181), on any listing it can see,
@@ -15,7 +16,6 @@ export type BulkChange = { status: ConnectionStatus | null } | { playedTogether:
 export type Before = { id: string; status: ConnectionStatus | null; playedTogether: boolean };
 export type BulkResult = { ok: true; changed: number; before: Before[] } | { ok: false };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX = 500;
 
 async function setup(ids: unknown) {
@@ -23,7 +23,7 @@ async function setup(ids: unknown) {
   if (!membership) return null;
   const us = await getUsConnection();
   const pick = [...new Set(Array.isArray(ids) ? ids : [])]
-    .filter((id): id is string => typeof id === "string" && UUID.test(id) && id !== us?.id)
+    .filter((id): id is string => typeof id === "string" && isUuid(id) && id !== us?.id)
     .slice(0, MAX);
   return { workspaceId: membership.workspaceId, pick, supabase: await createClient() };
 }

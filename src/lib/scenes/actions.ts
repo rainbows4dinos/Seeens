@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getMembership } from "@/lib/auth/dal";
+import { getMembership, requireMembership } from "@/lib/auth/dal";
 import { readPlace, resolveLocality, toLocalityChoice } from "@/lib/localities";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,8 +37,7 @@ async function saveScene(id: string | null, formData: FormData): Promise<SceneFo
     errors.placeText = "Pick a town from the suggestions, or clear the field.";
   }
 
-  const membership = await getMembership();
-  if (!membership) redirect("/");
+  const membership = await requireMembership();
   const supabase = await createClient();
 
   if (values.parentId) {

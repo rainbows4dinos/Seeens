@@ -10,6 +10,7 @@ import {
   type Space,
   type VenueType,
 } from "./venue-details";
+import { isUuid } from "@/lib/ids";
 
 // Directory filters live in the URL (?q=&status=&scene=&town=&plays=&ages=&cap=&space=&missing=&archived=1), so
 // a filtered view can be bookmarked or shared with a bandmate. The type tab
@@ -67,7 +68,6 @@ export type DirectoryFilters = {
 type Params = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim() ?? "";
 const all = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Old directory views (?view=) from before the tabs still land on the right list.
 const VIEW_STATUS: Record<string, ConnectionStatus> = {
@@ -96,7 +96,7 @@ export function readFilters(params: Params): DirectoryFilters {
     roster: all(params.status).includes("roster"),
     scope: "all",
     missing: first(params.missing) in MISSING ? (first(params.missing) as Missing) : "",
-    import: UUID.test(first(params.import)) ? first(params.import).toLowerCase() : "",
+    import: isUuid(first(params.import)) ? first(params.import).toLowerCase() : "",
   };
 }
 

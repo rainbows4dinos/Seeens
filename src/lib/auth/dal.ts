@@ -82,6 +82,14 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
   return all.find((m) => m.workspaceId === picked) ?? all[0] ?? null;
 });
 
+// The band you're looking at, for server actions: without one there's
+// nothing to act on, so it's back to Home.
+export async function requireMembership(): Promise<Membership> {
+  const membership = await getMembership();
+  if (!membership) redirect("/");
+  return membership;
+}
+
 // The current workspace's id. RLS lets a user read every workspace they
 // belong to, so queries also filter by this one to keep bands apart for
 // anyone in more than one. Pages check getMembership() first, so this

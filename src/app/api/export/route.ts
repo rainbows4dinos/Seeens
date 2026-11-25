@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { MAX_SELECTED, buildExportRows } from "@/lib/export/build";
 import { toCsv } from "@/lib/export/csv";
 import { todayISO } from "@/lib/outreach/labels";
-
-const PRIVATE = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex" };
+import { isUuid } from "@/lib/ids";
+import { PRIVATE_HEADERS, fail } from "@/lib/http";
 
 function back(request: Request, reason: "empty" | "failed", archived: boolean) {
   const url = new URL("/export", request.url);
@@ -12,8 +12,6 @@ function back(request: Request, reason: "empty" | "failed", archived: boolean) {
   if (archived) url.searchParams.set("archived", "include");
   return Response.redirect(url, 303);
 }
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Downloads the workspace's directory as CSV. Members only; RLS scopes rows.
 // The URL carries no private data, and nothing from the rows is logged.
@@ -29,20 +27,19 @@ export async function POST(request: Request) {
   const ids = String(form?.get("ids") ?? "")
     .split(",")
     .map((id) => id.trim())
-    .filter((id) => UUID.test(id));
-  if (!ids.length) return new Response("Pick some listings to export.", { status: 400, headers: PRIVATE });
-  if (ids.length > MAX_SELECTED)
-    return new Response(`Export up to ${MAX_SELECTED} listings at a time.`, { status: 400, headers: PRIVATE });
+    .filter((id) => isUuid(id));
+  if (!ids.length) return fail(400, "Pick some listings to export.");
+  if (ids.length > MAX_SELECTED) return fail(400, `Export up to ${MAX_SELECTED} listings at a time.`);
   return exportCsv(request, { includeArchived: true, ids });
 }
 
 async function exportCsv(request: Request, { includeArchived, ids }: { includeArchived: boolean; ids?: string[] }) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) return new Response("Sign in to export.", { status: 401, headers: PRIVATE });
+  if (!data?.claims?.sub) return fail(401, "Sign in to export.");
 
   const membership = await getMembership().catch(() => null);
-  if (!membership) return new Response("Only band members can export.", { status: 403, headers: PRIVATE });
+  if (!membership) return fail(403, "Only band members can export.");
 
   let csv: string;
   try {
@@ -64,7 +61,7 @@ async function exportCsv(request: Request, { includeArchived, ids }: { includeAr
   // UTF-8 byte order mark so Excel reads accents and emoji correctly.
   return new Response(`﻿${csv}\r\n`, {
     headers: {
-      ...PRIVATE,
+      ...PRIVATE_HEADERS,
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"`,
     },

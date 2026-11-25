@@ -10,13 +10,12 @@ import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { siteOrigin } from "@/lib/origin";
 import { appVersion } from "@/lib/feedback/version";
 import { cleanPath, describeBrowser, isKind, isStatus, kindLabel, type Status } from "@/lib/feedback/labels";
+import { isUuid } from "@/lib/ids";
 
 // Beta feedback (#71). Testers send it; app admins sort it and close the loop.
 
 export type SendState = { error?: string; sent?: boolean };
 export type AdminState = { error?: string; done?: string };
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function sendFeedback(_prev: SendState, formData: FormData): Promise<SendState> {
   const user = await getCurrentUser();
@@ -121,7 +120,7 @@ async function requireAdmin() {
 export async function updateFeedback(id: string, status: Status, githubUrl: string): Promise<AdminState> {
   const supabase = await requireAdmin();
   if (!supabase) return { error: "Only app admins can do that." };
-  if (!UUID.test(id) || !isStatus(status)) return { error: "Couldn't save. Try again." };
+  if (!isUuid(id) || !isStatus(status)) return { error: "Couldn't save. Try again." };
   const url = githubUrl.trim();
   if (url && !/^https:\/\/github\.com\/\S+$/.test(url))
     return { error: "Paste a GitHub link, like https://github.com/…/issues/12." };
@@ -135,7 +134,7 @@ export async function updateFeedback(id: string, status: Status, githubUrl: stri
 export async function tellTester(id: string, note: string): Promise<AdminState> {
   const supabase = await requireAdmin();
   if (!supabase) return { error: "Only app admins can do that." };
-  if (!UUID.test(id)) return { error: "Couldn't send it. Try again." };
+  if (!isUuid(id)) return { error: "Couldn't send it. Try again." };
   const { data: f } = await supabase
     .from("feedback")
     .select("user_id, sender_name, body, created_at, status, github_url")

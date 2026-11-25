@@ -7,12 +7,11 @@ import { ownerInvite } from "@/lib/email/invites";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { siteOrigin } from "@/lib/origin";
 import type { BandState } from "@/lib/band/actions";
+import { isUuid } from "@/lib/ids";
 
 // A label invites its roster (#298): a label's owner invites a band on the
 // label to claim its listing. The database checks it's the label's owner
 // and that the band is on the roster; these turn its answers into words.
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function inviteRosterBand(_prev: BandState, formData: FormData): Promise<BandState> {
   const membership = await getMembership();
@@ -21,7 +20,7 @@ export async function inviteRosterBand(_prev: BandState, formData: FormData): Pr
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const asLink = formData.get("mode") === "link";
-  if (!UUID.test(listingId)) return { error: "Couldn't find that band. Refresh the page." };
+  if (!isUuid(listingId)) return { error: "Couldn't find that band. Refresh the page." };
   if (!asLink && !email) return { error: "Add the band's email, like sam@example.com. Or copy a link instead." };
 
   const supabase = await createClient();
@@ -113,7 +112,7 @@ function rosterError(message: string) {
 export async function addToRoster(connectionId: string): Promise<RosterResult> {
   const membership = await getMembership();
   if (!membership || membership.kind !== "label") return { error: "Only labels have a roster." };
-  if (!UUID.test(connectionId)) return { error: "Couldn't find that band. Refresh the page." };
+  if (!isUuid(connectionId)) return { error: "Couldn't find that band. Refresh the page." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("roster_add", {
     p_workspace_id: membership.workspaceId,
@@ -140,7 +139,7 @@ export async function addNewToRoster(name: string): Promise<RosterResult> {
 export async function removeFromRoster(connectionId: string): Promise<RosterResult> {
   const membership = await getMembership();
   if (!membership || membership.kind !== "label") return { error: "Only labels have a roster." };
-  if (!UUID.test(connectionId)) return { error: "Couldn't find that band. Refresh the page." };
+  if (!isUuid(connectionId)) return { error: "Couldn't find that band. Refresh the page." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("roster_remove", {
     p_workspace_id: membership.workspaceId,

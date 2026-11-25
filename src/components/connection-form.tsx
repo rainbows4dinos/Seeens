@@ -18,6 +18,7 @@ import {
   startTransition,
   useActionState,
   useEffect,
+  useEffectEvent,
   useRef,
   useState,
   type ComponentProps,
@@ -91,8 +92,9 @@ function FormState({
   // Saved, and adding the photo and links: keep Save disabled until the page opens.
   const finishing = Boolean(created);
   const replayed = useRef<string | null>(null);
-  useEffect(() => {
-    if (!created || !create || replayed.current === created) return;
+  // Runs once per new connection, with the photo and links as they are then.
+  const finish = useEffectEvent((created: string) => {
+    if (!create || replayed.current === created) return;
     replayed.current = created;
     let missedPhoto = false;
     let missedLinks = 0;
@@ -115,8 +117,9 @@ function FormState({
         onFinished();
       });
     })();
-    // Runs once per new connection.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
+  useEffect(() => {
+    if (created) finish(created);
   }, [created]);
 
   // Remount after each failed save so fields show what was submitted.

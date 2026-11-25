@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Figma sync scripts: they run inside Figma, not the app, and include
+    // generated files.
+    "design-sync/**",
   ]),
 ]);
 
