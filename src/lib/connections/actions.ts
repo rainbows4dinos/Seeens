@@ -2,7 +2,7 @@
 
 import { loadRoster } from "@/lib/band/roster";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getMembership, requireMembership, isModerator } from "@/lib/auth/dal";
 import { getListingClaim } from "@/lib/connections/claim";
 import { createClient } from "@/lib/supabase/server";
@@ -125,7 +125,7 @@ export async function createConnection(_prev: ConnectionFormState, formData: For
     return { values, errors: saveErrors(error), attempt: Date.now() };
   }
 
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   // A photo or links are waiting in the form: it adds them, then opens the page.
   if (formData.get("return_id") === "1") return { values, errors: {}, createdId: id };
   redirect(`/connections/${id}?saved=1`);
@@ -147,7 +147,7 @@ async function setArchived(id: string, archived: boolean): Promise<ArchiveState>
   }
   // Any change can show up on other pages (both ends of a link, the
   // directory), so drop the client's cached pages, not just this one.
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }
 
@@ -198,7 +198,7 @@ export async function quickUpdate(
   const data = rows[0];
   if (error || !data) return { ok: false, saved: await current() };
 
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   // Just marked played together: offer the members, or the bands (#124).
   const offer =
     "playedTogether" in change && change.playedTogether ? await loadPlayedOffer(supabase, workspaceId, id) : null;
@@ -225,7 +225,7 @@ export async function markPlayedTogether(sourceId: string, ids: string[]): Promi
     .in("connection_id", pick)
     .select("connection_id");
   if (error) return { ok: false };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true, marked: data.length };
 }
 
@@ -245,7 +245,7 @@ async function saveBandFields(
   const supabase = await createClient();
   const { error } = await writeBandLayer(supabase, workspaceId, [id], patch);
   if (error) return { ok: false, errors: { form: SAVE_FAILED } };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true };
 }
 
@@ -288,7 +288,7 @@ export async function autosaveConnection(id: string, groups: string[], formData:
         }
       }
       if (own.length) return saveBandFields(workspaceId, id, own, result.data);
-      revalidatePath("/", "layout");
+      refreshAfterSave();
       return { ok: true };
     }
     try {
@@ -297,7 +297,7 @@ export async function autosaveConnection(id: string, groups: string[], formData:
       if ((error as { code?: string } | null)?.code === "PT409" && attempt === 0) continue;
       return { ok: false, errors: saveErrors(error) };
     }
-    revalidatePath("/", "layout");
+    refreshAfterSave();
     return { ok: true };
   }
   return { ok: false, errors: { form: SAVE_FAILED } };

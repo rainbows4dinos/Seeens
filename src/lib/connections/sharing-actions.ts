@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath, updateTag } from "next/cache";
+import { updateTag } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { PREVIEW_TAG } from "@/lib/preview/tag";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,7 +24,7 @@ export async function setKeepPrivate(ids: string[], keepPrivate: boolean): Promi
     if (error) return { error: "Couldn't save. Try again." };
     refused += Number((data as { refused?: number } | null)?.refused ?? 0);
   }
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   updateTag(PREVIEW_TAG);
   return refused ? { refused } : {};
 }
@@ -36,7 +37,7 @@ export async function setNotActive(id: string, inactive: boolean): Promise<NotAc
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("set_not_active", { p_id: id, p_inactive: inactive });
   if (error) return { error: error.code === "42501" ? "Its band decides this one." : "Couldn't save. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   updateTag(PREVIEW_TAG);
   return { since: data ?? null };
 }

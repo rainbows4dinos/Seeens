@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getCurrentUser, getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { ownerInvite } from "@/lib/email/invites";
@@ -119,7 +120,7 @@ export async function addToRoster(connectionId: string): Promise<RosterResult> {
     p_connection_id: connectionId,
   });
   if (error) return { error: rosterError(error.message) };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { id: connectionId };
 }
 
@@ -132,7 +133,7 @@ export async function addNewToRoster(name: string): Promise<RosterResult> {
     p_name: name.trim(),
   });
   if (error || !data) return { error: rosterError(error?.message ?? "") };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { id: data };
 }
 
@@ -146,6 +147,6 @@ export async function removeFromRoster(connectionId: string): Promise<RosterResu
     p_connection_id: connectionId,
   });
   if (error) return { error: rosterError(error.message) };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }

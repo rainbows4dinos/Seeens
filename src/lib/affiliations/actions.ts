@@ -1,7 +1,7 @@
 "use server";
 
 import { layerOf } from "@/lib/connections/band-details";
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { GROUP_TYPES, type GroupType, type PersonRole } from "@/lib/connections/labels";
 import { createClient } from "@/lib/supabase/server";
@@ -138,7 +138,7 @@ export async function addLink(
 
   // Any change can show up on other pages (both ends of a link, the
   // directory), so drop the client's cached pages, not just this one.
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true, attempt: Date.now() };
 }
 
@@ -156,7 +156,7 @@ export async function updateLink(linkId: string, _prev: LinkState, formData: For
   if (error || !data.length) return fail("Couldn't save. Try again.");
   // Any change can show up on other pages (both ends of a link, the
   // directory), so drop the client's cached pages, not just this one.
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true, attempt: Date.now() };
 }
 
@@ -171,7 +171,7 @@ export async function removeLink(linkId: string): Promise<LinkState> {
   if (error || !data.length) return fail("Couldn't remove it. Try again.");
   // Any change can show up on other pages (both ends of a link, the
   // directory), so drop the client's cached pages, not just this one.
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true };
 }
 
@@ -230,6 +230,6 @@ export async function addBandMembers(
 
   const results = (data ?? []) as { added: boolean }[];
   const added = results.filter((r) => r.added).length;
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true, added, skipped: results.length - added };
 }

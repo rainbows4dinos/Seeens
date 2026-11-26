@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getCurrentUser, requireMembership, rememberBand } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -34,7 +35,7 @@ export async function renameBand(name: string): Promise<BandState> {
     return {
       error: ownersOnly(error) ?? (name.trim() ? "Couldn't save. Try again." : "Add a name."),
     };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { done: "Saved" };
 }
 
@@ -237,7 +238,7 @@ async function join(token: string, displayName: string | null): Promise<JoinStat
   }
   // Open the band you just joined, even if you're in others.
   if (joined) await rememberBand(joined);
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   redirect("/?joined=1");
 }
 

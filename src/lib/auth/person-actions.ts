@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { requireMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/ids";
@@ -27,7 +27,7 @@ export async function linkMe(connectionId: string): Promise<LinkState> {
     if (error.message?.includes("not a person")) return { error: "Pick a person, not a band or venue." };
     return { error: "Couldn't link it. Try again." };
   }
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }
 
@@ -38,7 +38,7 @@ export async function unlinkMe(): Promise<LinkState> {
     p_workspace_id: m.workspaceId,
   });
   if (error) return { error: "Couldn't unlink it. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }
 
@@ -53,6 +53,6 @@ export async function makeMyPage(): Promise<LinkState> {
     if (error?.message?.includes("already linked")) return { error: "You already have a page. Unlink it first." };
     return { error: "Couldn't make your page. Try again." };
   }
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   redirect(`/connections/${id}?mine=1`);
 }

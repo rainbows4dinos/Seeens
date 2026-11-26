@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { formatPlace } from "@/lib/places";
@@ -81,7 +81,7 @@ export async function runImport(rows: ImportRow[]): Promise<ImportResult> {
     p_rows: clean as unknown as Json,
   });
   if (error || !data) return { ok: false, error: "The import didn't go through. Nothing was saved; try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   const d = data as {
     added: number;
     filled: number;
