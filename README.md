@@ -20,8 +20,8 @@ To regenerate them, run `npm run db:reset` and `npm run dev`, then `npm run scre
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | ![Sign-in page with the "Your people. Your scenes." headline](docs/screenshots/login.png)                                                                                                                                                                                                       | ![A band's profile: Basic Info, Activity, Members & Connections, Contact & Links, and Notes panels](docs/screenshots/connection.png)            |
 | **Sign in.** Invite-only.                                                                                                                                                                                                                                                                       | **A connection.** One page in panels that saves as you go: who they are, the next step and what's happened, who's connected, how to reach them. |
-| ![Everyone marked Both Down](docs/screenshots/lets-play.png)                                                                                                                                                                                                                                   | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png)                                                                           |
-| **Both Down.** The booking backlog: All, filtered to Both Down, and by town or scene if you like.                                                                                                                                                                                             | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest.                                                                        |
+| ![Everyone marked Both Down](docs/screenshots/lets-play.png)                                                                                                                                                                                                                                    | ![Scenes nested under Pacific Northwest](docs/screenshots/scenes.png)                                                                           |
+| **Both Down.** The booking backlog: All, filtered to Both Down, and by town or scene if you like.                                                                                                                                                                                               | **Scenes.** Local scenes inside bigger ones, like the Pacific Northwest.                                                                        |
 | ![The Directory: type tabs, then everyone grouped by status, as photocopied snapshots](docs/screenshots/directory.png)                                                                                                                                                                          | ![The directory on a phone](docs/screenshots/mobile-directory.png)                                                                              |
 | **The Directory.** Every band's shared listings beside your own, grouped by your status, Avoid at the very end.                                                                                                                                                                                 | **On a phone.** The same app, built for the merch table.                                                                                        |
 | ![Follow-ups grouped by date](docs/screenshots/follow-ups.png)                                                                                                                                                                                                                                  |                                                                                                                                                 |
@@ -137,6 +137,7 @@ npm run dev                  # http://localhost:3000
 | `npm run format`               | Prettier, 120 characters (`format:check` is what CI runs). Editors with Prettier format on save the same way. |
 | `npm run typecheck`            | Route types + TypeScript                                                                                      |
 | `npm test`                     | Unit tests (CSV export round-trip, paging past 1,000 rows)                                                    |
+| `npm run test:e2e`             | Smoke tests in a browser (Playwright); see below                                                              |
 | `npm run db:start` / `db:stop` | Local Supabase via the CLI (Docker)                                                                           |
 | `npm run db:migration <name>`  | New versioned migration in `supabase/migrations/`                                                             |
 | `npm run db:reset`             | Rebuild local DB from migrations                                                                              |
@@ -144,6 +145,18 @@ npm run dev                  # http://localhost:3000
 | `npm run db:types`             | Regenerate `src/lib/supabase/database.types.ts`                                                               |
 
 Local Supabase loads fictional seed data from `supabase/seed.sql`. Sign in as `alex@example.com` or `sam@example.com` (members of Merwulf; Alex is also an app admin, for the feedback inbox), `robin@example.com` (Moth Signal, a second band, so the shared directory has another side), or `dana@example.com` (not a member), all with password `password123`.
+
+### Running the smoke tests
+
+`e2e/` holds Playwright tests for the main flows: sign in, add a band, change a status, import a CSV, and merge then undo. Sign in and add also run at a phone size. They sign in as Alex and make their own listings (named `Smoke …`), so they don't need a fresh database, but don't point them at anything but local.
+
+```bash
+npx playwright install chromium   # first time only
+npm run db:start                  # local Supabase with seed.sql
+npm run test:e2e                  # starts npm run dev, or uses the one already running
+```
+
+CI runs them on every pull request against a production build (the `smoke` job). When one fails there, the job attaches the Playwright report with a trace of each failure; open it with `npx playwright show-report`, or drop a trace on trace.playwright.dev.
 
 ## Database
 
