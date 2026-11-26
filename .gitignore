@@ -46,3 +46,8 @@ __pycache__/
 *.look-up-cache.json
 discover-*.csv
 discover-*.cache.json
+
+# Playwright (#373): saved sign-in and reports
+e2e/.auth/
+playwright-report/
+test-results/
