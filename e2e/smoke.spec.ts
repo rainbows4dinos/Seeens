@@ -39,12 +39,16 @@ test("import a CSV of bands", async ({ page }, info) => {
   const second = uniqueName("Import B", info);
 
   await page.goto("/import");
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "smoke-bands.csv",
-    mimeType: "text/csv",
-    buffer: Buffer.from(`Name,Notes\n${first},Fictional\n${second},Fictional\n`),
-  });
-  await expect(page.getByText("smoke-bands.csv: 2 rows, 2 columns.")).toBeVisible();
+  // The file input is in the server's HTML, so a file picked before React
+  // hydrates goes unnoticed. Pick it again until the wizard has read it.
+  await expect(async () => {
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "smoke-bands.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(`Name,Notes\n${first},Fictional\n${second},Fictional\n`),
+    });
+    await expect(page.getByText("smoke-bands.csv: 2 rows, 2 columns.")).toBeVisible({ timeout: 2_000 });
+  }).toPass();
   await page.getByRole("button", { name: "Next" }).click();
 
   // Columns: Name is guessed from the header.
