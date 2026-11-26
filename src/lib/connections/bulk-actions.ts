@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getMembership, getUsConnection } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { writeBandLayer } from "./band-layer";
@@ -59,7 +59,7 @@ export async function bulkUpdate(ids: string[], change: BulkChange): Promise<Bul
 
   const { rows, error } = await writeBandLayer(supabase, workspaceId, pick, patch);
   if (error) return { ok: false };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true, changed: rows.length, before };
 }
 
@@ -81,6 +81,6 @@ export async function undoBulkUpdate(before: Before[]): Promise<{ ok: boolean }>
     const { error } = await writeBandLayer(supabase, workspaceId, ids, { status, played_together: played });
     if (error) return { ok: false };
   }
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { ok: true };
 }

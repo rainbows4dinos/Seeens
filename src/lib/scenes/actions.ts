@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { redirect } from "next/navigation";
 import { getMembership, requireMembership } from "@/lib/auth/dal";
 import { readPlace, resolveLocality, toLocalityChoice } from "@/lib/localities";
@@ -99,7 +99,7 @@ async function saveScene(id: string | null, formData: FormData): Promise<SceneFo
     };
   }
 
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   redirect(`/scenes?saved=${sceneId}`);
 }
 
@@ -124,6 +124,6 @@ export async function removeScene(id: string): Promise<{ error?: string }> {
     .eq("workspace_id", membership.workspaceId)
     .select("id");
   if (error || !data.length) return { error: "Couldn't remove the scene. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   redirect("/scenes");
 }

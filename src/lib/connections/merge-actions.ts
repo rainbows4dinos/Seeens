@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { requireMembership } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { pairsOf } from "./duplicates";
@@ -52,7 +52,7 @@ export async function mergeConnections(_prev: MergeState, formData: FormData): P
     }
   }
 
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   redirect(`/connections/${keep}?merged=1`);
 }
 
@@ -130,7 +130,7 @@ export async function undoMerge(mergeId: string): Promise<UndoState> {
       await supabase.storage.from(PHOTO_BUCKET).remove([copied.path, copied.original_path]);
     }
   }
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   // A fresh load of the kept one says what came back (see the profile page).
   redirect(`/connections/${merge?.keep_id ?? ""}?unmerged=${mergeId}`);
 }
@@ -145,7 +145,7 @@ export async function markNotDuplicates(ids: string[]): Promise<{ error?: string
     { onConflict: "connection_a,connection_b", ignoreDuplicates: true },
   );
   if (error) return { error: "Couldn't save. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }
 
@@ -164,6 +164,6 @@ export async function markNotDuplicateOf(id: string, others: string[]): Promise<
     { onConflict: "connection_a,connection_b", ignoreDuplicates: true },
   );
   if (error) return { error: "Couldn't save. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }

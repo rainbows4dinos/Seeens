@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getCurrentUser, getMembership, requireWorkspaceId } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { CHANNELS, isISODate, todayISO, type OutreachChannel } from "./labels";
@@ -59,7 +59,7 @@ export async function logOutreach(connectionId: string, _prev: OutreachState, fd
     };
   }
 
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { values: { occurredOn: today, channel: values.channel, summary: "" }, errors: {}, savedAt: Date.now() };
 }
 
@@ -73,7 +73,7 @@ export async function removeOutreach(id: string): Promise<{ error?: string }> {
     .eq("workspace_id", workspaceId)
     .select("id");
   if (error || !data.length) return { error: "Couldn't remove that entry. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }
 
@@ -126,7 +126,7 @@ export async function setNextAction(
     };
   }
 
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { values, errors: {}, savedAt: Date.now() };
 }
 
@@ -141,6 +141,6 @@ export async function closeNextAction(id: string, how: "done" | "dropped"): Prom
     .eq("status", "open")
     .select("id");
   if (error || !data.length) return { error: "Couldn't update the plan. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return {};
 }

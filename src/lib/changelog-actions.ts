@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { createClient } from "@/lib/supabase/server";
 import { latestChangelogDate } from "@/lib/changelog";
 
@@ -13,5 +13,5 @@ export async function markChangelogSeen() {
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims?.sub) return;
   const { error } = await supabase.rpc("mark_changelog_seen", { p_on: latest });
-  if (!error) revalidatePath("/", "layout");
+  if (!error) refreshAfterSave();
 }

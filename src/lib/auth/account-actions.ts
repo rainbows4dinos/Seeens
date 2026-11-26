@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { siteOrigin } from "@/lib/origin";
 import { RECOVERY_COOKIE } from "@/lib/auth/recovery";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { refreshAfterSave } from "@/lib/refresh";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -32,7 +32,7 @@ export async function updateDisplayName(name: string): Promise<FormState> {
     p_name: trimmed,
   });
   if (error) return { error: "Couldn't save. Try again." };
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   return { done: "Saved" };
 }
 
@@ -118,7 +118,7 @@ export async function leaveBand(workspaceId: string): Promise<FormState> {
     }
     return { error: "Couldn't leave. Try again." };
   }
-  revalidatePath("/", "layout");
+  refreshAfterSave();
   redirect("/account?left=1");
 }
 
