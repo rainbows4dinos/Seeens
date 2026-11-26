@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { safeTimeZone } from "@/lib/outreach/labels";
-import type { WorkspaceKind } from "@/lib/band/kind";
+import { toKind, type WorkspaceKind } from "@/lib/band/kind";
 
 export type CurrentUser = {
   id: string;
@@ -69,7 +69,7 @@ export const getMemberships = cache(async (): Promise<Membership[]> => {
     displayName: m.display_name,
     role: m.role,
     timeZone: safeTimeZone(m.workspaces?.time_zone),
-    kind: m.workspaces?.kind === "label" ? "label" : "band",
+    kind: toKind(m.workspaces?.kind),
     connectionId: m.connection_id,
   }));
 });

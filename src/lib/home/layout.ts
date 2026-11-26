@@ -1,3 +1,4 @@
+import type { WorkspaceKind } from "@/lib/band/kind";
 // Customize Home (#313): which rows Home shows, and in what order, for one
 // person in one band. Getting Started and the band header stay on top and
 // aren't arranged.
@@ -21,7 +22,7 @@ const KEYS = new Set<string>(HOME_ROWS.map((r) => r.key));
 const isKey = (k: string): k is HomeRowKey => KEYS.has(k);
 
 /** The rows this kind of workspace has, in the default order. */
-export function rowsFor(kind: "band" | "label") {
+export function rowsFor(kind: WorkspaceKind) {
   return HOME_ROWS.filter((r) => kind === "label" || !("labelOnly" in r && r.labelOnly));
 }
 
@@ -30,7 +31,7 @@ export function rowsFor(kind: "band" | "label") {
  * and rows added since it was saved shown at the end. Nothing saved: the
  * default.
  */
-export function resolveLayout(saved: { shown: string[]; hidden: string[] } | null, kind: "band" | "label"): HomeLayout {
+export function resolveLayout(saved: { shown: string[]; hidden: string[] } | null, kind: WorkspaceKind): HomeLayout {
   const all = rowsFor(kind).map((r) => r.key as HomeRowKey);
   if (!saved) return { shown: all, hidden: [] };
   const allowed = new Set<string>(all);
@@ -43,7 +44,7 @@ export function resolveLayout(saved: { shown: string[]; hidden: string[] } | nul
 }
 
 /** Is this the default, so it needn't be saved? */
-export function isDefault(layout: HomeLayout, kind: "band" | "label") {
+export function isDefault(layout: HomeLayout, kind: WorkspaceKind) {
   const all = rowsFor(kind).map((r) => r.key);
   return !layout.hidden.length && layout.shown.join() === all.join();
 }

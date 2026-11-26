@@ -13,6 +13,7 @@ for the bands using Seeens: what they can do now, not how it was built.
 
 ## 2026-11-26
 
+- **Promoters can join.** Promoters can now be invited to claim their listing, like bands and labels. Their settings, invite page, and emails talk about promoting, not playing.
 - **PR and playlists.** New listing types: **Publicist** and **Playlist curator** for people, **PR firm** and **Playlist** for the rest (they're under Labels & more). Radio host is now **Radio DJ/host**. The Add page now says what you're adding, Add Band or Add PR Firm, and changes as you pick a type.
 
 ## 2026-11-21

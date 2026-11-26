@@ -1,5 +1,6 @@
 "use client";
 
+import { kindWords, type WorkspaceKind } from "@/lib/band/kind";
 import { useActionState, useState, useTransition } from "react";
 import { noAutofill } from "@/lib/no-autofill";
 import { offline } from "@/lib/offline";
@@ -17,7 +18,7 @@ const unreachable = offline<InviteBandState>({
   error: "Couldn't reach Seeens. Try again.",
 });
 
-// Invite a band (#68) or a label (#298): pick its listing in the directory
+// Invite a band (#68), a label (#298), or a promoter (#304): pick its listing in the directory
 // (or name one that isn't listed), and its first owner. The owner makes
 // their account on the invite page, then invites the rest.
 export function InviteBandForm({
@@ -56,7 +57,7 @@ export function InviteBandForm({
     setFilled(next);
   };
   // A name that isn't listed: a band, unless it's a label.
-  const [newKind, setNewKind] = useState<"band" | "label">("band");
+  const [newKind, setNewKind] = useState<WorkspaceKind>("band");
   // A new picker after each invite, so the last pick doesn't linger.
   const [round, setRound] = useState(0);
   const [prevLink, setPrevLink] = useState(state.link);
@@ -78,15 +79,16 @@ export function InviteBandForm({
   return (
     <form action={action} className="flex flex-col gap-4">
       <p className="text-muted">
-        Pick the band or label from the directory, or type its name if nobody&rsquo;s added it yet. Its owner gets an
-        invite, makes their account, and the listing becomes theirs to keep up to date. They invite the rest from Band
-        Settings (Label Settings for a label). People listed as its members can find themselves under Find Yourself.
+        Pick the band, label, or promoter from the directory, or type its name if nobody&rsquo;s added it yet. Its owner
+        gets an invite, makes their account, and the listing becomes theirs to keep up to date. They invite the rest
+        from Band Settings (Label Settings for a label, Promoter Settings for a promoter). People listed as its members
+        can find themselves under Find Yourself.
         {emailReady ? "" : " Email isn’t set up yet, so you’ll get a link to send them yourself."}
       </p>
       <div className="grid gap-5 sm:grid-cols-2">
         {fixed ? (
           <div className="flex flex-col gap-2">
-            <p className="label">Band or Label</p>
+            <p className="label">Band, Label, or Promoter</p>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex min-w-0 flex-col">
                 <p className="font-medium break-words">{fixed.label}</p>
@@ -100,7 +102,7 @@ export function InviteBandForm({
                   setListing("");
                 }}
               >
-                Change<span className="sr-only"> band or label</span>
+                Change<span className="sr-only"> band, label, or promoter</span>
               </button>
             </div>
           </div>
@@ -114,10 +116,10 @@ export function InviteBandForm({
           >
             <Combobox
               key={round}
-              label="Band or Label"
+              label="Band, Label, or Promoter"
               options={bands}
               multiple={false}
-              placeholder="Find a band or label"
+              placeholder="Find a band, label, or promoter"
               create={{ verb: "New" }}
               onChange={(values, created) => {
                 setListing(values[0] ?? "");
@@ -131,10 +133,10 @@ export function InviteBandForm({
                 <span className="text-sm text-muted" aria-hidden="true">
                   New, not listed yet:
                 </span>
-                {(["band", "label"] as const).map((k) => (
+                {(["band", "label", "promoter"] as const).map((k) => (
                   <label key={k} className="flex items-center gap-2">
                     <input type="radio" checked={newKind === k} onChange={() => setNewKind(k)} />
-                    {k === "band" ? "Band" : "Label"}
+                    {kindWords(k).Noun}
                   </label>
                 ))}
               </fieldset>

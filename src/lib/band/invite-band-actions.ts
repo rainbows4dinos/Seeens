@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { emailConfigured, sendEmail } from "@/lib/email/send";
 import { ownerInvite } from "@/lib/email/invites";
 import { siteOrigin } from "@/lib/origin";
-import type { WorkspaceKind } from "@/lib/band/kind";
+import { toKind, type WorkspaceKind } from "@/lib/band/kind";
 import { isUuid } from "@/lib/ids";
 
 // Invite a band (#68) or a label (#298), for app admins: its first owner gets an invite, and
@@ -23,9 +23,10 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const personId = String(formData.get("person_id") ?? "");
-  const newKind = formData.get("new_kind") === "label" ? "label" : "band";
+  const newKind = toKind(formData.get("new_kind"));
   const asLink = formData.get("mode") === "link";
-  if (!isUuid(listingId) && !newBand) return { error: "Pick the band or label, or type its name if it isn't listed." };
+  if (!isUuid(listingId) && !newBand)
+    return { error: "Pick the band, label, or promoter, or type its name if it isn't listed." };
   if (!asLink && !email)
     return {
       error: "Add the owner's email, like sam@example.com. Or copy a link instead.",
@@ -71,7 +72,7 @@ export async function inviteBand(_prev: InviteBandState, formData: FormData): Pr
       done: `Invite ready for ${band}. Email isn't set up, so send this link to ${email} yourself.`,
       link,
     };
-  const sent = await emailOwner(email, link, band, name, row.kind === "label" ? "label" : "band").catch(() => false);
+  const sent = await emailOwner(email, link, band, name, toKind(row.kind)).catch(() => false);
   if (!sent)
     return {
       done: `Invite ready for ${band}, but the email didn't go out. Send this link to ${email} yourself.`,
@@ -112,7 +113,7 @@ export async function resendBandInvite(inviteId: string, note?: string): Promise
     renewed.link,
     row.name,
     "",
-    row.kind === "label" ? "label" : "band",
+    toKind(row.kind),
     note?.trim().slice(0, 1000) || null,
   ).catch(() => false);
   if (!sent)

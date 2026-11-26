@@ -154,7 +154,7 @@ async function Band() {
         </ProfilePanel>
       ) : null}
 
-      <ProfilePanel id="band-invite" title={membership.kind === "label" ? "Invite Someone" : "Invite a Bandmate"}>
+      <ProfilePanel id="band-invite" title={membership.kind === "band" ? "Invite a Bandmate" : "Invite Someone"}>
         <InviteForm
           canInviteOwners={owner}
           bandName={membership.workspaceName}
