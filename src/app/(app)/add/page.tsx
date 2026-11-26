@@ -31,8 +31,15 @@ export default function NewConnectionPage({ searchParams }: PageProps<"/add">) {
       <Suspense fallback={<BackButton href="/" />}>
         <Back searchParams={searchParams} />
       </Suspense>
-      <h1 className="display-l sm:display-xl">Add listing</h1>
-      <Suspense fallback={<PageLoader />}>
+      {/* The form's own heading follows the type picked (Add Band, Add PR Firm). */}
+      <Suspense
+        fallback={
+          <>
+            <h1 className="display-l sm:display-xl">Add Listing</h1>
+            <PageLoader />
+          </>
+        }
+      >
         <NewConnection searchParams={searchParams} />
       </Suspense>
     </div>

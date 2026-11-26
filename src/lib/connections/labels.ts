@@ -28,7 +28,9 @@ export const PERSON_ROLE_LABELS: Record<PersonRole, string> = {
   videographer: "Videographer",
   artist_designer: "Artist/Designer",
   writer: "Writer",
-  radio_host: "Radio host",
+  radio_host: "Radio DJ/host",
+  publicist: "Publicist",
+  playlist_curator: "Playlist curator",
   other: "Other",
 };
 
@@ -41,8 +43,30 @@ export const GROUP_TYPE_LABELS: Record<GroupType, string> = {
   radio_station: "Radio station",
   press: "Press (zine, blog, mag)",
   promoter_collective: "Promoter or collective",
+  pr_firm: "PR firm",
+  playlist: "Playlist",
   other: "Other",
 };
+
+// What the Add page calls what it's adding, title case: "Add PR Firm".
+// The type select's "person" or a group type; anything else is a listing.
+const ADD_NOUNS: Record<GroupType, string> = {
+  band: "Band",
+  venue: "Venue",
+  label: "Label",
+  recording_studio: "Recording Studio",
+  production_studio: "Production Studio",
+  radio_station: "Radio Station",
+  press: "Press",
+  promoter_collective: "Promoter or Collective",
+  pr_firm: "PR Firm",
+  playlist: "Playlist",
+  other: "Listing",
+};
+export function addNoun(type: string): string {
+  if (type === "person") return "Person";
+  return ADD_NOUNS[type as GroupType] ?? "Listing";
+}
 
 // Status words by type (#139) live in status-words.ts (no imports, so tests run it).
 export {

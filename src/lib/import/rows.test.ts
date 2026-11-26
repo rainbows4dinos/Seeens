@@ -62,6 +62,11 @@ test("values: ages, capacity, types", () => {
   assert.equal(readType("Venue")?.group_type, "venue");
   assert.deepEqual(readType("Booker")?.person_roles, ["booker"]);
   assert.equal(readType("Honey Latte Presents")?.group_type, "promoter_collective");
+  assert.equal(readType("PR firm")?.group_type, "pr_firm");
+  assert.deepEqual(readType("Publicist")?.person_roles, ["publicist"]);
+  assert.equal(readType("Spotify playlist")?.group_type, "playlist");
+  assert.deepEqual(readType("Playlist curator")?.person_roles, ["playlist_curator"]);
+  assert.deepEqual(readType("Radio DJ")?.person_roles, ["dj", "radio_host"]);
   assert.equal(readType("whatever"), null);
 });
 

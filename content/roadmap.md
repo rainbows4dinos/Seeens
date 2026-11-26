@@ -12,7 +12,7 @@ no-pressure rule). Keep it short and plain, for the bands using Seeens.
 ## Now
 
 - **Fixing what beta testers run into.** Your feedback goes to the front of the line. (#71)
-- **Details by type.** The right fields for each kind of listing: bands, promoters and bookers, DJs and radio hosts, radio stations and press. (#48)
+- **Details by type.** The right fields for each kind of listing: bands, promoters and bookers, DJs and radio hosts, radio stations, press, PR, and playlists. (#48)
 
 ## Next
 

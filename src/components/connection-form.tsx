@@ -25,7 +25,7 @@ import {
   type ReactNode,
 } from "react";
 import { readForm, type ConnectionFormState, type ConnectionFormValues } from "@/lib/connections/form";
-import { GROUP_TYPES, type GroupType } from "@/lib/connections/labels";
+import { addNoun, GROUP_TYPES, type GroupType } from "@/lib/connections/labels";
 
 type SceneOption = { id: string; name: string; parent_id: string | null };
 type Action = (prev: ConnectionFormState, formData: FormData) => Promise<ConnectionFormState>;
@@ -176,6 +176,8 @@ function FormBody({
   // Nothing exists yet, so it all saves together with the button below.
   return (
     <form action={formAction} noValidate className="flex flex-col gap-8">
+      {/* The Add page's heading follows the type picked below: Add Band, Add PR Firm. */}
+      {newLinks ? <h1 className="display-l sm:display-xl">Add {addNoun(type)}</h1> : null}
       {errors.form || errorCount > 0 ? (
         <div role="alert" className="border-2 border-error bg-surface p-3 text-sm">
           <p className="font-semibold text-error">
@@ -279,7 +281,7 @@ function FormBody({
       {returnId ? <input type="hidden" name="return_id" value="1" /> : null}
       <div className="save-bar flex flex-wrap gap-3">
         <button type="submit" disabled={pending} className="button-primary">
-          {pending ? "Saving…" : submitLabel}
+          {pending ? "Saving…" : newLinks ? `Add ${addNoun(type)}` : submitLabel}
         </button>
         <Link href={cancelHref} className="button-secondary">
           Cancel

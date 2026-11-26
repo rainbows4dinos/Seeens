@@ -133,6 +133,7 @@ const PLAYED = {
   on: { label: "We've been on", tag: "Been on" },
   covered: { label: "They've covered us", tag: "Covered us" },
   worked: { label: "We've worked together", tag: "Worked together" },
+  added: { label: "They've added us", tag: "Added us" },
 } satisfies Record<string, Played>;
 
 const PLAYED_BY_ROLE: [PersonRole[], Played][] = [
@@ -140,6 +141,7 @@ const PLAYED_BY_ROLE: [PersonRole[], Played][] = [
   [["promoter", "booker"], PLAYED.booked],
   [["radio_host"], PLAYED.on],
   [["writer"], PLAYED.covered],
+  [["playlist_curator"], PLAYED.added],
 ];
 
 const PLAYED_BY_GROUP: Partial<Record<GroupType, Played>> = {
@@ -150,6 +152,7 @@ const PLAYED_BY_GROUP: Partial<Record<GroupType, Played>> = {
   production_studio: PLAYED.recorded,
   radio_station: PLAYED.on,
   press: PLAYED.covered,
+  playlist: PLAYED.added,
 };
 
 export function playedWords(c?: Typed | null): Played {
