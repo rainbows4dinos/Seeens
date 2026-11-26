@@ -11,6 +11,10 @@ for the bands using Seeens: what they can do now, not how it was built.
   notes, contacts) in examples.
 -->
 
+## 2026-11-26
+
+- **PR and playlists.** New listing types: **Publicist** and **Playlist curator** for people, **PR firm** and **Playlist** for the rest (they're under Labels & more). Radio host is now **Radio DJ/host**. The Add page now says what you're adding, Add Band or Add PR Firm, and changes as you pick a type.
+
 ## 2026-11-21
 
 - **Page visit counts.** Seeens now counts page visits with Vercel Web Analytics: no cookies, nothing that says who you are, and no searches or filters. The About page says so under Sharing and Privacy.

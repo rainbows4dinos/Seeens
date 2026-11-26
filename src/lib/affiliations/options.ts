@@ -29,6 +29,8 @@ const NON_BAND: GroupType[] = [
   "radio_station",
   "press",
   "promoter_collective",
+  "pr_firm",
+  "playlist",
   "other",
 ];
 

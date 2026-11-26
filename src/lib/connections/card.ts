@@ -29,6 +29,8 @@ const GROUP_PREFIX: Record<GroupType, string> = {
   radio_station: "RAD",
   press: "PRS",
   promoter_collective: "PRO",
+  pr_firm: "PRF",
+  playlist: "PLS",
   other: "ORG",
 };
 
@@ -47,6 +49,8 @@ const ROLE_PREFIX: Record<PersonRole, string> = {
   artist_designer: "ART",
   writer: "WRT",
   radio_host: "HST",
+  publicist: "PUB",
+  playlist_curator: "CUR",
   other: "PPL",
 };
 

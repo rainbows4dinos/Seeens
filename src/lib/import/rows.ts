@@ -17,6 +17,8 @@ type GroupType =
   | "radio_station"
   | "press"
   | "promoter_collective"
+  | "pr_firm"
+  | "playlist"
   | "other";
 type PersonRole =
   | "musician"
@@ -33,6 +35,8 @@ type PersonRole =
   | "artist_designer"
   | "writer"
   | "radio_host"
+  | "publicist"
+  | "playlist_curator"
   | "other";
 type Status = "homies" | "lets_play" | "prospect" | "avoid";
 
@@ -294,6 +298,8 @@ export function readStatus(v: string): Status | null | undefined {
 
 type TypeGuess = { kind: Kind; group_type: GroupType | null; person_roles: PersonRole[] };
 const GROUP_WORDS: [RegExp, GroupType][] = [
+  [/\bpr\b.*(firm|agency|company)|publicity/, "pr_firm"],
+  [/playlist(?!er)(?! curator)/, "playlist"],
   [/band|group|project/, "band"],
   [/venue|bar|club|space|room|house|basement/, "venue"],
   [/label|records/, "label"],
@@ -314,7 +320,9 @@ const ROLE_WORDS: [RegExp, PersonRole][] = [
   [/video/, "videographer"],
   [/artist|design/, "artist_designer"],
   [/writer|journalist/, "writer"],
-  [/host/, "radio_host"],
+  [/host|radio dj/, "radio_host"],
+  [/publicist|\bpr\b/, "publicist"],
+  [/playlister|curator/, "playlist_curator"],
   [/person|people/, "other"],
 ];
 
@@ -323,7 +331,8 @@ export function readType(v: string): TypeGuess | null {
   if (!t) return null;
   const roles = ROLE_WORDS.filter(([re]) => re.test(t)).map(([, r]) => r);
   const group = GROUP_WORDS.find(([re]) => re.test(t))?.[1];
-  if (group && !/promoter$|booker/.test(t)) return { kind: "group", group_type: group, person_roles: [] };
+  if (group && !/promoter$|booker|\bdj\b|host|curator/.test(t))
+    return { kind: "group", group_type: group, person_roles: [] };
   if (roles.length) return { kind: "person", group_type: null, person_roles: [...new Set(roles)] };
   return null;
 }

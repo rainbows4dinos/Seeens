@@ -8,7 +8,9 @@ const venue = { kind: "group" as const, group_type: "venue" as const };
 const promoter = { kind: "group" as const, group_type: "promoter_collective" as const };
 const label = { kind: "group" as const, group_type: "label" as const };
 const untyped = { kind: "group" as const, group_type: null };
-const person = (...roles: ("musician" | "dj" | "booker" | "photographer" | "writer" | "radio_host")[]) => ({
+const person = (
+  ...roles: ("musician" | "dj" | "booker" | "photographer" | "writer" | "radio_host" | "playlist_curator")[]
+) => ({
   kind: "person" as const,
   group_type: null,
   person_roles: roles,
@@ -53,6 +55,8 @@ test("played together says what it means for the type", () => {
   assert.equal(playedWords(person("booker", "musician")).tag, "Played together");
   assert.equal(playedWords(person("booker")).tag, "Booked us");
   assert.equal(playedWords(person("radio_host")).tag, "Been on");
+  assert.equal(playedWords(person("playlist_curator")).tag, "Added us");
+  assert.equal(playedWords({ kind: "group", group_type: "playlist" }).tag, "Added us");
   assert.equal(playedWords(person("writer")).tag, "Covered us");
   assert.equal(playedWords(person("photographer")).tag, "Worked together");
   assert.equal(playedWords(null).label, "We've played together");
