@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { toKind } from "@/lib/band/kind";
 import Link from "next/link";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
@@ -77,7 +78,8 @@ async function Invite({
         </h1>
         <p className="max-w-2xl">
           Seeens is where {inv.band} keeps track of the people, venues, labels, and scenes it knows: who you&rsquo;ve{" "}
-          {inv.kind === "label" ? "worked with" : "played with"}, who books what, and what&rsquo;s next.
+          {inv.kind === "label" ? "worked with" : inv.kind === "promoter" ? "booked" : "played with"}, who books what,
+          and what&rsquo;s next.
           {inv.role === "owner" ? " You'd join as an owner." : ""}
         </p>
         <p className="max-w-2xl text-sm text-muted">
@@ -105,13 +107,7 @@ async function Invite({
           ) : signedIn ? (
             <AcceptForm token={token} band={inv.band} email={signedInEmail} />
           ) : (
-            <JoinForms
-              token={token}
-              band={inv.band}
-              kind={inv.kind === "label" ? "label" : "band"}
-              inviteEmail={inv.email}
-              name={inv.name}
-            />
+            <JoinForms token={token} band={inv.band} kind={toKind(inv.kind)} inviteEmail={inv.email} name={inv.name} />
           )}
         </div>
       </section>

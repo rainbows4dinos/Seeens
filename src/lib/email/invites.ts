@@ -5,7 +5,7 @@
 //   "your band's listing".
 // - Replies go to whoever sent it, and the email says so.
 
-import type { WorkspaceKind } from "@/lib/band/kind";
+import { kindWords, type WorkspaceKind } from "../band/kind.ts";
 
 const STOP = `Don't want email from Seeens? Open the link and choose "Don't email me again."`;
 
@@ -17,6 +17,15 @@ function noteLines(from: string, note?: string | null) {
 }
 
 /** An owner's invite: from an admin, or from a label inviting a band on its roster. */
+// What Seeens is, for the owner's invite, by what's being invited.
+const OWNER_PITCH: Record<WorkspaceKind, string> = {
+  band: "Seeens is a directory bands keep together. Keep track of the venues, bookers, and bands you know, who you've played with, and what's next, in one place the whole band can see.",
+  label:
+    "Seeens is a directory bands and labels keep together. Keep track of the bands, venues, and bookers you work with, what you've got planned with each, and what's next, in one place everyone at the label can see.",
+  promoter:
+    "Seeens is a directory bands, labels, and promoters keep together. Keep track of the bands you book, the venues you book them in, and what's next with each, in one place everyone you promote with can see.",
+};
+
 export function ownerInvite(o: {
   /** Who it's from, as the opening line names them: "Larry", or "Tim at Moodkiller Records". */
   from: string;
@@ -29,7 +38,7 @@ export function ownerInvite(o: {
   /** A note from the sender, like when resending (#367). */
   note?: string | null;
 }) {
-  const label = o.kind === "label";
+  const w = kindWords(o.kind);
   return {
     subject: `${o.from} invited ${o.band} to Seeens`,
     text: [
@@ -38,18 +47,16 @@ export function ownerInvite(o: {
       `${o.from} invited ${o.band} to Seeens and made you its owner.`,
       "",
       ...noteLines(o.from, o.note),
-      label
-        ? "Seeens is a directory bands and labels keep together. Keep track of the bands, venues, and bookers you work with, what you've got planned with each, and what's next, in one place everyone at the label can see."
-        : "Seeens is a directory bands keep together. Keep track of the venues, bookers, and bands you know, who you've played with, and what's next, in one place the whole band can see.",
+      OWNER_PITCH[o.kind],
       "",
-      `It's in beta and invite only, so you'd be one of the first ${label ? "labels" : "bands"} on it. Tell us what's missing.`,
+      `It's in beta and invite only, so you'd be one of the first ${w.noun}s on it. Tell us what's missing.`,
       "",
       `Join here: ${o.link}`,
       "The link works once, for 30 days.",
       "",
-      label
-        ? "Once you're in, your label's listing is yours to keep up to date, and you can invite the people you work with from Label Settings."
-        : "Once you're in, your band's listing is yours to keep up to date, and you can invite your bandmates from Band Settings.",
+      o.kind === "band"
+        ? "Once you're in, your band's listing is yours to keep up to date, and you can invite your bandmates from Band Settings."
+        : `Once you're in, your ${w.noun}'s listing is yours to keep up to date, and you can invite the people you work with from ${w.settings}.`,
       "",
       `Questions? Just reply. It goes to ${o.replyName}.`,
       "",
@@ -67,16 +74,17 @@ export function memberInvite(o: {
   /** A note from the sender, like when resending (#367). */
   note?: string | null;
 }) {
-  const label = o.kind === "label";
   return {
     subject: `${o.from} invited you to ${o.band} on Seeens`,
     text: [
       `${o.from} invited you to ${o.band} on Seeens.`,
       "",
       ...noteLines(o.from, o.note),
-      label
-        ? `It's where ${o.band} keeps track of the bands, venues, and bookers you all work with, and what's next with each.`
-        : `It's where ${o.band} keeps track of the venues, bookers, and bands you all know: who you've played with, who books what, and what's next. Anyone in the band can add to it, so nobody has to remember it all.`,
+      o.kind === "promoter"
+        ? `It's where ${o.band} keeps track of the bands, venues, and bookers you all work with: who you've booked, where, and what's next with each.`
+        : o.kind === "label"
+          ? `It's where ${o.band} keeps track of the bands, venues, and bookers you all work with, and what's next with each.`
+          : `It's where ${o.band} keeps track of the venues, bookers, and bands you all know: who you've played with, who books what, and what's next. Anyone in the band can add to it, so nobody has to remember it all.`,
       "",
       `Join ${o.band}: ${o.link}`,
       "The link works once, for 30 days.",

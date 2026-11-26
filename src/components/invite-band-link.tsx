@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { kindForGroupType } from "@/lib/band/kind";
 
 type Listing = {
   id: string;
@@ -9,10 +10,10 @@ type Listing = {
   keep_private: boolean;
 };
 
-// For app admins (#68): invite a band straight from its listing, when
+// For app admins (#68): invite a band, label, or promoter straight from its listing, when
 // nobody's claimed it yet. Opens the Bands page with it picked.
 export function InviteBandLink({ connection: c }: { connection: Listing }) {
-  if (c.kind !== "group" || c.group_type !== "band" || c.is_us || c.keep_private) return null;
+  if (c.kind !== "group" || !kindForGroupType(c.group_type) || c.is_us || c.keep_private) return null;
   return (
     <Link href={`/admin/bands?band=${c.id}`} className="button-secondary">
       Invite<span className="invite-band-more"> to Seeens</span>

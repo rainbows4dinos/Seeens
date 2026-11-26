@@ -127,10 +127,15 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
   const { data: appAdmin } = await (await createClient()).rpc("is_app_admin");
   const name = membership?.displayName ?? user.email ?? "you";
   const words = kindWords(membership?.kind ?? "band");
-  // "Band", "Labels", or "Bands and Labels" when you're in both (#298).
+  // "Band", "Labels", or "Bands and Promoters" when you're in more than one kind (#298).
   const kinds = new Set([membership, ...others].filter(Boolean).map((m) => m!.kind));
+  const plural = [...kinds].map((k) => `${kindWords(k).Noun}s`);
   const groupName =
-    kinds.size > 1 ? "Bands and Labels" : `${kindWords([...kinds][0] ?? "band").Noun}${others.length ? "s" : ""}`;
+    kinds.size > 1
+      ? plural.length > 2
+        ? `${plural.slice(0, -1).join(", ")}, and ${plural.at(-1)}`
+        : plural.join(" and ")
+      : `${kindWords([...kinds][0] ?? "band").Noun}${others.length ? "s" : ""}`;
 
   // Figma account menu (#67): your bands, you, admin (app admins only), Seeens
   // itself, then signing out. The band item
@@ -187,7 +192,7 @@ async function Account({ layout = "row" }: { layout?: "row" | "menu" }) {
         <div className="menu-group">
           <p className="caption">Admin</p>
           <Link href="/admin/bands" className="nav-chip menu-item">
-            Invite Bands
+            Invite to Seeens
           </Link>
           <Link href="/admin/moderators" className="nav-chip menu-item">
             Moderators

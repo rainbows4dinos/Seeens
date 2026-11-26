@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { kindWords, toKind } from "@/lib/band/kind";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getMembership } from "@/lib/auth/dal";
@@ -9,7 +10,7 @@ import { ProfilePanel } from "@/components/profile/panel";
 import { PageLoader } from "@/components/metronome";
 import { CancelInviteButton, InviteBandForm, NewLinkButton, ResendBandInvite } from "./invite-band-form";
 
-export const metadata: Metadata = { title: "Bands and Labels · Seeens" };
+export const metadata: Metadata = { title: "Bands, Labels, and Promoters · Seeens" };
 
 // Bands and labels (#68, #298), for app admins: invite a first owner, and
 // see who's still waiting on theirs.
@@ -51,7 +52,13 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
   const options = (invitable ?? []).map((b) => ({
     value: b.connection_id,
     label: b.name,
-    hint: [b.group_type === "label" ? "Label" : null, b.town, `Added by ${b.added_by}`].filter(Boolean).join(" · "),
+    hint: [
+      b.group_type === "label" ? "Label" : b.group_type === "promoter_collective" ? "Promoter" : null,
+      b.town,
+      `Added by ${b.added_by}`,
+    ]
+      .filter(Boolean)
+      .join(" · "),
   }));
 
   const personOptions = (people ?? []).map((p) => ({
@@ -64,9 +71,9 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
     <>
       <div className="flex flex-col gap-2">
         <p className="caption">App Admin</p>
-        <h1 className="display-l">Bands and Labels</h1>
+        <h1 className="display-l">Bands, Labels, and Promoters</h1>
         <p className="text-muted">
-          Seeens is invite only. Invite a band&rsquo;s or a label&rsquo;s first owner here; they bring in the rest.
+          Seeens is invite only. Invite the first owner of a band, label, or promoter here; they bring in the rest.
         </p>
       </div>
 
@@ -81,7 +88,7 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
         />
       </ProfilePanel>
 
-      <ProfilePanel id="bands" title={`Bands and Labels (${bands?.length ?? 0})`}>
+      <ProfilePanel id="bands" title={`Bands, Labels, and Promoters (${bands?.length ?? 0})`}>
         <ul className="rows flex flex-col">
           {(bands ?? []).map((b) => {
             const waiting = b.invite_id && b.members === 0;
@@ -91,7 +98,9 @@ async function Bands({ searchParams }: { searchParams: PageProps<"/admin/bands">
                 <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1">
                   <p className="font-medium break-words">
                     {b.name}
-                    {b.kind === "label" ? <span className="text-sm font-normal text-muted"> · Label</span> : null}
+                    {b.kind !== "band" ? (
+                      <span className="text-sm font-normal text-muted"> · {kindWords(toKind(b.kind)).Noun}</span>
+                    ) : null}
                   </p>
                   <p className="text-sm text-muted [overflow-wrap:anywhere]">
                     {waiting

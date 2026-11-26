@@ -116,7 +116,13 @@ export function JoinForms({
           Your Name
         </label>
         <p id="up-name-hint" className="-mt-1 text-sm text-muted">
-          How {kind === "label" ? "the people at the label" : "bandmates"} see you. You can change it later.
+          How{" "}
+          {kind === "label"
+            ? "the people at the label"
+            : kind === "promoter"
+              ? "the people you promote with"
+              : "bandmates"}{" "}
+          see you. You can change it later.
         </p>
         <input
           id="up-name"
