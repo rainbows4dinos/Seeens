@@ -79,11 +79,43 @@ jobs:
           supabase migration up 2>&1 | tee spike/4-apply.log
           supabase test db 2>&1 | tail -40 | tee spike/4-tests.log
 
-      - name: 5. Types unchanged?
+      - name: 4b. Did the change migration apply?
+        continue-on-error: true
+        run: grep -n "spike_directory_page\|Applying\|error" spike/4-apply.log | tail -5
+
+      - name: 5. Types unchanged? (after Prettier, as the repo stores them)
         continue-on-error: true
         run: |
           supabase gen types typescript --local --schema public > spike/5-types.ts 2> spike/5-types.err
-          diff -u src/lib/supabase/database.types.ts spike/5-types.ts > spike/5-types.diff && echo "types unchanged" || echo "types differ: $(wc -l < spike/5-types.diff) diff lines"
+          head -5 spike/5-types.err
+          npx --yes prettier@3.9.10 --config .prettierrc.json --stdin-filepath src/lib/supabase/database.types.ts < spike/5-types.ts > spike/5-types.pretty.ts
+          diff -u src/lib/supabase/database.types.ts spike/5-types.pretty.ts > spike/5-types.diff && echo "types unchanged" || { echo "types differ: $(wc -l < spike/5-types.diff) diff lines"; head -60 spike/5-types.diff; }
+
+      - name: 6. What the export looks like
+        continue-on-error: true
+        run: |
+          find supabase/schemas -type d | sort | while read d; do echo "$(find "$d" -maxdepth 1 -type f | wc -l) $d"; done
+          echo "--- grants in directory_page.sql:"
+          grep -niE "^(grant|revoke)" supabase/schemas/public/functions/directory_page.sql || echo none
+          echo "--- where grants live:"
+          grep -rliE "^(grant|revoke)" supabase/schemas | head -10
+          echo "--- extensions:"; grep -rhi "create extension" supabase/schemas || echo none
+          echo "--- storage policies:"; grep -rli "storage.objects" supabase/schemas || echo none
+          echo "--- tail of directory_page.sql:"; tail -12 supabase/schemas/public/functions/directory_page.sql
+
+      - name: 7. A new function, with its grant
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          dir=supabase/schemas/public/functions
+          cat > $dir/spike_hello.sql <<'SQL'
+          CREATE FUNCTION public.spike_hello() RETURNS text LANGUAGE sql STABLE SET search_path TO '' AS $function$ select 'hi' $function$;
+          REVOKE ALL ON FUNCTION public.spike_hello() FROM PUBLIC;
+          GRANT EXECUTE ON FUNCTION public.spike_hello() TO authenticated;
+          SQL
+          ls supabase/migrations > spike/m7-before.txt
+          supabase db schema declarative sync --no-apply --name spike_hello 2>&1 | tail -30
+          for f in $(comm -13 spike/m7-before.txt <(ls supabase/migrations)); do echo "--- $f"; cat "supabase/migrations/$f"; done
 
       - name: Keep the export too
         if: always()
