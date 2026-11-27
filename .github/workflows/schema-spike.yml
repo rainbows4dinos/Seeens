@@ -1,0 +1,97 @@
+# Spike for #374, not for merging: can declarative schemas hold the current
+# definition of every function? Exports the schema from a local database
+# built by the migrations, checks a no-change sync, changes directory_page,
+# and tests the migration it writes. Uploads everything it produced.
+name: Schema spike (#374)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/schema-spike.yml"
+
+jobs:
+  spike:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v2
+      - run: supabase --version
+      - run: supabase start -x realtime,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: mkdir -p spike
+
+      - name: 1. Export the schema (with coverage report)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          start=$(date +%s)
+          supabase db schema declarative generate --local --overwrite --schema public,private 2>&1 | tee spike/1-generate.log
+          echo "generate took $(( $(date +%s) - start ))s" | tee -a spike/1-generate.log
+          find supabase/schemas -type f | sort > spike/1-files.txt
+          wc -l $(cat spike/1-files.txt) | tail -1 | tee -a spike/1-generate.log
+
+      - name: 1b. Strict coverage (what it can't manage)
+        continue-on-error: true
+        run: supabase db schema declarative generate --local --overwrite --schema public,private --output-dir spike/strict --strict-coverage 2>&1 | tee spike/1b-strict.log
+
+      - name: 2. No-change sync (should write nothing)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ls supabase/migrations > spike/migrations-before.txt
+          start=$(date +%s)
+          supabase db schema declarative sync --no-apply --name roundtrip 2>&1 | tee spike/2-roundtrip.log
+          echo "sync took $(( $(date +%s) - start ))s" | tee -a spike/2-roundtrip.log
+          ls supabase/migrations > spike/migrations-after-roundtrip.txt
+          for f in $(comm -13 spike/migrations-before.txt spike/migrations-after-roundtrip.txt); do
+            cp "supabase/migrations/$f" spike/2-roundtrip-migration.sql
+            mv "supabase/migrations/$f" spike/2-roundtrip-moved-aside.sql
+          done
+
+      - name: 3. Change directory_page, sync
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          file=$(grep -rl "FUNCTION public.directory_page\|function public.directory_page" supabase/schemas | head -1)
+          echo "directory_page lives in: $file" | tee spike/3-change.log
+          python3 - "$file" <<'EOF'
+          import re, sys
+          p = sys.argv[1]; s = open(p).read()
+          i = re.search(r"(?i)function public\.directory_page", s).start()
+          q = re.compile(r"\$[A-Za-z_]*\$").search(s, i)
+          s = s[: q.end()] + "\n-- spike #374: a body change\n" + s[q.end():]
+          open(p, "w").write(s)
+          EOF
+          git diff --stat -- supabase/schemas | tee -a spike/3-change.log
+          ls supabase/migrations > spike/migrations-before-change.txt
+          supabase db schema declarative sync --no-apply --name spike_directory_page 2>&1 | tee -a spike/3-change.log
+          ls supabase/migrations > spike/migrations-after-change.txt
+          for f in $(comm -13 spike/migrations-before-change.txt spike/migrations-after-change.txt); do
+            cp "supabase/migrations/$f" spike/3-change-migration.sql
+            wc -l "supabase/migrations/$f" | tee -a spike/3-change.log
+          done
+
+      - name: 4. Apply it and run the database tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          supabase migration up 2>&1 | tee spike/4-apply.log
+          supabase test db 2>&1 | tail -40 | tee spike/4-tests.log
+
+      - name: 5. Types unchanged?
+        continue-on-error: true
+        run: |
+          supabase gen types typescript --local --schema public > spike/5-types.ts 2> spike/5-types.err
+          diff -u src/lib/supabase/database.types.ts spike/5-types.ts > spike/5-types.diff && echo "types unchanged" || echo "types differ: $(wc -l < spike/5-types.diff) diff lines"
+
+      - name: Keep the export too
+        if: always()
+        run: cp -r supabase/schemas spike/schemas 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: schema-spike
+          path: spike/
+          retention-days: 7
